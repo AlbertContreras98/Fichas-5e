@@ -185,7 +185,7 @@ function openModal(h,big){const m=$('#modal');m.innerHTML=`<div class="sheet${bi
 function closeModal(){const m=$('#modal');m.hidden=true;m.innerHTML='';W=null;P=null;pendingEco=null;CX=null}
 let pendingEco=null,restOpen=false;
 const INCAP=['Incapacitado','Aturdido','Paralizado','Petrificado','Inconsciente'];
-let CX=null,lastCastL=0;
+let CX=null,lastCastL=0,effBack=false;
 const druidLv=c=>c.classKey==='druid'?c.level:0;
 function wsInfo(c){const L=druidLv(c);if(L<2)return null;const moon=c.subclassKey==='moon'&&L>=3;
   return{L,moon,known:L>=8?8:L>=4?6:4,cr:moon?String(L>=18?6:L>=15?5:L>=12?4:L>=9?3:L>=6?2:1):(L>=8?'1':L>=4?'1/2':'1/4'),fly:L>=8,temp:moon?3*L:L,hours:Math.floor(L/2)}}
@@ -306,7 +306,9 @@ function fmtEff(e){if(e.r!=null)return`${e.r} ronda${e.r===1?'':'s'}`;if(e.inf)r
   return m<60?`${m} min`:m<1440?`${+(m/60).toFixed(1)} h`:`${+(m/1440).toFixed(1)} día${m===1440?'':'s'}`}
 function addEffect(c,name,d,conc){if(!d)return;c.effects=c.effects.filter(e=>e.name!==name||(!!e.conc!==!!conc));c.effects.push(Object.assign({id:uid(),name,conc:!!conc},d))}
 function endEffects(c,pred){const gone=c.effects.filter(pred);if(!gone.length)return[];c.effects=c.effects.filter(e=>!pred(e));if(gone.some(e=>e.conc))c.concentration='';if(gone.some(e=>e.form))c.form=null;return gone.map(e=>e.name)}
-function effectsBar(c){const ce=c.concentration&&c.effects.find(e=>e.conc&&e.name===c.concentration);const pills=[];
+function effectsBar(c,inModal){const ce=c.concentration&&c.effects.find(e=>e.conc&&e.name===c.concentration);const pills=[];
+  if(!inModal){c.conditions.forEach(n=>pills.push(`<button class="eff cond-pill" data-act="vida"><b>${esc(n)}</b></button>`));
+    if(+c.exhaustion)pills.push(`<button class="eff cond-pill" data-act="vida"><b>Agotamiento ${c.exhaustion}</b></button>`)}
   if(c.concentration)pills.push(`<div class="eff conc-pill"><span>${term('Concentrado','conc')} en <b>${esc(c.concentration)}</b>${ce?` · ${fmtEff(ce)}`:''}</span><button class="b sm sq" data-act="end-conc" aria-label="Terminar concentración" title="Terminar concentración">✕</button></div>`);
   c.effects.filter(e=>!e.conc).forEach(e=>pills.push(`<div class="eff"><span><b>${esc(e.name)}</b> · ${fmtEff(e)}</span><button class="b sm sq" data-act="eff-del" data-id="${e.id}" aria-label="Quitar ${esc(e.name)}" title="Quitar">✕</button></div>`));
   return pills.length?`<div class="effrow">${pills.join('')}</div>`:''}const UNDO=[];
@@ -319,7 +321,7 @@ function renderTop(){
   $('#top').innerHTML=`<div class="wrap"><div class="top-in">
     ${c.story.img?`<button class="avatar-btn" data-act="tab" data-t="pj" aria-label="Ver personaje"><img class="avatar" src="${c.story.img}" alt=""></button>`:''}<button class="who" data-act="chars" aria-label="Cambiar de personaje"><div class="nm">${esc(c.name||'Sin nombre')}<span class="caret" aria-hidden="true">▾</span></div><div class="sub">${esc(sub)}</div></button>
     <div class="vit">
-      <button class="hpbox" data-act="gloss" data-k="hp"><div class="hpnum"><b>${c.hp.current}</b> / ${c.hp.max}${c.hp.temp?`<em>+${c.hp.temp}</em>`:''}</div><div class="bar"><i class="${pct<=25?'low':''}" style="width:${pct}%"></i></div><small>Puntos de golpe</small></button>
+      <button class="hpbox" data-act="vida" aria-label="Vida y estado: daño, curación y estados"><div class="hpnum"><b>${c.hp.current}</b> / ${c.hp.max}${c.hp.temp?`<em>+${c.hp.temp}</em>`:''}</div><div class="bar"><i class="${pct<=25?'low':''}" style="width:${pct}%"></i></div><small>Puntos de golpe</small></button>
       <button class="stat" data-act="gloss" data-k="ca"><b>${fm?formAC(c,fm):c.ac}</b><small>CA</small></button>
       <button class="stat" data-act="gloss" data-k="init"><b>${sgn(init(c))}</b><small>Inic.</small></button>
       <button class="stat" data-act="gloss" data-k="speed"><b>${Math.max(0,(fm&&parseInt(fm.speed)>=0?parseInt(fm.speed):c.speedFt)-5*(+c.exhaustion||0))}</b><small>pies</small></button>
@@ -333,7 +335,7 @@ function renderTop(){
       <button class="b qbtn money" data-act="money" aria-label="Dinero"><span class="coin" aria-hidden="true"></span><span>${(Math.floor(totalCp(c)/10)/10).toLocaleString('es-ES')} PO</span></button>
     </div>
     ${effectsBar(c)}</div>
-    <div class="tabrow"><nav class="tabs">${[['play','Partida'],['crea','Criaturas'],['pj',c.name||'Personaje']].map(([t,n])=>`<button class="${S.tab===t||(t==='pj'&&(S.tab==='edit'||S.tab==='data'))?'on':''}" data-act="tab" data-t="${t}">${esc(n)}</button>`).join('')}</nav>
+    <div class="tabrow"><nav class="tabs">${[['play','Partida'],['combat','Combate'],['crea','Criaturas'],['pj',c.name||'Personaje']].map(([t,n])=>`<button class="${S.tab===t||(t==='pj'&&(S.tab==='edit'||S.tab==='data'))?'on':''}" data-act="tab" data-t="${t}">${esc(n)}</button>`).join('')}</nav>
     <button class="b gear" data-act="settings" aria-label="Ajustes"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3.3h-4l-.4 2.6a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1l.4 2.6h4l.4-2.6a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5A3.5 3.5 0 1 1 13 8.5a3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg></button></div></div>`}
 
 /* ================= Render: partida ================= */
@@ -343,29 +345,32 @@ function resRow(f,i){
     ?`<span class="counter"><button class="b sq" data-act="res-d" data-i="${i}" data-d="-1" aria-label="Gastar 1">−</button><input id="res-${i}" type="number" inputmode="numeric" value="${left}" data-act-input="res-set" data-i="${i}" aria-label="Quedan"><span class="of">/ ${u.max}</span><button class="b sq" data-act="res-d" data-i="${i}" data-d="1" aria-label="Recuperar 1">+</button></span>`
     :pips('feat',i,u.max,left);
   return`<div class="slotrow"><span>${esc(f.name)}<br><small>${esc(REC[u.recover]||'sin recuperación automática')}</small></span>${ctl}</div>`}
-function viewPlay(c){
-  const p=pb(c),def=defOf(c),sub=subOf(c);
-  const death=c.hp.current<=0?`<div class="death"><div class="dl">A 0 PG: ${term('salvaciones contra muerte','death')}</div>
+function deathHTML(c){return c.hp.current<=0?`<div class="death"><div class="dl">A 0 PG: ${term('salvaciones contra muerte','death')}</div>
     <p class="hint">En tu turno tira un d20: 10 o más es éxito, menos es fallo. Un 1 cuenta como dos fallos y un 20 te devuelve 1 PG.</p>
     <div class="dsrow"><span>Éxitos</span>${pips('ds',0,3,c.deathSaves.success)}</div>
     <div class="dsrow"><span>Fallos</span>${pips('df',0,3,c.deathSaves.fail)}</div>
     <div class="btns"><button class="b sm" data-act="nat20">He sacado un 20</button><button class="b sm" data-act="nat1">He sacado un 1</button></div>
-    ${c.deathSaves.fail>=3?'<p class="hint warn">Tres fallos: tu personaje muere.</p>':c.deathSaves.success>=3?'<p class="hint">Tres éxitos: estás estable, inconsciente pero sin tirar más.</p>':''}</div>`:'';
-  const active=CONDS.filter(x=>c.conditions.includes(x[0]));
-  const vit=`<section class="card"><h2>Vida y estado</h2>
+    ${c.deathSaves.fail>=3?'<p class="hint warn">Tres fallos: tu personaje muere.</p>':c.deathSaves.success>=3?'<p class="hint">Tres éxitos: estás estable, inconsciente pero sin tirar más.</p>':''}</div>`:''}
+function vidaHTML(c){const active=CONDS.filter(x=>c.conditions.includes(x[0]));
+  return`<p class="vida-hp">PG <b>${c.hp.current}</b> / ${c.hp.max}${c.hp.temp?` · <span class="tmp">+${c.hp.temp} temporales</span>`:''}</p>
     <div class="hpctl"><input id="hpAmt" type="number" inputmode="numeric" min="0" placeholder="0" aria-label="Cantidad de PG">
       <button class="b bad" data-act="hp" data-m="dmg">Daño</button><button class="b good" data-act="hp" data-m="heal">Curar</button><button class="b" data-act="hp" data-m="temp">PG temporales</button><button class="b sm help" data-act="gloss" data-k="temp" aria-label="Qué son los PG temporales">?</button></div>
-    ${death}
-    <div style="margin-top:.7rem">
+    ${deathHTML(c)}
+    <h3>Estados</h3><div class="chips">${CONDS.map(([n])=>`<button class="chip ${c.conditions.includes(n)?'on':''}" data-act="cond" data-n="${n}" aria-pressed="${c.conditions.includes(n)}">${n}</button>`).join('')}</div>
+    ${active.length?`<ul class="condlist">${active.map(([n,ds])=>`<li><b>${n}:</b> ${esc(ds)}</li>`).join('')}</ul>`:'<p class="hint">Toca un estado para activarlo o quitarlo.</p>'}
+    <div class="exh"><span>${term('Agotamiento','exh')}</span><button class="b sq" data-act="exh" data-d="-1" aria-label="Menos">−</button><b>${c.exhaustion}</b><button class="b sq" data-act="exh" data-d="1" aria-label="Más">+</button>
+      <small>${c.exhaustion?`Resta ${2*c.exhaustion} a tus tiradas d20 y ${5*c.exhaustion} pies de velocidad${c.exhaustion>=6?' · nivel 6: muerte':''}`:'Ninguno'}</small></div>
+    <h3>Efectos</h3>${effectsBar(c,true)||'<p class="hint">Ninguno activo.</p>'}<div class="btns"><button class="b sm" data-act="eff-add" data-from="vida">+ Efecto con duración</button></div>`}
+function openVida(){restOpen=false;openModal(`<div class="wz-head"><h2>Vida y estado</h2><button class="b sm" data-act="close-modal">Hecho</button></div><div id="vida-body">${vidaHTML(C())}</div>`,true)}
+function refreshVida(){const b=$('#vida-body');if(b&&C())b.innerHTML=vidaHTML(C())}
+function viewCombat(c){return`${c.hp.current<=0?`<section class="card">${deathHTML(c)}</section>`:''}${viewTurn(c)}`}
+function viewPlay(c){
+  const p=pb(c),def=defOf(c),sub=subOf(c);
+  const vit=`<section class="card"><h2>Datos</h2>
       <div class="kv"><span>${term('Dados de golpe','hd')}</span><b>${c.hitDice.total-c.hitDice.spent} / ${c.hitDice.total} ${esc(c.hitDice.die)}</b></div>
       <div class="kv"><span>${term('Bonificador de competencia','pb')}</span><b>${sgn(p)}</b></div>
       <div class="kv"><span>${term('Percepción pasiva','passive')}</span><b>${10+skillB(c,SK.perception)}</b></div>
       <div class="kv"><span>${term('Inspiración heroica','insp')}</span><button class="chip ${c.inspiration?'on':''}" data-act="insp">${c.inspiration?'La tienes':'No'}</button></div>
-    </div>
-    <h3>Estados</h3><div class="chips">${active.map(([n])=>`<button class="chip on" data-act="cond" data-n="${n}" aria-label="Quitar ${n}">${n} ×</button>`).join('')}<button class="chip add" data-act="conds">${active.length?'Cambiar':'Añadir estado'}</button><button class="chip add" data-act="eff-add">+ Efecto con duración</button></div>
-    ${active.length?`<ul class="condlist">${active.map(([n,ds])=>`<li><b>${n}:</b> ${esc(ds)}</li>`).join('')}</ul>`:''}
-    <div class="exh"><span>${term('Agotamiento','exh')}</span><button class="b sq" data-act="exh" data-d="-1" aria-label="Menos">−</button><b>${c.exhaustion}</b><button class="b sq" data-act="exh" data-d="1" aria-label="Más">+</button>
-      <small>${c.exhaustion?`Resta ${2*c.exhaustion} a tus tiradas d20 y ${5*c.exhaustion} pies de velocidad${c.exhaustion>=6?' · nivel 6: muerte':''}`:'Ninguno'}</small></div>
   </section>`;
   // Recursos: espacios, rasgos con usos, consumibles, datos de clase
   const slotHtml=(c.pact.total>0?`<div class="slotrow"><span>Magia de pacto · nivel ${c.pact.level}<br><small>descanso corto o largo</small></span>${pips('pact',0,c.pact.total,c.pact.total-c.pact.used)}</div>`:'')
@@ -378,7 +383,7 @@ function viewPlay(c){
     ${featRes?`<h3>Rasgos con usos</h3>${featRes}`:''}
     ${cons?`<h3>Consumibles</h3>${cons}`:''}
     ${Object.keys(info).length?`<h3>Datos de clase</h3>${Object.entries(info).map(([k,v])=>`<div class="kv"><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join('')}`:''}
-    ${!slotHtml&&!featRes&&!cons?'<p class="empty">Aquí verás espacios de conjuro, rasgos con usos limitados y consumibles (munición, comida, pociones…). Añade objetos en la pestaña de tu personaje.</p>':''}
+    ${!slotHtml&&!featRes&&!cons?'<p class="empty">Aquí verás espacios de conjuro, rasgos con usos limitados y consumibles (munición, comida, pociones…). Añade objetos con el botón de la mochila.</p>':''}
     <p class="hint" style="margin-top:.6rem">Toca un rombo para gastarlo o recuperarlo.</p></section>`;
   const abil=`<section class="card"><h2>Características</h2><div class="abil">${ABIL.map(([k,l])=>`<button class="ab" data-act="gloss" data-k="abil:${k}"><span class="lbl">${l}</span>
       <span class="mod">${sgn(M(c,k))}</span><span class="sc">${c.abilities[k]}</span>
@@ -411,7 +416,7 @@ function viewPlay(c){
   const feats=`<section class="card"><h2>Rasgos y dotes</h2>${c.features.length?`<div class="list">${c.features.map(f=>`<div class="it"><div class="it-head"><span class="it-name">${esc(f.name)}</span>${f.uses.max>0?`<span class="badge">${f.uses.max-f.uses.used}/${f.uses.max}</span>`:''}</div>
       ${f.source?`<div class="meta">${esc(f.source)}</div>`:''}
       ${f.text?`<details><summary>Detalles</summary><p>${esc(f.text)}</p></details>`:''}</div>`).join('')}</div>`:'<p class="empty">Sin rasgos.</p>'}</section>`;
-  return`${viewTurn(c)}<div class="cols"><div class="col">${vit}${res}</div><div class="col">${abil}${sk}</div><div class="col">${atk}${mag}${feats}</div></div>`}
+  return`<div class="cols"><div class="col">${vit}${res}</div><div class="col">${abil}${sk}</div><div class="col">${atk}${mag}${feats}</div></div>`}
 function slotOptions(c,L){const o=[];
   if(c.pact.total>0&&c.pact.level>=L)o.push({kind:'pact',level:c.pact.level,avail:c.pact.total-c.pact.used});
   for(let l=L;l<=9;l++){const s=c.slots[l-1];if(s.total>0)o.push({kind:'slot',level:l,avail:s.total-s.used})}
@@ -666,11 +671,11 @@ function loadPortrait(file){
     render()};
   img.onerror=()=>{URL.revokeObjectURL(url);toast('<div class="t-parts">No se ha podido abrir la imagen.</div>')};
   img.src=url}
-function renderView(){const c=C();$('#view').innerHTML=S.tab==='edit'?viewEdit(c):S.tab==='data'?viewData(c):S.tab==='pj'?viewPj(c):S.tab==='crea'?viewCrea(c):viewPlay(c)}
+function renderView(){const c=C();$('#view').innerHTML=S.tab==='edit'?viewEdit(c):S.tab==='data'?viewData(c):S.tab==='pj'?viewPj(c):S.tab==='crea'?viewCrea(c):S.tab==='combat'?viewCombat(c):viewPlay(c)}
 function applyTheme(){const k=(C()||{}).classKey||'',r=document.documentElement;
   if(k)r.dataset.class=k;else delete r.dataset.class;
   const bg=getComputedStyle(r).getPropertyValue('--surface').trim();document.querySelectorAll('meta[name="theme-color"]').forEach(m=>m.setAttribute('content',bg||'#ffffff'))}
-function render(){applyTheme();if(!C()){renderWelcome();return}renderTop();renderView()}
+function render(){applyTheme();if(!C()){renderWelcome();return}renderTop();renderView();refreshVida()}
 function renderWelcome(){
   $('#top').innerHTML='';
   if(S.tab==='data'){$('#view').innerHTML=viewData(null);return}
@@ -930,7 +935,7 @@ function applyWizard(){
   if(!c.spellcasting.ability&&c.spells.length)c.spellcasting.ability=['int','wis','cha'].sort((a,b)=>c.abilities[b]-c.abilities[a])[0];
   const name=c.name,mode=W.mode;
   closeModal();S.tab='play';save();render();scrollTo(0,0);
-  toast(mode==='create'?`<div class="t-label">Personaje creado</div><div class="t-big">${esc(name)}</div><div class="t-parts">Completa CA y armas en ⚙ Ajustes → Editar ficha, y los objetos en la pestaña de tu personaje.</div>`
+  toast(mode==='create'?`<div class="t-label">Personaje creado</div><div class="t-big">${esc(name)}</div><div class="t-parts">Completa CA y armas en ⚙ Ajustes → Editar ficha, y los objetos con el botón de la mochila.</div>`
     :`<div class="t-label">¡Subida de nivel!</div><div class="t-big">${esc(def.n)} ${L}</div><div class="t-parts">Rasgos, recursos y espacios actualizados.</div>`)}
 
 /* Aplica a la ficha todo lo automatizable de su especie y linaje (y los recursos de sus dotes) */
@@ -1049,7 +1054,7 @@ const A={
   cond:el=>{const c=C(),n=el.dataset.n,i=c.conditions.indexOf(n);i>=0?c.conditions.splice(i,1):c.conditions.push(n);
     if(i<0&&INCAP.includes(n)&&c.form){const fx=formOf(c);endEffects(c,e=>e.form);c.form=null;toast(`<div class="t-label">Vuelves a tu forma</div><div class="t-parts">${esc(fx?fx.name:'La transformación')} termina al quedar incapacitado.</div>`)}
     if(i<0&&INCAP.includes(n)&&c.concentration){const lost=c.concentration;c.concentration='';toast(`<div class="t-label">Pierdes la concentración</div><div class="t-parts">${esc(lost)} termina: ${n==='Incapacitado'?'estás incapacitado':`el estado ${esc(n)} te incapacita`}.</div>`)}
-    save();render();if(el.closest('.sheet'))A.conds()},
+    save();render();if(el.closest('.condpick'))A.conds()},
   conds:()=>{const c=C();openModal(`<div class="wz-head"><h2>Estados</h2><button class="b sm" data-act="close-modal">Hecho</button></div>
     <p class="hint">Toca para activar o quitar. Debajo de cada uno, qué hace.</p>
     <div class="condpick">${CONDS.map(([n,ds])=>`<button class="b opt ${c.conditions.includes(n)?'pri':''}" data-act="cond" data-n="${n}" aria-pressed="${c.conditions.includes(n)}"><span><b>${n}</b><br><small>${esc(ds)}</small></span><span aria-hidden="true">${c.conditions.includes(n)?'✓':''}</span></button>`).join('')}</div>`)},
@@ -1200,15 +1205,17 @@ const A={
   't-pcmd':el=>{const c=C(),x=c.companions.find(y=>y.id===el.dataset.id);if(!x)return;const st=creaStats(c,x);spendEco(c,'AA');save();render();
     toast(`<div class="t-label">${esc(x.name)}: Golpe de bestia${st.n>1?' (dos veces)':''}</div><div class="t-big">1d20 ${esc(st.atks[0][1])}</div><div class="t-parts">Daño: ${esc(st.atks[0][2])}</div>`)},
   'form-cast':el=>{const t=el.closest('.toast');if(t)t.remove();formPicker('poly',el.dataset.spell)},
+  vida:()=>openVida(),
+  'eff-cancel':()=>{const back=effBack;closeModal();if(back)openVida()},
   'eff-del':el=>{const c=C();endEffects(c,e=>e.id===el.dataset.id);save();render()},
-  'eff-add':()=>openModal(`<h2>Añadir efecto</h2><p class="hint">Algo que dura un tiempo: un conjuro que te han lanzado, un veneno, una bendición… Las rondas bajan al pulsar «Terminar turno» (1 ronda = 6 segundos).</p>
+  'eff-add':el=>{effBack=el.dataset.from==='vida';openModal(`<h2>Añadir efecto</h2><p class="hint">Algo que dura un tiempo: un conjuro que te han lanzado, un veneno, una bendición… Las rondas bajan al pulsar «Terminar turno» (1 ronda = 6 segundos).</p>
     <label class="f"><span>Nombre</span><input id="eff-name" autocomplete="off" placeholder="Envenenado"></label>
     <div class="effdur"><label class="f"><span>Duración</span><input id="eff-n" type="number" inputmode="numeric" min="1" value="1"></label>
     <label class="f"><span>&nbsp;</span><select id="eff-u"><option value="r">rondas</option><option value="min" selected>minutos</option><option value="h">horas</option><option value="d">días</option><option value="inf">hasta que se disipe</option></select></label></div>
-    <div class="btns"><button class="b pri" data-act="eff-add-ok">Añadir</button><button class="b" data-act="close-modal">Cancelar</button></div>`),
+    <div class="btns"><button class="b pri" data-act="eff-add-ok">Añadir</button><button class="b" data-act="eff-cancel">Cancelar</button></div>`)},
   'eff-add-ok':()=>{const c=C(),name=$('#eff-name').value.trim(),n=Math.max(1,parseInt($('#eff-n').value)||1),u=$('#eff-u').value;if(!name){$('#eff-name').focus();return}
     const d=u==='inf'?{inf:true}:u==='r'?{r:n}:u==='min'?(n<=1?{r:10}:{m:n}):u==='h'?{m:60*n}:{m:1440*n};
-    c.effects.push(Object.assign({id:uid(),name,conc:false},d));closeModal();save();render()},
+    c.effects.push(Object.assign({id:uid(),name,conc:false},d));const back=effBack;closeModal();save();render();if(back)openVida()},
   't-atk':el=>{const c=C(),a=c.attacks[+el.dataset.i],T=c.turn;
     const am=a.ammo&&c.equipment.find(e=>e.id===a.ammo);if(am){if(am.qty<=0)return;am.qty--}
     if(!T.a){T.a=true;T.atk=attacksPerAction(c)-1}else T.atk=Math.max(0,T.atk-1);

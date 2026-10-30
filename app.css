@@ -68,7 +68,7 @@ main{padding-block:1rem 5rem}
 .conc{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-top:.7rem;padding:.5rem .7rem;border-radius:8px;background:var(--accent-soft);flex-wrap:wrap}
 .death{margin-top:.8rem;padding:.7rem;border:1px solid var(--bad);border-radius:8px}
 .death .dl{font-weight:700;color:var(--bad);margin-bottom:.3rem}
-.dsrow{display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem}.dsrow span{width:4rem;font-size:.9rem}
+.dsrow{display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem}.dsrow>span:first-child{width:4rem;font-size:.9rem}
 
 .pips{display:inline-flex;gap:.35rem;flex-wrap:wrap;vertical-align:middle;align-items:center}
 .pip{width:18px;height:18px;padding:0;border:2px solid var(--accent);background:transparent;transform:rotate(45deg) scale(.8);border-radius:2px}
@@ -420,3 +420,13 @@ textarea.notes.diary{min-height:55vh;flex:1 1 auto}
 #modal h3{margin:.8rem 0 .2rem}
 .b.qbtn.inv{margin-left:auto;background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 35%,var(--line));width:2.6rem;height:2.6rem;padding:0;justify-content:center}
 .b.qbtn.inv+.b.qbtn.money{margin-left:0}
+/* Vida y estado */
+.vida-hp{font-size:1.1rem;margin:.1rem 0 .6rem}.vida-hp .tmp{color:var(--accent);font-weight:700}
+button.eff.cond-pill{border:1px solid color-mix(in srgb,var(--bad) 45%,var(--line));background:color-mix(in srgb,var(--bad) 12%,var(--surface));color:var(--ink);padding:.3rem .7rem;font:inherit;font-size:.88rem;cursor:pointer}
+.hpbox{cursor:pointer}
+@media (max-width:420px){.tabs button{padding:.5rem .55rem}}
+.tabs button{flex:0 0 auto;max-width:none}
+.tabs button:last-child{max-width:9rem}
+.tabrow .tabs{scrollbar-width:none}.tabrow .tabs::-webkit-scrollbar{display:none}
+@media (max-width:400px){.tabs{gap:0}.tabs button{padding:.5rem .45rem;font-size:.95rem}}
+.card>.death:first-child{margin-top:0}
