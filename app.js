@@ -821,7 +821,7 @@ function viewData(c){
   ${c?`<section class="card"><h2>Exportar</h2>
     <p class="hint">Abajo tienes la ficha de ${esc(c.name)}. «Copiar todas las fichas» guarda todos tus personajes de una vez.</p>
     <textarea class="code" id="exp-text" readonly>${esc(JSON.stringify(c,null,2))}</textarea>
-    <div class="btns" style="margin-top:.6rem"><button class="b" data-act="copy-exp">Copiar JSON</button><button class="b" data-act="copy-all">Copiar todas las fichas</button></div></section>`:''}
+    <div class="btns" style="margin-top:.6rem"><button class="b pri" data-act="dl-exp">Descargar ficha (.json)</button><button class="b" data-act="dl-all">Descargar todas</button><button class="b" data-act="copy-exp">Copiar JSON</button><button class="b" data-act="copy-all">Copiar todas</button></div><p class="hint" style="margin-top:.4rem">Recomendado: descarga el archivo y, en el otro dispositivo, usa «Elegir archivo .json». Copiar y pegar puede cortar el texto si la ficha es grande (por ejemplo, con retrato).</p></section>`:''}
   </div>`}
 const CREDITS=`<p>Fichas 5e es contenido de fans no oficial permitido bajo la Fan Content Policy. No aprobado ni respaldado por Wizards. Partes de los materiales usados son propiedad de Wizards of the Coast. ©Wizards of the Coast LLC.</p><p>Esta app incluye material del System Reference Document 5.2 («SRD 5.2») de Wizards of the Coast LLC, disponible en https://www.dndbeyond.com/srd, bajo licencia Creative Commons Attribution 4.0 International (https://creativecommons.org/licenses/by/4.0/legalcode). Los textos de los conjuros están traducidos y adaptados al castellano. Los resúmenes de rasgos de clase y subclase están escritos para esta app; consulta el Manual del Jugador para el texto completo.</p>`;
 const ALIGN=['','Legal bueno','Neutral bueno','Caótico bueno','Legal neutral','Neutral','Caótico neutral','Legal malvado','Neutral malvado','Caótico malvado'];
@@ -1493,13 +1493,16 @@ const A={
   'delchar-ok':el=>{S.chars=S.chars.filter(x=>x.id!==el.dataset.id);if(!C())S.active=S.chars.length?S.chars[0].id:null;charMenu='';save();if(S.chars.length){render();openChars()}else{closeModal();S.tab='play';render()}},
   newchar:()=>{closeModal();const n=normalize(blank());S.chars.push(n);S.active=n.id;S.tab='edit';save();render()},
   import:()=>{const t=$('#imp-text').value.trim(),msg=$('#imp-msg');if(!t){msg.textContent='Pega primero el JSON de la ficha.';return}
-    let data;try{data=JSON.parse(t.replace(/^```(json)?|```$/g,'').trim())}catch(e){msg.textContent='Ese texto no es JSON válido. Revisa que esté completo, de la primera { a la última }.';return}
+    let data;const tt=t.replace(/^\uFEFF/,'').replace(/^```(json)?|```$/g,'').trim();try{data=JSON.parse(tt)}catch(e){msg.textContent=/\}\s*$/.test(tt)?'Ese texto no es JSON válido. Revisa que no se haya modificado.':'El texto está cortado: le falta el final. Suele pasar al copiar y pegar fichas grandes. Descarga el archivo desde el otro dispositivo (Exportar → Descargar ficha) y usa «Elegir archivo .json».';return}
     const arr=Array.isArray(data)?data:Array.isArray(data.chars)?data.chars:[data];let last;
     for(const x of arr){const n=normalize(x);n.spells.forEach(fillFromRef);if(S.chars.some(c=>c.id===n.id))n.id=uid();S.chars.push(n);last=n}
     S.active=last.id;S.tab='play';save();render();toast(`<div class="t-label">Importado</div><div class="t-parts">${arr.length} ficha${arr.length>1?'s':''}: ${esc(arr.map(x=>x.name||'Sin nombre').join(', '))}</div>`)},
   'copy-prompt':el=>copy(prompt4Claude(),el),
+  'dl-exp':()=>{const c=C();download(`${(c.name||'ficha').replace(/[^\wáéíóúñü -]/gi,'').trim()||'ficha'}.json`,JSON.stringify(c,null,2))},
+  'dl-all':()=>download('fichas-5e.json',JSON.stringify({chars:S.chars},null,2)),
   'copy-exp':el=>copy(JSON.stringify(C(),null,2),el),
   'copy-all':el=>copy(JSON.stringify({chars:S.chars},null,2),el)};
+function download(name,text){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);toast(`<div class="t-label">Descargado</div><div class="t-parts">${esc(name)} está en tu carpeta de descargas.</div>`)}
 function copy(text,btn){const old=btn.textContent;
   const ok=()=>{btn.textContent='Copiado';setTimeout(()=>btn.textContent=old,1600)};
   const fail=()=>{const t=$('#exp-text')||$('#imp-text');if(t){t.value=text;t.focus();t.select()}btn.textContent='Selecciónalo y cópialo';setTimeout(()=>btn.textContent=old,2500)};
