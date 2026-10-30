@@ -34,7 +34,8 @@ function blank(){return{
   hp:{max:8,current:8,temp:0},hitDice:{die:'d8',total:1,spent:0},deathSaves:{success:0,fail:0},
   inspiration:false,exhaustion:0,conditions:[],concentration:'',
   attacks:[],spellcasting:{ability:''},slots:Array.from({length:9},()=>({total:0,used:0})),pact:{level:0,total:0,used:0},spells:[],
-  features:[],equipment:[],coins:{cp:0,sp:0,ep:0,gp:0,pp:0},languages:'',proficiencies:{armor:'',weapons:'',tools:''},notes:''}}
+  features:[],equipment:[],coins:{cp:0,sp:0,ep:0,gp:0,pp:0},languages:'',proficiencies:{armor:'',weapons:'',tools:''},notes:'',
+  story:{img:'',alignment:'',age:'',appearance:'',personality:'',history:''}}}
 const NEW={
   attacks:()=>({name:'',atk:0,dmg:'',type:'',notes:'',ammo:''}),
   spells:()=>({level:0,name:'',time:'A',range:'',dur:'',conc:false,ritual:false,material:'',desc:'',ref:'',src:'',free:''}),
@@ -56,7 +57,7 @@ function classKeyFrom(name){const n=norm(name);if(!n)return'';
   for(const k in CL){if(norm(CL[k].n)===n||norm(CL[k].en)===n||n.startsWith(norm(CL[k].n))||n.startsWith(norm(CL[k].en)))return k}return''}
 function normalize(src){
   const c=Object.assign(blank(),JSON.parse(JSON.stringify(src||{}))),B=blank();
-  for(const k of ['abilities','hp','hitDice','deathSaves','coins','proficiencies','spellcasting','pact']) c[k]=Object.assign(B[k],c[k]||{});
+  for(const k of ['abilities','hp','hitDice','deathSaves','coins','proficiencies','spellcasting','pact','story']) c[k]=Object.assign(B[k],c[k]||{});
   if(typeof c.skills!=='object'||!c.skills||Array.isArray(c.skills)) c.skills={};
   for(const k of ['saveProf','conditions','attacks','spells','features','equipment']) if(!Array.isArray(c[k])) c[k]=[];
   const sl=Array.isArray(c.slots)?c.slots:[];
@@ -183,7 +184,7 @@ function renderTop(){
   const c=C(),pct=c.hp.max?clamp(c.hp.current/c.hp.max*100,0,100):0;
   const sub=[c.species,c.class&&`${c.class} ${c.level}`,c.subclass,c.background].filter(Boolean).join(' · ');
   $('#top').innerHTML=`<div class="wrap"><div class="top-in">
-    <div class="who"><div class="nm">${esc(c.name||'Sin nombre')}</div><div class="sub">${esc(sub)}</div></div>
+    ${c.story.img?`<button class="avatar-btn" data-act="tab" data-t="story" aria-label="Ver historia"><img class="avatar" src="${c.story.img}" alt=""></button>`:''}<div class="who"><div class="nm">${esc(c.name||'Sin nombre')}</div><div class="sub">${esc(sub)}</div></div>
     <div class="vit">
       <div class="hpbox"><div class="hpnum"><b>${c.hp.current}</b> / ${c.hp.max}${c.hp.temp?`<em>+${c.hp.temp}</em>`:''}</div><div class="bar"><i class="${pct<=25?'low':''}" style="width:${pct}%"></i></div><small>Puntos de golpe</small></div>
       <div class="stat"><b>${c.ac}</b><small>CA</small></div>
@@ -194,7 +195,7 @@ function renderTop(){
       <button class="b" data-act="short">Descanso corto</button><button class="b" data-act="long">Descanso largo</button>
       <button class="b pri" data-act="levelup" ${c.level>=20?'disabled':''}>Subir de nivel</button>
     </div></div>
-    <nav class="tabs">${[['play','Partida'],['inv','Inventario'],['edit','Editar ficha'],['chars','Personajes']].map(([t,n])=>`<button class="${S.tab===t?'on':''}" data-act="tab" data-t="${t}">${n}</button>`).join('')}</nav></div>`}
+    <nav class="tabs">${[['play','Partida'],['inv','Inventario'],['story','Historia'],['edit','Editar ficha'],['chars','Personajes']].map(([t,n])=>`<button class="${S.tab===t?'on':''}" data-act="tab" data-t="${t}">${n}</button>`).join('')}</nav></div>`}
 
 /* ================= Render: partida ================= */
 function resRow(f,i){
@@ -410,7 +411,31 @@ function viewChars(c){
   <footer class="credits"><p>Fichas 5e es contenido de fans no oficial permitido bajo la Fan Content Policy. No aprobado ni respaldado por Wizards. Partes de los materiales usados son propiedad de Wizards of the Coast. ©Wizards of the Coast LLC.</p><p>Esta app incluye material del System Reference Document 5.2 («SRD 5.2») de Wizards of the Coast LLC, disponible en https://www.dndbeyond.com/srd, bajo licencia Creative Commons Attribution 4.0 International (https://creativecommons.org/licenses/by/4.0/legalcode). Los resúmenes de rasgos de clase y subclase están escritos para esta app; consulta el Manual del Jugador para el texto completo.</p></footer>
   </div>`}
 
-function renderView(){const c=C();$('#view').innerHTML=S.tab==='edit'?viewEdit(c):S.tab==='chars'?viewChars(c):S.tab==='inv'?viewInv(c):viewPlay(c)}
+const ALIGN=['','Legal bueno','Neutral bueno','Caótico bueno','Legal neutral','Neutral','Caótico neutral','Legal malvado','Neutral malvado','Caótico malvado'];
+function viewStory(c){const st=c.story;
+  return`<div class="story">
+  <section class="card portrait-card"><h2>Retrato</h2>
+    <div class="portrait">${st.img?`<img src="${st.img}" alt="Retrato de ${esc(c.name)}">`:`<div class="portrait-empty">Sin imagen</div>`}</div>
+    <div class="btns"><label class="b pri" for="story-img">${st.img?'Cambiar imagen':'Elegir imagen'}</label><input id="story-img" type="file" accept="image/*" hidden>${st.img?'<button class="b bad" data-act="img-del">Quitar</button>':''}</div>
+    <p class="hint">Desde la galería o la cámara. Se guarda reducida en este dispositivo.</p>
+    <div class="grid">${sel('Alineamiento','story.alignment',st.alignment,ALIGN.map(a=>[a,a||'Sin especificar']))}${inp('Edad','story.age',st.age,{ph:'Ej. 23 años'})}</div></section>
+  <section class="card"><h2>Personalidad</h2>
+    <label class="f wide"><span>Apariencia</span><textarea id="f-story-appearance" class="notes" data-path="story.appearance" placeholder="Altura, rasgos, cicatrices, ropa, cómo se mueve…">${esc(st.appearance)}</textarea></label>
+    <label class="f wide" style="margin-top:.7rem"><span>Personalidad</span><textarea id="f-story-personality" class="notes" data-path="story.personality" placeholder="Cómo es, qué valora, a quién o qué está unido, sus miedos y defectos…">${esc(st.personality)}</textarea></label></section>
+  <section class="card story-history"><h2>Historia</h2>
+    <textarea id="f-story-history" class="notes tall" data-path="story.history" placeholder="De dónde viene, qué le ha pasado y por qué se ha hecho aventurero…">${esc(st.history)}</textarea></section>
+  </div>`}
+function loadPortrait(file){
+  if(!file||!/^image\//.test(file.type)){toast('<div class="t-parts">Ese archivo no es una imagen.</div>');return}
+  const url=URL.createObjectURL(file),img=new Image();
+  img.onload=()=>{const max=900,k=Math.min(1,max/Math.max(img.width,img.height));const cv=document.createElement('canvas');cv.width=Math.round(img.width*k);cv.height=Math.round(img.height*k);
+    cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);URL.revokeObjectURL(url);
+    const c=C(),prev=c.story.img;c.story.img=cv.toDataURL('image/jpeg',0.82);
+    try{localStorage.setItem(KEY,JSON.stringify({chars:S.chars,active:S.active,tab:S.tab}))}catch(e){c.story.img=prev;toast('<div class="t-label">No cabe la imagen</div><div class="t-parts">El almacenamiento del dispositivo está lleno. Prueba con otra imagen o quita retratos de otros personajes.</div>');return}
+    render()};
+  img.onerror=()=>{URL.revokeObjectURL(url);toast('<div class="t-parts">No se ha podido abrir la imagen.</div>')};
+  img.src=url}
+function renderView(){const c=C();$('#view').innerHTML=S.tab==='edit'?viewEdit(c):S.tab==='chars'?viewChars(c):S.tab==='inv'?viewInv(c):S.tab==='story'?viewStory(c):viewPlay(c)}
 function applyTheme(){const k=(C()||{}).classKey||'',r=document.documentElement;
   if(k)r.dataset.class=k;else delete r.dataset.class;
   const bg=getComputedStyle(r).getPropertyValue('--surface').trim();document.querySelectorAll('meta[name="theme-color"]').forEach(m=>m.setAttribute('content',bg||'#ffffff'))}
@@ -769,6 +794,7 @@ const A={
   add:el=>{C()[el.dataset.list].push(NEW[el.dataset.list]());save();renderView();const nm=[...document.querySelectorAll(`[data-path^="${el.dataset.list}."]`)].pop();nm&&nm.closest('.row-ed').querySelector('input').focus()},
   del:el=>{C()[el.dataset.list].splice(+el.dataset.i,1);save();renderView()},
   levelup:()=>startWizard('level'),
+  'img-del':()=>{C().story.img='';save();render()},
   'apply-origin':()=>{const c=C();const sp=specOf(c.speciesKey);if(!sp)return;
     if(sp.lin&&!c.lineageKey){toast(`<div class="t-parts">Elige antes el ${esc((sp.linLabel||'linaje').toLowerCase())} en el desplegable.</div>`);return}
     applyOrigin(c);if(!c.spellcasting.ability&&c.spells.length)c.spellcasting.ability=['int','wis','cha'].sort((a,b)=>c.abilities[b]-c.abilities[a])[0];
@@ -833,6 +859,7 @@ document.addEventListener('input',e=>{const el=e.target;
   save();renderTop()});
 document.addEventListener('change',e=>{const el=e.target;
   if(el.id==='imp-file'&&el.files&&el.files[0]){const r=new FileReader();r.onload=()=>{$('#imp-text').value=r.result;$('#imp-msg').textContent='Archivo cargado. Pulsa «Importar».'};r.readAsText(el.files[0]);return}
+  if(el.id==='story-img'&&el.files&&el.files[0]){loadPortrait(el.files[0]);el.value='';return}
   if(el.id==='sp-cls'){P.cls=el.value;refreshPicker();return}
   if(el.id==='sp-lvl'){P.lvl=el.value;refreshPicker();return}
   if(el.dataset&&el.dataset.actInput==='res-set'){render();return}
