@@ -1,0 +1,17 @@
+{
+  "name": "Fichas D&D",
+  "short_name": "Fichas D&D",
+  "description": "Fichas de personaje interactivas para D&D 5e (reglas 2024)",
+  "lang": "es",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#1c161e",
+  "theme_color": "#952b3d",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
