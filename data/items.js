@@ -131,6 +131,8 @@ const PACKS={
   dungeoneer:{n:'Paquete de explorador de mazmorras',items:[['Mochila',1],['caltrops',1],['Palanca',1],['Aceite (frasco)',2],['rations',10],['Cuerda',1],['Yesquero',1],['torch',10],['waterskin',1]]},
   burglar:{n:'Paquete de ladrón',items:[['Mochila',1],['ballbearings',1],['Campana',1],['Velas',10],['Palanca',1],['Linterna sorda',1],['Aceite (frasco)',7],['rations',5],['Cuerda',1],['Yesquero',1],['waterskin',1]]},
   entertainer:{n:'Paquete de artista',items:[['Mochila',1],['Saco de dormir',1],['Campana',1],['Linterna de ojo de buey',1],['Disfraz',3],['Espejo',1],['Aceite (frasco)',8],['rations',9],['Yesquero',1],['waterskin',1]]},
+  scholar:{n:'Paquete de erudito',items:[['Mochila',1],['Libro',1],['Tinta',1],['Pluma',1],['Lámpara',1],['Aceite (frasco)',10],['Pergamino (hojas)',10],['Yesquero',1]]},
+  priest:{n:'Paquete de sacerdote',items:[['Mochila',1],['Manta',1],['holywater',1],['Lámpara',1],['rations',7],['Túnica',1],['Yesquero',1]]},
   diplomat:{n:'Paquete de diplomático',items:[['Cofre',1],['Ropa fina',1],['Tinta',1],['Pluma',5],['Lámpara',1],['Estuche para mapas o pergaminos',2],['Aceite (frasco)',4],['Papel (hojas)',5],['Pergamino (hojas)',5],['Perfume',1],['Yesquero',1]]}};
 /* Objetos mágicos frecuentes. att: requiere sintonización; ac/sv: bonificador a CA y salvaciones;
    noarm: solo sin armadura ni escudo; ch: cargas; rec: lo que recupera al amanecer */
