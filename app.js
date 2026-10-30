@@ -1,0 +1,748 @@
+'use strict';
+/* ================= Constantes ================= */
+const KEY='fichas-dnd-2024-v1';
+const ABIL=[['str','FUE','Fuerza'],['dex','DES','Destreza'],['con','CON','Constitución'],['int','INT','Inteligencia'],['wis','SAB','Sabiduría'],['cha','CAR','Carisma']];
+const AB=Object.fromEntries(ABIL.map(a=>[a[0],a]));
+const SKILLS=[['acrobatics','Acrobacias','dex'],['animal','Trato con animales','wis'],['arcana','Conocimiento arcano','int'],['athletics','Atletismo','str'],['deception','Engaño','cha'],['history','Historia','int'],['insight','Perspicacia','wis'],['intimidation','Intimidación','cha'],['investigation','Investigación','int'],['medicine','Medicina','wis'],['nature','Naturaleza','int'],['perception','Percepción','wis'],['performance','Interpretación','cha'],['persuasion','Persuasión','cha'],['religion','Religión','int'],['sleight','Juego de manos','dex'],['stealth','Sigilo','dex'],['survival','Supervivencia','wis']];
+const SK=Object.fromEntries(SKILLS.map(s=>[s[0],s]));
+const CONDS=[['Agarrado','Velocidad 0. Desventaja al atacar a cualquiera que no sea quien te agarra.'],['Apresado','Velocidad 0. Desventaja en ataques y salvaciones de DES; te atacan con ventaja.'],['Asustado','Desventaja en pruebas y ataques mientras veas la fuente del miedo; no puedes acercarte a ella.'],['Aturdido','Incapacitado. Fallas salvaciones de FUE y DES; te atacan con ventaja.'],['Cegado','Fallas pruebas que requieran vista. Tus ataques con desventaja; te atacan con ventaja.'],['Derribado','Solo puedes arrastrarte o levantarte (mitad de movimiento). Desventaja al atacar; los ataques cuerpo a cuerpo contra ti tienen ventaja.'],['Ensordecido','No oyes y fallas pruebas que requieran oído.'],['Envenenado','Desventaja en tiradas de ataque y pruebas de característica.'],['Hechizado','No puedes atacar a quien te hechizó y tiene ventaja en interacciones sociales contigo.'],['Incapacitado','Sin acciones, acciones adicionales ni reacciones. Pierdes la concentración.'],['Inconsciente','Incapacitado y derribado; sueltas lo que llevas. Los golpes desde 5 pies son críticos.'],['Invisible','Tus ataques tienen ventaja; los ataques contra ti, desventaja.'],['Paralizado','Incapacitado. Fallas salvaciones de FUE y DES; los golpes desde 5 pies son críticos.'],['Petrificado','Convertido en piedra: incapacitado y con resistencia a todo el daño.']];
+const TIME={A:'Acción',AA:'Acción adicional',BA:'Acción adicional',R:'Reacción'};
+const FULL=[[2],[3],[4,2],[4,3],[4,3,2],[4,3,3],[4,3,3,1],[4,3,3,2],[4,3,3,3,1],[4,3,3,3,2],[4,3,3,3,2,1],[4,3,3,3,2,1],[4,3,3,3,2,1,1],[4,3,3,3,2,1,1],[4,3,3,3,2,1,1,1],[4,3,3,3,2,1,1,1],[4,3,3,3,2,1,1,1,1],[4,3,3,3,3,1,1,1,1],[4,3,3,3,3,2,1,1,1],[4,3,3,3,3,2,2,1,1]];
+const CATS=[['arma','Armas'],['armadura','Armaduras y escudos'],['municion','Munición'],['pocion','Pociones'],['comida','Comida y bebida'],['consumible','Otros consumibles'],['herramienta','Herramientas'],['tesoro','Tesoros'],['otro','Otros']];
+const CATN=Object.fromEntries(CATS);
+const USABLE=new Set(['municion','pocion','comida','consumible']);
+const COINS=[['pp','PPt',1000],['gp','PO',100],['ep','PE',50],['sp','PP',10],['cp','PC',1]];
+const COINV=Object.fromEntries(COINS.map(c=>[c[0],c[2]]));
+const COINN=Object.fromEntries(COINS.map(c=>[c[0],c[1]]));
+const REC={corto:'descanso corto o largo',largo:'descanso largo',corto1:'1 en descanso corto, todos en largo'};
+const CL=window.CLASSES,SP=window.SPELLS,SPBY=Object.fromEntries(SP.map(s=>[s.id,s]));
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,10);
+const mod=s=>Math.floor(((+s||0)-10)/2);
+const sgn=n=>(n>=0?'+':'−')+Math.abs(n);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+
+/* ================= Modelo ================= */
+function blank(){return{
+  formato:'fichas-dnd-2024/2',id:uid(),name:'Nuevo personaje',species:'',background:'',class:'',classKey:'',subclass:'',subclassKey:'',level:1,xp:0,
+  abilities:{str:10,dex:10,con:10,int:10,wis:10,cha:10},saveProf:[],skills:{},
+  ac:10,speedFt:30,size:'M',initiativeBonus:0,
+  hp:{max:8,current:8,temp:0},hitDice:{die:'d8',total:1,spent:0},deathSaves:{success:0,fail:0},
+  inspiration:false,exhaustion:0,conditions:[],concentration:'',
+  attacks:[],spellcasting:{ability:''},slots:Array.from({length:9},()=>({total:0,used:0})),pact:{level:0,total:0,used:0},spells:[],
+  features:[],equipment:[],coins:{cp:0,sp:0,ep:0,gp:0,pp:0},languages:'',proficiencies:{armor:'',weapons:'',tools:''},notes:''}}
+const NEW={
+  attacks:()=>({name:'',atk:0,dmg:'',type:'',notes:'',ammo:''}),
+  spells:()=>({level:0,name:'',time:'A',range:'',dur:'',conc:false,ritual:false,material:'',desc:'',ref:''}),
+  features:()=>({name:'',source:'',text:'',uses:{max:0,used:0,recover:''}}),
+  equipment:()=>({id:uid(),name:'',qty:1,cat:'otro',notes:''})};
+function guessCat(n){n=norm(n);
+  if(/flecha|virote|bala|dardo|aguja|municion/.test(n))return'municion';
+  if(/pocion|elixir|antidoto|aceite/.test(n))return'pocion';
+  if(/racion|comida|agua|odre|pan|queso|vino/.test(n))return'comida';
+  if(/daga|espada|hoz|arco|ballesta|hacha|lanza|maza|martillo|baston|jabalina|cimitarra|estoque|honda|latigo|tridente|alabarda|garrote|mangual/.test(n))return'arma';
+  if(/armadura|escudo|cota|cuero|coraza|placas|malla/.test(n))return'armadura';
+  if(/kit|util|herramienta|instrumento|laud|flauta/.test(n))return'herramienta';
+  if(/gema|joya|anillo|collar|idolo/.test(n))return'tesoro';
+  return'otro'}
+function matchSpell(name){const cands=[norm(name)];const m=String(name||'').match(/\(([^)]+)\)/);if(m)cands.push(norm(m[1]));cands.push(norm(String(name||'').replace(/\s*\(.*\)\s*/,'')));
+  const d=SP.find(s=>cands.includes(norm(s.n))||cands.includes(norm(s.en)));return d?d.id:''}
+function classKeyFrom(name){const n=norm(name);if(!n)return'';
+  for(const k in CL){if(norm(CL[k].n)===n||norm(CL[k].en)===n||n.startsWith(norm(CL[k].n))||n.startsWith(norm(CL[k].en)))return k}return''}
+function normalize(src){
+  const c=Object.assign(blank(),JSON.parse(JSON.stringify(src||{}))),B=blank();
+  for(const k of ['abilities','hp','hitDice','deathSaves','coins','proficiencies','spellcasting','pact']) c[k]=Object.assign(B[k],c[k]||{});
+  if(typeof c.skills!=='object'||!c.skills||Array.isArray(c.skills)) c.skills={};
+  for(const k of ['saveProf','conditions','attacks','spells','features','equipment']) if(!Array.isArray(c[k])) c[k]=[];
+  const sl=Array.isArray(c.slots)?c.slots:[];
+  c.slots=Array.from({length:9},(_,i)=>({total:+(sl[i]&&sl[i].total)||0,used:+(sl[i]&&sl[i].used)||0}));
+  c.attacks=c.attacks.map(x=>Object.assign(NEW.attacks(),x));
+  c.spells=c.spells.map(x=>{const s=Object.assign(NEW.spells(),x);if(s.time==='BA')s.time='AA';if(!s.ref)s.ref=matchSpell(s.name);return s});
+  c.equipment=c.equipment.map(x=>{const e=Object.assign(NEW.equipment(),x);if(!x.cat)e.cat=guessCat(e.name);if(!x.id)e.id=uid();return e});
+  c.features=c.features.map(x=>{const f=Object.assign(NEW.features(),x);f.uses=Object.assign({max:0,used:0,recover:''},x&&x.uses||{});return f});
+  c.level=clamp(+c.level||1,1,20);
+  if(!c.classKey) c.classKey=classKeyFrom(c.class);
+  if(c.classKey&&!CL[c.classKey]) c.classKey='';
+  if(c.subclassKey&&!(c.classKey&&CL[c.classKey].subs[c.subclassKey])) c.subclassKey='';
+  if(!c.id) c.id=uid();
+  c.formato='fichas-dnd-2024/2';
+  return c}
+
+const ZYO={name:'Zyo',species:'Tiefling',background:'Mendigo',class:'Brujo',classKey:'warlock',subclass:'',level:1,xp:0,
+  abilities:{str:8,dex:12,con:12,int:14,wis:14,cha:15},saveProf:['wis','cha'],
+  skills:{investigation:1,insight:1,deception:1,persuasion:1},
+  ac:12,speedFt:30,size:'M',hp:{max:9,current:9,temp:0},hitDice:{die:'d8',total:1,spent:0},
+  attacks:[{name:'Daga',atk:3,dmg:'1d4+1',type:'Perforante',notes:'Ligera, arrojadiza (20/60 pies)'},{name:'Espada (pacto)',atk:4,dmg:'1d6+2',type:'Cortante',notes:'Ligera, versátil (1d8)'}],
+  spellcasting:{ability:'cha'},pact:{level:1,total:1,used:0},
+  spells:[
+    {level:0,name:'Toque gélido',ref:'chill-touch'},{level:0,name:'Estallido arcano',ref:'eldritch-blast'},{level:0,name:'Prestidigitación',ref:'prestidigitation'},
+    {level:1,name:'Represión infernal',ref:'hellish-rebuke'},{level:1,name:'Maleficio',ref:'hex'}],
+  features:[
+    {name:'Invocación: Pacto de la Espada',source:'Brujo 1',text:'Con una acción adicional invocas tu arma de pacto en la mano. Eres competente con ella, puedes usar Carisma para el ataque y el daño, y puedes hacer que su daño sea necrótico, psíquico o radiante.'},
+    {name:'Magia de pacto',source:'Brujo 1',text:'Tus espacios de conjuro de brujo son todos del mismo nivel y se recuperan con un descanso corto o largo.'},
+    {name:'Visión en la oscuridad',source:'Tiefling',text:'Ves en la oscuridad hasta 60 pies como si fuera luz tenue.'},
+    {name:'Legado infernal',source:'Tiefling',text:'Resistencia al daño necrótico (según la ficha).'},
+    {name:'Dote Superviviente',source:'Dote (trasfondo Mendigo)',text:''}],
+  equipment:[{name:'Daga',qty:3,cat:'arma'},{name:'Hoz',qty:1,cat:'arma'},{name:'Armadura de cuero (CA 11)',qty:1,cat:'armadura'},{name:'Kit de disfraz',qty:1,cat:'herramienta'},{name:'Túnica',qty:1,cat:'otro'},{name:'Libro (conocimiento oculto)',qty:1,cat:'otro'},{name:'Paquete de erudito',qty:1,cat:'otro'}],
+  coins:{cp:0,sp:0,ep:0,gp:27,pp:0},languages:'Común, Infernal',
+  proficiencies:{armor:'Ligera',weapons:'Armas sencillas',tools:'Kit de disfraz'}};
+function fillFromRef(s){const d=s.ref&&SPBY[s.ref];if(!d)return s;
+  return Object.assign(s,{level:d.l,name:s.name||d.n,time:s.time&&s.time!=='A'?s.time:d.t,range:s.range||d.r,dur:s.dur||d.d,conc:s.conc||d.k,ritual:s.ritual||d.ri,material:s.material||d.m,desc:s.desc||''})}
+
+let S={chars:[],active:null,tab:'play'};
+function load(){
+  try{const r=localStorage.getItem(KEY);if(r){const x=JSON.parse(r);S.chars=(x.chars||[]).map(normalize);S.active=x.active;if(x.tab)S.tab=x.tab}}catch(e){}
+  if(!S.chars.length){const z=normalize(ZYO);z.spells.forEach(fillFromRef);S.chars=[z];S.active=z.id}
+  if(!S.chars.find(c=>c.id===S.active)) S.active=S.chars[0].id}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({chars:S.chars,active:S.active,tab:S.tab}))}catch(e){}}
+const C=()=>S.chars.find(c=>c.id===S.active);
+
+/* ================= Reglas ================= */
+const pbAt=L=>2+Math.floor((clamp(L,1,20)-1)/4);
+const pb=c=>pbAt(+c.level||1);
+const M=(c,k)=>mod(c.abilities[k]);
+const saveB=(c,k)=>M(c,k)+(c.saveProf.includes(k)?pb(c):0);
+const skillB=(c,s)=>{const p=+c.skills[s[0]]||0;return M(c,s[2])+(p===2?2*pb(c):p===1?pb(c):0)};
+const init=c=>M(c,'dex')+(+c.initiativeBonus||0);
+const spMod=c=>c.spellcasting.ability?M(c,c.spellcasting.ability):null;
+const spDC=c=>8+pb(c)+spMod(c);
+const spAtk=c=>pb(c)+spMod(c);
+const defOf=c=>CL[c.classKey]||null;
+const subOf=(c,key)=>{const d=defOf(c);const k=key===undefined?c.subclassKey:key;return d&&k?d.subs[k]:null};
+function casterOf(def,sub){
+  if(!def) return null;
+  if(def.cast) return{type:def.cast,ab:def.ab,list:def===CL.warlock?'warlock':Object.keys(CL).find(k=>CL[k]===def),cantrips:def.cantrips,prepared:def.prepared};
+  if(sub&&sub.cast) return{type:sub.cast,ab:sub.ab,list:sub.list,cantrips:sub.cantrips,prepared:sub.prepared};
+  return null}
+function slotsFor(type,L){
+  const z={slots:Array(9).fill(0),pact:{level:0,total:0}};
+  if(type==='full') FULL[L-1].forEach((n,i)=>z.slots[i]=n);
+  if(type==='half') FULL[Math.ceil(L/2)-1].forEach((n,i)=>z.slots[i]=n);
+  if(type==='third'&&L>=3) FULL[Math.ceil(L/3)-1].forEach((n,i)=>z.slots[i]=n);
+  if(type==='pact') z.pact={level:Math.min(5,Math.ceil(L/2)),total:L===1?1:L<11?2:L<17?3:4};
+  return z}
+function maxSpellLevel(type,L){const z=slotsFor(type,L);let m=0;z.slots.forEach((n,i)=>{if(n)m=i+1});
+  if(type==='pact'){m=z.pact.level;if(L>=11)m=L>=17?9:L>=15?8:L>=13?7:6}return m}
+function recAt(rec,L){if(typeof rec==='string')return rec;let r='';for(const k of Object.keys(rec).map(Number).sort((a,b)=>a-b))if(L>=k)r=rec[k];return r}
+function resourcesFor(def,sub,L,abilities){
+  const out=[];
+  for(const r of [...(def?def.res:[]),...(sub&&sub.res||[])]){
+    let max=0;
+    if(r.by) max=r.by[L-1]||0;
+    else if(r.mod){ if(L>=(r.from||1)) max=Math.max(1,mod(abilities[r.mod])) }
+    if(max>0) out.push({n:r.n,max,rec:recAt(r.rec,L),pool:!!r.pool||max>12})}
+  return out}
+function infoFor(def,sub,L){const o={};for(const src of [def&&def.info,sub&&sub.info])if(src)for(const k in src){const v=src[k][L-1];if(v!==undefined&&v!=='—'&&v!==0)o[k]=v}return o}
+
+/* ================= Avisos y modales ================= */
+function toast(html,keep){
+  const t=document.createElement('div');t.className='toast';
+  t.innerHTML=html+'<button class="x" data-act="close-toast" aria-label="Cerrar">×</button>';
+  const box=$('#toasts');box.prepend(t);while(box.children.length>3)box.lastChild.remove();
+  setTimeout(()=>t.remove(),keep?30000:7000)}
+function openModal(h,big){const m=$('#modal');m.innerHTML=`<div class="sheet${big?' big':''}" role="dialog" aria-modal="true">${h}</div>`;m.hidden=false;const f=m.querySelector('input:not([type=hidden]),button');f&&!big&&f.focus()}
+function closeModal(){const m=$('#modal');m.hidden=true;m.innerHTML='';W=null;P=null}
+
+/* ================= Render: barra superior ================= */
+function pips(kind,a,T,filled){let h='<span class="pips">';for(let k=0;k<T;k++)h+=`<button class="pip${k<filled?' full':''}" data-act="pip" data-kind="${kind}" data-a="${a}" data-i="${k}" aria-label="Casilla ${k+1} de ${T}"></button>`;return h+'</span>'}
+function renderTop(){
+  const c=C(),pct=c.hp.max?clamp(c.hp.current/c.hp.max*100,0,100):0;
+  const sub=[c.species,c.class&&`${c.class} ${c.level}`,c.subclass,c.background].filter(Boolean).join(' · ');
+  $('#top').innerHTML=`<div class="wrap"><div class="top-in">
+    <div class="who"><div class="nm">${esc(c.name||'Sin nombre')}</div><div class="sub">${esc(sub)}</div></div>
+    <div class="vit">
+      <div class="hpbox"><div class="hpnum"><b>${c.hp.current}</b> / ${c.hp.max}${c.hp.temp?`<em>+${c.hp.temp}</em>`:''}</div><div class="bar"><i class="${pct<=25?'low':''}" style="width:${pct}%"></i></div><small>Puntos de golpe</small></div>
+      <div class="stat"><b>${c.ac}</b><small>CA</small></div>
+      <div class="stat"><b>${sgn(init(c))}</b><small>Inic.</small></div>
+      <div class="stat"><b>${Math.max(0,c.speedFt-5*(+c.exhaustion||0))}</b><small>pies</small></div>
+    </div>
+    <div class="ctl">
+      <button class="b" data-act="short">Descanso corto</button><button class="b" data-act="long">Descanso largo</button>
+      <button class="b pri" data-act="levelup" ${c.level>=20?'disabled':''}>Subir de nivel</button>
+    </div></div>
+    <nav class="tabs">${[['play','Partida'],['inv','Inventario'],['edit','Editar ficha'],['chars','Personajes']].map(([t,n])=>`<button class="${S.tab===t?'on':''}" data-act="tab" data-t="${t}">${n}</button>`).join('')}</nav></div>`}
+
+/* ================= Render: partida ================= */
+function resRow(f,i){
+  const u=f.uses,left=u.max-u.used;
+  const ctl=u.pool||u.max>12
+    ?`<span class="counter"><button class="b sq" data-act="res-d" data-i="${i}" data-d="-1" aria-label="Gastar 1">−</button><input id="res-${i}" type="number" inputmode="numeric" value="${left}" data-act-input="res-set" data-i="${i}" aria-label="Quedan"><span class="of">/ ${u.max}</span><button class="b sq" data-act="res-d" data-i="${i}" data-d="1" aria-label="Recuperar 1">+</button></span>`
+    :pips('feat',i,u.max,left);
+  return`<div class="slotrow"><span>${esc(f.name)}<br><small>${esc(REC[u.recover]||'sin recuperación automática')}</small></span>${ctl}</div>`}
+function viewPlay(c){
+  const p=pb(c),def=defOf(c),sub=subOf(c);
+  const death=c.hp.current<=0?`<div class="death"><div class="dl">A 0 PG: salvaciones contra muerte</div>
+    <p class="hint">En tu turno tira un d20: 10 o más es éxito, menos es fallo. Un 1 cuenta como dos fallos y un 20 te devuelve 1 PG.</p>
+    <div class="dsrow"><span>Éxitos</span>${pips('ds',0,3,c.deathSaves.success)}</div>
+    <div class="dsrow"><span>Fallos</span>${pips('df',0,3,c.deathSaves.fail)}</div>
+    <div class="btns"><button class="b sm" data-act="nat20">He sacado un 20</button><button class="b sm" data-act="nat1">He sacado un 1</button></div>
+    ${c.deathSaves.fail>=3?'<p class="hint warn">Tres fallos: tu personaje muere.</p>':c.deathSaves.success>=3?'<p class="hint">Tres éxitos: estás estable, inconsciente pero sin tirar más.</p>':''}</div>`:'';
+  const active=CONDS.filter(x=>c.conditions.includes(x[0]));
+  const vit=`<section class="card"><h2>Vida y estado</h2>
+    <div class="hpctl"><input id="hpAmt" type="number" inputmode="numeric" min="0" placeholder="0" aria-label="Cantidad de PG">
+      <button class="b bad" data-act="hp" data-m="dmg">Daño</button><button class="b good" data-act="hp" data-m="heal">Curar</button><button class="b" data-act="hp" data-m="temp">PG temporales</button></div>
+    ${death}
+    <div style="margin-top:.7rem">
+      <div class="kv"><span>Dados de golpe</span><b>${c.hitDice.total-c.hitDice.spent} / ${c.hitDice.total} ${esc(c.hitDice.die)}</b></div>
+      <div class="kv"><span>Bonificador de competencia</span><b>${sgn(p)}</b></div>
+      <div class="kv"><span>Percepción pasiva</span><b>${10+skillB(c,SK.perception)}</b></div>
+      <div class="kv"><span>Inspiración heroica</span><button class="chip ${c.inspiration?'on':''}" data-act="insp">${c.inspiration?'La tienes':'No'}</button></div>
+    </div>
+    ${c.concentration?`<div class="conc"><span>Concentrado en <b>${esc(c.concentration)}</b></span><button class="b sm" data-act="end-conc">Terminar</button></div>`:''}
+    <h3>Estados</h3><div class="chips">${CONDS.map(([n,ds])=>`<button class="chip ${c.conditions.includes(n)?'on':''}" data-act="cond" data-n="${n}" title="${esc(ds)}">${n}</button>`).join('')}</div>
+    ${active.length?`<ul class="condlist">${active.map(([n,ds])=>`<li><b>${n}:</b> ${esc(ds)}</li>`).join('')}</ul>`:''}
+    <div class="exh"><span>Agotamiento</span><button class="b sq" data-act="exh" data-d="-1" aria-label="Menos">−</button><b>${c.exhaustion}</b><button class="b sq" data-act="exh" data-d="1" aria-label="Más">+</button>
+      <small>${c.exhaustion?`Resta ${2*c.exhaustion} a tus tiradas d20 y ${5*c.exhaustion} pies de velocidad${c.exhaustion>=6?' · nivel 6: muerte':''}`:'Ninguno'}</small></div>
+  </section>`;
+  // Recursos: espacios, rasgos con usos, consumibles, datos de clase
+  const slotHtml=(c.pact.total>0?`<div class="slotrow"><span>Magia de pacto · nivel ${c.pact.level}<br><small>descanso corto o largo</small></span>${pips('pact',0,c.pact.total,c.pact.total-c.pact.used)}</div>`:'')
+    +c.slots.map((s,i)=>s.total>0?`<div class="slotrow"><span>Espacios de nivel ${i+1}<br><small>descanso largo</small></span>${pips('slot',i,s.total,s.total-s.used)}</div>`:'').join('');
+  const featRes=c.features.map((f,i)=>f.uses.max>0?resRow(f,i):'').join('');
+  const cons=c.equipment.map((e,i)=>USABLE.has(e.cat)?`<div class="slotrow"><span>${esc(e.name)}<br><small>${CATN[e.cat]}</small></span><span class="counter"><button class="b sq" data-act="qty" data-i="${i}" data-d="-1" aria-label="Usar uno">−</button><b style="min-width:2rem;text-align:center">${e.qty}</b><button class="b sq" data-act="qty" data-i="${i}" data-d="1" aria-label="Añadir uno">+</button></span></div>`:'').join('');
+  const info=infoFor(def,sub,c.level);
+  const res=`<section class="card"><h2>Recursos</h2>
+    ${slotHtml?`<h3>Espacios de conjuro</h3>${slotHtml}`:''}
+    ${featRes?`<h3>Rasgos con usos</h3>${featRes}`:''}
+    ${cons?`<h3>Consumibles</h3>${cons}`:''}
+    ${Object.keys(info).length?`<h3>Datos de clase</h3>${Object.entries(info).map(([k,v])=>`<div class="kv"><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join('')}`:''}
+    ${!slotHtml&&!featRes&&!cons?'<p class="empty">Aquí verás espacios de conjuro, rasgos con usos limitados y consumibles (munición, comida, pociones…). Añade objetos en «Inventario».</p>':''}
+    <p class="hint" style="margin-top:.6rem">Toca un rombo para gastarlo o recuperarlo.</p></section>`;
+  const abil=`<section class="card"><h2>Características</h2><div class="abil">${ABIL.map(([k,l])=>`<div class="ab"><span class="lbl">${l}</span>
+      <span class="mod">${sgn(M(c,k))}</span><span class="sc">${c.abilities[k]}</span>
+      <span class="sv ${c.saveProf.includes(k)?'p':''}" title="Tirada de salvación">Salv. ${sgn(saveB(c,k))}</span></div>`).join('')}</div></section>`;
+  const sk=`<section class="card"><h2>Habilidades</h2>${SKILLS.map(s=>{const pv=+c.skills[s[0]]||0;return`<div class="skill"><span class="dot ${pv?'p':''}">${pv===2?'◆':pv?'●':'○'}</span><span>${s[1]}</span><span class="ak">${AB[s[2]][1]}</span><b>${sgn(skillB(c,s))}</b></div>`}).join('')}
+    <p class="hint" style="margin-top:.5rem">● competente · ◆ pericia</p></section>`;
+  const atk=`<section class="card"><h2>Armas y ataques</h2>${c.attacks.length?`<div class="list">${c.attacks.map((a,i)=>{
+      const am=a.ammo&&c.equipment.find(e=>e.id===a.ammo);
+      return`<div class="it"><div class="it-head"><span class="it-name">${esc(a.name)}</span><span class="badge">${sgn(+a.atk||0)}</span>${a.dmg?`<span class="badge">${esc(a.dmg)}</span>`:''}
+        ${am?`<button class="b sm" data-act="ammo" data-i="${i}" ${am.qty>0?'':'disabled'}>Disparar (quedan ${am.qty})</button>`:''}</div>
+      <div class="meta">${esc([a.type,a.notes].filter(Boolean).join(' · '))}</div></div>`}).join('')}</div>`:'<p class="empty">Sin armas. Añádelas en «Editar ficha».</p>'}</section>`;
+  let mag='';
+  if(c.spells.length||c.slots.some(s=>s.total>0)||c.pact.total>0||c.spellcasting.ability){
+    const groups={};c.spells.forEach((sp,i)=>{(groups[+sp.level||0]??=[]).push([sp,i])});
+    const head=spMod(c)!==null?`<div class="spellhead"><span>Aptitud: <b>${AB[c.spellcasting.ability][2]}</b></span><span>CD de salvación: <b>${spDC(c)}</b></span><span>Ataque de conjuro: <b>${sgn(spAtk(c))}</b></span></div>`:'';
+    mag=`<section class="card"><div class="card-head"><h2>Magia</h2><button class="b sm" data-act="sp-open">Buscar conjuros</button></div>${head}
+      ${Object.keys(groups).sort((a,b)=>a-b).map(L=>`<h3>${+L===0?'Trucos (no gastan espacio)':`Nivel ${L}`}</h3><div class="list">${groups[L].map(([sp,i])=>{
+        const ok=canCast(c,sp);
+        const tags=(sp.conc?'<span class="tag" title="Concentración">C</span>':'')+(sp.ritual?'<span class="tag" title="Ritual">R</span>':'')+(sp.material?`<span class="tag" title="${esc(sp.material)}">M</span>`:'');
+        const d=sp.ref&&SPBY[sp.ref];
+        const desc=sp.desc||(d?d.de+(d.hl?'\n\nA niveles superiores: '+d.hl:''):'');
+        return`<div class="it"><div class="it-head"><span class="it-name">${esc(sp.name)}${tags}</span>
+          <button class="b sm ${ok?'pri':''}" data-act="cast" data-i="${i}" ${ok?'':'disabled'}>${+sp.level===0?'Usar':ok?'Lanzar':'Sin espacios'}</button></div>
+          <div class="meta">${esc([TIME[sp.time]||sp.time,sp.range,sp.dur,sp.material&&`M: ${sp.material}`].filter(Boolean).join(' · '))}</div>
+          ${desc?`<details><summary>Qué hace${!sp.desc&&d?' (texto oficial en inglés)':''}</summary><p>${esc(desc)}</p></details>`:''}</div>`}).join('')}</div>`).join('')}
+      ${!c.spells.length?'<p class="empty">Sin conjuros. Pulsa «Buscar conjuros» para añadirlos.</p>':''}</section>`}
+  const feats=`<section class="card"><h2>Rasgos y dotes</h2>${c.features.length?`<div class="list">${c.features.map(f=>`<div class="it"><div class="it-head"><span class="it-name">${esc(f.name)}</span>${f.uses.max>0?`<span class="badge">${f.uses.max-f.uses.used}/${f.uses.max}</span>`:''}</div>
+      ${f.source?`<div class="meta">${esc(f.source)}</div>`:''}
+      ${f.text?`<details><summary>Detalles</summary><p>${esc(f.text)}</p></details>`:''}</div>`).join('')}</div>`:'<p class="empty">Sin rasgos.</p>'}</section>`;
+  const notes=`<section class="card"><h2>Notas de la partida</h2><textarea class="notes" id="play-notes" data-path="notes" placeholder="Nombres, pistas, misiones…">${esc(c.notes)}</textarea></section>`;
+  return`<div class="cols"><div class="col">${vit}${res}</div><div class="col">${abil}${sk}</div><div class="col">${atk}${mag}${feats}${notes}</div></div>`}
+function slotOptions(c,L){const o=[];
+  if(c.pact.total>0&&c.pact.level>=L)o.push({kind:'pact',level:c.pact.level,avail:c.pact.total-c.pact.used});
+  for(let l=L;l<=9;l++){const s=c.slots[l-1];if(s.total>0)o.push({kind:'slot',level:l,avail:s.total-s.used})}
+  return o}
+const canCast=(c,sp)=>{const L=+sp.level||0;return L===0||sp.ritual||slotOptions(c,L).some(o=>o.avail>0)};
+const slotLabel=o=>o.kind==='pact'?`Espacio de pacto (nivel ${o.level})`:`Espacio de nivel ${o.level}`;
+function consume(c,kind,level){if(kind==='pact')c.pact.used=Math.min(c.pact.total,c.pact.used+1);else{const s=c.slots[level-1];s.used=Math.min(s.total,s.used+1)}}
+function afterCast(sp,how){
+  const c=C();let note='';
+  if(sp.conc){if(c.concentration&&c.concentration!==sp.name)note=`<div class="t-parts">Dejas de concentrarte en ${esc(c.concentration)}.</div>`;c.concentration=sp.name}
+  save();render();
+  const extra=spMod(c)!==null?`<div class="t-parts">CD de salvación ${spDC(c)} · ataque de conjuro ${sgn(spAtk(c))}</div>`:'';
+  toast(`<div class="t-label">Lanzas</div><div class="t-big">${esc(sp.name)}</div><div class="t-parts">${esc(how)}${sp.conc?' · requiere concentración':''}</div>${extra}${note}`)}
+
+/* ================= Render: inventario ================= */
+function totalCp(c){return COINS.reduce((t,[k,,v])=>t+(+c.coins[k]||0)*v,0)}
+function viewInv(c){
+  const groups=CATS.map(([k,n])=>[k,n,c.equipment.map((e,i)=>[e,i]).filter(([e])=>(e.cat||'otro')===k)]).filter(g=>g[2].length);
+  const items=groups.length?groups.map(([k,n,list])=>`<div class="cat-h"><h3>${n}</h3></div><div class="list">${list.map(([e,i])=>`<div class="it"><div class="it-head"><span class="it-name">${esc(e.name)}</span>
+      <span class="counter"><button class="b sq" data-act="qty" data-i="${i}" data-d="-1" aria-label="Quitar uno">−</button><b style="min-width:2rem;text-align:center">${e.qty}</b><button class="b sq" data-act="qty" data-i="${i}" data-d="1" aria-label="Añadir uno">+</button></span></div>
+      ${e.notes?`<div class="meta">${esc(e.notes)}</div>`:''}</div>`).join('')}</div>`).join(''):'<p class="empty">Inventario vacío.</p>';
+  const tot=totalCp(c);
+  return`<div class="cols"><div class="col" style="grid-column:span 1">
+    <section class="card"><div class="card-head"><h2>Objetos</h2><button class="b sm pri" data-act="item-new">Añadir objeto</button></div>${items}
+      <p class="hint" style="margin-top:.6rem">La munición, las pociones, la comida y otros consumibles aparecen también en «Recursos», en la pestaña Partida. Para renombrar o borrar objetos ve a «Editar ficha».</p></section></div>
+    <div class="col"><section class="card"><h2>Dinero</h2>
+      <div class="coins">${COINS.map(([k,l])=>`<label>${l}<input id="coin-${k}" type="number" inputmode="numeric" min="0" data-path="coins.${k}" data-num="1" value="${c.coins[k]}"></label>`).join('')}</div>
+      <p class="total">Total: ${(tot/100).toLocaleString('es-ES',{maximumFractionDigits:2})} PO en monedas</p>
+      <h3>Pagar o cobrar</h3>
+      <div class="pay"><input id="pay-amt" type="number" inputmode="numeric" min="0" placeholder="0" aria-label="Cantidad"><select id="pay-coin" aria-label="Moneda">${COINS.map(([k,l])=>`<option value="${k}" ${k==='gp'?'selected':''}>${l}</option>`).join('')}</select>
+        <button class="b bad" data-act="pay">Pagar</button><button class="b good" data-act="earn">Cobrar</button></div>
+      <p class="hint" style="margin-top:.5rem">Al pagar, si no tienes monedas de ese tipo, se cambian monedas mayores y te quedas el cambio. 1 PPt = 10 PO = 20 PE = 100 PP = 1000 PC.</p>
+    </section></div></div>`}
+function pay(c,amt,coin){
+  let need=amt*COINV[coin];if(need>totalCp(c))return false;
+  const cs=c.coins;
+  // 1) la misma moneda; 2) monedas menores (de mayor a menor); 3) romper monedas mayores
+  const take=k=>{const v=COINV[k];const n=Math.min(cs[k],Math.floor(need/v));cs[k]-=n;need-=n*v};
+  take(coin);
+  for(const [k,,v] of COINS)if(v<COINV[coin]&&need>0)take(k);
+  for(const [k,,v] of [...COINS].reverse())if(v>COINV[coin]&&need>0&&cs[k]>0){
+    const n=Math.min(cs[k],Math.ceil(need/v));cs[k]-=n;let change=n*v-need;need=0;
+    for(const [k2,,v2] of COINS)if(v2<=COINV[coin]&&change>0){const m=Math.floor(change/v2);cs[k2]+=m;change-=m*v2}}
+  if(need>0){for(const [k,,v] of COINS)if(need>0&&cs[k]>0){const n=Math.min(cs[k],Math.ceil(need/v));cs[k]-=n;let ch=n*v-need;need=0;for(const [k2,,v2] of COINS)if(v2<v&&ch>0){const m=Math.floor(ch/v2);cs[k2]+=m;ch-=m*v2}}}
+  return true}
+
+/* ================= Render: editor ================= */
+const pid=p=>'f-'+p.replace(/\./g,'-');
+const inp=(l,p,v,o={})=>`<label class="f ${o.w||''}"><span>${l}</span><input id="${pid(p)}" data-path="${p}" ${o.num?'data-num="1" type="number" inputmode="numeric"':'type="text"'} ${o.rr?'data-rr="1"':''} value="${esc(v)}" ${o.ph?`placeholder="${esc(o.ph)}"`:''}></label>`;
+const sel=(l,p,v,opts,o={})=>`<label class="f ${o.w||''}"><span>${l}</span><select id="${pid(p)}" data-path="${p}" ${o.num?'data-num="1"':''} ${o.rr?'data-rr="1"':''}>${opts.map(([k,t])=>`<option value="${esc(k)}" ${String(v)===String(k)?'selected':''}>${esc(t)}</option>`).join('')}</select></label>`;
+const ta=(l,p,v,o={})=>`<label class="f ${o.w||'wide'}"><span>${l}</span><textarea id="${pid(p)}" data-path="${p}">${esc(v)}</textarea></label>`;
+const chk=(l,p,v)=>`<label class="chk"><input type="checkbox" id="${pid(p)}" data-path="${p}" data-bool="1" ${v?'checked':''}> ${l}</label>`;
+const del=(list,i)=>`<button class="b sm bad" data-act="del" data-list="${list}" data-i="${i}">Quitar</button>`;
+function viewEdit(c){
+  const ab=[['','Ninguna'],...ABIL.map(a=>[a[0],a[2]])];
+  const def=defOf(c);
+  const subOpts=def?[['','— Sin elegir —'],...Object.entries(def.subs).map(([k,s])=>[k,s.n])]:[['','—']];
+  const ammoOpts=[['','Sin munición'],...c.equipment.filter(e=>e.cat==='municion').map(e=>[e.id,e.name])];
+  return`<div class="ed">
+  <section class="card"><h2>Identidad</h2><div class="grid">
+    ${inp('Nombre','name',c.name)}${inp('Especie','species',c.species)}${inp('Trasfondo','background',c.background)}
+    ${sel('Clase','classKey',c.classKey,[['','Otra (escribe abajo)'],...Object.entries(CL).map(([k,d])=>[k,d.n])],{rr:1})}
+    ${c.classKey?sel('Subclase','subclassKey',c.subclassKey,subOpts,{rr:1}):inp('Clase (texto)','class',c.class)}
+    ${inp('Nivel','level',c.level,{num:1,rr:1})}${inp('Experiencia','xp',c.xp,{num:1})}
+  </div><p class="hint">Para subir de nivel usa el botón «Subir de nivel»: actualiza PG, rasgos, recursos y conjuros. Cambiar el nivel aquí solo cambia el número.</p></section>
+  <section class="card"><h2>Características y salvaciones</h2><div class="grid">
+    ${ABIL.map(([k,,n])=>`<div class="f">${inp(`${n} (${sgn(M(c,k))})`,`abilities.${k}`,c.abilities[k],{num:1,rr:1})}<button class="chip ${c.saveProf.includes(k)?'on':''}" data-act="tog-save" data-k="${k}" style="margin-top:.3rem">Salvación ${c.saveProf.includes(k)?'competente':'normal'}</button></div>`).join('')}
+  </div></section>
+  <section class="card"><h2>Habilidades</h2><div class="skillgrid">${SKILLS.map(s=>sel(`${s[1]} (${AB[s[2]][1]})`,`skills.${s[0]}`,+c.skills[s[0]]||0,[[0,'—'],[1,'Competente'],[2,'Pericia']],{num:1})).join('')}</div></section>
+  <section class="card"><h2>Combate</h2><div class="grid">
+    ${inp('CA','ac',c.ac,{num:1})}${inp('Velocidad (pies)','speedFt',c.speedFt,{num:1})}${inp('Tamaño','size',c.size)}${inp('Extra a iniciativa','initiativeBonus',c.initiativeBonus,{num:1})}
+    ${inp('PG máximos','hp.max',c.hp.max,{num:1})}${inp('PG actuales','hp.current',c.hp.current,{num:1})}${inp('Dado de golpe','hitDice.die',c.hitDice.die,{ph:'d8'})}${inp('Nº dados de golpe','hitDice.total',c.hitDice.total,{num:1})}
+  </div></section>
+  <section class="card"><h2>Armas y ataques</h2><p class="hint">Si el arma usa munición (arco, ballesta…), enlázala a un objeto de munición del inventario y en la partida podrás descontarla con un toque.</p><div class="stack">${c.attacks.map((a,i)=>`<div class="row-ed">
+    ${inp('Nombre',`attacks.${i}.name`,a.name)}${inp('Bonif. ataque',`attacks.${i}.atk`,a.atk,{num:1})}${inp('Daño',`attacks.${i}.dmg`,a.dmg,{ph:'1d6+2'})}${inp('Tipo de daño',`attacks.${i}.type`,a.type)}${inp('Propiedades',`attacks.${i}.notes`,a.notes)}
+    ${sel('Munición',`attacks.${i}.ammo`,a.ammo,ammoOpts)}${del('attacks',i)}</div>`).join('')}
+    <div><button class="b" data-act="add" data-list="attacks">Añadir arma</button></div></div></section>
+  <section class="card"><div class="card-head"><h2>Magia</h2><button class="b sm pri" data-act="sp-open">Buscar conjuros</button></div><div class="grid">
+    ${sel('Aptitud mágica','spellcasting.ability',c.spellcasting.ability,ab,{rr:1})}
+    ${inp('Nivel de pacto (brujo)','pact.level',c.pact.level,{num:1})}${inp('Espacios de pacto','pact.total',c.pact.total,{num:1})}
+    ${c.slots.map((s,i)=>inp(`Espacios nivel ${i+1}`,`slots.${i}.total`,s.total,{num:1})).join('')}
+  </div>
+  <h3>Conjuros</h3><p class="hint">Los conjuros añadidos desde el buscador traen sus datos. También puedes crear uno a mano.</p><div class="stack">${c.spells.map((sp,i)=>`<div class="row-ed">
+    ${inp('Nivel (0 = truco)',`spells.${i}.level`,sp.level,{num:1})}${inp('Nombre',`spells.${i}.name`,sp.name)}
+    ${sel('Tiempo',`spells.${i}.time`,sp.time,[['A','Acción'],['AA','Acción adicional'],['R','Reacción'],['1 minuto','1 minuto'],['10 minutos','10 minutos'],['1 hora','1 hora'],['8 horas','8 horas']])}
+    ${inp('Alcance',`spells.${i}.range`,sp.range)}${inp('Duración',`spells.${i}.dur`,sp.dur)}${inp('Material',`spells.${i}.material`,sp.material)}
+    <div class="f">${chk('Concentración',`spells.${i}.conc`,sp.conc)}${chk('Ritual',`spells.${i}.ritual`,sp.ritual)}</div>
+    ${ta(sp.ref?'Notas propias (si lo dejas vacío se muestra el texto oficial)':'Qué hace',`spells.${i}.desc`,sp.desc)}${del('spells',i)}</div>`).join('')}
+    <div class="btns"><button class="b" data-act="add" data-list="spells">Añadir conjuro a mano</button></div></div></section>
+  <section class="card"><h2>Rasgos, dotes y recursos limitados</h2><p class="hint">Si un rasgo tiene usos (p. ej. «2 veces por descanso largo»), pon los usos y cuándo se recuperan; aparecerá en «Recursos».</p>
+    <div class="stack">${c.features.map((f,i)=>`<div class="row-ed">
+    ${inp('Nombre',`features.${i}.name`,f.name)}${inp('Origen',`features.${i}.source`,f.source,{ph:'Clase, especie, dote…'})}${inp('Usos (0 = ilimitado)',`features.${i}.uses.max`,f.uses.max,{num:1})}
+    ${sel('Se recupera con',`features.${i}.uses.recover`,f.uses.recover,[['','—'],['corto','Descanso corto o largo'],['corto1','1 en corto, todos en largo'],['largo','Descanso largo']])}
+    ${ta('Descripción',`features.${i}.text`,f.text)}${del('features',i)}</div>`).join('')}
+    <div><button class="b" data-act="add" data-list="features">Añadir rasgo</button></div></div></section>
+  <section class="card"><h2>Objetos</h2><div class="stack">${c.equipment.map((e,i)=>`<div class="row-ed">
+    ${inp('Objeto',`equipment.${i}.name`,e.name)}${inp('Cantidad',`equipment.${i}.qty`,e.qty,{num:1})}${sel('Tipo',`equipment.${i}.cat`,e.cat,CATS)}${inp('Notas',`equipment.${i}.notes`,e.notes)}${del('equipment',i)}</div>`).join('')}
+    <div><button class="b" data-act="add" data-list="equipment">Añadir objeto</button></div></div>
+    <h3>Competencias e idiomas</h3>
+    <div class="grid">${inp('Armaduras','proficiencies.armor',c.proficiencies.armor)}${inp('Armas','proficiencies.weapons',c.proficiencies.weapons)}${inp('Herramientas','proficiencies.tools',c.proficiencies.tools)}${inp('Idiomas','languages',c.languages)}</div></section>
+  </div>`}
+
+/* ================= Render: personajes ================= */
+function example(){const e=blank();delete e.id;e.attacks=[NEW.attacks()];e.spells=[NEW.spells()];e.features=[NEW.features()];e.equipment=[NEW.equipment()];delete e.equipment[0].id;return e}
+function prompt4Claude(){return`Convierte la ficha de personaje de D&D 5e (reglas de 2024) que te adjunto a JSON para mi app de fichas. Usa exactamente esta estructura y estas claves:
+- classKey: una de ${Object.keys(CL).join(', ')}; subclassKey: la subclase si la tiene (déjala vacía si no).
+- abilities: puntuaciones (no modificadores). saveProf: salvaciones con competencia (str, dex, con, int, wis, cha).
+- skills: 1 = competencia, 2 = pericia. Claves: ${SKILLS.map(s=>s[0]).join(', ')}.
+- slots: 9 entradas, una por nivel de conjuro (total = espacios). Los espacios de brujo van en "pact" (level y total), no en "slots".
+- spells: time "A" acción, "AA" acción adicional, "R" reacción u otro texto. Pon en "ref" el nombre en inglés del conjuro en minúsculas y con guiones (p. ej. "hellish-rebuke") para enlazarlo con la base de datos.
+- attacks.atk: bonificador de ataque como número; dmg: fórmula como "1d6+2".
+- equipment.cat: arma, armadura, municion, pocion, comida, consumible, herramienta, tesoro u otro.
+- features: rasgos de especie y clase y dotes; uses.max y uses.recover ("corto", "corto1" o "largo") solo si tienen usos limitados.
+- Lo que no aparezca en la ficha, déjalo con el valor por defecto. Devuelve solo el JSON.
+
+${JSON.stringify(example(),null,2)}`}
+function viewChars(c){
+  return`<div class="ed">
+  <section class="card"><h2>Tus personajes</h2><div class="chars">${S.chars.map(x=>`<div class="charc ${x.id===S.active?'on':''}"><div><b>${esc(x.name||'Sin nombre')}</b><div class="meta">${esc([x.species,x.class&&`${x.class} ${x.level}`].filter(Boolean).join(' · ')||'Sin datos')}</div></div>
+    <div class="btns">${x.id===S.active?'<span class="meta">En uso</span>':`<button class="b sm pri" data-act="use" data-id="${x.id}">Usar</button>`}<button class="b sm" data-act="dup" data-id="${x.id}">Duplicar</button><button class="b sm bad" data-act="delchar" data-id="${x.id}">Borrar</button></div></div>`).join('')}</div>
+    <div class="btns" style="margin-top:.8rem"><button class="b pri" data-act="create">Crear personaje paso a paso</button><button class="b" data-act="newchar">Crear ficha vacía</button></div></section>
+  <section class="card"><h2>Importar ficha</h2>
+    <p class="hint">Pega el JSON de una ficha (o de varias) o elige un archivo .json. Para pasar una ficha en papel: escanéala, copia las instrucciones de abajo y pásaselas a Claude junto al escaneo; pega aquí lo que te devuelva.</p>
+    <div class="btns" style="margin-bottom:.6rem"><button class="b" data-act="copy-prompt">Copiar instrucciones para Claude</button><label class="b" for="imp-file">Elegir archivo .json</label><input id="imp-file" type="file" accept=".json,application/json,text/plain" hidden></div>
+    <textarea class="code" id="imp-text" placeholder='{"name": "…", "classKey": "…", …}'></textarea>
+    <div class="btns" style="margin-top:.6rem"><button class="b pri" data-act="import">Importar</button></div><p class="hint" id="imp-msg" role="status"></p></section>
+  <section class="card"><h2>Exportar «${esc(c.name)}»</h2>
+    <p class="hint">Copia de seguridad o para pasarla a otro dispositivo. Las fichas se guardan solo en este dispositivo, así que conviene copiarlas de vez en cuando.</p>
+    <textarea class="code" id="exp-text" readonly>${esc(JSON.stringify(c,null,2))}</textarea>
+    <div class="btns" style="margin-top:.6rem"><button class="b" data-act="copy-exp">Copiar JSON</button><button class="b" data-act="copy-all">Copiar todas las fichas</button></div></section>
+  <footer class="credits">Esta app incluye material del System Reference Document 5.2 («SRD 5.2») de Wizards of the Coast LLC, disponible en https://www.dndbeyond.com/srd, bajo licencia Creative Commons Attribution 4.0 International (https://creativecommons.org/licenses/by/4.0/legalcode). Los resúmenes de rasgos de clase y subclase están escritos para esta app; consulta el Manual del Jugador para el texto completo.</footer>
+  </div>`}
+
+function renderView(){const c=C();$('#view').innerHTML=S.tab==='edit'?viewEdit(c):S.tab==='chars'?viewChars(c):S.tab==='inv'?viewInv(c):viewPlay(c)}
+function render(){renderTop();renderView()}
+
+/* ================= Buscador de conjuros ================= */
+let P=null; // {target:'edit'|'wizard', q, lvl, cls, open, list(ref a array de conjuros), max}
+const CLASS_OPTS=()=>[['','Todas las clases'],...Object.entries(CL).filter(([k,d])=>d.cast).map(([k,d])=>[k,d.n])];
+function spellObj(d){return{level:d.l,name:d.n,time:d.t,range:d.r,dur:d.d,conc:d.k,ritual:d.ri,material:d.m,desc:'',ref:d.id}}
+function spFiltered(){
+  const q=norm(P.q);
+  return SP.filter(s=>(P.cls===''||s.c.includes(P.cls))&&(P.lvl===''||s.l===+P.lvl)&&(P.max==null||s.l<=P.max)&&(!q||norm(s.n).includes(q)||norm(s.en).includes(q)))}
+function spResultsHTML(){
+  const all=spFiltered(),list=all.slice(0,80),mine=new Set(P.list.map(s=>s.ref).filter(Boolean));
+  return`<p class="sp-count">${all.length} conjuro${all.length===1?'':'s'}${all.length>80?' · mostrando 80, afina la búsqueda':''}</p>`+list.map(s=>{
+    const have=mine.has(s.id),open=P.open===s.id;
+    return`<div class="sp-row"><div class="it-head"><button class="b sm" data-act="sp-det" data-id="${s.id}" aria-expanded="${open}" style="border:0;padding:0;background:none;text-align:left;flex:1 1 auto;min-width:0;display:block">
+        <span class="it-name">${esc(s.n)}</span>${s.k?'<span class="tag">C</span>':''}${s.ri?'<span class="tag">R</span>':''} <span class="en">${esc(s.en)}</span>
+        <span class="meta" style="display:block">${s.l===0?'Truco':'Nivel '+s.l} · ${esc(s.s)} · ${esc(TIME[s.t]||s.t)} · ${esc(s.r)} · ${esc(s.d)}</span></button>
+      <button class="b sm ${have?'bad':'pri'}" data-act="sp-tog" data-id="${s.id}">${have?'Quitar':'Añadir'}</button></div>
+      ${open?`<div class="sp-det"><div class="lang">Texto oficial (SRD 5.2, en inglés)</div>${esc(s.de)}${s.hl?'\n\nA niveles superiores: '+esc(s.hl):''}${s.m?`\n\nMaterial: ${esc(s.m)}`:''}\n\nClases: ${s.c.map(k=>CL[k]?CL[k].n:k).join(', ')}</div>`:''}</div>`}).join('')}
+function spPickerHTML(){
+  const lv=[['','Todos los niveles'],['0','Trucos'],...[1,2,3,4,5,6,7,8,9].filter(l=>P.max==null||l<=P.max).map(l=>[String(l),'Nivel '+l])];
+  return`<div class="sp-tools"><input type="search" id="sp-q" placeholder="Buscar por nombre (castellano o inglés)" value="${esc(P.q)}" autocomplete="off">
+    <select id="sp-cls" aria-label="Clase">${CLASS_OPTS().map(([k,n])=>`<option value="${k}" ${P.cls===k?'selected':''}>${n}</option>`).join('')}</select>
+    <select id="sp-lvl" aria-label="Nivel">${lv.map(([k,n])=>`<option value="${k}" ${P.lvl===k?'selected':''}>${n}</option>`).join('')}</select></div>
+    <div id="sp-results">${spResultsHTML()}</div>`}
+function refreshPicker(){const r=$('#sp-results');if(r)r.innerHTML=spResultsHTML();if(W)renderWizCounts()}
+function openSpellModal(){
+  const c=C(),def=defOf(c),ca=casterOf(def,subOf(c));
+  P={target:'edit',q:'',lvl:'',cls:ca?ca.list:'',open:'',list:c.spells,max:null};
+  openModal(`<div class="wz-head"><h2>Buscar conjuros</h2><button class="b sm" data-act="sp-close">Hecho</button></div>
+    <p class="hint">Añade o quita conjuros de la ficha de ${esc(c.name)}. Filtrado por defecto con la lista de tu clase.</p>
+    <div class="wz-body">${spPickerHTML()}</div>`,true)}
+
+/* ================= Asistente: subir de nivel / crear ================= */
+let W=null;
+function wizSteps(){
+  const st=[];
+  if(W.mode==='create'){st.push(['basics','Datos'],['abil','Características'],['skills','Habilidades'])}
+  else{ if(W.needClass) st.push(['pickclass','Clase']); st.push(['summary','Novedades'],['hp','Puntos de golpe']) }
+  const def=CL[W.classKey];
+  if(def){
+    if(W.mode==='level'&&def.subLv[0]<=W.L&&!W.origSub) st.push(['sub','Subclase']);
+    if(W.mode==='level'&&def.asi.includes(W.L)) st.push(['asi',W.L===19?'Don épico':'Mejora']);
+    const ca=casterOf(def,W.subKey?def.subs[W.subKey]:null);
+    if(ca&&((ca.cantrips&&ca.cantrips[W.L-1])||(ca.prepared&&ca.prepared[W.L-1]))) st.push(['spells','Conjuros']);
+  }
+  st.push(['confirm','Confirmar']);
+  return st}
+function startWizard(mode){
+  const c=C();
+  if(mode==='create'){
+    W={mode,L:1,classKey:'',subKey:'',origSub:'',name:'',species:'',background:'',ab:{str:15,dex:14,con:13,int:12,wis:10,cha:8},skills:[],spells:[],step:0,hpMode:'avg',hpRoll:''};
+  }else{
+    W={mode,L:c.level+1,needClass:!c.classKey,classKey:c.classKey,subKey:c.subclassKey,origSub:c.subclassKey,ab:Object.assign({},c.abilities),spells:c.spells.map(s=>Object.assign({},s)),step:0,hpMode:'avg',hpRoll:'',asi:{mode:'2',a:'',b:'',feat:'',featText:''}};
+  }
+  renderWizard()}
+const wizDef=()=>CL[W.classKey];
+const wizSub=()=>W.subKey&&wizDef()?wizDef().subs[W.subKey]:null;
+function newFeatures(){
+  const def=wizDef(),sub=wizSub(),L=W.L,out=[];if(!def)return out;
+  (def.f[L]||[]).forEach(f=>out.push([...f,`${def.n} ${L}`]));
+  if(sub){const levels=W.mode==='level'&&!W.origSub?def.subLv.filter(l=>l<=L):[L];
+    levels.forEach(l=>(sub.f[l]||[]).forEach(f=>out.push([...f,`${sub.n} ${l}`])))}
+  return out}
+function hpGain(){
+  const def=wizDef(),c=C();if(!def)return 0;
+  const con=mod(W.mode==='level'?W.ab.con:W.ab.con);
+  let base=W.mode==='create'?def.hd:(W.hpMode==='avg'?def.hd/2+1:(+W.hpRoll||0));
+  let g=Math.max(1,base+con);
+  if(W.subKey==='draconic') g+= (W.mode==='level'&&!W.origSub)?W.L:1;
+  return g}
+function wizSpellLimits(){
+  const def=wizDef(),ca=casterOf(def,wizSub());if(!ca)return null;
+  const L=W.L,can=ca.cantrips?ca.cantrips[L-1]:0,prep=ca.prepared?ca.prepared[L-1]:0;
+  const cur={c:W.spells.filter(s=>+s.level===0).length,p:W.spells.filter(s=>+s.level>0).length};
+  return{ca,can,prep,cur,max:maxSpellLevel(ca.type,L)}}
+function renderWizCounts(){const el=$('#wz-counts');if(!el)return;const l=wizSpellLimits();if(!l)return;
+  el.innerHTML=countsHTML(l)}
+function countsHTML(l){return`<span class="badge" style="${l.cur.c>l.can?'color:var(--bad)':''}">Trucos ${l.cur.c}/${l.can}</span> <span class="badge" style="${l.cur.p>l.prep?'color:var(--bad)':''}">Conjuros preparados ${l.cur.p}/${l.prep}</span> <small>hasta nivel ${l.max}</small>`}
+function diffRow(k,a,b){return a===b?'':`<span>${esc(k)}</span><b>${esc(a)} → <span class="up">${esc(b)}</span></b>`}
+function wizBody(step){
+  const c=C(),def=wizDef(),sub=wizSub(),L=W.L;
+  switch(step){
+  case'pickclass':return`<p>Esta ficha no tiene una clase reconocida. Elige la clase para que el asistente sepa qué ganas al subir.</p>
+    <div class="f"><span>Clase</span><select id="wz-class">${[['','—'],...Object.entries(CL).map(([k,d])=>[k,d.n])].map(([k,n])=>`<option value="${k}" ${W.classKey===k?'selected':''}>${n}</option>`).join('')}</select></div>`;
+  case'basics':return`<div class="grid">
+    <label class="f"><span>Nombre</span><input id="wz-name" value="${esc(W.name)}" autocomplete="off"></label>
+    <label class="f"><span>Especie</span><input id="wz-species" value="${esc(W.species)}" placeholder="Humano, Elfo, Tiefling…"></label>
+    <label class="f"><span>Trasfondo</span><input id="wz-background" value="${esc(W.background)}" placeholder="Acólito, Soldado…"></label></div>
+    <h3>Clase</h3><div class="choice">${Object.entries(CL).map(([k,d])=>`<label><input type="radio" name="wz-cls" value="${k}" ${W.classKey===k?'checked':''}><span><b>${d.n}</b><br><small>Dado de golpe d${d.hd} · Salvaciones ${d.saves.map(s=>AB[s][1]).join(' y ')}${d.cast?` · Lanza conjuros con ${AB[d.ab][2]}`:''}</small></span></label>`).join('')}</div>`;
+  case'abil':return`<p class="hint">Escribe las puntuaciones finales, ya con los aumentos del trasfondo (en 2024 el trasfondo da +2/+1 o +1/+1/+1). La matriz estándar es 15, 14, 13, 12, 10, 8.</p>
+    <div class="grid">${ABIL.map(([k,,n])=>`<label class="f"><span>${n} (${sgn(mod(W.ab[k]))})</span><input id="wz-ab-${k}" type="number" inputmode="numeric" min="1" max="20" value="${W.ab[k]}" data-wab="${k}"></label>`).join('')}</div>`;
+  case'skills':{const sk=def.skills;return`<p>Elige <b>${sk.n}</b> habilidades de ${def.n}. Marca también las que te dé el trasfondo (normalmente 2).</p>
+    <div class="chips">${SKILLS.map(s=>{const on=W.skills.includes(s[0]),cls=sk.from.includes(s[0]);return`<button class="chip ${on?'on':''}" data-act="wz-skill" data-k="${s[0]}" ${cls?'':'style="opacity:.75"'}>${s[1]}${cls?'':' *'}</button>`}).join('')}</div>
+    <p class="hint">* No está en la lista de la clase (márcala solo si te la da el trasfondo o la especie). Llevas ${W.skills.length}.</p>`}
+  case'summary':{
+    const nf=newFeatures();const old=resourcesFor(def,CL[c.classKey]&&c.subclassKey?def.subs[c.subclassKey]:null,c.level,c.abilities),nw=resourcesFor(def,sub,L,W.ab);
+    const ca=casterOf(def,sub),o=ca?slotsFor(ca.type,c.level):null,n=ca?slotsFor(ca.type,L):null;
+    let rows='';
+    rows+=diffRow('Bonificador de competencia',sgn(pbAt(c.level)),sgn(pbAt(L)));
+    nw.forEach(r=>{const p=old.find(x=>x.n===r.n);rows+=diffRow(r.n,p?String(p.max):'0',String(r.max))});
+    const oi=infoFor(def,CL[c.classKey]&&c.subclassKey?def.subs[c.subclassKey]:null,c.level),ni=infoFor(def,sub,L);
+    for(const k in ni)rows+=diffRow(k,String(oi[k]??'—'),String(ni[k]));
+    if(ca){if(ca.type==='pact')rows+=diffRow('Espacios de pacto',`${o.pact.total} de nivel ${o.pact.level}`,`${n.pact.total} de nivel ${n.pact.level}`);
+      else n.slots.forEach((v,i)=>rows+=diffRow(`Espacios de nivel ${i+1}`,String(o.slots[i]),String(v)));
+      if(ca.cantrips)rows+=diffRow('Trucos',String(ca.cantrips[c.level-1]||0),String(ca.cantrips[L-1]));
+      if(ca.prepared)rows+=diffRow('Conjuros preparados',String(ca.prepared[c.level-1]||0),String(ca.prepared[L-1]))}
+    return`<p><b>${esc(c.name)}</b> pasa de ${def.n} ${c.level} a ${def.n} ${L}.</p>
+      ${nf.length?`<h3>Rasgos nuevos</h3>${nf.map(f=>`<div class="feat"><b>${esc(f[0])}</b><p>${esc(f[1])}</p></div>`).join('')}`:(def.subLv.includes(L)&&!sub?'':'<p class="hint">A este nivel no ganas rasgos nuevos de clase.</p>')}
+      ${def.subLv.includes(L)&&!sub&&W.origSub===''?'<p class="hint">Elegirás tu subclase en el siguiente paso.</p>':''}
+      ${def.asi.includes(L)?`<p class="hint">A este nivel ganas ${L===19?'un Don épico (una dote)':'una Mejora de característica o una dote'}; lo eliges más adelante.</p>`:''}
+      ${rows?`<h3>Cambios</h3><div class="diff">${rows}</div>`:''}`}
+  case'hp':{const con=mod(W.ab.con),avg=def.hd/2+1;return`<p>Al subir ganas PG: tu dado de golpe (d${def.hd}) + tu modificador de CON (${sgn(con)}).</p>
+    <div class="choice">
+      <label><input type="radio" name="wz-hp" value="avg" ${W.hpMode==='avg'?'checked':''}><span><b>Valor fijo: ${avg} ${sgn(con)} = ${Math.max(1,avg+con)} PG</b><br><small>La opción segura, sin tirar.</small></span></label>
+      <label><input type="radio" name="wz-hp" value="roll" ${W.hpMode==='roll'?'checked':''}><span><b>Tirar el dado</b><br><small>Tira un d${def.hd} físico y escribe el resultado.</small>
+        <br><input id="wz-hproll" type="number" inputmode="numeric" min="1" max="${def.hd}" value="${esc(W.hpRoll)}" class="inline-num" style="margin-top:.4rem" aria-label="Resultado del dado"></span></label></div>
+    ${W.subKey==='draconic'?'<p class="hint">Resistencia dracónica: +1 PG extra por nivel de hechicero (incluido).</p>':''}
+    <p>Ganas <b>${hpGain()} PG</b>: tus PG máximos pasan de ${c.hp.max} a <b>${c.hp.max+hpGain()}</b>.</p>`}
+  case'sub':return`<p>A nivel ${def.subLv[0]} eliges tu ${def.sub.toLowerCase()} de ${def.n.toLowerCase()}.</p>
+    <div class="choice">${Object.entries(def.subs).map(([k,s])=>`<label><input type="radio" name="wz-sub" value="${k}" ${W.subKey===k?'checked':''}><span><b>${s.n}</b><br><small>${(s.f[def.subLv[0]]||[]).map(f=>f[0]).join(' · ')}</small>
+      ${W.subKey===k?`<div style="margin-top:.4rem">${def.subLv.map(l=>(s.f[l]||[]).map(f=>`<div class="feat"><b>Nivel ${l}: ${esc(f[0])}</b><p>${esc(f[1])}</p></div>`).join('')).join('')}</div>`:''}</span></label>`).join('')}</div>`;
+  case'asi':{const a=W.asi;return`<p>${L===19?'Don épico: en 2024 ganas una dote de Don épico (o cualquier otra dote para la que cumplas requisitos). También puedes elegir Mejora de característica.':'Elige una Mejora de característica o una dote.'}</p>
+    <div class="choice">
+      <label><input type="radio" name="wz-asi" value="2" ${a.mode==='2'?'checked':''}><span><b>+2 a una característica</b></span></label>
+      <label><input type="radio" name="wz-asi" value="11" ${a.mode==='11'?'checked':''}><span><b>+1 a dos características</b></span></label>
+      <label><input type="radio" name="wz-asi" value="feat" ${a.mode==='feat'?'checked':''}><span><b>Una dote</b><br><small>Escribe su nombre y, si quieres, un resumen.</small></span></label></div>
+    ${a.mode==='feat'?`<div class="grid"><label class="f"><span>Dote</span><input id="wz-feat" value="${esc(a.feat)}" placeholder="Alerta, Afortunado…"></label><label class="f wide"><span>Qué hace</span><textarea id="wz-feattext">${esc(a.featText)}</textarea></label></div><p class="hint">Si la dote sube una característica, cámbiala luego en «Editar ficha».</p>`
+      :`<div class="grid"><label class="f"><span>${a.mode==='2'?'Característica (+2)':'Primera (+1)'}</span><select id="wz-asi-a">${[['','—'],...ABIL.map(x=>[x[0],`${x[2]} (${W.ab[x[0]]})`])].map(([k,n])=>`<option value="${k}" ${a.a===k?'selected':''}>${n}</option>`).join('')}</select></label>
+        ${a.mode==='11'?`<label class="f"><span>Segunda (+1)</span><select id="wz-asi-b">${[['','—'],...ABIL.map(x=>[x[0],`${x[2]} (${W.ab[x[0]]})`])].map(([k,n])=>`<option value="${k}" ${a.b===k?'selected':''}>${n}</option>`).join('')}</select></label>`:''}</div>
+        <p class="hint">Máximo 20 en cada característica.</p>`}`}
+  case'spells':{const l=wizSpellLimits();if(!P||P.target!=='wizard')P={target:'wizard',q:'',lvl:'',cls:l.ca.list,open:'',list:W.spells,max:l.max};else{P.list=W.spells;P.max=l.max}
+    const mine=W.spells.length?`<div class="mine">${W.spells.map((s,i)=>`<span class="chip">${esc(s.name)} <small>${+s.level?'N'+s.level:'truco'}</small> <button class="b sm" style="padding:0 .3rem;border:0;background:none" data-act="wz-sp-del" data-i="${i}" aria-label="Quitar ${esc(s.name)}">×</button></span>`).join('')}</div>`:'<p class="empty">Ningún conjuro todavía.</p>';
+    return`<p id="wz-counts">${countsHTML(l)}</p>
+      <p class="hint">${l.ca.type==='pact'?'Los brujos pueden cambiar un conjuro preparado al subir de nivel.':'Puedes cambiar conjuros preparados según las reglas de tu clase.'} Los conjuros de subclase que siempre tienes preparados no cuentan en el límite; añádelos igualmente si quieres verlos en la ficha.</p>
+      <h3>Tus conjuros</h3><div id="wz-mine">${mine}</div><h3>Añadir</h3>${spPickerHTML()}`}
+  case'confirm':{
+    if(W.mode==='create'){const d=def;return`<p>Vas a crear a <b>${esc(W.name||'Sin nombre')}</b>, ${esc(W.species||'')} ${d?d.n+' 1':''}.</p>
+      <div class="diff"><span>PG máximos</span><b>${d?Math.max(1,d.hd+mod(W.ab.con)):'—'}</b><span>Salvaciones</span><b>${d?d.saves.map(s=>AB[s][1]).join(', '):'—'}</b><span>Habilidades</span><b>${W.skills.length}</b><span>Conjuros</span><b>${W.spells.length}</b></div>
+      ${newFeatures().map(f=>`<div class="feat"><b>${esc(f[0])}</b><p>${esc(f[1])}</p></div>`).join('')}
+      <p class="hint">Después podrás completar CA, armas, objetos y dinero en «Editar ficha» e «Inventario».</p>`}
+    const warn=[];const l=wizSpellLimits();if(l){if(l.cur.c>l.can)warn.push(`Tienes ${l.cur.c} trucos y tu límite es ${l.can}.`);if(l.cur.p>l.prep)warn.push(`Tienes ${l.cur.p} conjuros y tu límite de preparados es ${l.prep} (puede ser correcto si alguno es de subclase).`)}
+    return`<p>Todo listo para subir a <b>${esc(c.name)}</b> a ${def.n} ${L}${sub?` (${sub.n})`:''}.</p>
+      <div class="diff"><span>PG máximos</span><b>${c.hp.max} → <span class="up">${c.hp.max+hpGain()}</span></b><span>Rasgos nuevos</span><b>${newFeatures().length}</b>${W.asi&&def.asi.includes(L)?`<span>${L===19?'Don épico':'Mejora'}</span><b>${esc(W.asi.mode==='feat'?W.asi.feat||'(sin nombre)':W.asi.mode==='2'?(W.asi.a?AB[W.asi.a][2]+' +2':'—'):[W.asi.a,W.asi.b].filter(Boolean).map(k=>AB[k][2]+' +1').join(', ')||'—')}</b>`:''}</div>
+      ${warn.map(w=>`<p class="hint warn">${esc(w)}</p>`).join('')}
+      <p class="hint">Se recalculan los espacios de conjuro y los rasgos con usos, y recuperas los PG ganados.</p>`}}
+  return''}
+function wizValid(step){
+  const def=wizDef();
+  if(step==='pickclass')return!!W.classKey;
+  if(step==='basics')return!!(W.name.trim()&&W.classKey);
+  if(step==='skills')return W.skills.length>=def.skills.n;
+  if(step==='hp')return W.hpMode==='avg'||(+W.hpRoll>=1&&+W.hpRoll<=def.hd);
+  if(step==='sub')return!!W.subKey;
+  if(step==='asi'){const a=W.asi;if(a.mode==='feat')return!!a.feat.trim();if(a.mode==='2')return!!a.a&&W.ab[a.a]+2<=20;return!!a.a&&!!a.b&&a.a!==a.b&&W.ab[a.a]<20&&W.ab[a.b]<20}
+  return true}
+const STEP_HELP={pickclass:'Elige una clase.',basics:'Escribe un nombre y elige una clase.',skills:'Elige las habilidades que faltan.',hp:'Escribe un resultado válido del dado.',sub:'Elige una subclase.',asi:'Completa la mejora (máximo 20 por característica) o el nombre de la dote.'};
+function renderWizard(){
+  const st=wizSteps();W.step=clamp(W.step,0,st.length-1);const [key,label]=st[W.step];
+  const title=W.mode==='create'?'Crear personaje':`Subir a nivel ${W.L}`;
+  const ok=wizValid(key);
+  const html=`<div class="wz-head"><div><h2>${title}</h2><div class="steps">${st.map((s,i)=>`<span class="${i===W.step?'on':i<W.step?'done':''}">${s[1]}</span>`).join('')}</div></div><button class="b sm" data-act="wz-cancel">Cancelar</button></div>
+    <div class="wz-body" id="wz-body">${wizBody(key)}</div>
+    <div class="wz-foot"><button class="b" data-act="wz-back" ${W.step?'':'disabled'}>Atrás</button>
+      <span class="hint" style="margin:0;align-self:center">${ok?'':esc(STEP_HELP[key]||'')}</span>
+      ${key==='confirm'?`<button class="b pri" data-act="wz-apply">${W.mode==='create'?'Crear personaje':'Subir de nivel'}</button>`:`<button class="b pri" data-act="wz-next" ${ok?'':'disabled'}>Siguiente</button>`}</div>`;
+  const m=$('#modal');
+  if(m.hidden||!m.querySelector('.sheet.big')){openModal(html,true)}else{const sh=m.querySelector('.sheet');const sc=$('#wz-body')?$('#wz-body').scrollTop:0;sh.innerHTML=html;if(W._keepScroll)$('#wz-body').scrollTop=sc}
+  W._keepScroll=false}
+function refreshWizFoot(){if(!W)return;const st=wizSteps(),key=st[W.step][0],ok=wizValid(key);const nb=document.querySelector('[data-act="wz-next"]');if(nb)nb.disabled=!ok;const h=document.querySelector('.wz-foot .hint');if(h)h.textContent=ok?'':(STEP_HELP[key]||'')}
+function applyWizard(){
+  const def=wizDef(),sub=wizSub(),L=W.L;
+  let c;
+  if(W.mode==='create'){
+    c=normalize(blank());c.name=W.name.trim();c.species=W.species;c.background=W.background;c.abilities=Object.assign({},W.ab);
+    c.saveProf=[...def.saves];W.skills.forEach(k=>c.skills[k]=1);
+    c.proficiencies.armor=def.armor;c.proficiencies.weapons=def.weapons;
+    c.hp.max=c.hp.current=Math.max(1,def.hd+mod(W.ab.con));c.ac=10+mod(W.ab.dex);
+    S.chars.push(c);S.active=c.id;
+  }else{
+    c=C();const g=hpGain();c.hp.max+=g;c.hp.current+=g;
+    if(W.asi&&def.asi.includes(L)){const a=W.asi;
+      if(a.mode==='feat')c.features.push({name:a.feat.trim(),source:L===19?'Don épico (nivel 19)':`Dote (nivel ${L})`,text:a.featText,uses:{max:0,used:0,recover:''}});
+      else if(a.mode==='2')c.abilities[a.a]=Math.min(20,c.abilities[a.a]+2);
+      else{c.abilities[a.a]=Math.min(20,c.abilities[a.a]+1);c.abilities[a.b]=Math.min(20,c.abilities[a.b]+1)}}
+  }
+  c.classKey=W.classKey;c.class=def.n;c.level=L;
+  c.subclassKey=W.subKey||'';c.subclass=sub?sub.n:'';
+  c.hitDice.die='d'+def.hd;c.hitDice.total=L;c.hitDice.spent=Math.min(c.hitDice.spent,L);
+  // rasgos nuevos
+  for(const [n,t,src] of newFeatures()){
+    const ex=c.features.find(f=>f.name===n);
+    if(ex){if(!ex.text.includes(t))ex.text=(ex.text?ex.text+'\n\n':'')+`${src}: ${t}`}
+    else c.features.push({name:n,source:src,text:t,uses:{max:0,used:0,recover:''}})}
+  // recursos con usos
+  for(const r of resourcesFor(def,sub,L,c.abilities)){
+    let f=c.features.find(x=>x.name===r.n);
+    if(!f){f={name:r.n,source:`${def.n}`,text:'',uses:{max:0,used:0,recover:''}};c.features.push(f)}
+    f.uses.max=r.max;f.uses.recover=r.rec;f.uses.pool=r.pool;f.uses.used=clamp(f.uses.used||0,0,r.max)}
+  // magia
+  const ca=casterOf(def,sub);
+  if(ca){c.spellcasting.ability=ca.ab;const z=slotsFor(ca.type,L);
+    c.slots.forEach((s,i)=>{s.total=z.slots[i];s.used=Math.min(s.used,s.total)});
+    c.pact.level=z.pact.level;c.pact.total=z.pact.total;c.pact.used=Math.min(c.pact.used,c.pact.total);
+    c.spells=W.spells.map(s=>Object.assign(NEW.spells(),s))}
+  const name=c.name,mode=W.mode;
+  closeModal();S.tab='play';save();render();scrollTo(0,0);
+  toast(mode==='create'?`<div class="t-label">Personaje creado</div><div class="t-big">${esc(name)}</div><div class="t-parts">Completa CA, armas y objetos en «Editar ficha» e «Inventario».</div>`
+    :`<div class="t-label">¡Subida de nivel!</div><div class="t-big">${esc(def.n)} ${L}</div><div class="t-parts">Rasgos, recursos y espacios actualizados.</div>`)}
+
+/* ================= Descansos ================= */
+function shortRestModal(){const c=C(),left=c.hitDice.total-c.hitDice.spent,cm=M(c,'con');
+  const rec=c.features.filter(f=>f.uses.max>0&&(f.uses.recover==='corto'||f.uses.recover==='corto1'));
+  openModal(`<h2>Descanso corto (1 hora)</h2><p>PG: <b>${c.hp.current} / ${c.hp.max}</b> · Dados de golpe: <b>${left} / ${c.hitDice.total}</b></p>
+    <p class="hint">Para curarte, tira un ${esc(c.hitDice.die)} físico y escribe el resultado; se suma tu CON (${sgn(cm)}).</p>
+    <div class="hpctl"><input id="hd-roll" type="number" inputmode="numeric" min="1" placeholder="Dado" aria-label="Resultado del dado de golpe"><button class="b" data-act="hd" ${left>0&&c.hp.current<c.hp.max?'':'disabled'}>Gastar dado de golpe</button></div>
+    <p class="hint">Al terminar se recupera:</p><ul>${c.pact.total?'<li>Espacios de magia de pacto</li>':''}${rec.map(f=>`<li>${esc(f.name)}${f.uses.recover==='corto1'?' (1 uso)':''}</li>`).join('')}${!c.pact.total&&!rec.length?'<li>Nada más que los PG de los dados que gastes</li>':''}</ul>
+    <div class="btns"><button class="b pri" data-act="short-done">Terminar descanso</button><button class="b" data-act="close-modal">Cancelar</button></div>`)}
+
+/* ================= Acciones ================= */
+const A={
+  tab:el=>{S.tab=el.dataset.t;save();render();scrollTo(0,0)},
+  'close-toast':el=>el.closest('.toast').remove(),
+  'close-modal':closeModal,
+  pip:el=>{const c=C(),k=+el.dataset.i,kind=el.dataset.kind,a=+el.dataset.a;
+    const nf=filled=>k<filled?k:k+1;
+    if(kind==='ds'||kind==='df'){const key=kind==='ds'?'success':'fail';c.deathSaves[key]=clamp(nf(c.deathSaves[key]),0,3)}
+    else{const o=kind==='slot'?c.slots[a]:kind==='pact'?c.pact:c.features[a].uses;const T=kind==='feat'?o.max:o.total;o.used=clamp(T-nf(T-o.used),0,T)}
+    save();render()},
+  'res-d':el=>{const u=C().features[+el.dataset.i].uses;u.used=clamp(u.used-(+el.dataset.d),0,u.max);save();render()},
+  cast:el=>{const c=C(),sp=c.spells[+el.dataset.i],L=+sp.level||0;
+    if(L===0)return afterCast(sp,'Truco: no gasta espacio');
+    const opts=slotOptions(c,L),usable=opts.filter(o=>o.avail>0);
+    if(!sp.ritual&&usable.length===1){consume(c,usable[0].kind,usable[0].level);return afterCast(sp,`${slotLabel(usable[0])} · te quedan ${usable[0].avail-1}`)}
+    openModal(`<h2>Lanzar ${esc(sp.name)}</h2><p class="hint">Elige con qué espacio. Con uno de nivel superior algunos conjuros son más potentes.</p>
+      ${opts.map(o=>`<button class="b opt" data-act="cast-with" data-i="${el.dataset.i}" data-kind="${o.kind}" data-level="${o.level}" ${o.avail>0?'':'disabled'}><span>${slotLabel(o)}</span><small>quedan ${o.avail}</small></button>`).join('')}
+      ${sp.ritual?`<button class="b opt" data-act="cast-with" data-i="${el.dataset.i}" data-kind="ritual"><span>Como ritual</span><small>+10 min, sin espacio</small></button>`:''}
+      <button class="b" data-act="close-modal">Cancelar</button>`)},
+  'cast-with':el=>{const c=C(),sp=c.spells[+el.dataset.i];closeModal();
+    if(el.dataset.kind==='ritual')return afterCast(sp,'Como ritual: sin espacio');
+    consume(c,el.dataset.kind,+el.dataset.level);
+    const o=slotOptions(c,+sp.level).find(x=>x.kind===el.dataset.kind&&x.level===+el.dataset.level);
+    afterCast(sp,`${slotLabel({kind:el.dataset.kind,level:+el.dataset.level})} · te quedan ${o?o.avail:0}`)},
+  'end-conc':()=>{C().concentration='';save();render()},
+  'conc-keep':el=>el.closest('.toast').remove(),
+  'conc-lose':el=>{el.closest('.toast').remove();C().concentration='';save();render()},
+  insp:()=>{const c=C();c.inspiration=!c.inspiration;save();render()},
+  cond:el=>{const c=C(),n=el.dataset.n,i=c.conditions.indexOf(n);i>=0?c.conditions.splice(i,1):c.conditions.push(n);save();render()},
+  exh:el=>{const c=C();c.exhaustion=clamp((+c.exhaustion||0)+(+el.dataset.d),0,6);save();render()},
+  qty:el=>{const e=C().equipment[+el.dataset.i];e.qty=Math.max(0,(+e.qty||0)+(+el.dataset.d));save();render()},
+  ammo:el=>{const c=C(),a=c.attacks[+el.dataset.i],e=c.equipment.find(x=>x.id===a.ammo);if(!e||e.qty<=0)return;e.qty--;save();render();
+    toast(`<div class="t-label">${esc(a.name)}</div><div class="t-parts">Gastas 1 ${esc(e.name)}. Te quedan <b>${e.qty}</b>.${e.qty===0?' ¡Sin munición!':''}</div><div class="t-actions"><button class="b sm" data-act="ammo-back" data-id="${e.id}">Recuperar 1</button></div>`)},
+  'ammo-back':el=>{const e=C().equipment.find(x=>x.id===el.dataset.id);if(e){e.qty++;save();render()}el.closest('.toast').remove()},
+  hp:el=>{const c=C(),n=Math.max(0,parseInt($('#hpAmt').value)||0);if(!n){$('#hpAmt').focus();return}
+    const m=el.dataset.m;
+    if(m==='heal'){const was=c.hp.current;c.hp.current=Math.min(c.hp.max,c.hp.current+n);if(was<=0&&c.hp.current>0){c.deathSaves={success:0,fail:0};c.conditions=c.conditions.filter(x=>x!=='Inconsciente')}toast(`<div class="t-label">Curación</div><div class="t-big good">+${c.hp.current-was}</div><div class="t-parts">PG: ${c.hp.current} / ${c.hp.max}</div>`)}
+    else if(m==='temp'){c.hp.temp=Math.max(c.hp.temp,n);toast(`<div class="t-label">PG temporales</div><div class="t-big">${c.hp.temp}</div><div class="t-parts">No se suman: te quedas con el valor más alto.</div>`)}
+    else{let rest=n;const fromTemp=Math.min(c.hp.temp,rest);c.hp.temp-=fromTemp;rest-=fromTemp;
+      const was=c.hp.current;let extra='';
+      if(was<=0&&rest>0){c.deathSaves.fail=Math.min(3,c.deathSaves.fail+1);extra='<div class="t-parts">Recibir daño a 0 PG cuenta como un fallo de salvación contra muerte (dos si es crítico).</div>'}
+      c.hp.current=Math.max(0,was-rest);
+      if(was>0&&c.hp.current===0){extra=rest-was>=c.hp.max?'<div class="t-parts"><b>Muerte instantánea:</b> el daño sobrante iguala o supera tus PG máximos.</div>':'<div class="t-parts"><b>Caes inconsciente.</b> En tus turnos tira salvaciones contra muerte.</div>';if(!c.conditions.includes('Inconsciente'))c.conditions.push('Inconsciente')}
+      let acts='';if(c.concentration&&n>0&&c.hp.current>0){const dc=Math.min(30,Math.max(10,Math.floor(n/2)));acts=`<div class="t-parts">Concentración en ${esc(c.concentration)}: tira salvación de CON, CD <b>${dc}</b> (tu bonificador ${sgn(saveB(c,'con'))}).</div><div class="t-actions"><button class="b sm" data-act="conc-keep">La supero</button><button class="b sm bad" data-act="conc-lose">La fallo</button></div>`}
+      else if(c.concentration&&c.hp.current===0)c.concentration='';
+      toast(`<div class="t-label">Daño recibido</div><div class="t-big bad">−${n}</div><div class="t-parts">${fromTemp?`${fromTemp} absorbidos por PG temporales · `:''}PG: ${c.hp.current} / ${c.hp.max}</div>${extra}${acts}`,!!acts)}
+    $('#hpAmt').value='';save();render()},
+  nat20:()=>{const c=C();c.hp.current=1;c.deathSaves={success:0,fail:0};c.conditions=c.conditions.filter(x=>x!=='Inconsciente');save();render();toast('<div class="t-label">¡20 natural!</div><div class="t-parts">Recuperas 1 PG y te despiertas.</div>')},
+  nat1:()=>{const c=C();c.deathSaves.fail=Math.min(3,c.deathSaves.fail+2);save();render()},
+  short:()=>shortRestModal(),
+  hd:()=>{const c=C(),r=parseInt($('#hd-roll').value),f=+String(c.hitDice.die).replace(/\D/g,'')||8;
+    if(!(r>=1&&r<=f)){$('#hd-roll').focus();toast(`<div class="t-parts">Escribe lo que has sacado en el ${esc(c.hitDice.die)} (de 1 a ${f}).</div>`);return}
+    const cm=M(c,'con'),heal=Math.max(0,r+cm),was=c.hp.current;
+    c.hitDice.spent=Math.min(c.hitDice.total,c.hitDice.spent+1);c.hp.current=Math.min(c.hp.max,c.hp.current+heal);
+    toast(`<div class="t-label">Dado de golpe</div><div class="t-big good">+${c.hp.current-was}</div><div class="t-parts">${r} ${sgn(cm)} CON</div>`);save();renderTop();if(S.tab==='play')renderView();shortRestModal()},
+  'short-done':()=>{const c=C();c.pact.used=0;c.features.forEach(f=>{if(f.uses.recover==='corto')f.uses.used=0;if(f.uses.recover==='corto1')f.uses.used=Math.max(0,f.uses.used-1)});closeModal();save();render();toast('<div class="t-label">Descanso corto terminado</div><div class="t-parts">Recursos de descanso corto recuperados.</div>')},
+  long:()=>openModal(`<h2>Descanso largo (8 horas)</h2><ul><li>Recuperas todos los PG y todos los dados de golpe</li><li>Recuperas todos los espacios de conjuro</li><li>Se recuperan los rasgos con usos limitados</li><li>Agotamiento −1 y pierdes los PG temporales</li></ul>
+    <div class="btns"><button class="b pri" data-act="long-done">Hacer descanso largo</button><button class="b" data-act="close-modal">Cancelar</button></div>`),
+  'long-done':()=>{const c=C();c.hp.current=c.hp.max;c.hp.temp=0;c.hitDice.spent=0;c.slots.forEach(s=>s.used=0);c.pact.used=0;
+    c.features.forEach(f=>{if(f.uses.recover)f.uses.used=0});c.exhaustion=Math.max(0,(+c.exhaustion||0)-1);c.deathSaves={success:0,fail:0};c.concentration='';
+    c.conditions=c.conditions.filter(x=>x!=='Inconsciente');closeModal();save();render();toast('<div class="t-label">Descanso largo terminado</div><div class="t-parts">Como nuevo.</div>')},
+  pay:()=>{const c=C(),n=parseInt($('#pay-amt').value),k=$('#pay-coin').value;if(!(n>0)){$('#pay-amt').focus();return}
+    if(!pay(c,n,k)){toast(`<div class="t-label">No te llega</div><div class="t-parts">Necesitas ${n} ${COINN[k]} y tienes el equivalente a ${(totalCp(c)/COINV[k]).toLocaleString('es-ES',{maximumFractionDigits:2})} ${COINN[k]}.</div>`);return}
+    save();render();toast(`<div class="t-label">Pagado</div><div class="t-big bad">−${n} ${COINN[k]}</div>`)},
+  earn:()=>{const c=C(),n=parseInt($('#pay-amt').value),k=$('#pay-coin').value;if(!(n>0)){$('#pay-amt').focus();return}c.coins[k]=(+c.coins[k]||0)+n;save();render();toast(`<div class="t-label">Cobrado</div><div class="t-big good">+${n} ${COINN[k]}</div>`)},
+  'item-new':()=>openModal(`<h2>Añadir objeto</h2><div class="grid">
+      <label class="f wide"><span>Nombre</span><input id="ni-name" placeholder="Flechas, ración de viaje, poción de curación…" autocomplete="off"></label>
+      <label class="f"><span>Cantidad</span><input id="ni-qty" type="number" inputmode="numeric" min="0" value="1"></label>
+      <label class="f"><span>Tipo</span><select id="ni-cat">${CATS.map(([k,n])=>`<option value="${k}">${n}</option>`).join('')}</select></label>
+      <label class="f wide"><span>Notas</span><input id="ni-notes" placeholder="Opcional"></label></div>
+    <div class="btns"><button class="b pri" data-act="item-add">Añadir</button><button class="b" data-act="close-modal">Cancelar</button></div>`),
+  'item-add':()=>{const n=$('#ni-name').value.trim();if(!n){$('#ni-name').focus();return}
+    C().equipment.push({id:uid(),name:n,qty:Math.max(0,parseInt($('#ni-qty').value)||0),cat:$('#ni-cat').value,notes:$('#ni-notes').value.trim()});closeModal();save();render()},
+  'tog-save':el=>{const c=C(),k=el.dataset.k,i=c.saveProf.indexOf(k);i>=0?c.saveProf.splice(i,1):c.saveProf.push(k);save();render()},
+  add:el=>{C()[el.dataset.list].push(NEW[el.dataset.list]());save();renderView();const nm=[...document.querySelectorAll(`[data-path^="${el.dataset.list}."]`)].pop();nm&&nm.closest('.row-ed').querySelector('input').focus()},
+  del:el=>{C()[el.dataset.list].splice(+el.dataset.i,1);save();renderView()},
+  levelup:()=>startWizard('level'),
+  create:()=>startWizard('create'),
+  'wz-cancel':closeModal,
+  'wz-back':()=>{W.step--;renderWizard()},
+  'wz-next':()=>{const st=wizSteps();if(!wizValid(st[W.step][0]))return;W.step++;renderWizard();$('#wz-body').scrollTop=0},
+  'wz-apply':applyWizard,
+  'wz-skill':el=>{const k=el.dataset.k,i=W.skills.indexOf(k);i>=0?W.skills.splice(i,1):W.skills.push(k);W._keepScroll=true;renderWizard()},
+  'wz-sp-del':el=>{W.spells.splice(+el.dataset.i,1);W._keepScroll=true;renderWizard()},
+  'sp-open':openSpellModal,
+  'sp-close':()=>{closeModal();save();render()},
+  'sp-det':el=>{P.open=P.open===el.dataset.id?'':el.dataset.id;refreshPicker()},
+  'sp-tog':el=>{const d=SPBY[el.dataset.id],i=P.list.findIndex(s=>s.ref===d.id);
+    if(i>=0)P.list.splice(i,1);else{P.list.push(spellObj(d));P.list.sort((a,b)=>a.level-b.level||a.name.localeCompare(b.name,'es'))}
+    if(P.target==='wizard'){const mine=$('#wz-mine');if(mine){W._keepScroll=true;renderWizard();return}}
+    else save();
+    refreshPicker()},
+  use:el=>{S.active=el.dataset.id;S.tab='play';save();render()},
+  dup:el=>{const o=S.chars.find(x=>x.id===el.dataset.id),n=normalize(JSON.parse(JSON.stringify(o)));n.id=uid();n.name+=' (copia)';S.chars.push(n);save();renderView()},
+  delchar:el=>{const o=S.chars.find(x=>x.id===el.dataset.id);openModal(`<h2>¿Borrar a ${esc(o.name)}?</h2><p>No se puede deshacer. Si quieres conservarla, copia antes su JSON.</p><div class="btns"><button class="b" data-act="close-modal">Cancelar</button><button class="b bad" data-act="delchar-ok" data-id="${o.id}">Borrar</button></div>`)},
+  'delchar-ok':el=>{S.chars=S.chars.filter(x=>x.id!==el.dataset.id);if(!S.chars.length)S.chars=[normalize(blank())];if(!C())S.active=S.chars[0].id;closeModal();save();render()},
+  newchar:()=>{const n=normalize(blank());S.chars.push(n);S.active=n.id;S.tab='edit';save();render()},
+  import:()=>{const t=$('#imp-text').value.trim(),msg=$('#imp-msg');if(!t){msg.textContent='Pega primero el JSON de la ficha.';return}
+    let data;try{data=JSON.parse(t.replace(/^```(json)?|```$/g,'').trim())}catch(e){msg.textContent='Ese texto no es JSON válido. Revisa que esté completo, de la primera { a la última }.';return}
+    const arr=Array.isArray(data)?data:Array.isArray(data.chars)?data.chars:[data];let last;
+    for(const x of arr){const n=normalize(x);n.spells.forEach(fillFromRef);if(S.chars.some(c=>c.id===n.id))n.id=uid();S.chars.push(n);last=n}
+    S.active=last.id;S.tab='play';save();render();toast(`<div class="t-label">Importado</div><div class="t-parts">${arr.length} ficha${arr.length>1?'s':''}: ${esc(arr.map(x=>x.name||'Sin nombre').join(', '))}</div>`)},
+  'copy-prompt':el=>copy(prompt4Claude(),el),
+  'copy-exp':el=>copy(JSON.stringify(C(),null,2),el),
+  'copy-all':el=>copy(JSON.stringify({chars:S.chars},null,2),el)};
+function copy(text,btn){const old=btn.textContent;
+  const ok=()=>{btn.textContent='Copiado';setTimeout(()=>btn.textContent=old,1600)};
+  const fail=()=>{const t=$('#exp-text')||$('#imp-text');if(t){t.value=text;t.focus();t.select()}btn.textContent='Selecciónalo y cópialo';setTimeout(()=>btn.textContent=old,2500)};
+  try{navigator.clipboard.writeText(text).then(ok,fail)}catch(e){fail()}}
+
+/* ================= Eventos ================= */
+document.addEventListener('click',e=>{
+  if(e.target.id==='modal'){if(W)return;const wasPicker=!!P;closeModal();if(wasPicker){save();render()}return}
+  const el=e.target.closest('[data-act]');if(!el||el.disabled)return;const f=A[el.dataset.act];if(f){e.preventDefault();f(el)}});
+document.addEventListener('input',e=>{const el=e.target;
+  if(el.id==='sp-q'){P.q=el.value;refreshPicker();return}
+  if(W){
+    if(el.id==='wz-name')W.name=el.value;else if(el.id==='wz-species')W.species=el.value;else if(el.id==='wz-background')W.background=el.value;
+    else if(el.dataset.wab){W.ab[el.dataset.wab]=clamp(parseInt(el.value)||0,1,30);const lab=el.previousElementSibling;if(lab)lab.textContent=`${AB[el.dataset.wab][2]} (${sgn(mod(W.ab[el.dataset.wab]))})`}
+    else if(el.id==='wz-hproll'){W.hpRoll=el.value;W.hpMode='roll';const r=document.querySelector('input[name="wz-hp"][value="roll"]');if(r)r.checked=true}
+    else if(el.id==='wz-feat')W.asi.feat=el.value;else if(el.id==='wz-feattext')W.asi.featText=el.value;
+    refreshWizFoot();if(el.id==='wz-hproll'){const ps=[...document.querySelectorAll('#wz-body > p')];const last=ps[ps.length-1];if(last)last.innerHTML=`Ganas <b>${hpGain()} PG</b>: tus PG máximos pasan de ${C().hp.max} a <b>${C().hp.max+hpGain()}</b>.`}
+    return}
+  if(el.dataset&&el.dataset.actInput==='res-set'){const u=C().features[+el.dataset.i].uses;const v=parseInt(el.value);if(!isNaN(v)){u.used=clamp(u.max-v,0,u.max);save()}return}
+  if(!el.dataset||!el.dataset.path)return;const c=C();
+  let v=el.dataset.bool?el.checked:el.dataset.num?(el.value===''?0:Number(el.value)):el.value;
+  const ks=el.dataset.path.split('.');let t=c;for(let i=0;i<ks.length-1;i++)t=t[ks[i]];t[ks[ks.length-1]]=v;
+  if(el.dataset.path==='level')c.level=clamp(+v||1,1,20);
+  if(el.dataset.path==='classKey'){c.class=v?CL[v].n:c.class;c.subclassKey='';c.subclass=''}
+  if(el.dataset.path==='subclassKey'){const s=subOf(c);c.subclass=s?s.n:''}
+  if(el.dataset.path.startsWith('coins.')){const tt=document.querySelector('.total');if(tt)tt.textContent=`Total: ${(totalCp(c)/100).toLocaleString('es-ES',{maximumFractionDigits:2})} PO en monedas`}
+  save();renderTop()});
+document.addEventListener('change',e=>{const el=e.target;
+  if(el.id==='imp-file'&&el.files&&el.files[0]){const r=new FileReader();r.onload=()=>{$('#imp-text').value=r.result;$('#imp-msg').textContent='Archivo cargado. Pulsa «Importar».'};r.readAsText(el.files[0]);return}
+  if(el.id==='sp-cls'){P.cls=el.value;refreshPicker();return}
+  if(el.id==='sp-lvl'){P.lvl=el.value;refreshPicker();return}
+  if(el.dataset&&el.dataset.actInput==='res-set'){render();return}
+  if(W){
+    if(el.id==='wz-class'){W.classKey=el.value;W.subKey='';W.origSub='';renderWizard();return}
+    if(el.name==='wz-cls'){W.classKey=el.value;W.skills=[];W.spells=[];P=null;W._keepScroll=true;renderWizard();return}
+    if(el.name==='wz-hp'){W.hpMode=el.value;W._keepScroll=true;renderWizard();return}
+    if(el.name==='wz-sub'){W.subKey=el.value;P=null;W._keepScroll=true;renderWizard();return}
+    if(el.name==='wz-asi'){W.asi.mode=el.value;W.asi.a='';W.asi.b='';W._keepScroll=true;renderWizard();return}
+    if(el.id==='wz-asi-a'){W.asi.a=el.value;refreshWizFoot();return}
+    if(el.id==='wz-asi-b'){W.asi.b=el.value;refreshWizFoot();return}
+    if(el.dataset.wab){refreshWizFoot();return}
+    return}
+  if(el.dataset&&el.dataset.rr)renderView()});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&!$('#modal').hidden){if(P&&P.target==='edit'){A['sp-close']()}else closeModal()}
+  if(e.key==='Enter'&&e.target.id==='hpAmt')A.hp({dataset:{m:'dmg'}});
+  if(e.key==='Enter'&&e.target.id==='ni-name')A['item-add']()});
+
+load();render();
