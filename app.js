@@ -374,7 +374,10 @@ function viewChars(c){
   </div>`}
 
 function renderView(){const c=C();$('#view').innerHTML=S.tab==='edit'?viewEdit(c):S.tab==='chars'?viewChars(c):S.tab==='inv'?viewInv(c):viewPlay(c)}
-function render(){renderTop();renderView()}
+function applyTheme(){const k=(C()||{}).classKey||'',r=document.documentElement;
+  if(k)r.dataset.class=k;else delete r.dataset.class;
+  const bg=getComputedStyle(r).getPropertyValue('--surface').trim();document.querySelectorAll('meta[name="theme-color"]').forEach(m=>m.setAttribute('content',bg||'#ffffff'))}
+function render(){applyTheme();renderTop();renderView()}
 
 /* ================= Buscador de conjuros ================= */
 let P=null; // {target:'edit'|'wizard', q, lvl, cls, open, list(ref a array de conjuros), max}

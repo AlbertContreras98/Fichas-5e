@@ -193,3 +193,65 @@ textarea.notes{width:100%;min-height:7rem;border:1px solid var(--line);border-ra
 .sp-det .lang{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.2rem}
 .mine{display:flex;flex-wrap:wrap;gap:.35rem}
 footer.credits{font-size:.78rem;color:var(--muted);padding-block:1.5rem 0;max-width:70ch}
+
+/* ===== Temas por clase: capa decorativa (los colores están en themes.css) ===== */
+:root{--f-fallback:Georgia,'Times New Roman',serif;--radius:10px;--card-shadow:none;--art:transparent;--tile:none;--corner:none;--emblem:none;--tile-size:100px}
+#top,main{position:relative;z-index:1}
+#top{z-index:5}
+.card{border-radius:var(--radius);box-shadow:var(--card-shadow);background:color-mix(in srgb,var(--surface) 93%,transparent)}
+.sheet{border-radius:calc(var(--radius) + 2px)}
+#deco{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+#deco i{position:absolute;display:block}
+:root:not([data-class]) #deco{display:none}
+.d-glow{inset:0;background:
+  radial-gradient(55% 40% at 88% 8%,color-mix(in srgb,var(--accent) 16%,transparent),transparent 70%),
+  radial-gradient(50% 45% at 6% 96%,color-mix(in srgb,var(--accent) 11%,transparent),transparent 70%)}
+.d-tile{inset:0;background:var(--art);-webkit-mask:var(--tile) 0 0/var(--tile-size) repeat;mask:var(--tile) 0 0/var(--tile-size) repeat}
+.d-c1,.d-c2{background:color-mix(in srgb,var(--accent) 20%,transparent);-webkit-mask:var(--corner) center/contain no-repeat;mask:var(--corner) center/contain no-repeat;aspect-ratio:1}
+.d-c1{right:-70px;top:70px;width:min(62vw,440px)}
+.d-c2{left:-80px;bottom:-60px;width:min(55vw,380px);transform:rotate(180deg);opacity:.7}
+:root[data-class] #top{background:linear-gradient(180deg,var(--surface),color-mix(in srgb,var(--accent-soft) 45%,var(--surface)))}
+:root[data-class] .nm::before{content:"";display:inline-block;width:.85em;height:.85em;margin-right:.35em;vertical-align:-.06em;background:var(--accent);-webkit-mask:var(--emblem) center/contain no-repeat;mask:var(--emblem) center/contain no-repeat}
+:root[data-class] .card h2{color:var(--accent)}
+:root[data-class] .card h2{font-weight:400}
+/* Detalles propios de algunas clases */
+:root[data-class="wizard"] .d-glow{background:
+  radial-gradient(40% 30% at 80% 12%,color-mix(in srgb,var(--accent) 26%,transparent),transparent 70%),
+  radial-gradient(35% 28% at 15% 40%,rgba(160,220,255,.22),transparent 70%),
+  radial-gradient(45% 35% at 60% 95%,color-mix(in srgb,var(--accent) 18%,transparent),transparent 70%)}
+:root[data-class="warlock"] .d-glow{background:
+  radial-gradient(60% 45% at 90% 5%,color-mix(in srgb,var(--accent) 22%,transparent),transparent 70%),
+  radial-gradient(55% 40% at 0% 70%,rgba(70,30,140,.20),transparent 70%),
+  radial-gradient(40% 30% at 50% 110%,color-mix(in srgb,var(--accent) 16%,transparent),transparent 70%)}
+:root[data-class="cleric"] .d-c1{right:-10px;top:-10px;width:min(80vw,560px);background:color-mix(in srgb,var(--accent) 16%,transparent)}
+:root[data-class="cleric"] .d-c2{display:none}
+:root[data-class="bard"] .d-c1{top:auto;bottom:10px;right:-40px;aspect-ratio:320/260;width:min(90vw,620px)}
+:root[data-class="bard"] .d-c2{display:none}
+:root[data-class="sorcerer"] .d-c2{transform:none;left:-40px;bottom:-20px}
+:root[data-class="warlock"] .card,:root[data-class="wizard"] .card{border-color:color-mix(in srgb,var(--accent) 28%,var(--line))}
+:root[data-class="rogue"] .d-glow{background:radial-gradient(120% 90% at 50% 40%,transparent 55%,rgba(0,0,0,.14))}
+:root[data-class="fighter"] .card{border-width:2px}
+:root[data-class="monk"] .d-c1{opacity:.8}
+@media (prefers-reduced-motion:no-preference){
+  :root[data-class="wizard"] .d-tile{animation:twinkle 6s ease-in-out infinite alternate}
+  :root[data-class="wizard"] .d-glow{animation:drift 18s ease-in-out infinite alternate}
+  :root[data-class="wizard"] .d-c1{animation:spin 160s linear infinite}
+  :root[data-class="warlock"] .d-glow{animation:breathe 9s ease-in-out infinite alternate}
+  :root[data-class="warlock"] .d-c1{animation:spin 240s linear infinite reverse}
+  :root[data-class="warlock"] .d-tile{animation:twinkle 11s ease-in-out infinite alternate}
+  :root[data-class="druid"] .d-c1,:root[data-class="druid"] .d-c2{animation:sway 14s ease-in-out infinite alternate;transform-origin:100% 100%}
+  :root[data-class="sorcerer"] .d-c1,:root[data-class="sorcerer"] .d-c2{animation:flicker 3.5s ease-in-out infinite alternate;transform-origin:50% 100%}
+  :root[data-class="cleric"] .d-c1{animation:breathe 10s ease-in-out infinite alternate}
+}
+@keyframes twinkle{from{opacity:.45}to{opacity:1}}
+@keyframes drift{from{transform:translate3d(0,0,0)}to{transform:translate3d(-3%,2%,0)}}
+@keyframes breathe{from{opacity:.65}to{opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes sway{from{transform:rotate(-1.5deg)}to{transform:rotate(1.5deg)}}
+:root[data-class="druid"] .d-c2{animation-name:sway2}
+@keyframes sway2{from{transform:rotate(178.5deg)}to{transform:rotate(181.5deg)}}
+@keyframes flicker{from{transform:scale(1,1)}to{transform:scale(1.03,1.07)}}
+:root[data-class="sorcerer"] .d-c2{animation-name:flicker}
+/* En pantallas estrechas el fondo apenas asoma: tarjetas algo translúcidas y motivo en la cabecera */
+:root[data-class] .card{background:color-mix(in srgb,var(--surface) 86%,transparent);-webkit-backdrop-filter:blur(1.5px);backdrop-filter:blur(1.5px)}
+:root[data-class] #top::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:var(--art);-webkit-mask:var(--tile) 0 0/var(--tile-size) repeat;mask:var(--tile) 0 0/var(--tile-size) repeat;opacity:.9}
