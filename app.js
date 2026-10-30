@@ -90,8 +90,12 @@ function fillFromRef(s){const d=s.ref&&SPBY[s.ref];if(!d)return s;
 let S={chars:[],active:null,tab:'play'};
 function load(){
   try{const r=localStorage.getItem(KEY);if(r){const x=JSON.parse(r);S.chars=(x.chars||[]).map(normalize);S.active=x.active;if(x.tab)S.tab=x.tab;if(S.tab==='inv'||S.tab==='story')S.tab='pj';if(S.tab==='chars')S.tab='play'}}catch(e){}
+  S.chars.forEach(syncEffects);
   if(!S.chars.find(c=>c.id===S.active)) S.active=S.chars.length?S.chars[0].id:null}
-function syncEffects(c){if(!c)return;if(!Array.isArray(c.effects))c.effects=[];if(!Array.isArray(c.companions))c.companions=[];c.effects=c.effects.filter(e=>!e.conc||e.name===c.concentration)}
+const OLDK={'Familiar':'familiar','Montura':'other','Invocación':'other','Compañero animal':'other','Otro':'other'};
+function syncEffects(c){if(!c)return;if(Array.isArray(c.companions))c.companions.forEach(x=>{if(!CREA_KINDS[x.kind]){x.label=x.kind&&x.kind!=='Otro'&&x.kind!=='Familiar'?x.kind:'';x.kind=OLDK[x.kind]||'other'}if(!x.attacks)x.attacks=[];if(!x.hp)x.hp={max:0,current:0}});if(!Array.isArray(c.effects))c.effects=[];if(!Array.isArray(c.companions))c.companions=[];c.effects=c.effects.filter(e=>!e.conc||e.name===c.concentration);
+  if(c.form&&!c.effects.some(e=>e.form))c.form=null;
+  c.companions=c.companions.filter(x=>!x.conc||x.spell===c.concentration)}
 function save(){syncEffects(C());try{localStorage.setItem(KEY,JSON.stringify({chars:S.chars,active:S.active,tab:S.tab}))}catch(e){}}
 const C=()=>S.chars.find(c=>c.id===S.active);
 
@@ -178,34 +182,118 @@ function toast(html,keep){
   const box=$('#toasts');box.prepend(t);while(box.children.length>3)box.lastChild.remove();
   setTimeout(()=>t.remove(),keep?30000:7000)}
 function openModal(h,big){const m=$('#modal');m.innerHTML=`<div class="sheet${big?' big':''}" role="dialog" aria-modal="true">${h}</div>`;m.hidden=false;const f=m.querySelector('input:not([type=hidden]),button');f&&!big&&f.focus()}
-function closeModal(){const m=$('#modal');m.hidden=true;m.innerHTML='';W=null;P=null;pendingEco=null}
+function closeModal(){const m=$('#modal');m.hidden=true;m.innerHTML='';W=null;P=null;pendingEco=null;CX=null}
 let pendingEco=null,restOpen=false;
 const INCAP=['Incapacitado','Aturdido','Paralizado','Petrificado','Inconsciente'];
-const COMP_KINDS=['Familiar','Montura','Invocación','Compañero animal','Otro'];
-function compCard(c){const L=c.companions;
-  return`<section class="card comp"><div class="card-head"><h2>Compañeros</h2><button class="b sm" data-act="comp-new">+ Añadir</button></div>
-    ${L.length?L.map(x=>{const pct=x.hp.max?clamp(x.hp.current/x.hp.max*100,0,100):0;
-      return`<div class="compc">
-        <div class="comp-top"><span><b>${esc(x.name||'Sin nombre')}</b>${x.kind?` <small>${esc(x.kind)}</small>`:''}</span><button class="b sm" data-act="comp-edit" data-id="${x.id}">Editar</button></div>
-        <div class="comp-stats"><span>CA <b>${esc(x.ac||'—')}</b></span>${x.speed?`<span>${esc(x.speed)}</span>`:''}</div>
-        <div class="comp-hp"><span><b>${x.hp.current}</b> / ${x.hp.max} PG</span><div class="bar"><i class="${pct<=25?'low':''}" style="width:${pct}%"></i></div></div>
-        <div class="hpctl"><input id="cp-${x.id}" type="number" inputmode="numeric" min="0" placeholder="PG" aria-label="PG de ${esc(x.name)}"><button class="b bad" data-act="comp-hp" data-m="dmg" data-id="${x.id}">Daño</button><button class="b good" data-act="comp-hp" data-m="heal" data-id="${x.id}">Curar</button></div>
-        ${x.hp.current<=0?'<p class="hint warn">A 0 PG. Un familiar o una criatura invocada desaparece; otras criaturas caen. Pregunta al máster.</p>':''}
-        ${x.notes?`<details><summary>Ataques y rasgos</summary><p class="comp-notes">${esc(x.notes).replace(/\n/g,'<br>')}</p></details>`:''}</div>`}).join('')
-      :'<p class="hint">Familiar, montura o criatura invocada: lleva aquí su CA, sus PG y sus ataques.</p>'}</section>`}
-function compModal(x,confirm){const isNew=!x.id;
-  openModal(`<h2>${isNew?'Nuevo compañero':'Editar compañero'}</h2>
-    <label class="f"><span>Nombre</span><input id="cp-name" value="${esc(x.name||'')}" placeholder="Búho" autocomplete="off"></label>
-    <label class="f"><span>Tipo</span><select id="cp-kind">${COMP_KINDS.map(k=>`<option ${x.kind===k?'selected':''}>${k}</option>`).join('')}</select></label>
-    <div class="effdur3"><label class="f"><span>CA</span><input id="cp-ac" type="number" inputmode="numeric" value="${esc(x.ac??'')}"></label>
-      <label class="f"><span>PG máx.</span><input id="cp-max" type="number" inputmode="numeric" min="1" value="${esc(x.hp?x.hp.max:'')}"></label>
-      ${isNew?'':`<label class="f"><span>PG actuales</span><input id="cp-cur" type="number" inputmode="numeric" min="0" value="${esc(x.hp.current)}"></label>`}</div>
-    <label class="f"><span>Velocidad</span><input id="cp-speed" value="${esc(x.speed||'')}" placeholder="10 pies, volar 60 pies" autocomplete="off"></label>
-    <label class="f"><span>Ataques y rasgos</span><textarea id="cp-notes" rows="4" placeholder="Garras: +3, 1d4 cortante. Vuelo sin provocar ataques de oportunidad…">${esc(x.notes||'')}</textarea></label>
-    <p class="hint">Copia los datos del bloque de estadísticas de la criatura (te lo da el máster o el conjuro que la invoca).</p>
-    <div class="btns"><button class="b pri" data-act="comp-save" data-id="${x.id||''}">Guardar</button>
-      ${isNew?'':confirm?`<button class="b bad" data-act="comp-del-ok" data-id="${x.id}">Sí, borrar</button>`:`<button class="b bad" data-act="comp-del" data-id="${x.id}">Borrar</button>`}
-      <button class="b" data-act="close-modal">Cancelar</button></div>`);if(isNew)$('#cp-name').focus()}
+let CX=null,lastCastL=0;
+const druidLv=c=>c.classKey==='druid'?c.level:0;
+function wsInfo(c){const L=druidLv(c);if(L<2)return null;const moon=c.subclassKey==='moon'&&L>=3;
+  return{L,moon,known:L>=8?8:L>=4?6:4,cr:moon?String(L>=18?6:L>=15?5:L>=12?4:L>=9?3:L>=6?2:1):(L>=8?'1':L>=4?'1/2':'1/4'),fly:L>=8,temp:moon?3*L:L,hours:Math.floor(L/2)}}
+const wsFeat=c=>c.features.find(f=>f.name==='Forma salvaje'&&f.uses.max>0);
+const hitStr=c=>spMod(c)!==null?sgn(spAtk(c)):'tu ataque de conjuro';
+const TRACKED=k=>k!=='form';
+function creaStats(c,x){const st={ac:x.ac,hpMax:x.hp?+x.hp.max||0:0,speed:x.speed||'',atks:(x.attacks||[]).map(a=>[a.n,a.hit,a.dmg]),traits:x.notes||'',sub:'',rules:CREA_RULES[x.kind]||'',n:1};
+  if(x.kind==='primal'){const P=PRIMAL[x.v]||PRIMAL.land,R=c.level,w=M(c,'wis'),[die,b]=P.dmg.split(' + ');
+    Object.assign(st,{ac:13+w,hpMax:P.hp[0]+P.hp[1]*R,speed:P.speed,sub:P.n,n:R>=11&&c.classKey==='ranger'?2:1,
+      atks:[['Golpe de bestia',hitStr(c),`${die} + ${+b+w} ${x.dtype||P.types[0]}`]],
+      traits:`${P.trait}\nVínculo primigenio: suma tu bonificador de competencia (${sgn(pb(c))}) a sus pruebas y salvaciones.${R>=7?'\nEntrenamiento excepcional: al ordenarle una acción, también puede Correr, Destrabarse, Esquivar o Ayudar como acción adicional; su daño puede ser de fuerza.':''}${R>=15?'\nCompartir conjuros: los conjuros que te lances a ti también le afectan si está a 30 pies.':''}`})}
+  else if(x.kind==='steed'){const T=STEED_TYPES[x.v]||STEED_TYPES.celestial,L=+x.L||2;
+    Object.assign(st,{ac:10+L,hpMax:5+10*L,speed:L>=4?'60 pies, volar 60':'60 pies',sub:`${T[0]} · conjuro de nivel ${L}`,atks:[['Golpe de otro mundo',hitStr(c),`1d8 + ${L} ${T[1]}`]],traits:T[2]})}
+  else if(x.kind==='summon'){const S=SUMMONS[x.s]||SUMMONS.beast,L=+x.L||S.L,v=S.vars[x.v]?x.v:Object.keys(S.vars)[0];let hp=S.hp(L,v);if(x.illus)hp=Math.floor(hp/2);
+    Object.assign(st,{ac:S.ac(L,v),hpMax:hp,speed:typeof S.speed==='function'?S.speed():S.speed[v],n:Math.max(1,Math.floor(L/2)),
+      sub:`${S.n}${Object.keys(S.vars).length>1?` (${S.vars[v]})`:''} · nivel ${L}${x.illus?' · ilusoria':''}`,
+      atks:S.atk(v).map(([n,f])=>[n,hitStr(c),f(L)]),traits:(S.traits[v]||'')+(x.illus?'\nIlusoria (Ilusionista): tiene la mitad de los PG normales.':'')})}
+  st.track=TRACKED(x.kind);return st}
+function creaCard(c,x){const st=creaStats(c,x),isForm=x.kind==='form',active=c.form===x.id;
+  if(st.track){x.hp.max=st.hpMax;x.hp.current=clamp(x.hp.current,0,st.hpMax)}
+  const pct=st.track&&st.hpMax?clamp(x.hp.current/st.hpMax*100,0,100):0;
+  const kindLbl=isForm?({wild:'Forma salvaje',poly:'Polimorfar',other:'Transformación'})[x.via||'other']:(x.label||CREA_KINDS[x.kind].n);
+  let formBtn='';if(isForm){const ws=wsInfo(c),f=wsFeat(c);
+    if(active)formBtn=`<button class="b pri" data-act="crea-revert">Volver a tu forma</button>`;
+    else if(x.via==='wild')formBtn=ws&&f?`<button class="b pri" data-act="crea-transform" data-id="${x.id}" ${featLeft(f)>0?'':'disabled'}>${featLeft(f)>0?`Transformarte (quedan ${featLeft(f)})`:'Sin usos de Forma salvaje'}</button>`:'<p class="hint">La Forma salvaje es del druida a partir de nivel 2.</p>';
+    else formBtn=`<button class="b pri" data-act="crea-transform" data-id="${x.id}">Transformarte</button>`}
+  return`<div class="compc ${active?'active':''}">
+    <div class="comp-top"><span><b>${esc(x.name||'Sin nombre')}</b> <small>${esc(st.sub||kindLbl)}${isForm&&x.cr?` · VD ${esc(x.cr)}`:''}</small></span><button class="b sm" data-act="crea-edit" data-id="${x.id}">Editar</button></div>
+    <div class="comp-stats"><span>CA <b>${esc(st.ac===''||st.ac==null?'—':st.ac)}</b></span>${st.speed?`<span>${esc(st.speed)}</span>`:''}${isForm&&st.hpMax?`<span>PG de la bestia <b>${st.hpMax}</b></span>`:''}${x.conc?`<span>ligada a tu concentración</span>`:''}</div>
+    ${st.track?`<div class="comp-hp"><span><b>${x.hp.current}</b> / ${st.hpMax} PG</span><div class="bar"><i class="${pct<=25?'low':''}" style="width:${pct}%"></i></div></div>
+    <div class="hpctl"><input id="cp-${x.id}" type="number" inputmode="numeric" min="0" placeholder="PG" aria-label="PG de ${esc(x.name)}"><button class="b bad" data-act="crea-hp" data-m="dmg" data-id="${x.id}">Daño</button><button class="b good" data-act="crea-hp" data-m="heal" data-id="${x.id}">Curar</button></div>
+    ${x.hp.current<=0?`<p class="hint warn">${x.kind==='other'?'A 0 PG: cae (pregunta al máster qué le pasa).':x.kind==='primal'?'A 0 PG muere. Puedes revivirlo durante la hora siguiente con una acción mágica gastando un espacio de conjuro.':'A 0 PG desaparece.'}</p>`:''}`:''}
+    ${st.atks.length?`<ul class="catk">${st.atks.map(a=>`<li><b>${esc(a[0])}</b>${a[1]!==''&&a[1]!=null?` <span>${esc(a[1])}</span>`:''}${a[2]?` · ${esc(a[2])}`:''}</li>`).join('')}</ul>${st.n>1?`<p class="hint">Hace ${st.n} ataques por turno.</p>`:''}`:''}
+    ${st.traits||st.rules?`<details><summary>Rasgos y reglas</summary>${st.traits?`<p class="comp-notes">${esc(st.traits).replace(/\n/g,'<br>')}</p>`:''}${st.rules?`<p class="comp-notes hint">${esc(st.rules)}</p>`:''}</details>`:''}
+    ${formBtn?`<div class="btns">${formBtn}</div>`:''}</div>`}
+function viewCrea(c){const forms=c.companions.filter(x=>x.kind==='form'),others=c.companions.filter(x=>x.kind!=='form'),ws=wsInfo(c),f=wsFeat(c);
+  const wsBox=ws?`<section class="card"><h2>${term('Forma salvaje','wildshape')}</h2>
+    <div class="kv"><span>Usos</span><b>${f?`${featLeft(f)} / ${f.uses.max}`:'—'}</b></div>
+    <div class="kv"><span>Formas que puedes conocer</span><b>${ws.known}</b></div>
+    <div class="kv"><span>VD máximo</span><b>${ws.cr}${ws.fly?'':' · sin velocidad de vuelo'}</b></div>
+    <div class="kv"><span>Duración</span><b>${ws.hours} h</b></div>
+    <div class="kv"><span>PG temporales al transformarte</span><b>${ws.temp}</b></div>
+    ${ws.moon?`<div class="kv"><span>CA mínima (Círculo de la Luna)</span><b>${13+M(c,'wis')}</b></div>`:''}
+    <p class="hint">Te transformas con una acción adicional y puedes volver igual. Mantienes tus PG, tus dados de golpe, INT, SAB y CAR, tus competencias y tus rasgos de clase; usas la CA, la velocidad, FUE, DES, CON y los ataques de la bestia. ${ws.moon?'Puedes lanzar los conjuros de tu círculo.':'No puedes lanzar conjuros, pero no pierdes la concentración.'} Termina al acabar la duración, si quedas incapacitado o si mueres.</p></section>`:'';
+  return`<div class="ed"><div class="ed-head"><h2>Criaturas y formas</h2><button class="b pri" data-act="crea-new">+ Añadir</button></div>
+    ${!c.companions.length?`<section class="card"><p>Aquí guardas las fichas extra que usa tu personaje:</p><ul class="kinds">${Object.values(CREA_KINDS).map(k=>`<li><b>${k.n}:</b> ${k.d}</li>`).join('')}</ul></section>`:''}
+    <div class="cols crea">${wsBox||forms.length?`<div class="col">${wsBox}${forms.length?`<section class="card"><h2>Formas</h2>${forms.map(x=>creaCard(c,x)).join('')}</section>`:''}</div>`:''}
+    ${others.length?`<div class="col"><section class="card"><h2>Compañeros e invocaciones</h2>${others.map(x=>creaCard(c,x)).join('')}</section></div>`:''}</div></div>`}
+function creaPick(){openModal(`<h2>¿Qué quieres añadir?</h2><div class="charlist">${Object.entries(CREA_KINDS).map(([k,v])=>`<button class="b opt" data-act="crea-kind" data-k="${k}"><span><b>${v.n}</b><br><small>${v.d}</small></span></button>`).join('')}</div><div class="btns"><button class="b" data-act="close-modal">Cancelar</button></div>`)}
+function creaBlank(c,k,o){o=o||{};const x={kind:k,name:'',attacks:[],notes:'',hp:{max:'',current:0}};
+  if(k==='form'){x.via=wsInfo(c)?'wild':'poly'}
+  if(k==='primal'){x.v='land';x.dtype='perforante';x.name='Compañero primigenio'}
+  if(k==='steed'){x.v='celestial';x.L=o.L||2;x.name='Montura';x.spend=!o.cast}
+  if(k==='summon'){x.s=o.s||'beast';x.L=o.L||SUMMONS[x.s].L;x.v=Object.keys(SUMMONS[x.s].vars)[0];x.name=SUMMONS[x.s].n.replace(/^Invocar /,'').replace(/^./,m=>m.toUpperCase());x.concNew=!o.cast;x.spend=!o.cast;x.fromCast=o.cast||''}
+  if(k==='familiar'){x.name=''}
+  return x}
+function creaCollect(){if(!CX)return;const g=id=>{const e=$('#'+id);return e?(e.type==='checkbox'?e.checked:e.value):undefined};
+  const set=(k,id,num)=>{const v=g(id);if(v!==undefined)CX[k]=num?(v===''?'':+v):v};
+  set('name','cx-name');set('v','cx-v');set('s','cx-s');set('L','cx-L',1);set('via','cx-via');set('cr','cx-cr');set('dtype','cx-dtype');set('ac','cx-ac',1);set('speed','cx-speed');set('notes','cx-notes');set('label','cx-label');
+  ['illus','spend','concNew'].forEach(k=>{const v=g('cx-'+k);if(v!==undefined)CX[k]=v});
+  const mx=g('cx-max');if(mx!==undefined)CX.hp.max=mx===''?'':+mx;const cu=g('cx-cur');if(cu!==undefined&&cu!=='')CX.hp.current=+cu;
+  if(CX.attacks)CX.attacks=CX.attacks.map((a,i)=>({n:g('cx-an'+i)??a.n,hit:g('cx-ah'+i)??a.hit,dmg:g('cx-ad'+i)??a.dmg}))}
+function creaModal(){const c=C(),x=CX,isNew=!x.id,k=x.kind,ws=wsInfo(c);const f=(lbl,inner)=>`<label class="f"><span>${lbl}</span>${inner}</label>`;
+  const inp=(id,val,extra)=>`<input id="${id}" value="${esc(val??'')}" autocomplete="off" ${extra||''}>`;
+  const sel=(id,opts,val,rr)=>`<select id="${id}" ${rr?'data-rr="1"':''}>${opts.map(([v,t])=>`<option value="${v}" ${String(val)===String(v)?'selected':''}>${esc(t)}</option>`).join('')}</select>`;
+  const lv=from=>Array.from({length:10-from},(_,i)=>[from+i,`Nivel ${from+i}`]);
+  const atkRows=()=>`<h3>Ataques</h3>${x.attacks.map((a,i)=>`<div class="atkrow">${inp('cx-an'+i,a.n,'placeholder="Mordisco"')}${inp('cx-ah'+i,a.hit,'placeholder="+4" inputmode="text"')}${inp('cx-ad'+i,a.dmg,'placeholder="2d4 + 2 perforante"')}<button class="b sm sq" data-act="cx-atk-del" data-i="${i}" aria-label="Quitar ataque">✕</button></div>`).join('')}<button class="b sm" data-act="cx-atk-add">+ Ataque</button>`;
+  let body='';
+  if(k==='form'){const vias=[...(ws?[['wild','Forma salvaje (druida)']]:[]),['poly','Polimorfar o Polimorfar verdadero'],['other','Otra (Cambiar de forma, Formas animales…)']];
+    body=`${f('Bestia o forma',inp('cx-name',x.name,'placeholder="Lobo"'))}${f('Cómo te transformas',sel('cx-via',vias,x.via,1))}
+      ${x.via==='wild'&&ws?`<p class="hint">Puedes conocer ${ws.known} formas de VD ${ws.cr} como máximo${ws.fly?'':', sin velocidad de vuelo'}. Al transformarte ganas ${ws.temp} PG temporales.</p>`:x.via==='poly'?'<p class="hint">Polimorfar: ganas tantos PG temporales como los PG de la bestia, y la transformación termina cuando se te acaban.</p>':''}
+      <div class="effdur3">${f('VD',inp('cx-cr',x.cr,'placeholder="1/4"'))}${f('CA',inp('cx-ac',x.ac,'type="number" inputmode="numeric"'))}${f('PG de la bestia',inp('cx-max',x.hp.max,'type="number" inputmode="numeric"'))}</div>
+      ${f('Velocidad',inp('cx-speed',x.speed,'placeholder="40 pies"'))}${atkRows()}${f('Rasgos y sentidos',`<textarea id="cx-notes" rows="3" placeholder="Olfato agudo, Tácticas de manada…">${esc(x.notes)}</textarea>`)}`}
+  else if(k==='primal'){const P=PRIMAL[x.v]||PRIMAL.land;if(!P.types.includes(x.dtype))x.dtype=P.types[0];
+    body=`${f('Nombre',inp('cx-name',x.name))}${f('Tipo de bestia',sel('cx-v',Object.entries(PRIMAL).map(([v,o])=>[v,o.n]),x.v,1))}${P.types.length>1?f('Tipo de daño',sel('cx-dtype',P.types.map(t=>[t,t]),x.dtype)):''}${c.classKey!=='ranger'?'<p class="hint warn">Este compañero es del explorador Señor de las Bestias; se calcula con tu nivel y tu SAB.</p>':''}`}
+  else if(k==='steed'){body=`${f('Nombre',inp('cx-name',x.name))}${f('Tipo',sel('cx-v',Object.entries(STEED_TYPES).map(([v,o])=>[v,o[0]]),x.v,1))}${f('Nivel del conjuro',sel('cx-L',lv(2),x.L,1))}
+      ${isNew&&!x.fromCast?`<label class="chk"><input type="checkbox" id="cx-spend" ${x.spend?'checked':''}> Gastar un espacio de nivel ${x.L} (desmárcalo si es gratis, como el Corcel fiel del paladín)</label>`:''}`}
+  else if(k==='summon'){const S=SUMMONS[x.s]||SUMMONS.beast;if(+x.L<S.L)x.L=S.L;if(!S.vars[x.v])x.v=Object.keys(S.vars)[0];
+    body=`${f('Conjuro',sel('cx-s',Object.entries(SUMMONS).map(([v,o])=>[v,`${o.n} (nivel ${o.L})`]),x.s,1))}<p class="hint">${esc(S.who)}.</p>
+      ${Object.keys(S.vars).length>1?f('Variante',sel('cx-v',Object.entries(S.vars),x.v,1)):''}${f('Nivel al que lo lanzas',sel('cx-L',lv(S.L),x.L,1))}${f('Nombre',inp('cx-name',x.name))}
+      ${c.subclassKey==='illusionist'&&['beast','fey'].includes(x.s)?`<label class="chk"><input type="checkbox" id="cx-illus" ${x.illus?'checked':''}> Ilusoria (Criaturas fantasmales del Ilusionista: mitad de PG)</label>`:''}
+      ${isNew&&!x.fromCast?`<label class="chk"><input type="checkbox" id="cx-concNew" ${x.concNew?'checked':''}> La acabo de invocar: empiezo a concentrarme en ${esc(S.n)}</label><label class="chk"><input type="checkbox" id="cx-spend" ${x.spend?'checked':''}> Gastar un espacio de nivel ${x.L}</label>`:''}`}
+  else{body=`${f(k==='familiar'?'Nombre y forma':'Nombre',inp('cx-name',x.name,k==='familiar'?'placeholder="Ceniza (búho)"':''))}${k==='other'?f('Tipo (opcional)',inp('cx-label',x.label,'placeholder="Montura, esqueleto, aliado…"')):''}
+      <div class="effdur3">${f('CA',inp('cx-ac',x.ac,'type="number" inputmode="numeric"'))}${f('PG máx.',inp('cx-max',x.hp.max,'type="number" inputmode="numeric" min="1"'))}${isNew?'':f('PG actuales',inp('cx-cur',x.hp.current,'type="number" inputmode="numeric" min="0"'))}</div>
+      ${f('Velocidad',inp('cx-speed',x.speed,'placeholder="10 pies, volar 60 pies"'))}${k==='other'?atkRows():''}
+      ${f(k==='familiar'?'Rasgos y sentidos':'Rasgos y notas',`<textarea id="cx-notes" rows="3">${esc(x.notes)}</textarea>`)}
+      ${k==='familiar'?'<p class="hint">Copia los datos de la forma que elijas (murciélago, gato, rana, halcón, búho, rata, cuervo, araña…). Con el Pacto de la cadena hay formas especiales: diablillo, pseudodragón, quasit, esqueleto, renacuajo de slaad, esfinge de las maravillas, duendecillo o serpiente venenosa.</p>':''}`}
+  if(!isNew&&TRACKED(k)&&k!=='other'&&k!=='familiar')body+=`<div class="effdur3">${f('PG actuales',inp('cx-cur',x.hp.current,'type="number" inputmode="numeric" min="0"'))}</div>`;
+  if(['primal','steed','summon'].includes(k)){const st=creaStats(c,x);body+=`<div class="preview"><b>Vista previa:</b> CA ${st.ac} · ${st.hpMax} PG · ${esc(st.speed)}<br>${st.atks.map(a=>`${esc(a[0])} ${esc(a[1])} · ${esc(a[2])}`).join('<br>')}${st.n>1?`<br>${st.n} ataques por turno`:''}</div>`}
+  openModal(`<h2>${isNew?'Añadir':'Editar'}: ${esc(CREA_KINDS[k].n.toLowerCase())}</h2>${body}<p class="hint" id="cx-msg" role="status"></p>
+    <div class="btns"><button class="b pri" data-act="crea-save">Guardar</button>
+      ${isNew?'':x.confirm?`<button class="b bad" data-act="crea-del-ok">Sí, borrar</button>`:`<button class="b bad" data-act="crea-del">Borrar</button>${['other','summon','familiar'].includes(k)?'<button class="b" data-act="crea-dup">Duplicar</button>':''}`}
+      <button class="b" data-act="crea-cancel">Cancelar</button></div>`)}
+function transformInto(c,x,opt){opt=opt||{};const ws=wsInfo(c);endEffects(c,e=>e.form);c.form=x.id;let msg='';
+  if(x.via==='wild'&&ws){const t=ws.temp;c.hp.temp=Math.max(c.hp.temp,t);c.effects.push({id:uid(),name:`Forma salvaje: ${x.name}`,m:60*ws.hours,form:true,conc:false});msg=`Ganas ${t} PG temporales. Dura ${ws.hours} h.`}
+  else if(x.via==='poly'){const t=+x.hp.max||0;c.hp.temp=Math.max(c.hp.temp,t);
+    if(opt.conc)c.effects.push({id:uid(),name:opt.conc,m:60,form:true,conc:true});else c.effects.push({id:uid(),name:`Polimorfado: ${x.name}`,m:60,form:true,conc:false});
+    msg=`Ganas ${t} PG temporales; la transformación termina cuando se te acaben.`}
+  else{c.effects.push(Object.assign({id:uid(),name:opt.conc||`Transformado: ${x.name}`,form:true,conc:!!opt.conc},opt.conc?{m:60}:{inf:true}))}
+  return msg}
+const formOf=c=>c.form?c.companions.find(x=>x.id===c.form&&x.kind==='form'):null;
+function formAC(c,x){const ws=wsInfo(c),b=+x.ac||0;return x.via==='wild'&&ws&&ws.moon?Math.max(b,13+M(c,'wis')):b}
+function formPicker(via,conc){const c=C(),forms=c.companions.filter(x=>x.kind==='form'&&(via==='wild'?x.via==='wild':x.via!=='wild'));
+  openModal(`<h2>${via==='wild'?'Forma salvaje':'¿En qué te transformas?'}</h2>
+    ${forms.length?`<div class="charlist">${forms.map(x=>`<button class="b opt" data-act="form-go" data-id="${x.id}" data-via="${via}" data-conc="${esc(conc||'')}"><span><b>${esc(x.name)}</b> <small>CA ${formAC(c,x)}${x.hp.max?` · ${x.hp.max} PG`:''}${x.cr?` · VD ${esc(x.cr)}`:''}</small></span></button>`).join('')}</div>`:'<p>Aún no tienes formas guardadas. Créalas en la pestaña Criaturas (+ Añadir → Forma o transformación).</p>'}
+    ${via==='wild'?`<div class="charlist"><button class="b opt" data-act="form-go" data-id="" data-via="wild"><span>Gastar el uso sin elegir forma</span></button>${c.companions.some(x=>x.kind==='familiar')||druidLv(c)>=2?`<button class="b opt" data-act="form-familiar"><span><b>Compañero salvaje</b><br><small>Gasta un uso para lanzar Encontrar familiar sin componentes</small></span></button>`:''}</div>`:''}
+    <div class="btns"><button class="b" data-act="close-modal">Cancelar</button></div>`)}
+const SUMMON_REF={};Object.entries(SUMMONS).forEach(([k,v])=>SUMMON_REF[v.ref]=k);
 /* Duraciones: {r:rondas} | {m:minutos} | {inf:true} */
 function parseDur(t){t=norm(t||'').replace(/^hasta\s+/,'');let m;
   if(/disipe/.test(t))return{inf:true};
@@ -217,7 +305,7 @@ function parseDur(t){t=norm(t||'').replace(/^hasta\s+/,'');let m;
 function fmtEff(e){if(e.r!=null)return`${e.r} ronda${e.r===1?'':'s'}`;if(e.inf)return'hasta que se disipe';const m=e.m||0;
   return m<60?`${m} min`:m<1440?`${+(m/60).toFixed(1)} h`:`${+(m/1440).toFixed(1)} día${m===1440?'':'s'}`}
 function addEffect(c,name,d,conc){if(!d)return;c.effects=c.effects.filter(e=>e.name!==name||(!!e.conc!==!!conc));c.effects.push(Object.assign({id:uid(),name,conc:!!conc},d))}
-function endEffects(c,pred){const gone=c.effects.filter(pred);if(!gone.length)return[];c.effects=c.effects.filter(e=>!pred(e));if(gone.some(e=>e.conc))c.concentration='';return gone.map(e=>e.name)}
+function endEffects(c,pred){const gone=c.effects.filter(pred);if(!gone.length)return[];c.effects=c.effects.filter(e=>!pred(e));if(gone.some(e=>e.conc))c.concentration='';if(gone.some(e=>e.form))c.form=null;return gone.map(e=>e.name)}
 function effectsBar(c){const ce=c.concentration&&c.effects.find(e=>e.conc&&e.name===c.concentration);const pills=[];
   if(c.concentration)pills.push(`<div class="eff conc-pill"><span>${term('Concentrado','conc')} en <b>${esc(c.concentration)}</b>${ce?` · ${fmtEff(ce)}`:''}</span><button class="b sm sq" data-act="end-conc" aria-label="Terminar concentración" title="Terminar concentración">✕</button></div>`);
   c.effects.filter(e=>!e.conc).forEach(e=>pills.push(`<div class="eff"><span><b>${esc(e.name)}</b> · ${fmtEff(e)}</span><button class="b sm sq" data-act="eff-del" data-id="${e.id}" aria-label="Quitar ${esc(e.name)}" title="Quitar">✕</button></div>`));
@@ -226,15 +314,15 @@ function effectsBar(c){const ce=c.concentration&&c.effects.find(e=>e.conc&&e.nam
 /* ================= Render: barra superior ================= */
 function pips(kind,a,T,filled){let h='<span class="pips">';for(let k=0;k<T;k++)h+=`<button class="pip${k<filled?' full':''}" data-act="pip" data-kind="${kind}" data-a="${a}" data-i="${k}" aria-label="Casilla ${k+1} de ${T}"></button>`;return h+'</span>'}
 function renderTop(){
-  const c=C(),pct=c.hp.max?clamp(c.hp.current/c.hp.max*100,0,100):0;
+  const c=C(),fm=formOf(c),pct=c.hp.max?clamp(c.hp.current/c.hp.max*100,0,100):0;
   const sub=[c.species,c.class&&`${c.class} ${c.level}`,c.subclass,c.background].filter(Boolean).join(' · ');
   $('#top').innerHTML=`<div class="wrap"><div class="top-in">
     ${c.story.img?`<button class="avatar-btn" data-act="tab" data-t="pj" aria-label="Ver personaje"><img class="avatar" src="${c.story.img}" alt=""></button>`:''}<button class="who" data-act="chars" aria-label="Cambiar de personaje"><div class="nm">${esc(c.name||'Sin nombre')}<span class="caret" aria-hidden="true">▾</span></div><div class="sub">${esc(sub)}</div></button>
     <div class="vit">
       <button class="hpbox" data-act="gloss" data-k="hp"><div class="hpnum"><b>${c.hp.current}</b> / ${c.hp.max}${c.hp.temp?`<em>+${c.hp.temp}</em>`:''}</div><div class="bar"><i class="${pct<=25?'low':''}" style="width:${pct}%"></i></div><small>Puntos de golpe</small></button>
-      <button class="stat" data-act="gloss" data-k="ca"><b>${c.ac}</b><small>CA</small></button>
+      <button class="stat" data-act="gloss" data-k="ca"><b>${fm?formAC(c,fm):c.ac}</b><small>CA</small></button>
       <button class="stat" data-act="gloss" data-k="init"><b>${sgn(init(c))}</b><small>Inic.</small></button>
-      <button class="stat" data-act="gloss" data-k="speed"><b>${Math.max(0,c.speedFt-5*(+c.exhaustion||0))}</b><small>pies</small></button>
+      <button class="stat" data-act="gloss" data-k="speed"><b>${Math.max(0,(fm&&parseInt(fm.speed)>=0?parseInt(fm.speed):c.speedFt)-5*(+c.exhaustion||0))}</b><small>pies</small></button>
     </div>
     <div class="ctl quick">
       <div class="menuwrap"><button class="b qbtn icon" data-act="rest-menu" title="Descansar" aria-haspopup="true" aria-expanded="${restOpen}" aria-label="Descansar"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 8h7l-7 9h7M14 4h6l-6 7.5h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
@@ -244,7 +332,7 @@ function renderTop(){
       <button class="b qbtn money" data-act="money" aria-label="Dinero"><span class="coin" aria-hidden="true"></span><span>${(Math.floor(totalCp(c)/10)/10).toLocaleString('es-ES')} PO</span></button>
     </div>
     ${effectsBar(c)}</div>
-    <div class="tabrow"><nav class="tabs">${[['play','Partida'],['pj',c.name||'Personaje']].map(([t,n])=>`<button class="${S.tab===t||(t==='pj'&&(S.tab==='edit'||S.tab==='data'))?'on':''}" data-act="tab" data-t="${t}">${esc(n)}</button>`).join('')}</nav>
+    <div class="tabrow"><nav class="tabs">${[['play','Partida'],['crea','Criaturas'],['pj',c.name||'Personaje']].map(([t,n])=>`<button class="${S.tab===t||(t==='pj'&&(S.tab==='edit'||S.tab==='data'))?'on':''}" data-act="tab" data-t="${t}">${esc(n)}</button>`).join('')}</nav>
     <button class="b gear" data-act="settings" aria-label="Ajustes"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3.3h-4l-.4 2.6a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1l.4 2.6h4l.4-2.6a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5A3.5 3.5 0 1 1 13 8.5a3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg></button></div></div>`}
 
 /* ================= Render: partida ================= */
@@ -322,7 +410,7 @@ function viewPlay(c){
   const feats=`<section class="card"><h2>Rasgos y dotes</h2>${c.features.length?`<div class="list">${c.features.map(f=>`<div class="it"><div class="it-head"><span class="it-name">${esc(f.name)}</span>${f.uses.max>0?`<span class="badge">${f.uses.max-f.uses.used}/${f.uses.max}</span>`:''}</div>
       ${f.source?`<div class="meta">${esc(f.source)}</div>`:''}
       ${f.text?`<details><summary>Detalles</summary><p>${esc(f.text)}</p></details>`:''}</div>`).join('')}</div>`:'<p class="empty">Sin rasgos.</p>'}</section>`;
-  return`${viewTurn(c)}<div class="cols"><div class="col">${vit}${compCard(c)}${res}</div><div class="col">${abil}${sk}</div><div class="col">${atk}${mag}${feats}</div></div>`}
+  return`${viewTurn(c)}<div class="cols"><div class="col">${vit}${res}</div><div class="col">${abil}${sk}</div><div class="col">${atk}${mag}${feats}</div></div>`}
 function slotOptions(c,L){const o=[];
   if(c.pact.total>0&&c.pact.level>=L)o.push({kind:'pact',level:c.pact.level,avail:c.pact.total-c.pact.used});
   for(let l=L;l<=9;l++){const s=c.slots[l-1];if(s.total>0)o.push({kind:'slot',level:l,avail:s.total-s.used})}
@@ -338,7 +426,12 @@ function afterCast(sp,how){
   addEffect(c,sp.name,parseDur(sp.dur),sp.conc);
   save();render();
   const extra=spMod(c)!==null?`<div class="t-parts">CD de salvación ${spDC(c)} · ataque de conjuro ${sgn(spAtk(c))}</div>`:'';
-  toast(`<div class="t-label">Lanzas</div><div class="t-big">${esc(sp.name)}</div><div class="t-parts">${esc(how)}${sp.conc?' · requiere concentración':''}</div>${extra}${note}`)}
+  const r=sp.ref||'';let cbtn='';
+  if(SUMMON_REF[r])cbtn=`<button class="b sm pri" data-act="crea-from-cast" data-k="summon" data-s="${SUMMON_REF[r]}" data-l="${lastCastL||sp.level}" data-spell="${esc(sp.name)}">Crear la criatura</button>`;
+  else if(r==='find-steed')cbtn=`<button class="b sm pri" data-act="crea-from-cast" data-k="steed" data-l="${lastCastL||sp.level}" data-spell="${esc(sp.name)}">Crear la montura</button>`;
+  else if(r==='find-familiar')cbtn=c.companions.some(x=>x.kind==='familiar')?'':`<button class="b sm pri" data-act="crea-from-cast" data-k="familiar" data-spell="${esc(sp.name)}">Crear el familiar</button>`;
+  else if(['polymorph','true-polymorph','shapechange'].includes(r))cbtn=`<button class="b sm pri" data-act="form-cast" data-spell="${esc(sp.name)}">Elegir forma</button>`;
+  toast(`<div class="t-label">Lanzas</div><div class="t-big">${esc(sp.name)}</div><div class="t-parts">${esc(how)}${sp.conc?' · requiere concentración':''}</div>${extra}${note}${cbtn?`<div class="t-actions">${cbtn}</div>`:''}`,!!cbtn)}
 
 /* ================= Tu turno ================= */
 // Cuándo se usa cada rasgo con usos (por nombre). 'none' = no aparece en el turno (fuera de combate o ligado a un conjuro).
@@ -369,11 +462,16 @@ function viewTurn(c){
   const row=(name,meta,btn)=>`<div class="trow"><div class="tname">${name}${meta?`<small>${meta}</small>`:''}</div>${btn}</div>`;
   const cols={A:[],AA:[],R:[],free:[]};
   // Atacar
-  const nAtk=attacksPerAction(c);
-  c.attacks.forEach((a,i)=>{const am=a.ammo&&c.equipment.find(e=>e.id===a.ammo);const noAmmo=am&&am.qty<=0;
+  const nAtk=attacksPerAction(c),fm=formOf(c),ws=wsInfo(c),noSpells=fm&&!(fm.via==='wild'&&ws&&ws.moon);
+  if(fm){cols.A.push(`<p class="hint">Transformado en <b>${esc(fm.name)}</b>: usas sus ataques.${noSpells?' No puedes lanzar conjuros.':' Solo puedes lanzar los conjuros de tu círculo.'}</p>`);
+    (fm.attacks||[]).forEach((a,i)=>cols.A.push(row(esc(a.n),`${esc(a.hit||'')} · ${esc(a.dmg||'')}`,`<button class="b sm pri" data-act="t-fatk" data-i="${i}" ${dis(!aFree)}>Atacar</button>`)));
+    if(fm.via==='wild')cols.AA.push(row('Volver a tu forma','Termina la Forma salvaje',`<button class="b sm" data-act="crea-revert" ${dis(T.aa)}>Usar</button>`))}
+  c.companions.forEach(x=>{if(x.kind!=='primal'||x.hp.current<=0)return;const st=creaStats(c,x);
+    cols.AA.push(row(`Ordenar a ${esc(x.name)}`,`Golpe de bestia${st.n>1?' ×2':''}: ${esc(st.atks[0][1])} · ${esc(st.atks[0][2])}`,`<button class="b sm" data-act="t-pcmd" data-id="${x.id}" ${dis(T.aa)}>Usar</button>`))});
+  if(!fm)c.attacks.forEach((a,i)=>{const am=a.ammo&&c.equipment.find(e=>e.id===a.ammo);const noAmmo=am&&am.qty<=0;
     cols.A.push(row(`${esc(a.name)}`,`${sgn(+a.atk||0)} · ${esc(a.dmg||'')}${am?` · quedan ${am.qty}`:''}`,`<button class="b sm pri" data-act="t-atk" data-i="${i}" ${dis(!atkOn||noAmmo)}>Atacar</button>`))});
   // Conjuros por tiempo de lanzamiento
-  c.spells.forEach((sp,i)=>{const t=sp.time==='BA'?'AA':sp.time;if(!['A','AA','R'].includes(t))return;
+  if(!noSpells)c.spells.forEach((sp,i)=>{const t=sp.time==='BA'?'AA':sp.time;if(!['A','AA','R'].includes(t))return;
     const busy=t==='A'?!aFree:t==='AA'?T.aa:T.r;const ok=canCast(c,sp);
     cols[t].push(row(`${esc(sp.name)}${sp.conc?' <span class="tag">C</span>':''}`,`${+sp.level?'Nivel '+sp.level:'Truco'}`,`<button class="b sm ${ok&&!busy?'pri':''}" data-act="t-cast" data-i="${i}" data-eco="${t}" ${dis(busy||!ok)}>${ok?(+sp.level?'Lanzar':'Usar'):'Sin espacios'}</button>`))});
   // Rasgos con usos
@@ -567,7 +665,7 @@ function loadPortrait(file){
     render()};
   img.onerror=()=>{URL.revokeObjectURL(url);toast('<div class="t-parts">No se ha podido abrir la imagen.</div>')};
   img.src=url}
-function renderView(){const c=C();$('#view').innerHTML=S.tab==='edit'?viewEdit(c):S.tab==='data'?viewData(c):S.tab==='pj'?viewPj(c):viewPlay(c)}
+function renderView(){const c=C();$('#view').innerHTML=S.tab==='edit'?viewEdit(c):S.tab==='data'?viewData(c):S.tab==='pj'?viewPj(c):S.tab==='crea'?viewCrea(c):viewPlay(c)}
 function applyTheme(){const k=(C()||{}).classKey||'',r=document.documentElement;
   if(k)r.dataset.class=k;else delete r.dataset.class;
   const bg=getComputedStyle(r).getPropertyValue('--surface').trim();document.querySelectorAll('meta[name="theme-color"]').forEach(m=>m.setAttribute('content',bg||'#ffffff'))}
@@ -931,16 +1029,16 @@ const A={
     if(L===0)return afterCast(sp,'Truco: no gasta espacio');
     const opts=slotOptions(c,L),usable=opts.filter(o=>o.avail>0);
     const fr=freeUse(c,sp);
-    if(!sp.ritual&&!fr&&usable.length===1){consume(c,usable[0].kind,usable[0].level);return afterCast(sp,`${slotLabel(usable[0])} · te quedan ${usable[0].avail-1}`)}
+    lastCastL=L;if(!sp.ritual&&!fr&&usable.length===1){lastCastL=usable[0].level;consume(c,usable[0].kind,usable[0].level);return afterCast(sp,`${slotLabel(usable[0])} · te quedan ${usable[0].avail-1}`)}
     openModal(`<h2>Lanzar ${esc(sp.name)}</h2><p class="hint">Elige con qué espacio. Con uno de nivel superior algunos conjuros son más potentes.</p>
       ${opts.map(o=>`<button class="b opt" data-act="cast-with" data-i="${el.dataset.i}" data-kind="${o.kind}" data-level="${o.level}" ${o.avail>0?'':'disabled'}><span>${slotLabel(o)}</span><small>quedan ${o.avail}</small></button>`).join('')}
       ${fr?`<button class="b opt" data-act="cast-with" data-i="${el.dataset.i}" data-kind="free"><span>Gratis (${esc(sp.src||'rasgo')})</span><small>quedan ${fr.uses.max-fr.uses.used}</small></button>`:''}
       ${sp.ritual?`<button class="b opt" data-act="cast-with" data-i="${el.dataset.i}" data-kind="ritual"><span>Como ritual</span><small>+10 min, sin espacio</small></button>`:''}
       <button class="b" data-act="close-modal">Cancelar</button>`)},
-  'cast-with':el=>{const c=C(),sp=c.spells[+el.dataset.i],pe=pendingEco;closeModal();pendingEco=pe;
+  'cast-with':el=>{const c=C(),sp=c.spells[+el.dataset.i],pe=pendingEco;closeModal();pendingEco=pe;lastCastL=+sp.level||0;
     if(el.dataset.kind==='ritual')return afterCast(sp,'Como ritual: sin espacio');
     if(el.dataset.kind==='free'){const f=freeUse(c,sp);if(f)f.uses.used=Math.min(f.uses.max,f.uses.used+1);return afterCast(sp,`Uso gratuito de ${sp.src||'rasgo'}`)}
-    consume(c,el.dataset.kind,+el.dataset.level);
+    lastCastL=+el.dataset.level||+sp.level;consume(c,el.dataset.kind,+el.dataset.level);
     const o=slotOptions(c,+sp.level).find(x=>x.kind===el.dataset.kind&&x.level===+el.dataset.level);
     afterCast(sp,`${slotLabel({kind:el.dataset.kind,level:+el.dataset.level})} · te quedan ${o?o.avail:0}`)},
   'end-conc':()=>{C().concentration='';save();render()},
@@ -948,6 +1046,7 @@ const A={
   'conc-lose':el=>{el.closest('.toast').remove();C().concentration='';save();render()},
   insp:()=>{const c=C();c.inspiration=!c.inspiration;save();render()},
   cond:el=>{const c=C(),n=el.dataset.n,i=c.conditions.indexOf(n);i>=0?c.conditions.splice(i,1):c.conditions.push(n);
+    if(i<0&&INCAP.includes(n)&&c.form){const fx=formOf(c);endEffects(c,e=>e.form);c.form=null;toast(`<div class="t-label">Vuelves a tu forma</div><div class="t-parts">${esc(fx?fx.name:'La transformación')} termina al quedar incapacitado.</div>`)}
     if(i<0&&INCAP.includes(n)&&c.concentration){const lost=c.concentration;c.concentration='';toast(`<div class="t-label">Pierdes la concentración</div><div class="t-parts">${esc(lost)} termina: ${n==='Incapacitado'?'estás incapacitado':`el estado ${esc(n)} te incapacita`}.</div>`)}
     save();render();if(el.closest('.sheet'))A.conds()},
   conds:()=>{const c=C();openModal(`<div class="wz-head"><h2>Estados</h2><button class="b sm" data-act="close-modal">Hecho</button></div>
@@ -967,6 +1066,7 @@ const A={
       if(was<=0&&rest>0){c.deathSaves.fail=Math.min(3,c.deathSaves.fail+1);extra='<div class="t-parts">Recibir daño a 0 PG cuenta como un fallo de salvación contra muerte (dos si es crítico).</div>'}
       c.hp.current=Math.max(0,was-rest);
       if(was>0&&c.hp.current===0){extra=rest-was>=c.hp.max?'<div class="t-parts"><b>Muerte instantánea:</b> el daño sobrante iguala o supera tus PG máximos.</div>':'<div class="t-parts"><b>Caes inconsciente.</b> En tus turnos tira salvaciones contra muerte.</div>';if(!c.conditions.includes('Inconsciente'))c.conditions.push('Inconsciente')}
+      if(c.form){const fx=formOf(c);if(c.hp.current===0||(fx&&fx.via==='poly'&&c.hp.temp===0&&fromTemp>0)){endEffects(c,e=>e.form);c.form=null;extra+=`<div class="t-parts">${esc(fx?fx.name:'La transformación')} termina: vuelves a tu forma.</div>`}}
       let acts='';if(c.concentration&&n>0&&c.hp.current>0){const dc=Math.min(30,Math.max(10,Math.floor(n/2)));acts=`<div class="t-parts">Concentración en ${esc(c.concentration)}: tira salvación de CON, CD <b>${dc}</b> (tu bonificador ${sgn(saveB(c,'con'))}).</div><div class="t-actions"><button class="b sm" data-act="conc-keep">La supero</button><button class="b sm bad" data-act="conc-lose">La fallo</button></div>`}
       else if(c.concentration&&c.hp.current===0)c.concentration='';
       toast(`<div class="t-label">Daño recibido</div><div class="t-big bad">−${n}</div><div class="t-parts">${fromTemp?`${fromTemp} absorbidos por PG temporales · `:''}PG: ${c.hp.current} / ${c.hp.max}</div>${extra}${acts}`,!!acts)}
@@ -1020,7 +1120,7 @@ const A={
   long:()=>{restOpen=false;renderTop();A.longModal()},
   longModal:()=>openModal(`<h2>Descanso largo (8 horas)</h2><ul><li>Recuperas todos los PG y todos los dados de golpe</li><li>Recuperas todos los espacios de conjuro</li><li>Se recuperan los rasgos con usos limitados</li><li>Agotamiento −1 y pierdes los PG temporales</li>${C().companions.length?'<li>Tus compañeros recuperan todos sus PG</li>':''}</ul>
     <div class="btns"><button class="b pri" data-act="long-done">Hacer descanso largo</button><button class="b" data-act="close-modal">Cancelar</button></div>`),
-  'long-done':()=>{const c=C();c.companions.forEach(x=>x.hp.current=x.hp.max);endEffects(c,e=>e.r!=null||(e.m!=null&&e.m<=480));c.hp.current=c.hp.max;c.hp.temp=0;c.hitDice.spent=0;c.slots.forEach(s=>s.used=0);c.pact.used=0;
+  'long-done':()=>{const c=C();c.companions.forEach(x=>{const st=creaStats(c,x);if(st.track)x.hp.current=st.hpMax});endEffects(c,e=>e.r!=null||(e.m!=null&&e.m<=480));c.hp.current=c.hp.max;c.hp.temp=0;c.hitDice.spent=0;c.slots.forEach(s=>s.used=0);c.pact.used=0;
     c.features.forEach(f=>{if(f.uses.recover)f.uses.used=0});c.exhaustion=Math.max(0,(+c.exhaustion||0)-1);c.deathSaves={success:0,fail:0};c.concentration='';
     c.conditions=c.conditions.filter(x=>x!=='Inconsciente');if(c.speciesKey==='human')c.inspiration=true;closeModal();save();render();toast('<div class="t-label">Descanso largo terminado</div><div class="t-parts">Como nuevo.</div>')},
   pay:()=>{const c=C(),n=parseInt($('#pay-amt').value),k=$('#pay-coin').value;if(!(n>0)){$('#pay-amt').focus();return}
@@ -1056,21 +1156,47 @@ const A={
   't-end':()=>{const c=C();c.turn={a:false,aa:false,r:false,atk:0};c.effects.forEach(e=>{if(e.r!=null)e.r--});
     const gone=endEffects(c,e=>e.r!=null&&e.r<=0);save();render();
     if(gone.length)toast(`<div class="t-label">Efecto terminado</div><div class="t-parts">${gone.map(esc).join(', ')} ${gone.length>1?'han':'ha'} terminado.</div>`)},
-  'comp-new':()=>compModal({kind:'Familiar'}),
-  'comp-edit':el=>compModal(C().companions.find(x=>x.id===el.dataset.id)),
-  'comp-save':el=>{const c=C(),name=$('#cp-name').value.trim();if(!name){$('#cp-name').focus();return}
-    const max=Math.max(1,parseInt($('#cp-max').value)||1);let x=c.companions.find(y=>y.id===el.dataset.id);
-    if(!x){x={id:uid(),hp:{max,current:max}};c.companions.push(x)}
-    else{x.hp.max=max;const cur=parseInt($('#cp-cur').value);x.hp.current=clamp(isNaN(cur)?x.hp.current:cur,0,max)}
-    Object.assign(x,{name,kind:$('#cp-kind').value,ac:$('#cp-ac').value===''?'':+$('#cp-ac').value,speed:$('#cp-speed').value.trim(),notes:$('#cp-notes').value});
-    closeModal();save();render()},
-  'comp-del':el=>{const x=C().companions.find(y=>y.id===el.dataset.id);
-    const keep={name:$('#cp-name').value,kind:$('#cp-kind').value,ac:$('#cp-ac').value,speed:$('#cp-speed').value,notes:$('#cp-notes').value,hp:{max:$('#cp-max').value,current:$('#cp-cur').value}};
-    compModal(Object.assign({},x,keep,{id:x.id}),true)},
-  'comp-del-ok':el=>{const c=C();c.companions=c.companions.filter(y=>y.id!==el.dataset.id);closeModal();save();render()},
-  'comp-hp':el=>{const c=C(),x=c.companions.find(y=>y.id===el.dataset.id),inp=$('#cp-'+x.id),n=Math.max(0,parseInt(inp.value)||0);if(!n){inp.focus();return}
-    const was=x.hp.current;x.hp.current=el.dataset.m==='heal'?Math.min(x.hp.max,was+n):Math.max(0,was-n);save();render();
-    toast(`<div class="t-label">${esc(x.name)}</div><div class="t-big ${el.dataset.m==='heal'?'good':'bad'}">${el.dataset.m==='heal'?'+'+(x.hp.current-was):'−'+n}</div><div class="t-parts">PG: ${x.hp.current} / ${x.hp.max}${x.hp.current===0&&was>0?' · ha caído a 0 PG':''}</div>`)},
+  'crea-new':()=>creaPick(),
+  'crea-kind':el=>{CX=creaBlank(C(),el.dataset.k);creaModal()},
+  'crea-from-cast':el=>{const c=C(),tt=el.closest('.toast');if(tt)tt.remove();CX=creaBlank(c,el.dataset.k,{s:el.dataset.s,L:+el.dataset.l||0,cast:el.dataset.spell});if(el.dataset.k==='summon'||el.dataset.k==='steed'){CX.conc=el.dataset.k==='summon';CX.spell=el.dataset.spell}creaModal()},
+  'crea-edit':el=>{const x=C().companions.find(y=>y.id===el.dataset.id);CX=JSON.parse(JSON.stringify(x));CX.attacks=CX.attacks||[];creaModal()},
+  'crea-cancel':()=>{CX=null;closeModal()},
+  'cx-atk-add':()=>{creaCollect();CX.attacks.push({n:'',hit:'',dmg:''});creaModal()},
+  'cx-atk-del':el=>{creaCollect();CX.attacks.splice(+el.dataset.i,1);creaModal()},
+  'crea-save':()=>{const c=C();creaCollect();const x=CX,msg=$('#cx-msg');
+    if(!String(x.name||'').trim()){$('#cx-name').focus();return}
+    x.name=x.name.trim();x.attacks=(x.attacks||[]).filter(a=>a.n||a.dmg);
+    const isNew=!x.id,st=creaStats(c,x);
+    if(isNew&&x.spend&&(x.kind==='summon'||x.kind==='steed')){const o=slotOptions(c,+x.L).find(o=>o.level===+x.L&&o.avail>0);
+      if(!o){msg.textContent=`No te quedan espacios de nivel ${x.L}. Desmarca «Gastar un espacio» si lo lanzas de otra forma.`;return}consume(c,o.kind,o.level)}
+    if(isNew&&x.kind==='summon'){const S=SUMMONS[x.s];if(x.fromCast){x.conc=true;x.spell=x.fromCast}else if(x.concNew){c.concentration=S.n;addEffect(c,S.n,x.s==='insect'?{m:10}:{m:60},true);x.conc=true;x.spell=S.n}}
+    if(x.kind==='steed'&&isNew)c.companions=c.companions.filter(y=>y.kind!=='steed');
+    if(st.track){if(isNew)x.hp.current=st.hpMax;x.hp.max=st.hpMax}else x.hp.max=x.hp.max===''?0:+x.hp.max;
+    ['spend','concNew','fromCast','confirm'].forEach(k=>delete x[k]);
+    if(isNew){x.id=uid();c.companions.push(x)}else{const i=c.companions.findIndex(y=>y.id===x.id);c.companions[i]=x}
+    CX=null;closeModal();S.tab='crea';save();render()},
+  'crea-del':()=>{creaCollect();CX.confirm=true;creaModal()},
+  'crea-del-ok':()=>{const c=C();if(c.form===CX.id)endEffects(c,e=>e.form);c.companions=c.companions.filter(y=>y.id!==CX.id);CX=null;closeModal();save();render()},
+  'crea-dup':()=>{const c=C(),o=c.companions.find(y=>y.id===CX.id),n=JSON.parse(JSON.stringify(o));n.id=uid();n.name=n.name.replace(/( \d+)?$/,m=>' '+((parseInt(m)||1)+1));c.companions.push(n);CX=null;closeModal();save();render()},
+  'crea-hp':el=>{const c=C(),x=c.companions.find(y=>y.id===el.dataset.id),inp=$('#cp-'+x.id),n=Math.max(0,parseInt(inp.value)||0);if(!n){inp.focus();return}
+    const mx=creaStats(c,x).hpMax,was=x.hp.current;x.hp.current=el.dataset.m==='heal'?Math.min(mx,was+n):Math.max(0,was-n);save();render();
+    toast(`<div class="t-label">${esc(x.name)}</div><div class="t-big ${el.dataset.m==='heal'?'good':'bad'}">${el.dataset.m==='heal'?'+'+(x.hp.current-was):'−'+n}</div><div class="t-parts">PG: ${x.hp.current} / ${mx}${x.hp.current===0&&was>0?' · ha caído a 0 PG':''}</div>`)},
+  'crea-transform':el=>{const c=C(),x=c.companions.find(y=>y.id===el.dataset.id);
+    if(x.via==='wild'){const f=wsFeat(c);if(!f||featLeft(f)<=0)return;f.uses.used++;spendEco(c,'AA')}
+    const msg=transformInto(c,x);save();render();toast(`<div class="t-label">Te transformas</div><div class="t-big">${esc(x.name)}</div><div class="t-parts">${esc(msg)}</div>`)},
+  'crea-revert':()=>{const c=C(),x=formOf(c);if(x&&x.via==='wild')spendEco(c,'AA');endEffects(c,e=>e.form);c.form=null;save();render();toast('<div class="t-label">Vuelves a tu forma</div>')},
+  'form-go':el=>{const c=C(),via=el.dataset.via,pe=pendingEco;closeModal();
+    if(via==='wild'){const f=wsFeat(c);if(!f||featLeft(f)<=0)return;f.uses.used++;spendEco(c,pe||'AA');
+      if(!el.dataset.id){const ws=wsInfo(c);if(ws)c.hp.temp=Math.max(c.hp.temp,ws.temp);save();render();return}}
+    const x=c.companions.find(y=>y.id===el.dataset.id);const msg=transformInto(c,x,{conc:el.dataset.conc||null});save();render();
+    toast(`<div class="t-label">Te transformas</div><div class="t-big">${esc(x.name)}</div><div class="t-parts">${esc(msg)}</div>`)},
+  'form-familiar':()=>{const c=C(),f=wsFeat(c),pe=pendingEco;closeModal();if(!f||featLeft(f)<=0)return;f.uses.used++;save();render();
+    const fam=c.companions.find(x=>x.kind==='familiar');if(fam){fam.hp.current=+fam.hp.max||fam.hp.current;save();render();toast(`<div class="t-label">Compañero salvaje</div><div class="t-parts">${esc(fam.name)} vuelve con todos sus PG.</div>`)}
+    else{CX=creaBlank(c,'familiar');creaModal()}},
+  't-fatk':el=>{const c=C(),x=formOf(c),a=x&&x.attacks[+el.dataset.i];if(!a)return;spendEco(c,'A');save();render();toast(`<div class="t-label">${esc(x.name)}: ${esc(a.n)}</div><div class="t-big">1d20 ${esc(a.hit||'')}</div><div class="t-parts">Daño: ${esc(a.dmg||'—')}</div>`)},
+  't-pcmd':el=>{const c=C(),x=c.companions.find(y=>y.id===el.dataset.id);if(!x)return;const st=creaStats(c,x);spendEco(c,'AA');save();render();
+    toast(`<div class="t-label">${esc(x.name)}: Golpe de bestia${st.n>1?' (dos veces)':''}</div><div class="t-big">1d20 ${esc(st.atks[0][1])}</div><div class="t-parts">Daño: ${esc(st.atks[0][2])}</div>`)},
+  'form-cast':el=>{const t=el.closest('.toast');if(t)t.remove();formPicker('poly',el.dataset.spell)},
   'eff-del':el=>{const c=C();endEffects(c,e=>e.id===el.dataset.id);save();render()},
   'eff-add':()=>openModal(`<h2>Añadir efecto</h2><p class="hint">Algo que dura un tiempo: un conjuro que te han lanzado, un veneno, una bendición… Las rondas bajan al pulsar «Terminar turno» (1 ronda = 6 segundos).</p>
     <label class="f"><span>Nombre</span><input id="eff-name" autocomplete="off" placeholder="Envenenado"></label>
@@ -1088,6 +1214,7 @@ const A={
     toast(`<div class="t-label">Ataque con ${esc(a.name)} (acción adicional)</div><div class="t-big">1d20 ${sgn(+a.atk||0)}</div><div class="t-parts">Daño: ${esc(a.dmg||'—')} sin sumar tu modificador.</div>`)},
   't-cast':el=>{pendingEco=el.dataset.eco;A.cast(el)},
   't-feat':el=>{const c=C(),f=c.features[+el.dataset.i],w=whenOf(f);if(featLeft(f)<=0)return;
+    if(f.name==='Forma salvaje'){formPicker('wild');pendingEco='AA';return}
     if(f.uses.pool||f.uses.max>12){openModal(`<h2>${esc(f.name)}</h2><p>Quedan <b>${featLeft(f)}</b>. ¿Cuántos gastas?</p><div class="hpctl"><input id="pool-n" type="number" inputmode="numeric" min="1" max="${featLeft(f)}" value="1"><button class="b pri" data-act="t-pool" data-i="${el.dataset.i}">Gastar</button><button class="b" data-act="close-modal">Cancelar</button></div>`);return}
     f.uses.used++;
     if(w==='atk'){const T=c.turn;if(!T.a){T.a=true;T.atk=attacksPerAction(c)-1}else T.atk=Math.max(0,T.atk-1)}else spendEco(c,w);
@@ -1178,6 +1305,8 @@ document.addEventListener('input',e=>{const el=e.target;
 document.addEventListener('change',e=>{const el=e.target;
   if(el.id==='imp-file'&&el.files&&el.files[0]){const r=new FileReader();r.onload=()=>{$('#imp-text').value=r.result;$('#imp-msg').textContent='Archivo cargado. Pulsa «Importar».'};r.readAsText(el.files[0]);return}
   if(el.id==='story-img'&&el.files&&el.files[0]){loadPortrait(el.files[0]);el.value='';return}
+  if(CX&&el.dataset&&el.dataset.rr){const dn=k=>SUMMONS[k]?SUMMONS[k].n.replace(/^Invocar /,'').replace(/^./,m=>m.toUpperCase()):'';const oldS=CX.s,oldN=$('#cx-name')?$('#cx-name').value:'';
+    creaCollect();if(CX.kind==='summon'&&CX.s!==oldS&&(!oldN||oldN===dn(oldS))){CX.name=dn(CX.s);CX.v=Object.keys(SUMMONS[CX.s].vars)[0];CX.L=SUMMONS[CX.s].L}creaModal();return}
   if(el.id==='sp-cls'){P.cls=el.value;refreshPicker();return}
   if(el.id==='sp-lvl'){P.lvl=el.value;refreshPicker();return}
   if(el.dataset&&el.dataset.actInput==='res-set'){render();return}

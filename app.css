@@ -404,4 +404,17 @@ textarea.notes.diary{min-height:55vh;flex:1 1 auto}
 .comp-stats b{color:var(--ink)}
 .comp-hp{display:grid;grid-template-columns:auto 1fr;gap:.6rem;align-items:center;margin-bottom:.45rem}
 .comp-notes{margin:.4rem 0 0;font-size:.92rem;overflow-wrap:anywhere}
-.effdur3{display:grid;grid-template-columns:repeat(auto-fit,minmax(5.5rem,1fr));gap:.5rem}
+.effdur3{display:grid;grid-template-columns:repeat(auto-fit,minmax(5.5rem,1fr));gap:.5rem;align-items:end}
+/* Criaturas */
+.compc.active{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.catk{list-style:none;padding:0;margin:.3rem 0;font-size:.93rem}
+.catk li{padding:.15rem 0}
+.catk span{color:var(--accent);font-weight:700}
+.atkrow{display:grid;grid-template-columns:1.3fr .6fr 1.6fr auto;gap:.35rem;margin:.35rem 0;align-items:center}
+.atkrow input{width:100%;min-width:0;padding:.4rem .45rem;border:1px solid var(--line);border-radius:6px;background:var(--sunk);font-size:16px}
+.chk{display:flex;gap:.5rem;align-items:flex-start;margin:.55rem 0;font-size:.95rem}
+.chk input{margin-top:.2rem}
+.preview{margin-top:.7rem;padding:.55rem .7rem;border-radius:8px;background:var(--accent-soft);font-size:.92rem;line-height:1.5}
+.kinds{padding-left:1.1rem;margin:.4rem 0}.kinds li{margin:.3rem 0}
+.cols.crea{margin-top:.6rem}
+#modal h3{margin:.8rem 0 .2rem}
