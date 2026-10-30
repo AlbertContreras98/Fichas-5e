@@ -456,3 +456,11 @@ button.eff.cond-pill{border:1px solid color-mix(in srgb,var(--bad) 45%,var(--lin
 @keyframes glint{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.08);opacity:.85}}
 @media (prefers-reduced-motion:reduce){.b.qbtn.insp.on svg .st{animation:none}}
 .inforow{border-bottom:1px dashed var(--line);padding:.35rem 0}.inforow .kv{border:0}.inforow .hint{margin:.1rem 0 .2rem}
+.inforow>summary,.inforow .isum{display:flex;justify-content:space-between;align-items:center;gap:.6rem;padding:.35rem 0;cursor:pointer;list-style:none}
+.inforow>summary::-webkit-details-marker{display:none}
+.inforow>summary span::before{content:'▸';display:inline-block;width:1em;color:var(--muted);transition:transform .15s}
+.inforow[open]>summary span::before{transform:rotate(90deg)}
+.inforow .isum{cursor:default}
+.inforow>.hint{margin:0 0 .4rem 1em}
+.slotline{gap:.3rem 1.1rem}
+.inforow>summary,.inforow .isum{font-size:1rem;color:var(--ink)}.inforow>summary b,.inforow .isum b{font-weight:700}

@@ -321,9 +321,9 @@ function effectsBar(c,inModal){const ce=c.concentration&&c.effects.find(e=>e.con
 /* ================= Render: barra superior ================= */
 function pips(kind,a,T,filled){let h='<span class="pips">';for(let k=0;k<T;k++)h+=`<button class="pip${k<filled?' full':''}" data-act="pip" data-kind="${kind}" data-a="${a}" data-i="${k}" aria-label="Casilla ${k+1} de ${T}"></button>`;return h+'</span>'}
 function slotLine(c){const parts=[];
-  c.slots.forEach((x,i)=>{if(x.total>0)parts.push(`<span class="sl"><small>${i+1}.º</small>${pips('slot',i,x.total,x.total-x.used)}</span>`)});
-  if(c.pact.total>0)parts.push(`<span class="sl"><small>Pacto ${c.pact.level}.º</small>${pips('pact',0,c.pact.total,c.pact.total-c.pact.used)}</span>`);
-  return parts.length?`<div class="slotline">${term('Espacios','slot')}${parts.join('')}</div>`:''}
+  c.slots.forEach((x,i)=>{if(x.total>0)parts.push(`<span class="sl" title="Espacios de nivel ${i+1}">${pips('slot',i,x.total,x.total-x.used)}</span>`)});
+  if(c.pact.total>0)parts.push(`<span class="sl" title="Espacios de pacto (nivel ${c.pact.level})">${pips('pact',0,c.pact.total,c.pact.total-c.pact.used)}</span>`);
+  return parts.length?`<div class="slotline">${parts.join('')}</div>`:''}
 const INFO_DESC={'Daño de furia':'Daño extra que sumas a tus ataques con Fuerza mientras estás en furia.',
   'Maestrías con armas':'Cuántas armas puedes usar con su propiedad de maestría. Puedes cambiar una tras un descanso largo.',
   'Dado de inspiración':'El dado que das con Inspiración bárdica. Quien lo tiene puede sumarlo a una tirada d20 que falle.',
@@ -335,7 +335,7 @@ const INFO_DESC={'Daño de furia':'Daño extra que sumas a tus ataques con Fuerz
   'Metamagias conocidas':'Cuántas opciones de Metamagia conoces para modificar tus conjuros gastando puntos de hechicería.',
   'Invocaciones':'Poderes especiales del brujo. Unos funcionan siempre, otros te dejan lanzar un conjuro sin gastar espacio y otros tienen un coste concreto. Ninguno gasta espacios de conjuro.'};
 function openInfo(){const c=C(),info=infoFor(defOf(c),subOf(c),c.level);
-  const row=(lbl,k,val,desc)=>`<div class="inforow"><div class="kv"><span>${k?term(esc(lbl),k):esc(lbl)}</span><b>${esc(val)}</b></div>${desc?`<p class="hint">${esc(desc)}</p>`:''}</div>`;
+  const row=(lbl,k,val,desc)=>desc?`<details class="inforow"><summary><span>${esc(lbl)}</span><b>${esc(val)}</b></summary><p class="hint">${esc(desc)}</p></details>`:`<div class="inforow"><div class="isum"><span>${esc(lbl)}</span><b>${esc(val)}</b></div></div>`;
   const list=pre=>c.features.filter(f=>norm(f.name).startsWith(norm(pre))).map(f=>`<details><summary>${esc(f.name.replace(/^[^:]*:\s*/,''))}</summary><p>${esc(f.text||'')}</p></details>`).join('');
   openModal(`<div class="wz-head"><h2>Datos de ${esc(c.name||'tu personaje')}</h2><button class="b sm" data-act="close-modal">Hecho</button></div>
     ${row('Dados de golpe','hd',`${c.hitDice.total-c.hitDice.spent} / ${c.hitDice.total} ${c.hitDice.die}`,`En un descanso corto gastas dados para curarte: tiras el dado y sumas tu CON (${sgn(M(c,'con'))}). Se recuperan en el descanso largo.`)}
