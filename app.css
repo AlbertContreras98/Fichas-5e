@@ -464,3 +464,4 @@ button.eff.cond-pill{border:1px solid color-mix(in srgb,var(--bad) 45%,var(--lin
 .inforow>.hint{margin:0 0 .4rem 1em}
 .slotline{gap:.3rem 1.1rem}
 .inforow>summary,.inforow .isum{font-size:1rem;color:var(--ink)}.inforow>summary b,.inforow .isum b{font-weight:700}
+.usesrow{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem .7rem;margin:.3rem 0}.usesrow small{color:var(--muted)}

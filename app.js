@@ -368,6 +368,9 @@ function renderTop(){
     <button class="b gear" data-act="settings" aria-label="Ajustes"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3.3h-4l-.4 2.6a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1l.4 2.6h4l.4-2.6a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5A3.5 3.5 0 1 1 13 8.5a3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg></button></div></div>`}
 
 /* ================= Render: partida ================= */
+function usesCtl(f,i){const u=f.uses,left=u.max-u.used;return u.pool||u.max>12
+    ?`<span class="counter"><button class="b sq" data-act="res-d" data-i="${i}" data-d="-1" aria-label="Gastar 1">−</button><input id="res-${i}" type="number" inputmode="numeric" value="${left}" data-act-input="res-set" data-i="${i}" aria-label="Quedan"><span class="of">/ ${u.max}</span><button class="b sq" data-act="res-d" data-i="${i}" data-d="1" aria-label="Recuperar 1">+</button></span>`
+    :pips('feat',i,u.max,left)}
 function resRow(f,i){
   const u=f.uses,left=u.max-u.used;
   const ctl=u.pool||u.max>12
@@ -395,16 +398,6 @@ function refreshVida(){const b=$('#vida-body');if(b&&C())b.innerHTML=vidaHTML(C(
 function viewCombat(c){return`${c.hp.current<=0?`<section class="card">${deathHTML(c)}</section>`:''}${viewTurn(c)}`}
 function viewPlay(c){
   const p=pb(c),def=defOf(c),sub=subOf(c);
-  // Recursos: espacios, rasgos con usos, consumibles, datos de clase
-  const featRes=c.features.map((f,i)=>f.uses.max>0?resRow(f,i):'').join('');
-  const cons=c.equipment.map((e,i)=>USABLE.has(e.cat)?`<div class="slotrow"><span>${esc(e.name)}<br><small>${CATN[e.cat]}</small></span><span class="counter"><button class="b sq" data-act="qty" data-i="${i}" data-d="-1" aria-label="Usar uno">−</button><b style="min-width:2rem;text-align:center">${e.qty}</b><button class="b sq" data-act="qty" data-i="${i}" data-d="1" aria-label="Añadir uno">+</button></span></div>`:'').join('');
-  const mis=c.equipment.map((e,i)=>e.mi&&+e.mi.ch?`<div class="slotrow"><span>${esc(e.name)}<br><small>${e.mi.rec?`recupera ${esc(e.mi.rec)} al amanecer`:'cargas'}</small></span><span class="counter"><button class="b sq" data-act="mi-ch" data-i="${i}" data-d="1" aria-label="Gastar una carga">−</button><b style="min-width:3.2rem;text-align:center">${e.mi.ch-(+e.mi.used||0)}/${e.mi.ch}</b><button class="b sq" data-act="mi-ch" data-i="${i}" data-d="-1" aria-label="Recuperar una carga">+</button></span></div>`:'').join('');
-  const res=`<section class="card"><h2>Recursos</h2>
-    ${featRes?`<h3>Rasgos con usos</h3>${featRes}`:''}
-    ${cons?`<h3>Consumibles</h3>${cons}`:''}
-    ${mis?`<h3>Cargas de objetos mágicos</h3>${mis}`:''}
-    ${!featRes&&!cons&&!mis?'<p class="empty">Aquí verás rasgos con usos limitados, consumibles (munición, comida, pociones…) y cargas de objetos mágicos. Añade objetos con el botón de la mochila. Los espacios de conjuro están arriba, bajo tu vida.</p>':''}
-    </section>`;
   const abil=`<section class="card"><h2>Características</h2><div class="abil">${ABIL.map(([k,l])=>`<button class="ab" data-act="gloss" data-k="abil:${k}"><span class="lbl">${l}</span>
       <span class="mod">${sgn(M(c,k))}</span><span class="sc">${c.abilities[k]}</span>
       <span class="sv ${c.saveProf.includes(k)?'p':''}">Salv. ${sgn(saveB(c,k))}</span></button>`).join('')}</div>
@@ -434,11 +427,12 @@ function viewPlay(c){
           ${desc?`<details><summary>Qué hace</summary><p>${esc(desc)}</p></details>`:''}</div>`}).join('')}</div>`).join('')}
       ${scrolls.length?`<h3>Pergaminos</h3><div class="list">${scrolls.map(([e,i])=>{const d=SPBY[e.scroll];return`<div class="it"><div class="it-head"><span class="it-name">${esc(d.n)} <span class="tag">×${e.qty}</span></span><button class="b sm" data-act="scroll" data-i="${i}" ${e.qty>0?'':'disabled'}>Lanzar</button></div><div class="meta">${d.l?`Nivel ${d.l}`:'Truco'} · ${esc(TIME[d.t]||d.t)} · CD ${SCROLL_STATS[+d.l||0][0]} · ataque ${sgn(SCROLL_STATS[+d.l||0][1])}</div></div>`}).join('')}</div>`:''}
       ${!c.spells.length&&!scrolls.length?'<p class="empty">Sin conjuros. Pulsa «Buscar conjuros» para añadirlos.</p>':''}</section>`}
-  const feats=`<section class="card"><h2>Rasgos y dotes</h2>${c.features.length?`<div class="list">${c.features.map(f=>`<div class="it"><div class="it-head"><span class="it-name">${esc(f.name)}</span>${f.uses.max>0?`<span class="badge">${f.uses.max-f.uses.used}/${f.uses.max}</span>`:''}</div>
+  const feats=`<section class="card"><h2>Rasgos y dotes</h2>${c.features.length?`<div class="list">${c.features.map((f,i)=>`<div class="it"><div class="it-head"><span class="it-name">${esc(f.name)}</span></div>
+      ${f.uses.max>0?`<div class="usesrow">${usesCtl(f,i)}<small>${esc(REC[f.uses.recover]||'sin recuperación automática')}</small></div>`:''}
       ${f.source?`<div class="meta">${esc(f.source)}</div>`:''}
       ${f.text?`<details><summary>Detalles</summary><p>${esc(f.text)}</p></details>`:''}</div>`).join('')}</div>`:'<p class="empty">Sin rasgos.</p>'}</section>`;
   const tl=toolsList(c);const tools=tl.length?`<section class="card"><h2>Herramientas</h2><div class="list">${tl.map(x=>toolDetail(c,x)).join('')}</div><p class="hint" style="margin-top:.5rem">Al usar una herramienta tiras 1d20 + ese bonificador contra la CD. Si además eres competente en una habilidad que encaje con la prueba (el máster decide cuál), tiras con ventaja.</p></section>`:'';
-  return`<div class="cols"><div class="col">${res}</div><div class="col">${abil}${sk}${tools}</div><div class="col">${atk}${mag}${feats}</div></div>`}
+  return`<div class="cols"><div class="col">${abil}${sk}${tools}</div><div class="col">${atk}${mag}${feats}</div></div>`}
 function slotOptions(c,L){const o=[];
   if(c.pact.total>0&&c.pact.level>=L)o.push({kind:'pact',level:c.pact.level,avail:c.pact.total-c.pact.used});
   for(let l=L;l<=9;l++){const s=c.slots[l-1];if(s.total>0)o.push({kind:'slot',level:l,avail:s.total-s.used})}
@@ -697,7 +691,7 @@ function invHTML(c){
   const A=armorAuto(c)?acCalc(c):null,att=attuned(c),anyAtt=c.equipment.some(e=>e.mi&&e.mi.att);
   const acBox=A?`<div class="acbox"><div><b>CA ${A.ac}</b><small>${esc(A.src)}</small></div>${A.warn.map(w=>`<p class="hint warn">${esc(w)}</p>`).join('')}</div>`:'';
   return`<div class="btns" style="margin-bottom:.4rem"><button class="b sm pri" data-act="item-new">Añadir objeto</button>${anyAtt?`<span class="badge" style="${att>3?'color:var(--bad)':''}">Sintonización ${att}/3</span>`:''}</div>${acBox}${items}
-    <p class="hint" style="margin-top:.6rem">La munición, las pociones, la comida y otros consumibles aparecen también en «Recursos», en Partida. Para renombrar o borrar objetos: ⚙ Ajustes → Editar ficha.</p>`}
+    <p class="hint" style="margin-top:.6rem">Las pociones, la munición y otros consumibles se gastan también desde la pestaña Combate. Para renombrar o borrar objetos: ⚙ Ajustes → Editar ficha.</p>`}
 function refreshInv(){const b=$('#inv-body');if(b)b.innerHTML=invHTML(C())}
 function openInv(){openModal(`<div class="wz-head"><h2>Objetos</h2><button class="b sm" data-act="close-modal">Hecho</button></div><div id="inv-body">${invHTML(C())}</div>`,true)}
 function viewPj(c){return`<div class="pj">${viewStory(c)}</div>`}
@@ -763,7 +757,7 @@ function viewEdit(c){
     <div class="f">${chk('Concentración',`spells.${i}.conc`,sp.conc)}${chk('Ritual',`spells.${i}.ritual`,sp.ritual)}</div>
     ${ta(sp.ref?'Notas propias (si lo dejas vacío se muestra la descripción del conjuro)':'Qué hace',`spells.${i}.desc`,sp.desc)}${del('spells',i)}</div>`).join('')}
     <div class="btns"><button class="b" data-act="add" data-list="spells">Añadir conjuro a mano</button></div></div></section>
-  <section class="card"><h2>Rasgos, dotes y recursos limitados</h2><p class="hint">Si un rasgo tiene usos (p. ej. «2 veces por descanso largo»), pon los usos y cuándo se recuperan; aparecerá en «Recursos».</p>
+  <section class="card"><h2>Rasgos, dotes y recursos limitados</h2><p class="hint">Si un rasgo tiene usos (p. ej. «2 veces por descanso largo»), pon los usos y cuándo se recuperan; aparecerá con sus rombos en «Rasgos y dotes» y en Combate.</p>
     <div class="stack">${c.features.map((f,i)=>`<div class="row-ed">
     ${inp('Nombre',`features.${i}.name`,f.name)}${inp('Origen',`features.${i}.source`,f.source,{ph:'Clase, especie, dote…'})}${inp('Usos (0 = ilimitado)',`features.${i}.uses.max`,f.uses.max,{num:1})}
     ${sel('Se recupera con',`features.${i}.uses.recover`,f.uses.recover,[['','—'],['corto','Descanso corto o largo'],['corto1','1 en corto, todos en largo'],['largo','Descanso largo']])}
