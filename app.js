@@ -1371,7 +1371,7 @@ const A={
     <button class="b opt" data-act="open-edit"><span><b>Editar ficha</b><br><small>Características, habilidades, armas, conjuros, rasgos y objetos</small></span><span aria-hidden="true">›</span></button>
     <div class="setting"><b>Tema</b><div class="seg" role="group" aria-label="Tema">${[['','Sistema'],['light','Claro'],['dark','Oscuro']].map(([k,n])=>`<button class="${t===k?'on':''}" data-act="theme" data-v="${k}" aria-pressed="${t===k}">${n}</button>`).join('')}</div></div>
     <button class="b opt" data-act="open-data"><span><b>Copia de seguridad</b><br><small>Importar y exportar fichas</small></span><span aria-hidden="true">›</span></button>
-    <button class="b opt" data-act="open-credits"><span><b>Créditos y aviso legal</b><br><small>Aviso de contenido de fans y licencia del SRD</small></span><span aria-hidden="true">›</span></button><p class="hint" style="text-align:center;margin-top:.8rem">Versión 31</p>`)},
+    <button class="b opt" data-act="open-credits"><span><b>Créditos y aviso legal</b><br><small>Aviso de contenido de fans y licencia del SRD</small></span><span aria-hidden="true">›</span></button>`)},
   theme:el=>{setTheme(el.dataset.v);render();A.settings()},
   'open-data':()=>{closeModal();S.tab='data';save();render();scrollTo(0,0)},
   'open-credits':()=>openModal(`<div class="wz-head"><h2>Créditos y aviso legal</h2><button class="b sm" data-act="close-modal">Cerrar</button></div><div class="credits">${CREDITS}</div>`),
