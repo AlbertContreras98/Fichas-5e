@@ -439,3 +439,20 @@ button.eff.cond-pill{border:1px solid color-mix(in srgb,var(--bad) 45%,var(--lin
 .condnotes p{margin:.25rem 0;font-size:.92rem}
 .mibox{border:1px dashed var(--line);border-radius:9px;padding:.2rem .6rem .6rem}
 .muted{color:var(--muted)}
+/* Cabecera: datos, espacios e inspiración */
+.whorow{display:flex;align-items:center;gap:.5rem;flex:1 1 180px;min-width:0}
+.whorow .who{flex:1 1 auto}
+.b.sq.infob{flex:0 0 auto;width:2.3rem;height:2.3rem;border-radius:50%;padding:0;color:var(--accent)}
+.slotline{flex:1 1 100%;display:flex;flex-wrap:wrap;align-items:center;gap:.3rem .9rem;font-size:.85rem}
+.slotline>.term{font-size:.75rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.slotline .sl{display:inline-flex;align-items:center;gap:.35rem}
+.slotline .sl small{color:var(--muted);font-weight:700}
+.b.qbtn.insp{margin-left:auto;width:2.6rem;height:2.6rem;padding:0;justify-content:center}
+.b.qbtn.insp+.b.qbtn.inv{margin-left:0}
+.b.qbtn.insp svg path{fill:none;stroke:var(--muted);stroke-width:1.4;stroke-linejoin:round}
+.b.qbtn.insp.on{background:color-mix(in srgb,#f5c542 22%,var(--surface));border-color:#d9a520}
+.b.qbtn.insp.on svg path{fill:#f2b81f;stroke:#b8860b;filter:drop-shadow(0 0 3px rgba(255,200,40,.85))}
+.b.qbtn.insp.on svg .st{animation:glint 2.4s ease-in-out infinite;transform-origin:12px 10px}
+@keyframes glint{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.08);opacity:.85}}
+@media (prefers-reduced-motion:reduce){.b.qbtn.insp.on svg .st{animation:none}}
+.inforow{border-bottom:1px dashed var(--line);padding:.35rem 0}.inforow .kv{border:0}.inforow .hint{margin:.1rem 0 .2rem}
