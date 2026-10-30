@@ -2,7 +2,8 @@
 
 App instalable (PWA) para gestionar fichas de personaje de D&D 5e con las reglas de 2024. Pensada para jugar con dados físicos: lleva la cuenta de PG, espacios de conjuro, rasgos con usos, munición, comida y demás consumibles, inventario y dinero.
 
-- Asistente para subir de nivel (12 clases y 48 subclases) y para crear personajes.
+- Asistente para subir de nivel (12 clases y 48 subclases) y para crear personajes, con especies, linajes, trasfondos y dotes de origen de 2024: velocidad, visión, rasgos, conjuros de especie y siempre preparados, aumentos de característica y PG extra se aplican solos.
+- Tema visual propio para cada clase.
 - Buscador de conjuros con los 339 conjuros del SRD 5.2 (nombres en castellano, texto de reglas en inglés).
 - Funciona sin conexión una vez instalada. Las fichas se guardan en el dispositivo; nada se sube a ningún servidor.
 - Para publicar una versión nueva: cambia `VERSION` en `sw.js`.

@@ -430,3 +430,32 @@ wizard:{n:'Mago',en:'Wizard',hd:6,saves:['int','wis'],cast:'full',ab:'int',
      14:[['Realidad ilusoria','Al lanzar un conjuro de ilusión, puedes volver real un objeto no mágico de la ilusión durante 1 minuto.']]}}}}
 };
 })();
+
+/* Conjuros siempre preparados (no cuentan en el límite), por nivel de clase. Nombres en inglés del SRD;
+   los que no están en el SRD 5.2 se omiten y habría que añadirlos a mano. */
+window.ALWAYS_PREPARED={
+ classes:{ranger:{1:["Hunter's Mark"]},paladin:{2:['Divine Smite'],5:['Find Steed']},druid:{1:['Speak with Animals']},warlock:{9:['Contact Other Plane']},bard:{20:['Power Word Heal','Power Word Kill']}},
+ subs:{
+  knowledge:{3:['Command','Comprehend Languages','Detect Magic','Detect Thoughts','Identify','Mind Spike'],5:['Dispel Magic','Nondetection','Tongues'],7:['Arcane Eye','Banishment','Confusion'],9:['Legend Lore','Scrying','Telekinesis']},
+  life:{3:['Aid','Bless','Cure Wounds','Lesser Restoration'],5:['Mass Healing Word','Revivify'],7:['Aura of Life','Death Ward'],9:['Greater Restoration','Mass Cure Wounds']},
+  light:{3:['Burning Hands','Faerie Fire','Scorching Ray','See Invisibility'],5:['Daylight','Fireball'],7:['Arcane Eye','Wall of Fire'],9:['Flame Strike','Scrying']},
+  trickery:{3:['Charm Person','Disguise Self','Invisibility','Pass without Trace'],5:['Hypnotic Pattern','Nondetection'],7:['Confusion','Dimension Door'],9:['Dominate Person','Modify Memory']},
+  moon:{3:['Cure Wounds','Moonbeam','Starry Wisp'],5:['Conjure Animals'],9:['Mass Cure Wounds']},
+  sea:{3:['Fog Cloud','Gust of Wind','Ray of Frost','Shatter','Thunderwave'],5:['Lightning Bolt','Water Breathing'],7:['Control Water','Ice Storm'],9:['Conjure Elemental','Hold Monster']},
+  stars:{3:['Guidance','Guiding Bolt']},
+  glamour:{3:['Charm Person','Mirror Image'],6:['Command']},
+  devotion:{3:['Protection from Evil and Good','Shield of Faith'],5:['Aid','Zone of Truth'],9:['Beacon of Hope','Dispel Magic'],13:['Freedom of Movement','Guardian of Faith'],17:['Commune','Flame Strike']},
+  glory:{3:['Guiding Bolt','Heroism'],5:['Enhance Ability','Magic Weapon'],9:['Haste','Protection from Energy'],13:['Compulsion','Freedom of Movement'],17:['Legend Lore']},
+  ancients:{3:['Ensnaring Strike','Speak with Animals'],5:['Misty Step','Moonbeam'],9:['Plant Growth','Protection from Energy'],13:['Ice Storm','Stoneskin'],17:['Commune with Nature','Tree Stride']},
+  vengeance:{3:['Bane',"Hunter's Mark"],5:['Hold Person','Misty Step'],9:['Haste','Protection from Energy'],13:['Banishment','Dimension Door'],17:['Hold Monster','Scrying']},
+  feywanderer:{3:['Charm Person'],5:['Misty Step'],13:['Dimension Door'],17:['Mislead']},
+  gloomstalker:{3:['Disguise Self'],5:['Rope Trick'],9:['Fear'],13:['Greater Invisibility'],17:['Seeming']},
+  aberrant:{3:['Calm Emotions','Detect Thoughts','Dissonant Whispers'],5:['Sending'],7:['Black Tentacles'],9:['Telepathic Bond','Telekinesis']},
+  clockwork:{3:['Aid','Alarm','Lesser Restoration','Protection from Evil and Good'],5:['Dispel Magic','Protection from Energy'],7:['Freedom of Movement'],9:['Greater Restoration','Wall of Force']},
+  draconic:{3:['Alter Self','Chromatic Orb','Command',"Dragon's Breath"],5:['Fear','Fly'],7:['Arcane Eye','Charm Monster'],9:['Legend Lore','Summon Dragon']},
+  archfey:{3:['Calm Emotions','Faerie Fire','Misty Step','Phantasmal Force','Sleep'],5:['Blink','Plant Growth'],7:['Dominate Beast','Greater Invisibility'],9:['Dominate Person','Seeming']},
+  celestial:{3:['Aid','Cure Wounds','Guiding Bolt','Lesser Restoration','Light','Sacred Flame'],5:['Daylight','Revivify'],7:['Guardian of Faith','Wall of Fire'],9:['Greater Restoration']},
+  fiend:{3:['Burning Hands','Command','Scorching Ray','Suggestion'],5:['Fireball','Stinking Cloud'],7:['Fire Shield','Wall of Fire'],9:['Geas','Insect Plague']},
+  greatoldone:{3:['Detect Thoughts','Dissonant Whispers','Phantasmal Force','Hideous Laughter'],5:['Clairvoyance'],7:['Confusion'],9:['Modify Memory','Telekinesis'],10:['Hex']},
+  psiwarrior:{18:['Telekinesis']}
+ }};
