@@ -381,7 +381,7 @@ function viewEdit(c){
 
 /* ================= Render: personajes ================= */
 function example(){const e=blank();delete e.id;e.attacks=[NEW.attacks()];e.spells=[NEW.spells()];e.features=[NEW.features()];e.equipment=[NEW.equipment()];delete e.equipment[0].id;return e}
-function prompt4Claude(){return`Convierte la ficha de personaje de D&D 5e (reglas de 2024) que te adjunto a JSON para mi app de fichas. Usa exactamente esta estructura y estas claves:
+function prompt4Claude(){return`Convierte la ficha de personaje de quinta edición (reglas de 2024) que te adjunto a JSON para mi app de fichas. Usa exactamente esta estructura y estas claves:
 - classKey: una de ${Object.keys(CL).join(', ')}; subclassKey: la subclase si la tiene (déjala vacía si no).
 - abilities: puntuaciones (no modificadores). saveProf: salvaciones con competencia (str, dex, con, int, wis, cha).
 - skills: 1 = competencia, 2 = pericia. Claves: ${SKILLS.map(s=>s[0]).join(', ')}.
@@ -407,7 +407,7 @@ function viewChars(c){
     <p class="hint">Copia de seguridad o para pasarla a otro dispositivo. Las fichas se guardan solo en este dispositivo, así que conviene copiarlas de vez en cuando.</p>
     <textarea class="code" id="exp-text" readonly>${esc(JSON.stringify(c,null,2))}</textarea>
     <div class="btns" style="margin-top:.6rem"><button class="b" data-act="copy-exp">Copiar JSON</button><button class="b" data-act="copy-all">Copiar todas las fichas</button></div></section>
-  <footer class="credits">Esta app incluye material del System Reference Document 5.2 («SRD 5.2») de Wizards of the Coast LLC, disponible en https://www.dndbeyond.com/srd, bajo licencia Creative Commons Attribution 4.0 International (https://creativecommons.org/licenses/by/4.0/legalcode). Los resúmenes de rasgos de clase y subclase están escritos para esta app; consulta el Manual del Jugador para el texto completo.</footer>
+  <footer class="credits"><p>Fichas 5e es contenido de fans no oficial permitido bajo la Fan Content Policy. No aprobado ni respaldado por Wizards. Partes de los materiales usados son propiedad de Wizards of the Coast. ©Wizards of the Coast LLC.</p><p>Esta app incluye material del System Reference Document 5.2 («SRD 5.2») de Wizards of the Coast LLC, disponible en https://www.dndbeyond.com/srd, bajo licencia Creative Commons Attribution 4.0 International (https://creativecommons.org/licenses/by/4.0/legalcode). Los resúmenes de rasgos de clase y subclase están escritos para esta app; consulta el Manual del Jugador para el texto completo.</p></footer>
   </div>`}
 
 function renderView(){const c=C();$('#view').innerHTML=S.tab==='edit'?viewEdit(c):S.tab==='chars'?viewChars(c):S.tab==='inv'?viewInv(c):viewPlay(c)}

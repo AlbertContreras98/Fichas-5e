@@ -1,7 +1,7 @@
 {
-  "name": "Fichas D&D",
-  "short_name": "Fichas D&D",
-  "description": "Fichas de personaje interactivas para D&D 5e (reglas 2024)",
+  "name": "Fichas 5e",
+  "short_name": "Fichas 5e",
+  "description": "Fichas de personaje interactivas para la 5.ª edición (reglas de 2024)",
   "lang": "es",
   "start_url": "./",
   "scope": "./",
