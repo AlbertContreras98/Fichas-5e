@@ -19,6 +19,9 @@ const CL=window.CLASSES,SP=window.SPELLS,SPBY=Object.fromEntries(SP.map(s=>[s.id
 const SPEC=window.SPECIES,FEATS=window.FEATS,BG=window.BACKGROUNDS;
 
 const $=s=>document.querySelector(s);
+function getTheme(){try{return localStorage.getItem('fichas-theme')||''}catch(e){return''}}
+function setTheme(t){const r=document.documentElement;if(t)r.dataset.theme=t;else delete r.dataset.theme;try{t?localStorage.setItem('fichas-theme',t):localStorage.removeItem('fichas-theme')}catch(e){}}
+setTheme(getTheme());
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,10);
 const mod=s=>Math.floor(((+s||0)-10)/2);
@@ -212,7 +215,7 @@ function renderTop(){
       <button class="b" data-act="short">Descanso corto</button><button class="b" data-act="long">Descanso largo</button>
       <button class="b pri" data-act="levelup" ${c.level>=20?'disabled':''}>Subir de nivel</button>
     </div></div>
-    <div class="tabrow"><nav class="tabs">${[['play','Partida'],['pj',c.name||'Personaje'],['chars','Personajes']].map(([t,n])=>`<button class="${S.tab===t||(t==='pj'&&S.tab==='edit')?'on':''}" data-act="tab" data-t="${t}">${esc(n)}</button>`).join('')}</nav>
+    <div class="tabrow"><nav class="tabs">${[['play','Partida'],['pj',c.name||'Personaje'],['chars','Personajes']].map(([t,n])=>`<button class="${S.tab===t||(t==='pj'&&(S.tab==='edit'||S.tab==='data'))?'on':''}" data-act="tab" data-t="${t}">${esc(n)}</button>`).join('')}</nav>
     <button class="b gear" data-act="settings" aria-label="Ajustes"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3.3h-4l-.4 2.6a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1l.4 2.6h4l.4-2.6a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5A3.5 3.5 0 1 1 13 8.5a3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg></button></div></div>`}
 
 /* ================= Render: partida ================= */
@@ -492,18 +495,23 @@ function viewChars(c){
   <section class="card"><h2>Tus personajes</h2><div class="chars">${S.chars.map(x=>`<div class="charc ${x.id===S.active?'on':''}"><div><b>${esc(x.name||'Sin nombre')}</b><div class="meta">${esc([x.species,x.class&&`${x.class} ${x.level}`].filter(Boolean).join(' · ')||'Sin datos')}</div></div>
     <div class="btns">${x.id===S.active?'<span class="meta">En uso</span>':`<button class="b sm pri" data-act="use" data-id="${x.id}">Usar</button>`}<button class="b sm" data-act="dup" data-id="${x.id}">Duplicar</button><button class="b sm bad" data-act="delchar" data-id="${x.id}">Borrar</button></div></div>`).join('')}</div>
     <div class="btns" style="margin-top:.8rem"><button class="b pri" data-act="create">Crear personaje paso a paso</button><button class="b" data-act="newchar">Crear ficha vacía</button></div></section>
-  <section class="card"><h2>Importar ficha</h2>
+  </div>`}
+
+function viewData(c){
+  return`<div class="ed">
+  <div class="ed-head"><h2>Copia de seguridad</h2><button class="b pri" data-act="tab" data-t="pj">Hecho</button></div>
+  <p class="hint">Las fichas se guardan solo en este dispositivo. Exporta de vez en cuando para no perderlas o para pasarlas a otro dispositivo.</p>
+  <section class="card"><h2>Importar</h2>
     <p class="hint">Pega el JSON de una ficha (o de varias) o elige un archivo .json. Para pasar una ficha en papel: escanéala, copia las instrucciones de abajo y pásaselas a Claude junto al escaneo; pega aquí lo que te devuelva.</p>
     <div class="btns" style="margin-bottom:.6rem"><button class="b" data-act="copy-prompt">Copiar instrucciones para Claude</button><label class="b" for="imp-file">Elegir archivo .json</label><input id="imp-file" type="file" accept=".json,application/json,text/plain" hidden></div>
     <textarea class="code" id="imp-text" placeholder='{"name": "…", "classKey": "…", …}'></textarea>
     <div class="btns" style="margin-top:.6rem"><button class="b pri" data-act="import">Importar</button></div><p class="hint" id="imp-msg" role="status"></p></section>
-  <section class="card"><h2>Exportar «${esc(c.name)}»</h2>
-    <p class="hint">Copia de seguridad o para pasarla a otro dispositivo. Las fichas se guardan solo en este dispositivo, así que conviene copiarlas de vez en cuando.</p>
+  <section class="card"><h2>Exportar</h2>
+    <p class="hint">Abajo tienes la ficha de ${esc(c.name)}. «Copiar todas las fichas» guarda todos tus personajes de una vez.</p>
     <textarea class="code" id="exp-text" readonly>${esc(JSON.stringify(c,null,2))}</textarea>
     <div class="btns" style="margin-top:.6rem"><button class="b" data-act="copy-exp">Copiar JSON</button><button class="b" data-act="copy-all">Copiar todas las fichas</button></div></section>
-  <footer class="credits"><p>Fichas 5e es contenido de fans no oficial permitido bajo la Fan Content Policy. No aprobado ni respaldado por Wizards. Partes de los materiales usados son propiedad de Wizards of the Coast. ©Wizards of the Coast LLC.</p><p>Esta app incluye material del System Reference Document 5.2 («SRD 5.2») de Wizards of the Coast LLC, disponible en https://www.dndbeyond.com/srd, bajo licencia Creative Commons Attribution 4.0 International (https://creativecommons.org/licenses/by/4.0/legalcode). Los textos de los conjuros están traducidos y adaptados al castellano. Los resúmenes de rasgos de clase y subclase están escritos para esta app; consulta el Manual del Jugador para el texto completo.</p></footer>
   </div>`}
-
+const CREDITS=`<p>Fichas 5e es contenido de fans no oficial permitido bajo la Fan Content Policy. No aprobado ni respaldado por Wizards. Partes de los materiales usados son propiedad de Wizards of the Coast. ©Wizards of the Coast LLC.</p><p>Esta app incluye material del System Reference Document 5.2 («SRD 5.2») de Wizards of the Coast LLC, disponible en https://www.dndbeyond.com/srd, bajo licencia Creative Commons Attribution 4.0 International (https://creativecommons.org/licenses/by/4.0/legalcode). Los textos de los conjuros están traducidos y adaptados al castellano. Los resúmenes de rasgos de clase y subclase están escritos para esta app; consulta el Manual del Jugador para el texto completo.</p>`;
 const ALIGN=['','Legal bueno','Neutral bueno','Caótico bueno','Legal neutral','Neutral','Caótico neutral','Legal malvado','Neutral malvado','Caótico malvado'];
 function viewStory(c){const st=c.story;
   return`<div class="story">
@@ -528,7 +536,7 @@ function loadPortrait(file){
     render()};
   img.onerror=()=>{URL.revokeObjectURL(url);toast('<div class="t-parts">No se ha podido abrir la imagen.</div>')};
   img.src=url}
-function renderView(){const c=C();$('#view').innerHTML=S.tab==='edit'?viewEdit(c):S.tab==='chars'?viewChars(c):S.tab==='pj'?viewPj(c):viewPlay(c)}
+function renderView(){const c=C();$('#view').innerHTML=S.tab==='edit'?viewEdit(c):S.tab==='data'?viewData(c):S.tab==='chars'?viewChars(c):S.tab==='pj'?viewPj(c):viewPlay(c)}
 function applyTheme(){const k=(C()||{}).classKey||'',r=document.documentElement;
   if(k)r.dataset.class=k;else delete r.dataset.class;
   const bg=getComputedStyle(r).getPropertyValue('--surface').trim();document.querySelectorAll('meta[name="theme-color"]').forEach(m=>m.setAttribute('content',bg||'#ffffff'))}
@@ -889,8 +897,14 @@ const A={
   levelup:()=>startWizard('level'),
   money:()=>openMoney(),
   'money-close':()=>{closeModal();render()},
-  settings:()=>openModal(`<div class="wz-head"><h2>Ajustes</h2><button class="b sm" data-act="close-modal">Cerrar</button></div>
-    <button class="b opt" data-act="open-edit"><span><b>Editar ficha</b><br><small>Características, habilidades, armas, conjuros, rasgos y objetos</small></span><span aria-hidden="true">›</span></button>`),
+  settings:()=>{const t=getTheme();openModal(`<div class="wz-head"><h2>Ajustes</h2><button class="b sm" data-act="close-modal">Cerrar</button></div>
+    <button class="b opt" data-act="open-edit"><span><b>Editar ficha</b><br><small>Características, habilidades, armas, conjuros, rasgos y objetos</small></span><span aria-hidden="true">›</span></button>
+    <div class="setting"><b>Tema</b><div class="seg" role="group" aria-label="Tema">${[['','Sistema'],['light','Claro'],['dark','Oscuro']].map(([k,n])=>`<button class="${t===k?'on':''}" data-act="theme" data-v="${k}" aria-pressed="${t===k}">${n}</button>`).join('')}</div></div>
+    <button class="b opt" data-act="open-data"><span><b>Copia de seguridad</b><br><small>Importar y exportar fichas</small></span><span aria-hidden="true">›</span></button>
+    <button class="b opt" data-act="open-credits"><span><b>Créditos y aviso legal</b><br><small>Aviso de contenido de fans y licencia del SRD</small></span><span aria-hidden="true">›</span></button>`)},
+  theme:el=>{setTheme(el.dataset.v);render();A.settings()},
+  'open-data':()=>{closeModal();S.tab='data';save();render();scrollTo(0,0)},
+  'open-credits':()=>openModal(`<div class="wz-head"><h2>Créditos y aviso legal</h2><button class="b sm" data-act="close-modal">Cerrar</button></div><div class="credits">${CREDITS}</div>`),
   'open-edit':()=>{closeModal();S.tab='edit';save();render();scrollTo(0,0)},
   gloss:el=>showGloss(el),
   't-fold':()=>{try{const o=localStorage.getItem('fichas-turn-open')!=='0';localStorage.setItem('fichas-turn-open',o?'0':'1')}catch(e){}renderView()},

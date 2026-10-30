@@ -317,3 +317,12 @@ button.stat.money{cursor:pointer;background:var(--accent-soft);border-color:colo
   .stat b{font-size:1.2rem}
   .stat.money b{font-size:1.05rem}
 }
+
+/* Ajustes */
+.setting{display:flex;align-items:center;justify-content:space-between;gap:.6rem;flex-wrap:wrap;border:1px solid var(--line);border-radius:7px;padding:.45rem .75rem}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:var(--surface);padding:.4rem .7rem;font:inherit;font-size:.9rem;color:inherit;cursor:pointer}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button.on{background:var(--accent);color:var(--accent-ink)}
+.credits{font-size:.9rem;color:var(--muted);display:flex;flex-direction:column;gap:.6rem}
+.credits p{margin:0}
