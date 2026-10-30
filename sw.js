@@ -1,9 +1,9 @@
 // Sube VERSION cada vez que cambies la app para que los dispositivos descarguen la nueva.
-const VERSION = 'fichas-v11';
+const VERSION = 'fichas-v12';
 const SHELL = ['./', 'index.html', 'app.css', 'themes.css', 'app.js', 'data/classes.js', 'data/spells.js', 'data/origins.js', 'data/glossary.js', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-512.png', 'icons/favicon.png', 'icons/apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
 });
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== VERSION).map(k => caches.delete(k)))).then(() => self.clients.claim()));
@@ -14,13 +14,13 @@ self.addEventListener('fetch', e => {
   const url = new URL(req.url);
   // Página: primero la red (para coger actualizaciones), si no hay conexión, la copia guardada.
   if (req.mode === 'navigate') {
-    e.respondWith(fetch(req).then(r => { const cp = r.clone(); caches.open(VERSION).then(c => c.put('index.html', cp)); return r; })
+    e.respondWith(fetch(req.url, { cache: 'no-cache' }).then(r => { const cp = r.clone(); caches.open(VERSION).then(c => c.put('index.html', cp)); return r; })
       .catch(() => caches.match('index.html')));
     return;
   }
   // Código de la app: primero la red, si no hay conexión, la copia guardada.
   if (url.origin === location.origin && /\.(js|css)$/.test(url.pathname)) {
-    e.respondWith(fetch(req).then(r => { const cp = r.clone(); caches.open(VERSION).then(c => c.put(req, cp)); return r; })
+    e.respondWith(fetch(req.url, { cache: 'no-cache' }).then(r => { const cp = r.clone(); caches.open(VERSION).then(c => c.put(req, cp)); return r; })
       .catch(() => caches.match(req)));
     return;
   }
