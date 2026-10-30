@@ -197,7 +197,7 @@ function toast(html,keep){
   setTimeout(()=>t.remove(),keep?30000:7000)}
 function openModal(h,big){const m=$('#modal');m.innerHTML=`<div class="sheet${big?' big':''}" role="dialog" aria-modal="true">${h}</div>`;m.hidden=false;const f=m.querySelector('input:not([type=hidden]),button');f&&!big&&f.focus()}
 function closeModal(){const m=$('#modal');m.hidden=true;m.innerHTML='';W=null;P=null;pendingEco=null}
-let pendingEco=null,restOpen=false;
+let pendingEco=null,restOpen=false;const UNDO=[];
 
 /* ================= Render: barra superior ================= */
 function pips(kind,a,T,filled){let h='<span class="pips">';for(let k=0;k<T;k++)h+=`<button class="pip${k<filled?' full':''}" data-act="pip" data-kind="${kind}" data-a="${a}" data-i="${k}" aria-label="Casilla ${k+1} de ${T}"></button>`;return h+'</span>'}
@@ -216,8 +216,10 @@ function renderTop(){
       <div class="menuwrap"><button class="b qbtn icon" data-act="rest-menu" title="Descansar" aria-haspopup="true" aria-expanded="${restOpen}" aria-label="Descansar"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 8h7l-7 9h7M14 4h6l-6 7.5h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         ${restOpen?`<div class="popmenu" role="menu"><button class="b opt" role="menuitem" data-act="short"><span><b>Descanso corto</b><br><small>1 hora · dados de golpe</small></span></button><button class="b opt" role="menuitem" data-act="long"><span><b>Descanso largo</b><br><small>8 horas · lo recuperas todo</small></span></button></div>`:''}</div>
       <button class="b qbtn icon" data-act="diary" title="Diario" aria-label="Diario"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M5 4.5h10a1.5 1.5 0 0 1 1.5 1.5v13.5H6.5A1.5 1.5 0 0 1 5 18z"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M8 8.5h5.5M8 11.5h4"/><path fill="currentColor" d="M19.6 7.2l1.2 1.2-6.3 6.3-1.8.6.6-1.8z"/></svg></button>
+      <button class="b qbtn icon" data-act="undo" title="Deshacer" aria-label="Deshacer el último cambio" ${UNDO.length?'':'disabled'}><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 14L4 9l5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       <button class="b qbtn money" data-act="money" aria-label="Dinero"><span class="coin" aria-hidden="true"></span><span>${(Math.floor(totalCp(c)/10)/10).toLocaleString('es-ES')} PO</span></button>
-    </div></div>
+    </div>
+    ${c.concentration?`<div class="conc topconc"><span>${term('Concentrado','conc')} en <b>${esc(c.concentration)}</b></span><button class="b sm sq" data-act="end-conc" aria-label="Terminar concentración" title="Terminar concentración">✕</button></div>`:''}</div>
     <div class="tabrow"><nav class="tabs">${[['play','Partida'],['pj',c.name||'Personaje']].map(([t,n])=>`<button class="${S.tab===t||(t==='pj'&&(S.tab==='edit'||S.tab==='data'))?'on':''}" data-act="tab" data-t="${t}">${esc(n)}</button>`).join('')}</nav>
     <button class="b gear" data-act="settings" aria-label="Ajustes"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3.3h-4l-.4 2.6a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1l.4 2.6h4l.4-2.6a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5A3.5 3.5 0 1 1 13 8.5a3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg></button></div></div>`}
 
@@ -247,7 +249,6 @@ function viewPlay(c){
       <div class="kv"><span>${term('Percepción pasiva','passive')}</span><b>${10+skillB(c,SK.perception)}</b></div>
       <div class="kv"><span>${term('Inspiración heroica','insp')}</span><button class="chip ${c.inspiration?'on':''}" data-act="insp">${c.inspiration?'La tienes':'No'}</button></div>
     </div>
-    ${c.concentration?`<div class="conc"><span>${term('Concentrado','conc')} en <b>${esc(c.concentration)}</b></span><button class="b sm" data-act="end-conc">Terminar</button></div>`:''}
     <h3>Estados</h3><div class="chips">${active.map(([n])=>`<button class="chip on" data-act="cond" data-n="${n}" aria-label="Quitar ${n}">${n} ×</button>`).join('')}<button class="chip add" data-act="conds">${active.length?'Cambiar':'Añadir estado'}</button></div>
     ${active.length?`<ul class="condlist">${active.map(([n,ds])=>`<li><b>${n}:</b> ${esc(ds)}</li>`).join('')}</ul>`:''}
     <div class="exh"><span>${term('Agotamiento','exh')}</span><button class="b sq" data-act="exh" data-d="-1" aria-label="Menos">−</button><b>${c.exhaustion}</b><button class="b sq" data-act="exh" data-d="1" aria-label="Más">+</button>
@@ -815,7 +816,7 @@ function applyOrigin(c){
 let D=null;
 const dItems=()=>C().diary.items;
 const dGet=id=>dItems().find(x=>x.id===id);
-const dKids=pid=>dItems().filter(x=>(x.parent||null)===(pid||null)).sort((a,b)=>a.type===b.type?a.name.localeCompare(b.name,'es'):a.type==='folder'?-1:1);
+const dKids=pid=>dItems().filter(x=>(x.parent||null)===(pid||null)).sort((a,b)=>a.type===b.type?a.name.localeCompare(b.name,'es',{numeric:true}):a.type==='folder'?-1:1);
 function dPath(id){const out=[];let x=id&&dGet(id);while(x){out.unshift(x);x=x.parent&&dGet(x.parent)}return out}
 function dDesc(id){const out=[];for(const k of dKids(id)){out.push(k);if(k.type==='folder')out.push(...dDesc(k.id))}return out}
 const ICON_FOLDER='<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="currentColor" opacity=".85"/></svg>';
@@ -844,7 +845,7 @@ function renderDiary(){
   else{const list=D.q?dItems().filter(x=>norm(x.name+' '+(x.text||'')).includes(norm(D.q))):dKids(D.folder);
     body=`<div class="dtools"><input type="search" id="d-q" placeholder="Buscar en todo el diario" value="${esc(D.q)}" autocomplete="off"></div>
       ${D.q?'':`<div class="crumbs">${crumbs(D.folder)}</div>`}
-      <div class="btns"><button class="b sm pri" data-act="d-new" data-type="note">+ Entrada</button><button class="b sm" data-act="d-new" data-type="folder">+ Categoría</button></div>
+      <div class="btns"><button class="b sm pri" data-act="d-new" data-type="note">+ Entrada</button><button class="b sm" data-act="d-new" data-type="folder">+ Categoría</button><button class="b sm" data-act="d-session">+ Sesión</button></div>
       <div class="dlist">${list.length?list.map(dRow).join(''):`<p class="empty">${D.q?'No hay resultados.':D.folder?'Esta categoría está vacía.':'Tu diario está vacío. Crea una entrada o una categoría (por ejemplo «Lugares», «Personajes» o «Facciones»); dentro de una categoría puedes crear otras.'}</p>`}</div>`}
   const html=`<div class="wz-head"><h2>Diario</h2><button class="b sm" data-act="d-close">Hecho</button></div><div class="wz-body" id="d-body">${body}</div>`;
   const m=$('#modal');if(m.hidden||!m.querySelector('.sheet.big'))openModal(html,true);else m.querySelector('.sheet').innerHTML=html}
@@ -920,6 +921,11 @@ const A={
   'd-go':el=>{D.folder=el.dataset.id||null;D.note=null;D.menu=null;renderDiary()},
   'd-back':()=>{const n=dGet(D.note);D.note=null;D.folder=n?n.parent:D.folder;renderDiary()},
   'd-menu':el=>{D.menu=D.menu===el.dataset.id&&!D.confirm?null:el.dataset.id;D.confirm=null;renderDiary()},
+  'd-session':()=>{let f=dItems().find(x=>x.type==='folder'&&!x.parent&&norm(x.name)===norm('Sesiones'));
+    if(!f){f={id:uid(),type:'folder',name:'Sesiones',parent:null,text:'',updated:Date.now()};dItems().push(f)}
+    const n=dKids(f.id).filter(x=>x.type==='note').length+1,day=new Date().toLocaleDateString('es-ES',{day:'numeric',month:'short'}).replace('.','');
+    const x={id:uid(),type:'note',name:`Sesión ${n} – ${day}`,parent:f.id,text:'',updated:Date.now()};dItems().push(x);save();
+    D.q='';D.menu=null;D.folder=f.id;D.note=x.id;renderDiary();const t=$('#d-text');if(t)t.focus()},
   'd-new':el=>{const t=el.dataset.type;dPrompt(t==='folder'?'Nueva categoría':'Nueva entrada','', 'd-create','',`data-type="${t}"`)},
   'd-create':el=>{const name=$('#d-name').value.trim()||(el.dataset.type==='folder'?'Nueva categoría':'Nueva entrada');const x={id:uid(),type:el.dataset.type,name,parent:D.folder,text:'',updated:Date.now()};
     dItems().push(x);save();$('#modal').innerHTML='';$('#modal').hidden=true;if(x.type==='note')D.note=x.id;renderDiary()},
@@ -932,6 +938,8 @@ const A={
   'd-move-to':el=>{const x=dGet(D.move);x.parent=el.dataset.id||null;D.move=null;save();renderDiary()},
   'd-move-cancel':()=>{D.move=null;renderDiary()},
   'rest-menu':()=>{restOpen=!restOpen;renderTop()},
+  undo:()=>{const u=UNDO.pop();if(!u)return;S.chars=JSON.parse(u.chars);S.active=S.chars.some(x=>x.id===u.active)?u.active:(S.chars[0]&&S.chars[0].id);
+    restOpen=false;D=null;closeModal();save();render();toast(`<div class="t-label">Deshecho</div><div class="t-parts">Has vuelto al estado anterior al último cambio.${UNDO.length?'':' No quedan más cambios por deshacer.'}</div>`)},
   diary:()=>{D={folder:null,note:null,menu:null,confirm:null,move:null,q:''};renderDiary()},
   short:()=>{restOpen=false;renderTop();shortRestModal()},
   hd:()=>{const c=C(),r=parseInt($('#hd-roll').value),f=+String(c.hitDice.die).replace(/\D/g,'')||8;
@@ -1043,9 +1051,12 @@ document.addEventListener('click',e=>{
   if(e.target.id==='modal'){if(W)return;if(D){D=null;closeModal();return}const wasPicker=!!P;closeModal();if(wasPicker){save();render()}return}
   const el=e.target.closest('[data-act]');
   if(restOpen&&!e.target.closest('.menuwrap')){restOpen=false;renderTop()}
-  if(!el||el.disabled)return;const f=A[el.dataset.act];if(f){e.preventDefault();f(el)}});
+  if(!el||el.disabled)return;const f=A[el.dataset.act];if(!f)return;e.preventDefault();
+  if(el.dataset.act==='undo'){f(el);return}
+  const before=JSON.stringify(S.chars),act=S.active;f(el);
+  if(JSON.stringify(S.chars)!==before){UNDO.push({chars:before,active:act});if(UNDO.length>40)UNDO.shift();renderTop()}});
 document.addEventListener('input',e=>{const el=e.target;
-  if(D&&(el.id==='d-text'||el.id==='d-title')){const n=dGet(D.note);if(n){if(el.id==='d-text')n.text=el.value;else n.name=el.value;n.updated=Date.now();save()}return}
+  if(D&&(el.id==='d-text'||el.id==='d-title')){const n=dGet(D.note);if(n){if(el.id==='d-text')n.text=el.value;else n.name=el.value;n.updated=Date.now();if(UNDO.length){UNDO.length=0;renderTop()}save()}return}
   if(D&&el.id==='d-q'){D.q=el.value;const pos=el.selectionStart;renderDiary();const q=$('#d-q');if(q){q.focus();q.setSelectionRange(pos,pos)}return}
   if(el.id==='sp-q'){P.q=el.value;refreshPicker();return}
   if(W){
@@ -1057,6 +1068,7 @@ document.addEventListener('input',e=>{const el=e.target;
     return}
   if(el.dataset&&el.dataset.actInput==='res-set'){const u=C().features[+el.dataset.i].uses;const v=parseInt(el.value);if(!isNaN(v)){u.used=clamp(u.max-v,0,u.max);save()}return}
   if(!el.dataset||!el.dataset.path)return;const c=C();
+  UNDO.length=0;
   let v=el.dataset.bool?el.checked:el.dataset.num?(el.value===''?0:Number(el.value)):el.value;
   const ks=el.dataset.path.split('.');let t=c;for(let i=0;i<ks.length-1;i++)t=t[ks[i]];t[ks[ks.length-1]]=v;
   if(el.dataset.path==='level')c.level=clamp(+v||1,1,20);

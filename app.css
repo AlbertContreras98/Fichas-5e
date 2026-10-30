@@ -375,3 +375,6 @@ textarea.notes.diary{min-height:55vh;flex:1 1 auto}
 .dtxt{min-width:0}.dtxt b{display:block;overflow-wrap:anywhere}.dtxt small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dtitle{width:100%;padding:.5rem .6rem;border:1px solid var(--line);border-radius:7px;background:var(--sunk);font-size:1.05rem;font-weight:700}
 .b.opt svg{vertical-align:-4px;color:var(--accent)}
+.conc.topconc{margin-top:.55rem;padding:.3rem .35rem .3rem .7rem;font-size:.92rem;flex-wrap:nowrap}
+.conc.topconc .b.sq{flex:0 0 auto}
+.b.qbtn.icon:disabled{opacity:.4}
