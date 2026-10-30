@@ -105,7 +105,7 @@ function fillFromRef(s){const d=s.ref&&SPBY[s.ref];if(!d)return s;
 
 let S={chars:[],active:null,tab:'play'};
 function load(){
-  try{const r=localStorage.getItem(KEY);if(r){const x=JSON.parse(r);S.chars=(x.chars||[]).map(normalize);S.active=x.active;if(x.tab)S.tab=x.tab;if(S.tab==='inv'||S.tab==='story')S.tab='pj'}}catch(e){}
+  try{const r=localStorage.getItem(KEY);if(r){const x=JSON.parse(r);S.chars=(x.chars||[]).map(normalize);S.active=x.active;if(x.tab)S.tab=x.tab;if(S.tab==='inv'||S.tab==='story')S.tab='pj';if(S.tab==='chars')S.tab='play'}}catch(e){}
   if(!S.chars.length){const z=normalize(ZYO);z.spells.forEach(fillFromRef);S.chars=[z];S.active=z.id}
   if(!S.chars.find(c=>c.id===S.active)) S.active=S.chars[0].id}
 function save(){try{localStorage.setItem(KEY,JSON.stringify({chars:S.chars,active:S.active,tab:S.tab}))}catch(e){}}
@@ -203,7 +203,7 @@ function renderTop(){
   const c=C(),pct=c.hp.max?clamp(c.hp.current/c.hp.max*100,0,100):0;
   const sub=[c.species,c.class&&`${c.class} ${c.level}`,c.subclass,c.background].filter(Boolean).join(' · ');
   $('#top').innerHTML=`<div class="wrap"><div class="top-in">
-    ${c.story.img?`<button class="avatar-btn" data-act="tab" data-t="pj" aria-label="Ver personaje"><img class="avatar" src="${c.story.img}" alt=""></button>`:''}<div class="who"><div class="nm">${esc(c.name||'Sin nombre')}</div><div class="sub">${esc(sub)}</div></div>
+    ${c.story.img?`<button class="avatar-btn" data-act="tab" data-t="pj" aria-label="Ver personaje"><img class="avatar" src="${c.story.img}" alt=""></button>`:''}<button class="who" data-act="chars" aria-label="Cambiar de personaje"><div class="nm">${esc(c.name||'Sin nombre')}<span class="caret" aria-hidden="true">▾</span></div><div class="sub">${esc(sub)}</div></button>
     <div class="vit">
       <button class="hpbox" data-act="gloss" data-k="hp"><div class="hpnum"><b>${c.hp.current}</b> / ${c.hp.max}${c.hp.temp?`<em>+${c.hp.temp}</em>`:''}</div><div class="bar"><i class="${pct<=25?'low':''}" style="width:${pct}%"></i></div><small>Puntos de golpe</small></button>
       <button class="stat" data-act="gloss" data-k="ca"><b>${c.ac}</b><small>CA</small></button>
@@ -213,9 +213,8 @@ function renderTop(){
     </div>
     <div class="ctl">
       <button class="b" data-act="short">Descanso corto</button><button class="b" data-act="long">Descanso largo</button>
-      <button class="b pri" data-act="levelup" ${c.level>=20?'disabled':''}>Subir de nivel</button>
     </div></div>
-    <div class="tabrow"><nav class="tabs">${[['play','Partida'],['pj',c.name||'Personaje'],['chars','Personajes']].map(([t,n])=>`<button class="${S.tab===t||(t==='pj'&&(S.tab==='edit'||S.tab==='data'))?'on':''}" data-act="tab" data-t="${t}">${esc(n)}</button>`).join('')}</nav>
+    <div class="tabrow"><nav class="tabs">${[['play','Partida'],['pj',c.name||'Personaje']].map(([t,n])=>`<button class="${S.tab===t||(t==='pj'&&(S.tab==='edit'||S.tab==='data'))?'on':''}" data-act="tab" data-t="${t}">${esc(n)}</button>`).join('')}</nav>
     <button class="b gear" data-act="settings" aria-label="Ajustes"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3.3h-4l-.4 2.6a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1l.4 2.6h4l.4-2.6a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5A3.5 3.5 0 1 1 13 8.5a3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg></button></div></div>`}
 
 /* ================= Render: partida ================= */
@@ -245,7 +244,7 @@ function viewPlay(c){
       <div class="kv"><span>${term('Inspiración heroica','insp')}</span><button class="chip ${c.inspiration?'on':''}" data-act="insp">${c.inspiration?'La tienes':'No'}</button></div>
     </div>
     ${c.concentration?`<div class="conc"><span>${term('Concentrado','conc')} en <b>${esc(c.concentration)}</b></span><button class="b sm" data-act="end-conc">Terminar</button></div>`:''}
-    <h3>Estados</h3><div class="chips">${CONDS.map(([n,ds])=>`<button class="chip ${c.conditions.includes(n)?'on':''}" data-act="cond" data-n="${n}" title="${esc(ds)}">${n}</button>`).join('')}</div>
+    <h3>Estados</h3><div class="chips">${active.map(([n])=>`<button class="chip on" data-act="cond" data-n="${n}" aria-label="Quitar ${n}">${n} ×</button>`).join('')}<button class="chip add" data-act="conds">${active.length?'Cambiar':'Añadir estado'}</button></div>
     ${active.length?`<ul class="condlist">${active.map(([n,ds])=>`<li><b>${n}:</b> ${esc(ds)}</li>`).join('')}</ul>`:''}
     <div class="exh"><span>${term('Agotamiento','exh')}</span><button class="b sq" data-act="exh" data-d="-1" aria-label="Menos">−</button><b>${c.exhaustion}</b><button class="b sq" data-act="exh" data-d="1" aria-label="Más">+</button>
       <small>${c.exhaustion?`Resta ${2*c.exhaustion} a tus tiradas d20 y ${5*c.exhaustion} pies de velocidad${c.exhaustion>=6?' · nivel 6: muerte':''}`:'Ninguno'}</small></div>
@@ -490,13 +489,16 @@ function prompt4Claude(){return`Convierte la ficha de personaje de quinta edici�
 - Lo que no aparezca en la ficha, déjalo con el valor por defecto. Devuelve solo el JSON.
 
 ${JSON.stringify(example(),null,2)}`}
-function viewChars(c){
-  return`<div class="ed">
-  <section class="card"><h2>Tus personajes</h2><div class="chars">${S.chars.map(x=>`<div class="charc ${x.id===S.active?'on':''}"><div><b>${esc(x.name||'Sin nombre')}</b><div class="meta">${esc([x.species,x.class&&`${x.class} ${x.level}`].filter(Boolean).join(' · ')||'Sin datos')}</div></div>
-    <div class="btns">${x.id===S.active?'<span class="meta">En uso</span>':`<button class="b sm pri" data-act="use" data-id="${x.id}">Usar</button>`}<button class="b sm" data-act="dup" data-id="${x.id}">Duplicar</button><button class="b sm bad" data-act="delchar" data-id="${x.id}">Borrar</button></div></div>`).join('')}</div>
-    <div class="btns" style="margin-top:.8rem"><button class="b pri" data-act="create">Crear personaje paso a paso</button><button class="b" data-act="newchar">Crear ficha vacía</button></div></section>
-  </div>`}
-
+let charMenu='';
+function charsHTML(){
+  return`<div class="wz-head"><h2>Personajes</h2><button class="b sm" data-act="close-modal">Cerrar</button></div>
+  <div class="charlist">${S.chars.map(x=>`<div class="charrow ${x.id===S.active?'on':''}">
+      <button class="charpick" data-act="use" data-id="${x.id}">${x.story&&x.story.img?`<img class="avatar sm" src="${x.story.img}" alt="">`:'<span class="avatar sm ph" aria-hidden="true"></span>'}<span><b>${esc(x.name||'Sin nombre')}</b><small>${esc([x.species,x.class&&`${x.class} ${x.level}`].filter(Boolean).join(' · ')||'Sin datos')}${x.id===S.active?' · en uso':''}</small></span></button>
+      <button class="b sm sq" data-act="char-menu" data-id="${x.id}" aria-label="Más opciones de ${esc(x.name)}" aria-expanded="${charMenu===x.id}">⋯</button>
+      ${charMenu===x.id?`<div class="charmenu"><button class="b sm" data-act="dup" data-id="${x.id}">Duplicar</button><button class="b sm bad" data-act="delchar" data-id="${x.id}">Borrar</button></div>`:''}
+    </div>`).join('')}</div>
+  <div class="btns"><button class="b pri" data-act="create">Crear personaje paso a paso</button><button class="b" data-act="newchar">Crear ficha vacía</button></div>`}
+function openChars(){openModal(charsHTML())}
 function viewData(c){
   return`<div class="ed">
   <div class="ed-head"><h2>Copia de seguridad</h2><button class="b pri" data-act="tab" data-t="pj">Hecho</button></div>
@@ -536,7 +538,7 @@ function loadPortrait(file){
     render()};
   img.onerror=()=>{URL.revokeObjectURL(url);toast('<div class="t-parts">No se ha podido abrir la imagen.</div>')};
   img.src=url}
-function renderView(){const c=C();$('#view').innerHTML=S.tab==='edit'?viewEdit(c):S.tab==='data'?viewData(c):S.tab==='chars'?viewChars(c):S.tab==='pj'?viewPj(c):viewPlay(c)}
+function renderView(){const c=C();$('#view').innerHTML=S.tab==='edit'?viewEdit(c):S.tab==='data'?viewData(c):S.tab==='pj'?viewPj(c):viewPlay(c)}
 function applyTheme(){const k=(C()||{}).classKey||'',r=document.documentElement;
   if(k)r.dataset.class=k;else delete r.dataset.class;
   const bg=getComputedStyle(r).getPropertyValue('--surface').trim();document.querySelectorAll('meta[name="theme-color"]').forEach(m=>m.setAttribute('content',bg||'#ffffff'))}
@@ -846,7 +848,10 @@ const A={
   'conc-keep':el=>el.closest('.toast').remove(),
   'conc-lose':el=>{el.closest('.toast').remove();C().concentration='';save();render()},
   insp:()=>{const c=C();c.inspiration=!c.inspiration;save();render()},
-  cond:el=>{const c=C(),n=el.dataset.n,i=c.conditions.indexOf(n);i>=0?c.conditions.splice(i,1):c.conditions.push(n);save();render()},
+  cond:el=>{const c=C(),n=el.dataset.n,i=c.conditions.indexOf(n);i>=0?c.conditions.splice(i,1):c.conditions.push(n);save();render();if(el.closest('.sheet'))A.conds()},
+  conds:()=>{const c=C();openModal(`<div class="wz-head"><h2>Estados</h2><button class="b sm" data-act="close-modal">Hecho</button></div>
+    <p class="hint">Toca para activar o quitar. Debajo de cada uno, qué hace.</p>
+    <div class="condpick">${CONDS.map(([n,ds])=>`<button class="b opt ${c.conditions.includes(n)?'pri':''}" data-act="cond" data-n="${n}" aria-pressed="${c.conditions.includes(n)}"><span><b>${n}</b><br><small>${esc(ds)}</small></span><span aria-hidden="true">${c.conditions.includes(n)?'✓':''}</span></button>`).join('')}</div>`)},
   exh:el=>{const c=C();c.exhaustion=clamp((+c.exhaustion||0)+(+el.dataset.d),0,6);save();render()},
   qty:el=>{const e=C().equipment[+el.dataset.i];e.qty=Math.max(0,(+e.qty||0)+(+el.dataset.d));save();render()},
   ammo:el=>{const c=C(),a=c.attacks[+el.dataset.i],e=c.equipment.find(x=>x.id===a.ammo);if(!e||e.qty<=0)return;e.qty--;save();render();
@@ -894,10 +899,11 @@ const A={
   'tog-save':el=>{const c=C(),k=el.dataset.k,i=c.saveProf.indexOf(k);i>=0?c.saveProf.splice(i,1):c.saveProf.push(k);save();render()},
   add:el=>{C()[el.dataset.list].push(NEW[el.dataset.list]());save();renderView();const nm=[...document.querySelectorAll(`[data-path^="${el.dataset.list}."]`)].pop();nm&&nm.closest('.row-ed').querySelector('input').focus()},
   del:el=>{C()[el.dataset.list].splice(+el.dataset.i,1);save();renderView()},
-  levelup:()=>startWizard('level'),
+  levelup:()=>{closeModal();startWizard('level')},
   money:()=>openMoney(),
   'money-close':()=>{closeModal();render()},
   settings:()=>{const t=getTheme();openModal(`<div class="wz-head"><h2>Ajustes</h2><button class="b sm" data-act="close-modal">Cerrar</button></div>
+    <button class="b opt" data-act="levelup" ${C().level>=20?'disabled':''}><span><b>Subir de nivel</b><br><small>${C().level>=20?'Ya estás en el nivel máximo':`Asistente para pasar a nivel ${C().level+1}`}</small></span><span aria-hidden="true">›</span></button>
     <button class="b opt" data-act="open-edit"><span><b>Editar ficha</b><br><small>Características, habilidades, armas, conjuros, rasgos y objetos</small></span><span aria-hidden="true">›</span></button>
     <div class="setting"><b>Tema</b><div class="seg" role="group" aria-label="Tema">${[['','Sistema'],['light','Claro'],['dark','Oscuro']].map(([k,n])=>`<button class="${t===k?'on':''}" data-act="theme" data-v="${k}" aria-pressed="${t===k}">${n}</button>`).join('')}</div></div>
     <button class="b opt" data-act="open-data"><span><b>Copia de seguridad</b><br><small>Importar y exportar fichas</small></span><span aria-hidden="true">›</span></button>
@@ -935,7 +941,7 @@ const A={
     if(sp.lin&&!c.lineageKey){toast(`<div class="t-parts">Elige antes el ${esc((sp.linLabel||'linaje').toLowerCase())} en el desplegable.</div>`);return}
     applyOrigin(c);if(!c.spellcasting.ability&&c.spells.length)c.spellcasting.ability=['int','wis','cha'].sort((a,b)=>c.abilities[b]-c.abilities[a])[0];
     save();render();toast(`<div class="t-label">Rasgos de especie aplicados</div><div class="t-parts">Velocidad, visión, rasgos, conjuros y usos de ${esc(c.species)} al nivel ${c.level}.</div>`)},
-  create:()=>startWizard('create'),
+  create:()=>{closeModal();startWizard('create')},
   'wz-cancel':closeModal,
   'wz-back':()=>{W.step--;renderWizard()},
   'wz-next':()=>{const st=wizSteps();if(!wizValid(st[W.step][0]))return;W.step++;renderWizard();$('#wz-body').scrollTop=0},
@@ -950,11 +956,13 @@ const A={
     if(P.target==='wizard'){const mine=$('#wz-mine');if(mine){W._keepScroll=true;renderWizard();return}}
     else save();
     refreshPicker()},
-  use:el=>{S.active=el.dataset.id;S.tab='play';save();render()},
-  dup:el=>{const o=S.chars.find(x=>x.id===el.dataset.id),n=normalize(JSON.parse(JSON.stringify(o)));n.id=uid();n.name+=' (copia)';S.chars.push(n);save();renderView()},
-  delchar:el=>{const o=S.chars.find(x=>x.id===el.dataset.id);openModal(`<h2>¿Borrar a ${esc(o.name)}?</h2><p>No se puede deshacer. Si quieres conservarla, copia antes su JSON.</p><div class="btns"><button class="b" data-act="close-modal">Cancelar</button><button class="b bad" data-act="delchar-ok" data-id="${o.id}">Borrar</button></div>`)},
-  'delchar-ok':el=>{S.chars=S.chars.filter(x=>x.id!==el.dataset.id);if(!S.chars.length)S.chars=[normalize(blank())];if(!C())S.active=S.chars[0].id;closeModal();save();render()},
-  newchar:()=>{const n=normalize(blank());S.chars.push(n);S.active=n.id;S.tab='edit';save();render()},
+  chars:()=>{charMenu='';openChars()},
+  'char-menu':el=>{charMenu=charMenu===el.dataset.id?'':el.dataset.id;openChars()},
+  use:el=>{closeModal();S.active=el.dataset.id;if(S.tab==='edit'||S.tab==='data')S.tab='pj';save();render();scrollTo(0,0)},
+  dup:el=>{const o=S.chars.find(x=>x.id===el.dataset.id),n=normalize(JSON.parse(JSON.stringify(o)));n.id=uid();n.name+=' (copia)';S.chars.push(n);charMenu='';save();openChars()},
+  delchar:el=>{const o=S.chars.find(x=>x.id===el.dataset.id);openModal(`<h2>¿Borrar a ${esc(o.name)}?</h2><p>No se puede deshacer. Si quieres conservarla, copia antes su JSON.</p><div class="btns"><button class="b" data-act="chars">Cancelar</button><button class="b bad" data-act="delchar-ok" data-id="${o.id}">Borrar</button></div>`)},
+  'delchar-ok':el=>{S.chars=S.chars.filter(x=>x.id!==el.dataset.id);if(!S.chars.length)S.chars=[normalize(blank())];if(!C())S.active=S.chars[0].id;charMenu='';save();render();openChars()},
+  newchar:()=>{closeModal();const n=normalize(blank());S.chars.push(n);S.active=n.id;S.tab='edit';save();render()},
   import:()=>{const t=$('#imp-text').value.trim(),msg=$('#imp-msg');if(!t){msg.textContent='Pega primero el JSON de la ficha.';return}
     let data;try{data=JSON.parse(t.replace(/^```(json)?|```$/g,'').trim())}catch(e){msg.textContent='Ese texto no es JSON válido. Revisa que esté completo, de la primera { a la última }.';return}
     const arr=Array.isArray(data)?data:Array.isArray(data.chars)?data.chars:[data];let last;
