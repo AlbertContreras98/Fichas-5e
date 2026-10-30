@@ -1,6 +1,6 @@
 // Sube VERSION cada vez que cambies la app para que los dispositivos descarguen la nueva.
-const VERSION = 'fichas-v8';
-const SHELL = ['./', 'index.html', 'app.css', 'themes.css', 'app.js', 'data/classes.js', 'data/spells.js', 'data/origins.js', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-512.png', 'icons/favicon.png', 'icons/apple-touch-icon.png'];
+const VERSION = 'fichas-v9';
+const SHELL = ['./', 'index.html', 'app.css', 'themes.css', 'app.js', 'data/classes.js', 'data/spells.js', 'data/origins.js', 'data/glossary.js', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-512.png', 'icons/favicon.png', 'icons/apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));

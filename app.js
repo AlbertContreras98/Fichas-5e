@@ -35,11 +35,11 @@ function blank(){return{
   inspiration:false,exhaustion:0,conditions:[],concentration:'',
   attacks:[],spellcasting:{ability:''},slots:Array.from({length:9},()=>({total:0,used:0})),pact:{level:0,total:0,used:0},spells:[],
   features:[],equipment:[],coins:{cp:0,sp:0,ep:0,gp:0,pp:0},languages:'',proficiencies:{armor:'',weapons:'',tools:''},notes:'',
-  story:{img:'',alignment:'',age:'',appearance:'',personality:'',history:''}}}
+  story:{img:'',alignment:'',age:'',appearance:'',personality:'',history:''},turn:{a:false,aa:false,r:false,atk:0}}}
 const NEW={
   attacks:()=>({name:'',atk:0,dmg:'',type:'',notes:'',ammo:''}),
   spells:()=>({level:0,name:'',time:'A',range:'',dur:'',conc:false,ritual:false,material:'',desc:'',ref:'',src:'',free:''}),
-  features:()=>({name:'',source:'',text:'',uses:{max:0,used:0,recover:''}}),
+  features:()=>({name:'',source:'',text:'',when:'',uses:{max:0,used:0,recover:''}}),
   equipment:()=>({id:uid(),name:'',qty:1,cat:'otro',notes:''})};
 function guessCat(n){n=norm(n);
   if(/flecha|virote|bala|dardo|aguja|municion/.test(n))return'municion';
@@ -57,7 +57,7 @@ function classKeyFrom(name){const n=norm(name);if(!n)return'';
   for(const k in CL){if(norm(CL[k].n)===n||norm(CL[k].en)===n||n.startsWith(norm(CL[k].n))||n.startsWith(norm(CL[k].en)))return k}return''}
 function normalize(src){
   const c=Object.assign(blank(),JSON.parse(JSON.stringify(src||{}))),B=blank();
-  for(const k of ['abilities','hp','hitDice','deathSaves','coins','proficiencies','spellcasting','pact','story']) c[k]=Object.assign(B[k],c[k]||{});
+  for(const k of ['abilities','hp','hitDice','deathSaves','coins','proficiencies','spellcasting','pact','story','turn']) c[k]=Object.assign(B[k],c[k]||{});
   if(typeof c.skills!=='object'||!c.skills||Array.isArray(c.skills)) c.skills={};
   for(const k of ['saveProf','conditions','attacks','spells','features','equipment']) if(!Array.isArray(c[k])) c[k]=[];
   const sl=Array.isArray(c.slots)?c.slots:[];
@@ -169,6 +169,21 @@ function resourcesFor(def,sub,L,abilities){
   return out}
 function infoFor(def,sub,L){const o={};for(const src of [def&&def.info,sub&&sub.info])if(src)for(const k in src){const v=src[k][L-1];if(v!==undefined&&v!=='—'&&v!==0)o[k]=v}return o}
 
+/* ================= Glosario ================= */
+const G=window.GLOSS;
+const term=(label,k)=>`<button class="term" data-act="gloss" data-k="${k}">${label}</button>`;
+function weaponTerms(text){const t=norm(text);return window.WEAPON_TERMS.filter(([k])=>t.includes(norm(k)))}
+function showGloss(el){const c=C(),k=el.dataset.k;let t,d,roll='';
+  if(k.startsWith('skill:')){const s=SK[k.slice(6)],pv=+c.skills[s[0]]||0;t=s[1];d=window.SKILL_DESC[s[0]]+` Usa ${AB[s[2]][2]}.`;roll=`Tira <b>1d20 ${sgn(skillB(c,s))}</b>${pv===2?' (con pericia)':pv?' (competente)':''}.`}
+  else if(k.startsWith('abil:')){const a=k.slice(5);t=AB[a][2];d=window.ABIL_DESC[a];roll=`Prueba de ${AB[a][2]}: <b>1d20 ${sgn(M(c,a))}</b><br>Salvación de ${AB[a][2]}: <b>1d20 ${sgn(saveB(c,a))}</b>${c.saveProf.includes(a)?' (competente)':''}`}
+  else if(k.startsWith('wp:')){const w=window.WEAPON_TERMS.find(x=>x[0]===k.slice(3));t=w[1];d=w[2]}
+  else if(k.startsWith('cond:')){const x=CONDS.find(x=>x[0]===k.slice(5));t=x[0];d=x[1]}
+  else{const g=G[k];if(!g)return;t=g.t;d=g.d;
+    if(k==='init')roll=`Tira <b>1d20 ${sgn(init(c))}</b>.`;
+    if(k==='spatk'&&spMod(c)!==null)roll=`Tira <b>1d20 ${sgn(spAtk(c))}</b>.`;
+    if(k==='conc')roll=`Tu salvación de Constitución: <b>1d20 ${sgn(saveB(c,'con'))}</b>.`}
+  openModal(`<h2>${esc(t)}</h2><p>${esc(d)}</p>${roll?`<p class="roll">${roll}</p>`:''}<div class="btns"><button class="b pri" data-act="close-modal">Entendido</button></div>`)}
+
 /* ================= Avisos y modales ================= */
 function toast(html,keep){
   const t=document.createElement('div');t.className='toast';
@@ -176,7 +191,8 @@ function toast(html,keep){
   const box=$('#toasts');box.prepend(t);while(box.children.length>3)box.lastChild.remove();
   setTimeout(()=>t.remove(),keep?30000:7000)}
 function openModal(h,big){const m=$('#modal');m.innerHTML=`<div class="sheet${big?' big':''}" role="dialog" aria-modal="true">${h}</div>`;m.hidden=false;const f=m.querySelector('input:not([type=hidden]),button');f&&!big&&f.focus()}
-function closeModal(){const m=$('#modal');m.hidden=true;m.innerHTML='';W=null;P=null}
+function closeModal(){const m=$('#modal');m.hidden=true;m.innerHTML='';W=null;P=null;pendingEco=null}
+let pendingEco=null;
 
 /* ================= Render: barra superior ================= */
 function pips(kind,a,T,filled){let h='<span class="pips">';for(let k=0;k<T;k++)h+=`<button class="pip${k<filled?' full':''}" data-act="pip" data-kind="${kind}" data-a="${a}" data-i="${k}" aria-label="Casilla ${k+1} de ${T}"></button>`;return h+'</span>'}
@@ -186,10 +202,10 @@ function renderTop(){
   $('#top').innerHTML=`<div class="wrap"><div class="top-in">
     ${c.story.img?`<button class="avatar-btn" data-act="tab" data-t="story" aria-label="Ver historia"><img class="avatar" src="${c.story.img}" alt=""></button>`:''}<div class="who"><div class="nm">${esc(c.name||'Sin nombre')}</div><div class="sub">${esc(sub)}</div></div>
     <div class="vit">
-      <div class="hpbox"><div class="hpnum"><b>${c.hp.current}</b> / ${c.hp.max}${c.hp.temp?`<em>+${c.hp.temp}</em>`:''}</div><div class="bar"><i class="${pct<=25?'low':''}" style="width:${pct}%"></i></div><small>Puntos de golpe</small></div>
-      <div class="stat"><b>${c.ac}</b><small>CA</small></div>
-      <div class="stat"><b>${sgn(init(c))}</b><small>Inic.</small></div>
-      <div class="stat"><b>${Math.max(0,c.speedFt-5*(+c.exhaustion||0))}</b><small>pies</small></div>
+      <button class="hpbox" data-act="gloss" data-k="hp"><div class="hpnum"><b>${c.hp.current}</b> / ${c.hp.max}${c.hp.temp?`<em>+${c.hp.temp}</em>`:''}</div><div class="bar"><i class="${pct<=25?'low':''}" style="width:${pct}%"></i></div><small>Puntos de golpe</small></button>
+      <button class="stat" data-act="gloss" data-k="ca"><b>${c.ac}</b><small>CA</small></button>
+      <button class="stat" data-act="gloss" data-k="init"><b>${sgn(init(c))}</b><small>Inic.</small></button>
+      <button class="stat" data-act="gloss" data-k="speed"><b>${Math.max(0,c.speedFt-5*(+c.exhaustion||0))}</b><small>pies</small></button>
     </div>
     <div class="ctl">
       <button class="b" data-act="short">Descanso corto</button><button class="b" data-act="long">Descanso largo</button>
@@ -206,7 +222,7 @@ function resRow(f,i){
   return`<div class="slotrow"><span>${esc(f.name)}<br><small>${esc(REC[u.recover]||'sin recuperación automática')}</small></span>${ctl}</div>`}
 function viewPlay(c){
   const p=pb(c),def=defOf(c),sub=subOf(c);
-  const death=c.hp.current<=0?`<div class="death"><div class="dl">A 0 PG: salvaciones contra muerte</div>
+  const death=c.hp.current<=0?`<div class="death"><div class="dl">A 0 PG: ${term('salvaciones contra muerte','death')}</div>
     <p class="hint">En tu turno tira un d20: 10 o más es éxito, menos es fallo. Un 1 cuenta como dos fallos y un 20 te devuelve 1 PG.</p>
     <div class="dsrow"><span>Éxitos</span>${pips('ds',0,3,c.deathSaves.success)}</div>
     <div class="dsrow"><span>Fallos</span>${pips('df',0,3,c.deathSaves.fail)}</div>
@@ -215,18 +231,18 @@ function viewPlay(c){
   const active=CONDS.filter(x=>c.conditions.includes(x[0]));
   const vit=`<section class="card"><h2>Vida y estado</h2>
     <div class="hpctl"><input id="hpAmt" type="number" inputmode="numeric" min="0" placeholder="0" aria-label="Cantidad de PG">
-      <button class="b bad" data-act="hp" data-m="dmg">Daño</button><button class="b good" data-act="hp" data-m="heal">Curar</button><button class="b" data-act="hp" data-m="temp">PG temporales</button></div>
+      <button class="b bad" data-act="hp" data-m="dmg">Daño</button><button class="b good" data-act="hp" data-m="heal">Curar</button><button class="b" data-act="hp" data-m="temp">PG temporales</button><button class="b sm help" data-act="gloss" data-k="temp" aria-label="Qué son los PG temporales">?</button></div>
     ${death}
     <div style="margin-top:.7rem">
-      <div class="kv"><span>Dados de golpe</span><b>${c.hitDice.total-c.hitDice.spent} / ${c.hitDice.total} ${esc(c.hitDice.die)}</b></div>
-      <div class="kv"><span>Bonificador de competencia</span><b>${sgn(p)}</b></div>
-      <div class="kv"><span>Percepción pasiva</span><b>${10+skillB(c,SK.perception)}</b></div>
-      <div class="kv"><span>Inspiración heroica</span><button class="chip ${c.inspiration?'on':''}" data-act="insp">${c.inspiration?'La tienes':'No'}</button></div>
+      <div class="kv"><span>${term('Dados de golpe','hd')}</span><b>${c.hitDice.total-c.hitDice.spent} / ${c.hitDice.total} ${esc(c.hitDice.die)}</b></div>
+      <div class="kv"><span>${term('Bonificador de competencia','pb')}</span><b>${sgn(p)}</b></div>
+      <div class="kv"><span>${term('Percepción pasiva','passive')}</span><b>${10+skillB(c,SK.perception)}</b></div>
+      <div class="kv"><span>${term('Inspiración heroica','insp')}</span><button class="chip ${c.inspiration?'on':''}" data-act="insp">${c.inspiration?'La tienes':'No'}</button></div>
     </div>
-    ${c.concentration?`<div class="conc"><span>Concentrado en <b>${esc(c.concentration)}</b></span><button class="b sm" data-act="end-conc">Terminar</button></div>`:''}
+    ${c.concentration?`<div class="conc"><span>${term('Concentrado','conc')} en <b>${esc(c.concentration)}</b></span><button class="b sm" data-act="end-conc">Terminar</button></div>`:''}
     <h3>Estados</h3><div class="chips">${CONDS.map(([n,ds])=>`<button class="chip ${c.conditions.includes(n)?'on':''}" data-act="cond" data-n="${n}" title="${esc(ds)}">${n}</button>`).join('')}</div>
     ${active.length?`<ul class="condlist">${active.map(([n,ds])=>`<li><b>${n}:</b> ${esc(ds)}</li>`).join('')}</ul>`:''}
-    <div class="exh"><span>Agotamiento</span><button class="b sq" data-act="exh" data-d="-1" aria-label="Menos">−</button><b>${c.exhaustion}</b><button class="b sq" data-act="exh" data-d="1" aria-label="Más">+</button>
+    <div class="exh"><span>${term('Agotamiento','exh')}</span><button class="b sq" data-act="exh" data-d="-1" aria-label="Menos">−</button><b>${c.exhaustion}</b><button class="b sq" data-act="exh" data-d="1" aria-label="Más">+</button>
       <small>${c.exhaustion?`Resta ${2*c.exhaustion} a tus tiradas d20 y ${5*c.exhaustion} pies de velocidad${c.exhaustion>=6?' · nivel 6: muerte':''}`:'Ninguno'}</small></div>
   </section>`;
   // Recursos: espacios, rasgos con usos, consumibles, datos de clase
@@ -236,30 +252,33 @@ function viewPlay(c){
   const cons=c.equipment.map((e,i)=>USABLE.has(e.cat)?`<div class="slotrow"><span>${esc(e.name)}<br><small>${CATN[e.cat]}</small></span><span class="counter"><button class="b sq" data-act="qty" data-i="${i}" data-d="-1" aria-label="Usar uno">−</button><b style="min-width:2rem;text-align:center">${e.qty}</b><button class="b sq" data-act="qty" data-i="${i}" data-d="1" aria-label="Añadir uno">+</button></span></div>`:'').join('');
   const info=infoFor(def,sub,c.level);
   const res=`<section class="card"><h2>Recursos</h2>
-    ${slotHtml?`<h3>Espacios de conjuro</h3>${slotHtml}`:''}
+    ${slotHtml?`<h3>${term('Espacios de conjuro','slot')}</h3>${slotHtml}`:''}
     ${featRes?`<h3>Rasgos con usos</h3>${featRes}`:''}
     ${cons?`<h3>Consumibles</h3>${cons}`:''}
     ${Object.keys(info).length?`<h3>Datos de clase</h3>${Object.entries(info).map(([k,v])=>`<div class="kv"><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join('')}`:''}
     ${!slotHtml&&!featRes&&!cons?'<p class="empty">Aquí verás espacios de conjuro, rasgos con usos limitados y consumibles (munición, comida, pociones…). Añade objetos en «Inventario».</p>':''}
     <p class="hint" style="margin-top:.6rem">Toca un rombo para gastarlo o recuperarlo.</p></section>`;
-  const abil=`<section class="card"><h2>Características</h2><div class="abil">${ABIL.map(([k,l])=>`<div class="ab"><span class="lbl">${l}</span>
+  const abil=`<section class="card"><h2>Características</h2><div class="abil">${ABIL.map(([k,l])=>`<button class="ab" data-act="gloss" data-k="abil:${k}"><span class="lbl">${l}</span>
       <span class="mod">${sgn(M(c,k))}</span><span class="sc">${c.abilities[k]}</span>
-      <span class="sv ${c.saveProf.includes(k)?'p':''}" title="Tirada de salvación">Salv. ${sgn(saveB(c,k))}</span></div>`).join('')}</div></section>`;
-  const sk=`<section class="card"><h2>Habilidades</h2>${SKILLS.map(s=>{const pv=+c.skills[s[0]]||0;return`<div class="skill"><span class="dot ${pv?'p':''}">${pv===2?'◆':pv?'●':'○'}</span><span>${s[1]}</span><span class="ak">${AB[s[2]][1]}</span><b>${sgn(skillB(c,s))}</b></div>`}).join('')}
-    <p class="hint" style="margin-top:.5rem">● competente · ◆ pericia</p></section>`;
+      <span class="sv ${c.saveProf.includes(k)?'p':''}">Salv. ${sgn(saveB(c,k))}</span></button>`).join('')}</div>
+    <p class="hint" style="margin-top:.6rem">Toca una característica para ver qué tirar. ${term('¿Puntuación o modificador?','mod')} · ${term('¿Qué es una salvación?','save')}</p></section>`;
+  const sk=`<section class="card"><h2>Habilidades</h2>${SKILLS.map(s=>{const pv=+c.skills[s[0]]||0;return`<button class="skill" data-act="gloss" data-k="skill:${s[0]}"><span class="dot ${pv?'p':''}">${pv===2?'◆':pv?'●':'○'}</span><span>${s[1]}</span><span class="ak">${AB[s[2]][1]}</span><b>${sgn(skillB(c,s))}</b></button>`}).join('')}
+    <p class="hint" style="margin-top:.5rem">Toca una habilidad para ver para qué sirve y qué tirar. ${term('● competente · ◆ pericia','prof')} · ${term('Ventaja y desventaja','adv')}</p></section>`;
   const atk=`<section class="card"><h2>Armas y ataques</h2>${c.attacks.length?`<div class="list">${c.attacks.map((a,i)=>{
       const am=a.ammo&&c.equipment.find(e=>e.id===a.ammo);
       return`<div class="it"><div class="it-head"><span class="it-name">${esc(a.name)}</span><span class="badge">${sgn(+a.atk||0)}</span>${a.dmg?`<span class="badge">${esc(a.dmg)}</span>`:''}
         ${am?`<button class="b sm" data-act="ammo" data-i="${i}" ${am.qty>0?'':'disabled'}>Disparar (quedan ${am.qty})</button>`:''}</div>
-      <div class="meta">${esc([a.type,a.notes].filter(Boolean).join(' · '))}</div></div>`}).join('')}</div>`:'<p class="empty">Sin armas. Añádelas en «Editar ficha».</p>'}</section>`;
+      <div class="meta">${esc([a.type,a.notes].filter(Boolean).join(' · '))}</div>
+      ${weaponTerms(a.notes).length?`<div class="chips" style="margin-top:.3rem">${weaponTerms(a.notes).map(w=>`<button class="chip" data-act="gloss" data-k="wp:${w[0]}">${esc(w[1])}</button>`).join('')}</div>`:''}</div>`}).join('')}</div>`:'<p class="empty">Sin armas. Añádelas en «Editar ficha».</p>'}
+    <p class="hint" style="margin-top:.5rem">Al atacar tira 1d20 + el primer número contra la CA del enemigo; si impactas, tira el daño. ${term('¿Y si saco un 20?','crit')}</p></section>`;
   let mag='';
   if(c.spells.length||c.slots.some(s=>s.total>0)||c.pact.total>0||c.spellcasting.ability){
     const groups={};c.spells.forEach((sp,i)=>{(groups[+sp.level||0]??=[]).push([sp,i])});
-    const head=spMod(c)!==null?`<div class="spellhead"><span>Aptitud: <b>${AB[c.spellcasting.ability][2]}</b></span><span>CD de salvación: <b>${spDC(c)}</b></span><span>Ataque de conjuro: <b>${sgn(spAtk(c))}</b></span></div>`:'';
+    const head=spMod(c)!==null?`<div class="spellhead"><span>Aptitud: <b>${AB[c.spellcasting.ability][2]}</b></span><span>${term('CD de salvación','dc')}: <b>${spDC(c)}</b></span><span>${term('Ataque de conjuro','spatk')}: <b>${sgn(spAtk(c))}</b></span></div>`:'';
     mag=`<section class="card"><div class="card-head"><h2>Magia</h2><button class="b sm" data-act="sp-open">Buscar conjuros</button></div>${head}
-      ${Object.keys(groups).sort((a,b)=>a-b).map(L=>`<h3>${+L===0?'Trucos (no gastan espacio)':`Nivel ${L}`}</h3><div class="list">${groups[L].map(([sp,i])=>{
+      ${Object.keys(groups).sort((a,b)=>a-b).map(L=>`<h3>${+L===0?term('Trucos (no gastan espacio)','cantrip'):`Nivel ${L}`}</h3><div class="list">${groups[L].map(([sp,i])=>{
         const ok=canCast(c,sp);
-        const tags=(sp.src?`<span class="tag" title="No cuenta en tu límite de conjuros">${esc(sp.src)}</span>`:'')+(sp.conc?'<span class="tag" title="Concentración">C</span>':'')+(sp.ritual?'<span class="tag" title="Ritual">R</span>':'')+(sp.material?`<span class="tag" title="${esc(sp.material)}">M</span>`:'');
+        const tags=(sp.src?`<span class="tag" title="No cuenta en tu límite de conjuros">${esc(sp.src)}</span>`:'')+(sp.conc?'<button class="tag" data-act="gloss" data-k="cconc">C</button>':'')+(sp.ritual?'<button class="tag" data-act="gloss" data-k="ritual">R</button>':'')+(sp.material?'<button class="tag" data-act="gloss" data-k="comp">M</button>':'');
         const d=sp.ref&&SPBY[sp.ref];
         const desc=sp.desc||(d?d.de+(d.hl?'\n\nA niveles superiores: '+d.hl:''):'');
         return`<div class="it"><div class="it-head"><span class="it-name">${esc(sp.name)}${tags}</span>
@@ -271,7 +290,7 @@ function viewPlay(c){
       ${f.source?`<div class="meta">${esc(f.source)}</div>`:''}
       ${f.text?`<details><summary>Detalles</summary><p>${esc(f.text)}</p></details>`:''}</div>`).join('')}</div>`:'<p class="empty">Sin rasgos.</p>'}</section>`;
   const notes=`<section class="card"><h2>Notas de la partida</h2><textarea class="notes" id="play-notes" data-path="notes" placeholder="Nombres, pistas, misiones…">${esc(c.notes)}</textarea></section>`;
-  return`<div class="cols"><div class="col">${vit}${res}</div><div class="col">${abil}${sk}</div><div class="col">${atk}${mag}${feats}${notes}</div></div>`}
+  return`${viewTurn(c)}<div class="cols"><div class="col">${vit}${res}</div><div class="col">${abil}${sk}</div><div class="col">${atk}${mag}${feats}${notes}</div></div>`}
 function slotOptions(c,L){const o=[];
   if(c.pact.total>0&&c.pact.level>=L)o.push({kind:'pact',level:c.pact.level,avail:c.pact.total-c.pact.used});
   for(let l=L;l<=9;l++){const s=c.slots[l-1];if(s.total>0)o.push({kind:'slot',level:l,avail:s.total-s.used})}
@@ -282,10 +301,78 @@ const slotLabel=o=>o.kind==='pact'?`Espacio de pacto (nivel ${o.level})`:`Espaci
 function consume(c,kind,level){if(kind==='pact')c.pact.used=Math.min(c.pact.total,c.pact.used+1);else{const s=c.slots[level-1];s.used=Math.min(s.total,s.used+1)}}
 function afterCast(sp,how){
   const c=C();let note='';
+  if(pendingEco){spendEco(c,pendingEco);pendingEco=null}
   if(sp.conc){if(c.concentration&&c.concentration!==sp.name)note=`<div class="t-parts">Dejas de concentrarte en ${esc(c.concentration)}.</div>`;c.concentration=sp.name}
   save();render();
   const extra=spMod(c)!==null?`<div class="t-parts">CD de salvación ${spDC(c)} · ataque de conjuro ${sgn(spAtk(c))}</div>`:'';
   toast(`<div class="t-label">Lanzas</div><div class="t-big">${esc(sp.name)}</div><div class="t-parts">${esc(how)}${sp.conc?' · requiere concentración':''}</div>${extra}${note}`)}
+
+/* ================= Tu turno ================= */
+// Cuándo se usa cada rasgo con usos (por nombre). 'none' = no aparece en el turno (fuera de combate o ligado a un conjuro).
+const WHEN={'Furia':'AA','Tomar aliento':'AA','Oleada de acción':'free','Indómito':'free','Inspiración bárdica':'AA','Canalizar divinidad':'A','Intervención divina':'A',
+  'Forma salvaje':'AA','Hechicería innata':'AA','Metabolismo asombroso':'free','Dados de superioridad':'free','Dados de energía psiónica':'free','Mareas del caos':'free',
+  'Portento':'free','Luz sanadora (d6)':'AA','Suerte del oscuro':'free','Golpe de suerte':'free','Imposición de manos (PG)':'AA','Manos sanadoras':'A',
+  'Revelación celestial':'AA','Arma de aliento':'atk','Vuelo dracónico':'AA','Afinidad con la piedra':'AA','Subidón de adrenalina':'AA','Aguante incansable':'free',
+  'Forma grande':'AA','Salto de las nubes':'AA','Quemadura de fuego':'free','Frío de la escarcha':'free','Caída de la colina':'free','Aguante de piedra':'R',
+  'Trueno de la tormenta':'R','Puntos de suerte':'free','Incansable (PG temporales)':'A','Puntos de hechicería':'free','Puntos de concentración':'none',
+  'Astucia mágica':'none','Contactar con el patrón':'none','Arcano místico':'none','Recuperación arcana':'none','Restauración hechicera':'none'};
+const whenOf=f=>f.when||WHEN[f.name]||(/gratis/i.test(f.name)?'none':'free');
+// Opciones derivadas de rasgos (gastan un recurso de otro rasgo o no gastan nada)
+const DERIVED=[
+  {need:'Puntos de concentración',n:'Ráfaga de golpes',t:'AA',cost:'Puntos de concentración',d:'Dos golpes desarmados (1 punto).'},
+  {need:'Puntos de concentración',n:'Defensa paciente',t:'AA',cost:'Puntos de concentración',d:'Destrabarse y Esquivar (1 punto).'},
+  {need:'Puntos de concentración',n:'Paso del viento',t:'AA',cost:'Puntos de concentración',d:'Destrabarse y Correr, salto doble (1 punto).'},
+  {need:'Golpe aturdidor',n:'Golpe aturdidor',t:'free',cost:'Puntos de concentración',d:'Al impactar: salvación de CON o queda aturdido (1 punto).'},
+  {need:'Artes marciales',n:'Golpe desarmado (Artes marciales)',t:'AA',d:'Un golpe desarmado extra.'},
+  {need:'Acción astuta',n:'Correr, Destrabarse o Esconderse',t:'AA',d:'Acción astuta del pícaro.'},
+  {need:'Pacto de la Espada',n:'Invocar arma de pacto',t:'AA',d:'Haces aparecer tu arma de pacto en la mano.'}];
+const GENERIC=[['a_dash','Correr'],['a_disengage','Destrabarse'],['a_dodge','Esquivar'],['a_help','Ayudar'],['a_hide','Esconderse'],['a_influence','Influir'],['a_study','Estudiar'],['a_search','Buscar'],['a_ready','Preparar'],['a_utilize','Usar un objeto']];
+function attacksPerAction(c){const has=n=>c.features.some(f=>norm(f.name).includes(norm(n)));
+  return has('Tres ataques adicionales')?4:has('Dos ataques adicionales')?3:(has('Ataque adicional')||has('Hoja sedienta'))?2:1}
+function spendEco(c,k){if(k==='A'){c.turn.a=true;c.turn.atk=0}else if(k==='AA')c.turn.aa=true;else if(k==='R')c.turn.r=true}
+const featLeft=f=>f.uses.max-f.uses.used;
+function viewTurn(c){
+  const T=c.turn,aFree=!T.a,atkOn=aFree||T.atk>0,dis=b=>b?'disabled':'';
+  const row=(name,meta,btn)=>`<div class="trow"><div class="tname">${name}${meta?`<small>${meta}</small>`:''}</div>${btn}</div>`;
+  const cols={A:[],AA:[],R:[],free:[]};
+  // Atacar
+  const nAtk=attacksPerAction(c);
+  c.attacks.forEach((a,i)=>{const am=a.ammo&&c.equipment.find(e=>e.id===a.ammo);const noAmmo=am&&am.qty<=0;
+    cols.A.push(row(`${esc(a.name)}`,`${sgn(+a.atk||0)} · ${esc(a.dmg||'')}${am?` · quedan ${am.qty}`:''}`,`<button class="b sm pri" data-act="t-atk" data-i="${i}" ${dis(!atkOn||noAmmo)}>Atacar</button>`))});
+  // Conjuros por tiempo de lanzamiento
+  c.spells.forEach((sp,i)=>{const t=sp.time==='BA'?'AA':sp.time;if(!['A','AA','R'].includes(t))return;
+    const busy=t==='A'?!aFree:t==='AA'?T.aa:T.r;const ok=canCast(c,sp);
+    cols[t].push(row(`${esc(sp.name)}${sp.conc?' <span class="tag">C</span>':''}`,`${+sp.level?'Nivel '+sp.level:'Truco'}`,`<button class="b sm ${ok&&!busy?'pri':''}" data-act="t-cast" data-i="${i}" data-eco="${t}" ${dis(busy||!ok)}>${ok?(+sp.level?'Lanzar':'Usar'):'Sin espacios'}</button>`))});
+  // Rasgos con usos
+  c.features.forEach((f,i)=>{if(!(f.uses.max>0))return;const w=whenOf(f);if(w==='none')return;const left=featLeft(f);
+    const k=w==='atk'?'A':w;const busy=w==='atk'?!atkOn:k==='A'?!aFree:k==='AA'?T.aa:k==='R'?T.r:false;
+    cols[k].push(row(esc(f.name),`quedan ${left}/${f.uses.max}${w==='atk'?' · sustituye un ataque':''}`,`<button class="b sm" data-act="t-feat" data-i="${i}" ${dis(busy||left<=0)}>Usar</button>`))});
+  // Derivadas
+  DERIVED.forEach((o,j)=>{if(!c.features.some(f=>norm(f.name).includes(norm(o.need))))return;
+    const src=o.cost&&c.features.find(f=>f.name===o.cost&&f.uses.max>0);if(o.cost&&!src)return;
+    const busy=o.t==='A'?!aFree:o.t==='AA'?T.aa:o.t==='R'?T.r:false;
+    cols[o.t].push(row(esc(o.n),esc(o.d)+(src?` · quedan ${featLeft(src)}`:''),`<button class="b sm" data-act="t-der" data-j="${j}" ${dis(busy||(src&&featLeft(src)<=0))}>Usar</button>`))});
+  // Segunda arma ligera
+  const lights=c.attacks.map((a,i)=>[a,i]).filter(([a])=>/ligera/i.test(a.notes||''));
+  if(lights.length>=2)lights.forEach(([a,i])=>cols.AA.push(row(`${esc(a.name)} (arma ligera)`,'Ataque extra sin modificador al daño',`<button class="b sm" data-act="t-light" data-i="${i}" ${dis(T.aa)}>Atacar</button>`)));
+  // Consumibles
+  c.equipment.forEach((e,i)=>{if(e.cat!=='pocion'&&e.cat!=='consumible')return;const k=e.cat==='pocion'?'AA':'A';const busy=k==='A'?!aFree:T.aa;
+    cols[k].push(row(esc(e.name),`quedan ${e.qty}`,`<button class="b sm" data-act="t-item" data-i="${i}" data-eco="${k}" ${dis(busy||e.qty<=0)}>${e.cat==='pocion'?'Beber':'Usar'}</button>`))});
+  // Acciones de cualquiera
+  const generic=`<div class="chips">${GENERIC.map(([k,n])=>`<button class="chip" data-act="t-gen" data-k="${k}" ${dis(!aFree)}>${n}</button>`).join('')}</div>`;
+  cols.R.push(row(term('Ataque de oportunidad','a_opp'),'',`<button class="b sm" data-act="t-opp" ${dis(T.r)}>Usar</button>`));
+  const pill=(lbl,k,used,extra)=>`<span class="pill ${used?'used':''}">${term(lbl,k)}<b>${extra||(used?'Gastada':'Disponible')}</b></span>`;
+  const aState=T.a?(T.atk>0?`Atacando · ${T.atk} más`:'Gastada'):'';
+  const col=(k,title,gk,body)=>`<div class="tcol ${k==='A'?(aFree||T.atk>0?'':'off'):k==='AA'?(T.aa?'off':''):k==='R'?(T.r?'off':''):''}"><h3>${term(title,gk)}</h3>${body||'<p class="empty">Nada por ahora.</p>'}</div>`;
+  let open=true;try{open=localStorage.getItem('fichas-turn-open')!=='0'}catch(e){}
+  return`<section class="card turn"><div class="card-head"><h2>Tu turno</h2><div class="btns"><button class="b" data-act="t-end">Terminar turno</button><button class="b sm" data-act="t-fold" aria-expanded="${open}">${open?'Plegar':'Desplegar'}</button></div></div>
+    <div class="pills">${pill('Acción','action',T.a,aState)}${pill('Acción adicional','bonus',T.aa)}${pill('Reacción','reaction',T.r)}</div>
+    <div class="tgrid" ${open?'':'hidden'}>
+      ${col('A','Acción','action',`${nAtk>1?`<p class="hint">Con la acción de Atacar haces ${nAtk} ataques.</p>`:''}${cols.A.join('')}<h3 class="sub3">Otras acciones</h3>${generic}`)}
+      ${col('AA','Acción adicional','bonus',cols.AA.join(''))}
+      ${col('R','Reacción','reaction',cols.R.join(''))}
+      ${col('free','Sin gastar acción','free',cols.free.join(''))}
+    </div></section>`}
 
 /* ================= Render: inventario ================= */
 function totalCp(c){return COINS.reduce((t,[k,,v])=>t+(+c.coins[k]||0)*v,0)}
@@ -371,6 +458,7 @@ function viewEdit(c){
     <div class="stack">${c.features.map((f,i)=>`<div class="row-ed">
     ${inp('Nombre',`features.${i}.name`,f.name)}${inp('Origen',`features.${i}.source`,f.source,{ph:'Clase, especie, dote…'})}${inp('Usos (0 = ilimitado)',`features.${i}.uses.max`,f.uses.max,{num:1})}
     ${sel('Se recupera con',`features.${i}.uses.recover`,f.uses.recover,[['','—'],['corto','Descanso corto o largo'],['corto1','1 en corto, todos en largo'],['largo','Descanso largo']])}
+    ${sel('Cuándo se usa',`features.${i}.when`,f.when||'',[['','Automático'],['A','Acción'],['AA','Acción adicional'],['R','Reacción'],['free','Sin gastar acción'],['atk','Sustituye un ataque'],['none','Fuera de combate']])}
     ${ta('Descripción',`features.${i}.text`,f.text)}${del('features',i)}</div>`).join('')}
     <div><button class="b" data-act="add" data-list="features">Añadir rasgo</button></div></div></section>
   <section class="card"><h2>Objetos</h2><div class="stack">${c.equipment.map((e,i)=>`<div class="row-ed">
@@ -735,9 +823,9 @@ const A={
       ${fr?`<button class="b opt" data-act="cast-with" data-i="${el.dataset.i}" data-kind="free"><span>Gratis (${esc(sp.src||'rasgo')})</span><small>quedan ${fr.uses.max-fr.uses.used}</small></button>`:''}
       ${sp.ritual?`<button class="b opt" data-act="cast-with" data-i="${el.dataset.i}" data-kind="ritual"><span>Como ritual</span><small>+10 min, sin espacio</small></button>`:''}
       <button class="b" data-act="close-modal">Cancelar</button>`)},
-  'cast-with':el=>{const c=C(),sp=c.spells[+el.dataset.i];closeModal();
+  'cast-with':el=>{const c=C(),sp=c.spells[+el.dataset.i],pe=pendingEco;closeModal();pendingEco=pe;
     if(el.dataset.kind==='ritual')return afterCast(sp,'Como ritual: sin espacio');
-    if(el.dataset.kind==='free'){const f=freeUse(c,sp);if(f)f.uses.used++;return afterCast(sp,`Uso gratuito de ${sp.src||'rasgo'}`)}
+    if(el.dataset.kind==='free'){const f=freeUse(c,sp);if(f)f.uses.used=Math.min(f.uses.max,f.uses.used+1);return afterCast(sp,`Uso gratuito de ${sp.src||'rasgo'}`)}
     consume(c,el.dataset.kind,+el.dataset.level);
     const o=slotOptions(c,+sp.level).find(x=>x.kind===el.dataset.kind&&x.level===+el.dataset.level);
     afterCast(sp,`${slotLabel({kind:el.dataset.kind,level:+el.dataset.level})} · te quedan ${o?o.avail:0}`)},
@@ -794,6 +882,30 @@ const A={
   add:el=>{C()[el.dataset.list].push(NEW[el.dataset.list]());save();renderView();const nm=[...document.querySelectorAll(`[data-path^="${el.dataset.list}."]`)].pop();nm&&nm.closest('.row-ed').querySelector('input').focus()},
   del:el=>{C()[el.dataset.list].splice(+el.dataset.i,1);save();renderView()},
   levelup:()=>startWizard('level'),
+  gloss:el=>showGloss(el),
+  't-fold':()=>{try{const o=localStorage.getItem('fichas-turn-open')!=='0';localStorage.setItem('fichas-turn-open',o?'0':'1')}catch(e){}renderView()},
+  't-end':()=>{const c=C();c.turn={a:false,aa:false,r:false,atk:0};save();render()},
+  't-atk':el=>{const c=C(),a=c.attacks[+el.dataset.i],T=c.turn;
+    const am=a.ammo&&c.equipment.find(e=>e.id===a.ammo);if(am){if(am.qty<=0)return;am.qty--}
+    if(!T.a){T.a=true;T.atk=attacksPerAction(c)-1}else T.atk=Math.max(0,T.atk-1);
+    save();render();toast(`<div class="t-label">Ataque con ${esc(a.name)}</div><div class="t-big">1d20 ${sgn(+a.atk||0)}</div><div class="t-parts">Si impactas, daño: ${esc(a.dmg||'—')} ${esc(a.type||'')}${am?` · quedan ${am.qty} ${esc(am.name)}`:''}${T.atk>0?` · te quedan ${T.atk} ataques`:''}</div>`)},
+  't-light':el=>{const c=C(),a=c.attacks[+el.dataset.i];c.turn.aa=true;save();render();
+    toast(`<div class="t-label">Ataque con ${esc(a.name)} (acción adicional)</div><div class="t-big">1d20 ${sgn(+a.atk||0)}</div><div class="t-parts">Daño: ${esc(a.dmg||'—')} sin sumar tu modificador.</div>`)},
+  't-cast':el=>{pendingEco=el.dataset.eco;A.cast(el)},
+  't-feat':el=>{const c=C(),f=c.features[+el.dataset.i],w=whenOf(f);if(featLeft(f)<=0)return;
+    if(f.uses.pool||f.uses.max>12){openModal(`<h2>${esc(f.name)}</h2><p>Quedan <b>${featLeft(f)}</b>. ¿Cuántos gastas?</p><div class="hpctl"><input id="pool-n" type="number" inputmode="numeric" min="1" max="${featLeft(f)}" value="1"><button class="b pri" data-act="t-pool" data-i="${el.dataset.i}">Gastar</button><button class="b" data-act="close-modal">Cancelar</button></div>`);return}
+    f.uses.used++;
+    if(w==='atk'){const T=c.turn;if(!T.a){T.a=true;T.atk=attacksPerAction(c)-1}else T.atk=Math.max(0,T.atk-1)}else spendEco(c,w);
+    if(f.name==='Oleada de acción'){c.turn.a=false;c.turn.atk=0}
+    if(f.name==='Furia')toast('<div class="t-label">¡Furia!</div><div class="t-parts">Ventaja en FUE, daño extra y resistencia a contundente, cortante y perforante.</div>');
+    save();render()},
+  't-pool':el=>{const c=C(),f=c.features[+el.dataset.i],n=clamp(parseInt($('#pool-n').value)||0,0,featLeft(f));if(!n)return;f.uses.used+=n;spendEco(c,whenOf(f));closeModal();save();render()},
+  't-der':el=>{const c=C(),o=DERIVED[+el.dataset.j];if(o.cost){const f=c.features.find(x=>x.name===o.cost);if(!f||featLeft(f)<=0)return;f.uses.used++}
+    spendEco(c,o.t);save();render();toast(`<div class="t-label">${esc(o.n)}</div><div class="t-parts">${esc(o.d)}</div>`)},
+  't-item':el=>{const c=C(),e=c.equipment[+el.dataset.i];if(e.qty<=0)return;e.qty--;spendEco(c,el.dataset.eco);save();render();
+    toast(`<div class="t-label">${e.cat==='pocion'?'Bebes':'Usas'}</div><div class="t-big">${esc(e.name)}</div><div class="t-parts">Te quedan ${e.qty}.${/curaci/i.test(e.name)?' Si cura, apunta los PG en «Curar».':''}</div>`)},
+  't-gen':el=>{const c=C(),g=G[el.dataset.k];spendEco(c,'A');save();render();toast(`<div class="t-label">${esc(g.t)}</div><div class="t-parts">${esc(g.d)}</div>`)},
+  't-opp':()=>{const c=C();c.turn.r=true;save();render();toast(`<div class="t-label">Ataque de oportunidad</div><div class="t-parts">Haz un ataque cuerpo a cuerpo con tu reacción.</div>`)},
   'img-del':()=>{C().story.img='';save();render()},
   'apply-origin':()=>{const c=C();const sp=specOf(c.speciesKey);if(!sp)return;
     if(sp.lin&&!c.lineageKey){toast(`<div class="t-parts">Elige antes el ${esc((sp.linLabel||'linaje').toLowerCase())} en el desplegable.</div>`);return}
