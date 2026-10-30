@@ -378,3 +378,6 @@ textarea.notes.diary{min-height:55vh;flex:1 1 auto}
 .conc.topconc{margin-top:.55rem;padding:.3rem .35rem .3rem .7rem;font-size:.92rem;flex-wrap:nowrap}
 .conc.topconc .b.sq{flex:0 0 auto}
 .b.qbtn.icon:disabled{opacity:.4}
+.card.welcome{max-width:34rem;margin:12vh auto 0;text-align:center}
+.card.welcome h1{font-family:var(--display,inherit);font-size:2rem;margin:.2rem 0 .6rem}
+.card.welcome .btns{justify-content:center;margin:1rem 0 .4rem}

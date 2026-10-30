@@ -84,32 +84,13 @@ function normalize(src){
   c.formato='fichas-dnd-2024/2';
   return c}
 
-const ZYO={name:'Zyo',species:'Tiefling',speciesKey:'tiefling',background:'Mendigo',class:'Brujo',classKey:'warlock',subclass:'',level:1,xp:0,
-  abilities:{str:8,dex:12,con:12,int:14,wis:14,cha:15},saveProf:['wis','cha'],
-  skills:{investigation:1,insight:1,deception:1,persuasion:1},
-  ac:12,speedFt:30,size:'M',hp:{max:9,current:9,temp:0},hitDice:{die:'d8',total:1,spent:0},
-  attacks:[{name:'Daga',atk:3,dmg:'1d4+1',type:'Perforante',notes:'Ligera, arrojadiza (20/60 pies)'},{name:'Espada (pacto)',atk:4,dmg:'1d6+2',type:'Cortante',notes:'Ligera, versátil (1d8)'}],
-  spellcasting:{ability:'cha'},pact:{level:1,total:1,used:0},
-  spells:[
-    {level:0,name:'Toque gélido',ref:'chill-touch'},{level:0,name:'Estallido arcano',ref:'eldritch-blast'},{level:0,name:'Prestidigitación',ref:'prestidigitation'},
-    {level:1,name:'Represión infernal',ref:'hellish-rebuke'},{level:1,name:'Maleficio',ref:'hex'}],
-  features:[
-    {name:'Invocación: Pacto de la Espada',source:'Brujo 1',text:'Con una acción adicional invocas tu arma de pacto en la mano. Eres competente con ella, puedes usar Carisma para el ataque y el daño, y puedes hacer que su daño sea necrótico, psíquico o radiante.'},
-    {name:'Magia de pacto',source:'Brujo 1',text:'Tus espacios de conjuro de brujo son todos del mismo nivel y se recuperan con un descanso corto o largo.'},
-    {name:'Visión en la oscuridad',source:'Tiefling',text:'Ves en la oscuridad hasta 60 pies como si fuera luz tenue.'},
-    {name:'Legado infernal',source:'Tiefling',text:'Resistencia al daño necrótico (según la ficha).'},
-    {name:'Dote Superviviente',source:'Dote (trasfondo Mendigo)',text:''}],
-  equipment:[{name:'Daga',qty:3,cat:'arma'},{name:'Hoz',qty:1,cat:'arma'},{name:'Armadura de cuero (CA 11)',qty:1,cat:'armadura'},{name:'Kit de disfraz',qty:1,cat:'herramienta'},{name:'Túnica',qty:1,cat:'otro'},{name:'Libro (conocimiento oculto)',qty:1,cat:'otro'},{name:'Paquete de erudito',qty:1,cat:'otro'}],
-  coins:{cp:0,sp:0,ep:0,gp:27,pp:0},languages:'Común, Infernal',
-  proficiencies:{armor:'Ligera',weapons:'Armas sencillas',tools:'Kit de disfraz'}};
 function fillFromRef(s){const d=s.ref&&SPBY[s.ref];if(!d)return s;
   return Object.assign(s,{level:d.l,name:s.name||d.n,time:s.time&&s.time!=='A'?s.time:d.t,range:s.range||d.r,dur:s.dur||d.d,conc:s.conc||d.k,ritual:s.ritual||d.ri,material:s.material||d.m,desc:s.desc||''})}
 
 let S={chars:[],active:null,tab:'play'};
 function load(){
   try{const r=localStorage.getItem(KEY);if(r){const x=JSON.parse(r);S.chars=(x.chars||[]).map(normalize);S.active=x.active;if(x.tab)S.tab=x.tab;if(S.tab==='inv'||S.tab==='story')S.tab='pj';if(S.tab==='chars')S.tab='play'}}catch(e){}
-  if(!S.chars.length){const z=normalize(ZYO);z.spells.forEach(fillFromRef);S.chars=[z];S.active=z.id}
-  if(!S.chars.find(c=>c.id===S.active)) S.active=S.chars[0].id}
+  if(!S.chars.find(c=>c.id===S.active)) S.active=S.chars.length?S.chars[0].id:null}
 function save(){try{localStorage.setItem(KEY,JSON.stringify({chars:S.chars,active:S.active,tab:S.tab}))}catch(e){}}
 const C=()=>S.chars.find(c=>c.id===S.active);
 
@@ -505,17 +486,17 @@ function charsHTML(){
 function openChars(){openModal(charsHTML())}
 function viewData(c){
   return`<div class="ed">
-  <div class="ed-head"><h2>Copia de seguridad</h2><button class="b pri" data-act="tab" data-t="pj">Hecho</button></div>
+  <div class="ed-head"><h2>${c?'Copia de seguridad':'Importar ficha'}</h2><button class="b pri" data-act="tab" data-t="${c?'pj':'play'}">${c?'Hecho':'Volver'}</button></div>
   <p class="hint">Las fichas se guardan solo en este dispositivo. Exporta de vez en cuando para no perderlas o para pasarlas a otro dispositivo.</p>
   <section class="card"><h2>Importar</h2>
     <p class="hint">Pega el JSON de una ficha (o de varias) o elige un archivo .json. Para pasar una ficha en papel: escanéala, copia las instrucciones de abajo y pásaselas a Claude junto al escaneo; pega aquí lo que te devuelva.</p>
     <div class="btns" style="margin-bottom:.6rem"><button class="b" data-act="copy-prompt">Copiar instrucciones para Claude</button><label class="b" for="imp-file">Elegir archivo .json</label><input id="imp-file" type="file" accept=".json,application/json,text/plain" hidden></div>
     <textarea class="code" id="imp-text" placeholder='{"name": "…", "classKey": "…", …}'></textarea>
     <div class="btns" style="margin-top:.6rem"><button class="b pri" data-act="import">Importar</button></div><p class="hint" id="imp-msg" role="status"></p></section>
-  <section class="card"><h2>Exportar</h2>
+  ${c?`<section class="card"><h2>Exportar</h2>
     <p class="hint">Abajo tienes la ficha de ${esc(c.name)}. «Copiar todas las fichas» guarda todos tus personajes de una vez.</p>
     <textarea class="code" id="exp-text" readonly>${esc(JSON.stringify(c,null,2))}</textarea>
-    <div class="btns" style="margin-top:.6rem"><button class="b" data-act="copy-exp">Copiar JSON</button><button class="b" data-act="copy-all">Copiar todas las fichas</button></div></section>
+    <div class="btns" style="margin-top:.6rem"><button class="b" data-act="copy-exp">Copiar JSON</button><button class="b" data-act="copy-all">Copiar todas las fichas</button></div></section>`:''}
   </div>`}
 const CREDITS=`<p>Fichas 5e es contenido de fans no oficial permitido bajo la Fan Content Policy. No aprobado ni respaldado por Wizards. Partes de los materiales usados son propiedad de Wizards of the Coast. ©Wizards of the Coast LLC.</p><p>Esta app incluye material del System Reference Document 5.2 («SRD 5.2») de Wizards of the Coast LLC, disponible en https://www.dndbeyond.com/srd, bajo licencia Creative Commons Attribution 4.0 International (https://creativecommons.org/licenses/by/4.0/legalcode). Los textos de los conjuros están traducidos y adaptados al castellano. Los resúmenes de rasgos de clase y subclase están escritos para esta app; consulta el Manual del Jugador para el texto completo.</p>`;
 const ALIGN=['','Legal bueno','Neutral bueno','Caótico bueno','Legal neutral','Neutral','Caótico neutral','Legal malvado','Neutral malvado','Caótico malvado'];
@@ -546,7 +527,15 @@ function renderView(){const c=C();$('#view').innerHTML=S.tab==='edit'?viewEdit(c
 function applyTheme(){const k=(C()||{}).classKey||'',r=document.documentElement;
   if(k)r.dataset.class=k;else delete r.dataset.class;
   const bg=getComputedStyle(r).getPropertyValue('--surface').trim();document.querySelectorAll('meta[name="theme-color"]').forEach(m=>m.setAttribute('content',bg||'#ffffff'))}
-function render(){applyTheme();renderTop();renderView()}
+function render(){applyTheme();if(!C()){renderWelcome();return}renderTop();renderView()}
+function renderWelcome(){
+  $('#top').innerHTML='';
+  if(S.tab==='data'){$('#view').innerHTML=viewData(null);return}
+  $('#view').innerHTML=`<section class="card welcome"><h1>Fichas 5e</h1>
+    <p>Tu ficha de personaje interactiva para partidas de 5.ª edición (reglas de 2024). Lleva la cuenta de vida, conjuros, recursos, dinero y objetos mientras juegas con tus dados de siempre.</p>
+    <p class="hint">Las fichas se guardan solo en este dispositivo.</p>
+    <div class="btns"><button class="b pri" data-act="create">Crear personaje</button><button class="b" data-act="tab" data-t="data">Importar ficha</button></div>
+    <p class="hint">¿Tienes una copia de seguridad o una ficha exportada desde otro dispositivo? Usa «Importar ficha».</p></section>`}
 
 /* ================= Buscador de conjuros ================= */
 let P=null; // {target:'edit'|'wizard', q, lvl, cls, open, list(ref a array de conjuros), max}
@@ -1031,7 +1020,7 @@ const A={
   use:el=>{closeModal();S.active=el.dataset.id;if(S.tab==='edit'||S.tab==='data')S.tab='pj';save();render();scrollTo(0,0)},
   dup:el=>{const o=S.chars.find(x=>x.id===el.dataset.id),n=normalize(JSON.parse(JSON.stringify(o)));n.id=uid();n.name+=' (copia)';S.chars.push(n);charMenu='';save();openChars()},
   delchar:el=>{const o=S.chars.find(x=>x.id===el.dataset.id);openModal(`<h2>¿Borrar a ${esc(o.name)}?</h2><p>No se puede deshacer. Si quieres conservarla, copia antes su JSON.</p><div class="btns"><button class="b" data-act="chars">Cancelar</button><button class="b bad" data-act="delchar-ok" data-id="${o.id}">Borrar</button></div>`)},
-  'delchar-ok':el=>{S.chars=S.chars.filter(x=>x.id!==el.dataset.id);if(!S.chars.length)S.chars=[normalize(blank())];if(!C())S.active=S.chars[0].id;charMenu='';save();render();openChars()},
+  'delchar-ok':el=>{S.chars=S.chars.filter(x=>x.id!==el.dataset.id);if(!C())S.active=S.chars.length?S.chars[0].id:null;charMenu='';save();if(S.chars.length){render();openChars()}else{closeModal();S.tab='play';render()}},
   newchar:()=>{closeModal();const n=normalize(blank());S.chars.push(n);S.active=n.id;S.tab='edit';save();render()},
   import:()=>{const t=$('#imp-text').value.trim(),msg=$('#imp-msg');if(!t){msg.textContent='Pega primero el JSON de la ficha.';return}
     let data;try{data=JSON.parse(t.replace(/^```(json)?|```$/g,'').trim())}catch(e){msg.textContent='Ese texto no es JSON válido. Revisa que esté completo, de la primera { a la última }.';return}
@@ -1054,7 +1043,7 @@ document.addEventListener('click',e=>{
   if(!el||el.disabled)return;const f=A[el.dataset.act];if(!f)return;e.preventDefault();
   if(el.dataset.act==='undo'){f(el);return}
   const before=JSON.stringify(S.chars),act=S.active;f(el);
-  if(JSON.stringify(S.chars)!==before){UNDO.push({chars:before,active:act});if(UNDO.length>40)UNDO.shift();renderTop()}});
+  if(JSON.stringify(S.chars)!==before){UNDO.push({chars:before,active:act});if(UNDO.length>40)UNDO.shift();if(C())renderTop()}});
 document.addEventListener('input',e=>{const el=e.target;
   if(D&&(el.id==='d-text'||el.id==='d-title')){const n=dGet(D.note);if(n){if(el.id==='d-text')n.text=el.value;else n.name=el.value;n.updated=Date.now();if(UNDO.length){UNDO.length=0;renderTop()}save()}return}
   if(D&&el.id==='d-q'){D.q=el.value;const pos=el.selectionStart;renderDiary();const q=$('#d-q');if(q){q.focus();q.setSelectionRange(pos,pos)}return}
