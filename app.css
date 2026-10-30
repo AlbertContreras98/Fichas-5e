@@ -418,3 +418,5 @@ textarea.notes.diary{min-height:55vh;flex:1 1 auto}
 .kinds{padding-left:1.1rem;margin:.4rem 0}.kinds li{margin:.3rem 0}
 .cols.crea{margin-top:.6rem}
 #modal h3{margin:.8rem 0 .2rem}
+.b.qbtn.inv{margin-left:auto;background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 35%,var(--line));width:2.6rem;height:2.6rem;padding:0;justify-content:center}
+.b.qbtn.inv+.b.qbtn.money{margin-left:0}

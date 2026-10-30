@@ -329,6 +329,7 @@ function renderTop(){
         ${restOpen?`<div class="popmenu" role="menu"><button class="b opt" role="menuitem" data-act="short"><span><b>Descanso corto</b><br><small>1 hora · dados de golpe</small></span></button><button class="b opt" role="menuitem" data-act="long"><span><b>Descanso largo</b><br><small>8 horas · lo recuperas todo</small></span></button></div>`:''}</div>
       <button class="b qbtn icon" data-act="diary" title="Diario" aria-label="Diario"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M5 4.5h10a1.5 1.5 0 0 1 1.5 1.5v13.5H6.5A1.5 1.5 0 0 1 5 18z"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M8 8.5h5.5M8 11.5h4"/><path fill="currentColor" d="M19.6 7.2l1.2 1.2-6.3 6.3-1.8.6.6-1.8z"/></svg></button>
       <button class="b qbtn icon" data-act="undo" title="Deshacer" aria-label="Deshacer el último cambio" ${UNDO.length?'':'disabled'}><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 14L4 9l5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button class="b qbtn inv" data-act="inv" title="Objetos" aria-label="Objetos"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M9 5.5V4.2A1.7 1.7 0 0 1 10.7 2.5h2.6A1.7 1.7 0 0 1 15 4.2v1.3" fill="none" stroke="#5e3a17" stroke-width="1.6"/><path d="M5 10.5A5 5 0 0 1 10 5.5h4a5 5 0 0 1 5 5V19a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 5 19z" fill="#9a6532" stroke="#5e3a17" stroke-width="1.2"/><path d="M5.2 11.5h13.6v2.3a1.8 1.8 0 0 1-1.8 1.8H7a1.8 1.8 0 0 1-1.8-1.8z" fill="#b97d43" stroke="#5e3a17" stroke-width="1.1"/><rect x="10.3" y="13.4" width="3.4" height="2.8" rx=".6" fill="#e6bd4f" stroke="#7a5212" stroke-width=".9"/><path d="M8 17.5v2.6M16 17.5v2.6" stroke="#5e3a17" stroke-width="1.2" stroke-linecap="round"/></svg></button>
       <button class="b qbtn money" data-act="money" aria-label="Dinero"><span class="coin" aria-hidden="true"></span><span>${(Math.floor(totalCp(c)/10)/10).toLocaleString('es-ES')} PO</span></button>
     </div>
     ${effectsBar(c)}</div>
@@ -516,16 +517,16 @@ function moneyHTML(c){const tot=totalCp(c);
       <p class="hint" style="margin-top:.5rem">Al pagar, si no tienes monedas de ese tipo, se cambian monedas mayores y te quedas el cambio. 1 PPt = 10 PO = 20 PE = 100 PP = 1000 PC.</p>`}
 function refreshMoney(){const b=$('#money-body');if(b)b.innerHTML=moneyHTML(C())}
 function openMoney(){openModal(`<div class="wz-head"><h2>Dinero</h2><button class="b sm" data-act="money-close">Hecho</button></div><div id="money-body">${moneyHTML(C())}</div>`)}
-function viewPj(c){
+function invHTML(c){
   const groups=CATS.map(([k,n])=>[k,n,c.equipment.map((e,i)=>[e,i]).filter(([e])=>(e.cat||'otro')===k)]).filter(g=>g[2].length);
   const items=groups.length?groups.map(([k,n,list])=>`<div class="cat-h"><h3>${n}</h3></div><div class="list">${list.map(([e,i])=>`<div class="it"><div class="it-head"><span class="it-name">${esc(e.name)}</span>
       <span class="counter"><button class="b sq" data-act="qty" data-i="${i}" data-d="-1" aria-label="Quitar uno">−</button><b style="min-width:2rem;text-align:center">${e.qty}</b><button class="b sq" data-act="qty" data-i="${i}" data-d="1" aria-label="Añadir uno">+</button></span></div>
       ${e.notes?`<div class="meta">${esc(e.notes)}</div>`:''}</div>`).join('')}</div>`).join(''):'<p class="empty">Sin objetos todavía.</p>';
-  return`<div class="pj">
-    <section class="card"><div class="card-head"><h2>Objetos</h2><button class="b sm pri" data-act="item-new">Añadir objeto</button></div>${items}
-      <p class="hint" style="margin-top:.6rem">La munición, las pociones, la comida y otros consumibles aparecen también en «Recursos», en Partida. Para renombrar o borrar objetos: ⚙ Ajustes → Editar ficha.</p></section>
-    ${viewStory(c)}
-  </div>`}
+  return`<div class="btns" style="margin-bottom:.4rem"><button class="b sm pri" data-act="item-new">Añadir objeto</button></div>${items}
+    <p class="hint" style="margin-top:.6rem">La munición, las pociones, la comida y otros consumibles aparecen también en «Recursos», en Partida. Para renombrar o borrar objetos: ⚙ Ajustes → Editar ficha.</p>`}
+function refreshInv(){const b=$('#inv-body');if(b)b.innerHTML=invHTML(C())}
+function openInv(){openModal(`<div class="wz-head"><h2>Objetos</h2><button class="b sm" data-act="close-modal">Hecho</button></div><div id="inv-body">${invHTML(C())}</div>`,true)}
+function viewPj(c){return`<div class="pj">${viewStory(c)}</div>`}
 function pay(c,amt,coin){
   let need=amt*COINV[coin];if(need>totalCp(c))return false;
   const cs=c.coins;
@@ -1053,7 +1054,7 @@ const A={
     <p class="hint">Toca para activar o quitar. Debajo de cada uno, qué hace.</p>
     <div class="condpick">${CONDS.map(([n,ds])=>`<button class="b opt ${c.conditions.includes(n)?'pri':''}" data-act="cond" data-n="${n}" aria-pressed="${c.conditions.includes(n)}"><span><b>${n}</b><br><small>${esc(ds)}</small></span><span aria-hidden="true">${c.conditions.includes(n)?'✓':''}</span></button>`).join('')}</div>`)},
   exh:el=>{const c=C();c.exhaustion=clamp((+c.exhaustion||0)+(+el.dataset.d),0,6);save();render()},
-  qty:el=>{const e=C().equipment[+el.dataset.i];e.qty=Math.max(0,(+e.qty||0)+(+el.dataset.d));save();render()},
+  qty:el=>{const e=C().equipment[+el.dataset.i];e.qty=Math.max(0,(+e.qty||0)+(+el.dataset.d));save();render();refreshInv()},
   ammo:el=>{const c=C(),a=c.attacks[+el.dataset.i],e=c.equipment.find(x=>x.id===a.ammo);if(!e||e.qty<=0)return;e.qty--;save();render();
     toast(`<div class="t-label">${esc(a.name)}</div><div class="t-parts">Gastas 1 ${esc(e.name)}. Te quedan <b>${e.qty}</b>.${e.qty===0?' ¡Sin munición!':''}</div><div class="t-actions"><button class="b sm" data-act="ammo-back" data-id="${e.id}">Recuperar 1</button></div>`)},
   'ammo-back':el=>{const e=C().equipment.find(x=>x.id===el.dataset.id);if(e){e.qty++;save();render()}el.closest('.toast').remove()},
@@ -1132,9 +1133,11 @@ const A={
       <label class="f"><span>Cantidad</span><input id="ni-qty" type="number" inputmode="numeric" min="0" value="1"></label>
       <label class="f"><span>Tipo</span><select id="ni-cat">${CATS.map(([k,n])=>`<option value="${k}">${n}</option>`).join('')}</select></label>
       <label class="f wide"><span>Notas</span><input id="ni-notes" placeholder="Opcional"></label></div>
-    <div class="btns"><button class="b pri" data-act="item-add">Añadir</button><button class="b" data-act="close-modal">Cancelar</button></div>`),
+    <div class="btns"><button class="b pri" data-act="item-add">Añadir</button><button class="b" data-act="item-cancel">Cancelar</button></div>`),
+  'item-cancel':()=>{closeModal();openInv()},
+  inv:()=>openInv(),
   'item-add':()=>{const n=$('#ni-name').value.trim();if(!n){$('#ni-name').focus();return}
-    C().equipment.push({id:uid(),name:n,qty:Math.max(0,parseInt($('#ni-qty').value)||0),cat:$('#ni-cat').value,notes:$('#ni-notes').value.trim()});closeModal();save();render()},
+    C().equipment.push({id:uid(),name:n,qty:Math.max(0,parseInt($('#ni-qty').value)||0),cat:$('#ni-cat').value,notes:$('#ni-notes').value.trim()});closeModal();save();render();openInv()},
   'tog-save':el=>{const c=C(),k=el.dataset.k,i=c.saveProf.indexOf(k);i>=0?c.saveProf.splice(i,1):c.saveProf.push(k);save();render()},
   add:el=>{C()[el.dataset.list].push(NEW[el.dataset.list]());save();renderView();const nm=[...document.querySelectorAll(`[data-path^="${el.dataset.list}."]`)].pop();nm&&nm.closest('.row-ed').querySelector('input').focus()},
   del:el=>{C()[el.dataset.list].splice(+el.dataset.i,1);save();renderView()},
