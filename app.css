@@ -465,3 +465,14 @@ button.eff.cond-pill{border:1px solid color-mix(in srgb,var(--bad) 45%,var(--lin
 .slotline{gap:.3rem 1.1rem}
 .inforow>summary,.inforow .isum{font-size:1rem;color:var(--ink)}.inforow>summary b,.inforow .isum b{font-weight:700}
 .usesrow{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem .7rem;margin:.3rem 0}.usesrow small{color:var(--muted)}
+/* Desplegables largos en ordenador */
+.xsel{position:relative;width:100%}
+.xsel-btn{width:100%;text-align:left;padding:.4rem 2rem .4rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--sunk);color:var(--ink);font:inherit;font-size:16px;cursor:pointer;position:relative}
+.xsel-btn::after{content:'';position:absolute;right:.7rem;top:50%;width:.45rem;height:.45rem;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(-70%) rotate(45deg)}
+.xsel-btn[aria-expanded="true"]::after{transform:translateY(-30%) rotate(-135deg)}
+.xsel-list{margin-top:.3rem;max-height:min(45vh,22rem);overflow:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:.25rem 0}
+.xsel-grp{padding:.45rem .7rem .2rem;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.xsel-opt{display:block;width:100%;text-align:left;border:0;background:none;color:var(--ink);font:inherit;padding:.4rem .7rem .4rem 1.1rem;cursor:pointer}
+.xsel-opt:hover,.xsel-opt:focus-visible{background:var(--accent-soft)}
+.xsel-opt.on{font-weight:700;color:var(--accent)}
+.xsel-btn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
