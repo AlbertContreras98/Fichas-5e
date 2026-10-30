@@ -344,3 +344,14 @@ button.who:hover .caret{color:var(--accent)}
 .chip.add{border-style:dashed;background:none}
 .condpick{display:flex;flex-direction:column;gap:.4rem}
 .condpick .b.pri small{color:inherit;opacity:.85}
+
+/* Botones rápidos: descanso, diario y dinero */
+.ctl.quick{width:100%;flex-wrap:nowrap}
+.menuwrap{position:relative}
+.b.qbtn{gap:.4rem;padding:.4rem .7rem;white-space:nowrap}
+.b.qbtn svg{flex:0 0 auto}
+.b.qbtn.money{margin-left:auto;background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 35%,var(--line));font-weight:700}
+.popmenu{position:absolute;z-index:30;top:calc(100% + .35rem);left:0;width:min(250px,80vw);display:flex;flex-direction:column;gap:.35rem;padding:.45rem;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px rgb(0 0 0 / .2)}
+textarea.notes.diary{min-height:55vh;flex:1 1 auto}
+@media (min-width:700px){.ctl.quick{width:auto}}
+@media (max-width:360px){.b.qbtn:not(.money) span{display:none}}

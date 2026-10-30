@@ -195,7 +195,7 @@ function toast(html,keep){
   setTimeout(()=>t.remove(),keep?30000:7000)}
 function openModal(h,big){const m=$('#modal');m.innerHTML=`<div class="sheet${big?' big':''}" role="dialog" aria-modal="true">${h}</div>`;m.hidden=false;const f=m.querySelector('input:not([type=hidden]),button');f&&!big&&f.focus()}
 function closeModal(){const m=$('#modal');m.hidden=true;m.innerHTML='';W=null;P=null;pendingEco=null}
-let pendingEco=null;
+let pendingEco=null,restOpen=false;
 
 /* ================= Render: barra superior ================= */
 function pips(kind,a,T,filled){let h='<span class="pips">';for(let k=0;k<T;k++)h+=`<button class="pip${k<filled?' full':''}" data-act="pip" data-kind="${kind}" data-a="${a}" data-i="${k}" aria-label="Casilla ${k+1} de ${T}"></button>`;return h+'</span>'}
@@ -209,10 +209,12 @@ function renderTop(){
       <button class="stat" data-act="gloss" data-k="ca"><b>${c.ac}</b><small>CA</small></button>
       <button class="stat" data-act="gloss" data-k="init"><b>${sgn(init(c))}</b><small>Inic.</small></button>
       <button class="stat" data-act="gloss" data-k="speed"><b>${Math.max(0,c.speedFt-5*(+c.exhaustion||0))}</b><small>pies</small></button>
-      <button class="stat money" data-act="money" aria-label="Dinero"><b><span class="coin" aria-hidden="true"></span>${(Math.floor(totalCp(c)/10)/10).toLocaleString('es-ES')}</b><small>PO</small></button>
     </div>
-    <div class="ctl">
-      <button class="b" data-act="short">Descanso corto</button><button class="b" data-act="long">Descanso largo</button>
+    <div class="ctl quick">
+      <div class="menuwrap"><button class="b qbtn" data-act="rest-menu" aria-haspopup="true" aria-expanded="${restOpen}" aria-label="Descansar"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect x="2" y="11" width="20" height="9" rx="4.5" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="4" y="12.8" width="5" height="5.4" rx="2.2" fill="currentColor" opacity=".55"/><path d="M11.5 15.5h8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="1.6 1.4"/><path d="M14 3.5h4l-4 4h4M19.5 6.5h2.5l-2.5 2.5h2.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Descansar</span></button>
+        ${restOpen?`<div class="popmenu" role="menu"><button class="b opt" role="menuitem" data-act="short"><span><b>Descanso corto</b><br><small>1 hora · dados de golpe</small></span></button><button class="b opt" role="menuitem" data-act="long"><span><b>Descanso largo</b><br><small>8 horas · lo recuperas todo</small></span></button></div>`:''}</div>
+      <button class="b qbtn" data-act="diary" aria-label="Diario"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M5 4.5h10a1.5 1.5 0 0 1 1.5 1.5v13.5H6.5A1.5 1.5 0 0 1 5 18z"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M8 8.5h5.5M8 11.5h4"/><path fill="currentColor" d="M19.6 7.2l1.2 1.2-6.3 6.3-1.8.6.6-1.8z"/></svg><span>Diario</span></button>
+      <button class="b qbtn money" data-act="money" aria-label="Dinero"><span class="coin" aria-hidden="true"></span><span>${(Math.floor(totalCp(c)/10)/10).toLocaleString('es-ES')} PO</span></button>
     </div></div>
     <div class="tabrow"><nav class="tabs">${[['play','Partida'],['pj',c.name||'Personaje']].map(([t,n])=>`<button class="${S.tab===t||(t==='pj'&&(S.tab==='edit'||S.tab==='data'))?'on':''}" data-act="tab" data-t="${t}">${esc(n)}</button>`).join('')}</nav>
     <button class="b gear" data-act="settings" aria-label="Ajustes"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3.3h-4l-.4 2.6a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1l.4 2.6h4l.4-2.6a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5A3.5 3.5 0 1 1 13 8.5a3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg></button></div></div>`}
@@ -397,7 +399,6 @@ function viewPj(c){
     <section class="card"><div class="card-head"><h2>Objetos</h2><button class="b sm pri" data-act="item-new">Añadir objeto</button></div>${items}
       <p class="hint" style="margin-top:.6rem">La munición, las pociones, la comida y otros consumibles aparecen también en «Recursos», en Partida. Para renombrar o borrar objetos: ⚙ Ajustes → Editar ficha.</p></section>
     ${viewStory(c)}
-    <section class="card"><h2>Notas</h2><textarea class="notes" id="play-notes" data-path="notes" placeholder="Nombres, pistas, misiones…">${esc(c.notes)}</textarea></section>
   </div>`}
 function pay(c,amt,coin){
   let need=amt*COINV[coin];if(need>totalCp(c))return false;
@@ -872,14 +873,19 @@ const A={
     $('#hpAmt').value='';save();render()},
   nat20:()=>{const c=C();c.hp.current=1;c.deathSaves={success:0,fail:0};c.conditions=c.conditions.filter(x=>x!=='Inconsciente');save();render();toast('<div class="t-label">¡20 natural!</div><div class="t-parts">Recuperas 1 PG y te despiertas.</div>')},
   nat1:()=>{const c=C();c.deathSaves.fail=Math.min(3,c.deathSaves.fail+2);save();render()},
-  short:()=>shortRestModal(),
+  'rest-menu':()=>{restOpen=!restOpen;renderTop()},
+  diary:()=>openModal(`<div class="wz-head"><h2>Diario</h2><button class="b sm" data-act="close-modal">Hecho</button></div>
+    <p class="hint">Apunta lo que quieras: lo que pasa en cada sesión, nombres, pistas, misiones… Se guarda solo.</p>
+    <textarea class="notes diary" id="diary-text" data-path="notes" placeholder="Sesión 1: llegamos a la aldea de…">${esc(C().notes)}</textarea>`,true),
+  short:()=>{restOpen=false;renderTop();shortRestModal()},
   hd:()=>{const c=C(),r=parseInt($('#hd-roll').value),f=+String(c.hitDice.die).replace(/\D/g,'')||8;
     if(!(r>=1&&r<=f)){$('#hd-roll').focus();toast(`<div class="t-parts">Escribe lo que has sacado en el ${esc(c.hitDice.die)} (de 1 a ${f}).</div>`);return}
     const cm=M(c,'con'),heal=Math.max(0,r+cm),was=c.hp.current;
     c.hitDice.spent=Math.min(c.hitDice.total,c.hitDice.spent+1);c.hp.current=Math.min(c.hp.max,c.hp.current+heal);
     toast(`<div class="t-label">Dado de golpe</div><div class="t-big good">+${c.hp.current-was}</div><div class="t-parts">${r} ${sgn(cm)} CON</div>`);save();renderTop();if(S.tab==='play')renderView();shortRestModal()},
   'short-done':()=>{const c=C();c.pact.used=0;c.features.forEach(f=>{if(f.uses.recover==='corto')f.uses.used=0;if(f.uses.recover==='corto1')f.uses.used=Math.max(0,f.uses.used-1)});closeModal();save();render();toast('<div class="t-label">Descanso corto terminado</div><div class="t-parts">Recursos de descanso corto recuperados.</div>')},
-  long:()=>openModal(`<h2>Descanso largo (8 horas)</h2><ul><li>Recuperas todos los PG y todos los dados de golpe</li><li>Recuperas todos los espacios de conjuro</li><li>Se recuperan los rasgos con usos limitados</li><li>Agotamiento −1 y pierdes los PG temporales</li></ul>
+  long:()=>{restOpen=false;renderTop();A.longModal()},
+  longModal:()=>openModal(`<h2>Descanso largo (8 horas)</h2><ul><li>Recuperas todos los PG y todos los dados de golpe</li><li>Recuperas todos los espacios de conjuro</li><li>Se recuperan los rasgos con usos limitados</li><li>Agotamiento −1 y pierdes los PG temporales</li></ul>
     <div class="btns"><button class="b pri" data-act="long-done">Hacer descanso largo</button><button class="b" data-act="close-modal">Cancelar</button></div>`),
   'long-done':()=>{const c=C();c.hp.current=c.hp.max;c.hp.temp=0;c.hitDice.spent=0;c.slots.forEach(s=>s.used=0);c.pact.used=0;
     c.features.forEach(f=>{if(f.uses.recover)f.uses.used=0});c.exhaustion=Math.max(0,(+c.exhaustion||0)-1);c.deathSaves={success:0,fail:0};c.concentration='';
@@ -979,7 +985,9 @@ function copy(text,btn){const old=btn.textContent;
 /* ================= Eventos ================= */
 document.addEventListener('click',e=>{
   if(e.target.id==='modal'){if(W)return;const wasPicker=!!P;closeModal();if(wasPicker){save();render()}return}
-  const el=e.target.closest('[data-act]');if(!el||el.disabled)return;const f=A[el.dataset.act];if(f){e.preventDefault();f(el)}});
+  const el=e.target.closest('[data-act]');
+  if(restOpen&&!e.target.closest('.menuwrap')){restOpen=false;renderTop()}
+  if(!el||el.disabled)return;const f=A[el.dataset.act];if(f){e.preventDefault();f(el)}});
 document.addEventListener('input',e=>{const el=e.target;
   if(el.id==='sp-q'){P.q=el.value;refreshPicker();return}
   if(W){
@@ -1026,6 +1034,7 @@ document.addEventListener('change',e=>{const el=e.target;
     return}
   if(el.dataset&&el.dataset.rr)renderView()});
 document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&restOpen){restOpen=false;renderTop()}
   if(e.key==='Escape'&&!$('#modal').hidden){if(P&&P.target==='edit'){A['sp-close']()}else closeModal()}
   if(e.key==='Enter'&&e.target.id==='hpAmt')A.hp({dataset:{m:'dmg'}});
   if(e.key==='Enter'&&e.target.id==='ni-name')A['item-add']()});
