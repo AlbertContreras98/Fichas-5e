@@ -353,6 +353,7 @@ function openInfo(){const c=C(),info=infoFor(defOf(c),subOf(c),c.level);
   openModal(`<div class="wz-head"><h2>Datos de ${esc(c.name||'tu personaje')}</h2><button class="b sm" data-act="close-modal">Hecho</button></div>
     ${row('Dados de golpe','hd',`${c.hitDice.total-c.hitDice.spent} / ${c.hitDice.total} ${c.hitDice.die}`,`En un descanso corto gastas dados para curarte: tiras el dado y sumas tu CON (${sgn(M(c,'con'))}). Se recuperan en el descanso largo.`)}
     ${row('Bonificador de competencia','pb',sgn(pb(c)),'Lo sumas a todo aquello en lo que eres competente: ataques, habilidades, salvaciones, herramientas y conjuros. Sube con el nivel.')}
+    ${(()=>{const L=String(c.languages||'').split(/\s*(?:,|;|\by\b)\s*/).map(x=>x.trim()).filter(Boolean);return`<details class="inforow"><summary><span>Idiomas</span><b>${L.length||'—'}</b></summary>${L.length?`<ul class="langs">${L.map(x=>`<li>${esc(x.replace(/^./,m=>m.toUpperCase()))}</li>`).join('')}</ul>`:'<p class="hint">Sin idiomas apuntados. Añádelos en ⚙ Ajustes → Editar ficha.</p>'}</details>`})()}
     ${row('Percepción pasiva','passive',String(10+skillB(c,SK.perception)),'Lo que notas sin tirar dados. El máster la usa para ver si detectas enemigos escondidos, trampas o a quien te sigue.')}
     ${Object.keys(info).length?`<h3>Datos de clase</h3>${Object.entries(info).map(([k,v])=>row(k,'',String(v),INFO_DESC[k]||'')+(k==='Invocaciones'?list('Invocación'):k==='Metamagias conocidas'?list('Metamagia'):'')).join('')}`:''}`,true)}
 function renderTop(){
