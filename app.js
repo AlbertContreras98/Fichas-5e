@@ -63,7 +63,7 @@ function normalize(src){
   const sl=Array.isArray(c.slots)?c.slots:[];
   c.slots=Array.from({length:9},(_,i)=>({total:+(sl[i]&&sl[i].total)||0,used:+(sl[i]&&sl[i].used)||0}));
   c.attacks=c.attacks.map(x=>Object.assign(NEW.attacks(),x));
-  c.spells=c.spells.map(x=>{const s=Object.assign(NEW.spells(),x);if(s.time==='BA')s.time='AA';if(!s.ref)s.ref=matchSpell(s.name);return s});
+  c.spells=c.spells.map(x=>{const s=Object.assign(NEW.spells(),x);if(s.time==='BA')s.time='AA';if(!s.ref)s.ref=matchSpell(s.name);if(s.ref&&SPBY[s.ref])s.material=SPBY[s.ref].m;return s});
   c.equipment=c.equipment.map(x=>{const e=Object.assign(NEW.equipment(),x);if(!x.cat)e.cat=guessCat(e.name);if(!x.id)e.id=uid();return e});
   c.features=c.features.map(x=>{const f=Object.assign(NEW.features(),x);f.uses=Object.assign({max:0,used:0,recover:''},x&&x.uses||{});return f});
   c.level=clamp(+c.level||1,1,20);
@@ -265,7 +265,7 @@ function viewPlay(c){
         return`<div class="it"><div class="it-head"><span class="it-name">${esc(sp.name)}${tags}</span>
           <button class="b sm ${ok?'pri':''}" data-act="cast" data-i="${i}" ${ok?'':'disabled'}>${+sp.level===0?'Usar':ok?'Lanzar':'Sin espacios'}</button></div>
           <div class="meta">${esc([TIME[sp.time]||sp.time,sp.range,sp.dur,sp.material&&`M: ${sp.material}`].filter(Boolean).join(' · '))}</div>
-          ${desc?`<details><summary>Qué hace${!sp.desc&&d?' (texto oficial en inglés)':''}</summary><p>${esc(desc)}</p></details>`:''}</div>`}).join('')}</div>`).join('')}
+          ${desc?`<details><summary>Qué hace</summary><p>${esc(desc)}</p></details>`:''}</div>`}).join('')}</div>`).join('')}
       ${!c.spells.length?'<p class="empty">Sin conjuros. Pulsa «Buscar conjuros» para añadirlos.</p>':''}</section>`}
   const feats=`<section class="card"><h2>Rasgos y dotes</h2>${c.features.length?`<div class="list">${c.features.map(f=>`<div class="it"><div class="it-head"><span class="it-name">${esc(f.name)}</span>${f.uses.max>0?`<span class="badge">${f.uses.max-f.uses.used}/${f.uses.max}</span>`:''}</div>
       ${f.source?`<div class="meta">${esc(f.source)}</div>`:''}
@@ -365,7 +365,7 @@ function viewEdit(c){
     ${sel('Tiempo',`spells.${i}.time`,sp.time,[['A','Acción'],['AA','Acción adicional'],['R','Reacción'],['1 minuto','1 minuto'],['10 minutos','10 minutos'],['1 hora','1 hora'],['8 horas','8 horas']])}
     ${inp('Alcance',`spells.${i}.range`,sp.range)}${inp('Duración',`spells.${i}.dur`,sp.dur)}${inp('Material',`spells.${i}.material`,sp.material)}
     <div class="f">${chk('Concentración',`spells.${i}.conc`,sp.conc)}${chk('Ritual',`spells.${i}.ritual`,sp.ritual)}</div>
-    ${ta(sp.ref?'Notas propias (si lo dejas vacío se muestra el texto oficial)':'Qué hace',`spells.${i}.desc`,sp.desc)}${del('spells',i)}</div>`).join('')}
+    ${ta(sp.ref?'Notas propias (si lo dejas vacío se muestra la descripción del conjuro)':'Qué hace',`spells.${i}.desc`,sp.desc)}${del('spells',i)}</div>`).join('')}
     <div class="btns"><button class="b" data-act="add" data-list="spells">Añadir conjuro a mano</button></div></div></section>
   <section class="card"><h2>Rasgos, dotes y recursos limitados</h2><p class="hint">Si un rasgo tiene usos (p. ej. «2 veces por descanso largo»), pon los usos y cuándo se recuperan; aparecerá en «Recursos».</p>
     <div class="stack">${c.features.map((f,i)=>`<div class="row-ed">
@@ -408,7 +408,7 @@ function viewChars(c){
     <p class="hint">Copia de seguridad o para pasarla a otro dispositivo. Las fichas se guardan solo en este dispositivo, así que conviene copiarlas de vez en cuando.</p>
     <textarea class="code" id="exp-text" readonly>${esc(JSON.stringify(c,null,2))}</textarea>
     <div class="btns" style="margin-top:.6rem"><button class="b" data-act="copy-exp">Copiar JSON</button><button class="b" data-act="copy-all">Copiar todas las fichas</button></div></section>
-  <footer class="credits"><p>Fichas 5e es contenido de fans no oficial permitido bajo la Fan Content Policy. No aprobado ni respaldado por Wizards. Partes de los materiales usados son propiedad de Wizards of the Coast. ©Wizards of the Coast LLC.</p><p>Esta app incluye material del System Reference Document 5.2 («SRD 5.2») de Wizards of the Coast LLC, disponible en https://www.dndbeyond.com/srd, bajo licencia Creative Commons Attribution 4.0 International (https://creativecommons.org/licenses/by/4.0/legalcode). Los resúmenes de rasgos de clase y subclase están escritos para esta app; consulta el Manual del Jugador para el texto completo.</p></footer>
+  <footer class="credits"><p>Fichas 5e es contenido de fans no oficial permitido bajo la Fan Content Policy. No aprobado ni respaldado por Wizards. Partes de los materiales usados son propiedad de Wizards of the Coast. ©Wizards of the Coast LLC.</p><p>Esta app incluye material del System Reference Document 5.2 («SRD 5.2») de Wizards of the Coast LLC, disponible en https://www.dndbeyond.com/srd, bajo licencia Creative Commons Attribution 4.0 International (https://creativecommons.org/licenses/by/4.0/legalcode). Los textos de los conjuros están traducidos y adaptados al castellano. Los resúmenes de rasgos de clase y subclase están escritos para esta app; consulta el Manual del Jugador para el texto completo.</p></footer>
   </div>`}
 
 const ALIGN=['','Legal bueno','Neutral bueno','Caótico bueno','Legal neutral','Neutral','Caótico neutral','Legal malvado','Neutral malvado','Caótico malvado'];
@@ -456,7 +456,7 @@ function spResultsHTML(){
         <span class="it-name">${esc(s.n)}</span>${s.k?'<span class="tag">C</span>':''}${s.ri?'<span class="tag">R</span>':''} <span class="en">${esc(s.en)}</span>
         <span class="meta" style="display:block">${s.l===0?'Truco':'Nivel '+s.l} · ${esc(s.s)} · ${esc(TIME[s.t]||s.t)} · ${esc(s.r)} · ${esc(s.d)}</span></button>
       <button class="b sm ${have?'bad':'pri'}" data-act="sp-tog" data-id="${s.id}">${have?'Quitar':'Añadir'}</button></div>
-      ${open?`<div class="sp-det"><div class="lang">Texto oficial (SRD 5.2, en inglés)</div>${esc(s.de)}${s.hl?'\n\nA niveles superiores: '+esc(s.hl):''}${s.m?`\n\nMaterial: ${esc(s.m)}`:''}\n\nClases: ${s.c.map(k=>CL[k]?CL[k].n:k).join(', ')}</div>`:''}</div>`}).join('')}
+      ${open?`<div class="sp-det"><div class="lang">Texto del SRD 5.2</div>${esc(s.de)}${s.hl?'\n\nA niveles superiores: '+esc(s.hl):''}${s.m?`\n\nMaterial: ${esc(s.m)}`:''}\n\nClases: ${s.c.map(k=>CL[k]?CL[k].n:k).join(', ')}</div>`:''}</div>`}).join('')}
 function spPickerHTML(){
   const lv=[['','Todos los niveles'],['0','Trucos'],...[1,2,3,4,5,6,7,8,9].filter(l=>P.max==null||l<=P.max).map(l=>[String(l),'Nivel '+l])];
   return`<div class="sp-tools"><input type="search" id="sp-q" placeholder="Buscar por nombre (castellano o inglés)" value="${esc(P.q)}" autocomplete="off">
