@@ -102,7 +102,7 @@ function fillFromRef(s){const d=s.ref&&SPBY[s.ref];if(!d)return s;
 
 let S={chars:[],active:null,tab:'play'};
 function load(){
-  try{const r=localStorage.getItem(KEY);if(r){const x=JSON.parse(r);S.chars=(x.chars||[]).map(normalize);S.active=x.active;if(x.tab)S.tab=x.tab}}catch(e){}
+  try{const r=localStorage.getItem(KEY);if(r){const x=JSON.parse(r);S.chars=(x.chars||[]).map(normalize);S.active=x.active;if(x.tab)S.tab=x.tab;if(S.tab==='inv'||S.tab==='story')S.tab='pj'}}catch(e){}
   if(!S.chars.length){const z=normalize(ZYO);z.spells.forEach(fillFromRef);S.chars=[z];S.active=z.id}
   if(!S.chars.find(c=>c.id===S.active)) S.active=S.chars[0].id}
 function save(){try{localStorage.setItem(KEY,JSON.stringify({chars:S.chars,active:S.active,tab:S.tab}))}catch(e){}}
@@ -200,18 +200,20 @@ function renderTop(){
   const c=C(),pct=c.hp.max?clamp(c.hp.current/c.hp.max*100,0,100):0;
   const sub=[c.species,c.class&&`${c.class} ${c.level}`,c.subclass,c.background].filter(Boolean).join(' · ');
   $('#top').innerHTML=`<div class="wrap"><div class="top-in">
-    ${c.story.img?`<button class="avatar-btn" data-act="tab" data-t="story" aria-label="Ver historia"><img class="avatar" src="${c.story.img}" alt=""></button>`:''}<div class="who"><div class="nm">${esc(c.name||'Sin nombre')}</div><div class="sub">${esc(sub)}</div></div>
+    ${c.story.img?`<button class="avatar-btn" data-act="tab" data-t="pj" aria-label="Ver personaje"><img class="avatar" src="${c.story.img}" alt=""></button>`:''}<div class="who"><div class="nm">${esc(c.name||'Sin nombre')}</div><div class="sub">${esc(sub)}</div></div>
     <div class="vit">
       <button class="hpbox" data-act="gloss" data-k="hp"><div class="hpnum"><b>${c.hp.current}</b> / ${c.hp.max}${c.hp.temp?`<em>+${c.hp.temp}</em>`:''}</div><div class="bar"><i class="${pct<=25?'low':''}" style="width:${pct}%"></i></div><small>Puntos de golpe</small></button>
       <button class="stat" data-act="gloss" data-k="ca"><b>${c.ac}</b><small>CA</small></button>
       <button class="stat" data-act="gloss" data-k="init"><b>${sgn(init(c))}</b><small>Inic.</small></button>
       <button class="stat" data-act="gloss" data-k="speed"><b>${Math.max(0,c.speedFt-5*(+c.exhaustion||0))}</b><small>pies</small></button>
+      <button class="stat money" data-act="money" aria-label="Dinero"><b><span class="coin" aria-hidden="true"></span>${(Math.floor(totalCp(c)/10)/10).toLocaleString('es-ES')}</b><small>PO</small></button>
     </div>
     <div class="ctl">
       <button class="b" data-act="short">Descanso corto</button><button class="b" data-act="long">Descanso largo</button>
       <button class="b pri" data-act="levelup" ${c.level>=20?'disabled':''}>Subir de nivel</button>
     </div></div>
-    <nav class="tabs">${[['play','Partida'],['inv','Inventario'],['story','Historia'],['edit','Editar ficha'],['chars','Personajes']].map(([t,n])=>`<button class="${S.tab===t?'on':''}" data-act="tab" data-t="${t}">${n}</button>`).join('')}</nav></div>`}
+    <div class="tabrow"><nav class="tabs">${[['play','Partida'],['pj',c.name||'Personaje'],['chars','Personajes']].map(([t,n])=>`<button class="${S.tab===t||(t==='pj'&&S.tab==='edit')?'on':''}" data-act="tab" data-t="${t}">${esc(n)}</button>`).join('')}</nav>
+    <button class="b gear" data-act="settings" aria-label="Ajustes"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3.3h-4l-.4 2.6a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1l.4 2.6h4l.4-2.6a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5A3.5 3.5 0 1 1 13 8.5a3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg></button></div></div>`}
 
 /* ================= Render: partida ================= */
 function resRow(f,i){
@@ -256,7 +258,7 @@ function viewPlay(c){
     ${featRes?`<h3>Rasgos con usos</h3>${featRes}`:''}
     ${cons?`<h3>Consumibles</h3>${cons}`:''}
     ${Object.keys(info).length?`<h3>Datos de clase</h3>${Object.entries(info).map(([k,v])=>`<div class="kv"><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join('')}`:''}
-    ${!slotHtml&&!featRes&&!cons?'<p class="empty">Aquí verás espacios de conjuro, rasgos con usos limitados y consumibles (munición, comida, pociones…). Añade objetos en «Inventario».</p>':''}
+    ${!slotHtml&&!featRes&&!cons?'<p class="empty">Aquí verás espacios de conjuro, rasgos con usos limitados y consumibles (munición, comida, pociones…). Añade objetos en la pestaña de tu personaje.</p>':''}
     <p class="hint" style="margin-top:.6rem">Toca un rombo para gastarlo o recuperarlo.</p></section>`;
   const abil=`<section class="card"><h2>Características</h2><div class="abil">${ABIL.map(([k,l])=>`<button class="ab" data-act="gloss" data-k="abil:${k}"><span class="lbl">${l}</span>
       <span class="mod">${sgn(M(c,k))}</span><span class="sc">${c.abilities[k]}</span>
@@ -269,7 +271,7 @@ function viewPlay(c){
       return`<div class="it"><div class="it-head"><span class="it-name">${esc(a.name)}</span><span class="badge">${sgn(+a.atk||0)}</span>${a.dmg?`<span class="badge">${esc(a.dmg)}</span>`:''}
         ${am?`<button class="b sm" data-act="ammo" data-i="${i}" ${am.qty>0?'':'disabled'}>Disparar (quedan ${am.qty})</button>`:''}</div>
       <div class="meta">${esc([a.type,a.notes].filter(Boolean).join(' · '))}</div>
-      ${weaponTerms(a.notes).length?`<div class="chips" style="margin-top:.3rem">${weaponTerms(a.notes).map(w=>`<button class="chip" data-act="gloss" data-k="wp:${w[0]}">${esc(w[1])}</button>`).join('')}</div>`:''}</div>`}).join('')}</div>`:'<p class="empty">Sin armas. Añádelas en «Editar ficha».</p>'}
+      ${weaponTerms(a.notes).length?`<div class="chips" style="margin-top:.3rem">${weaponTerms(a.notes).map(w=>`<button class="chip" data-act="gloss" data-k="wp:${w[0]}">${esc(w[1])}</button>`).join('')}</div>`:''}</div>`}).join('')}</div>`:'<p class="empty">Sin armas. Añádelas en ⚙ Ajustes → Editar ficha.</p>'}
     <p class="hint" style="margin-top:.5rem">Al atacar tira 1d20 + el primer número contra la CA del enemigo; si impactas, tira el daño. ${term('¿Y si saco un 20?','crit')}</p></section>`;
   let mag='';
   if(c.spells.length||c.slots.some(s=>s.total>0)||c.pact.total>0||c.spellcasting.ability){
@@ -289,8 +291,7 @@ function viewPlay(c){
   const feats=`<section class="card"><h2>Rasgos y dotes</h2>${c.features.length?`<div class="list">${c.features.map(f=>`<div class="it"><div class="it-head"><span class="it-name">${esc(f.name)}</span>${f.uses.max>0?`<span class="badge">${f.uses.max-f.uses.used}/${f.uses.max}</span>`:''}</div>
       ${f.source?`<div class="meta">${esc(f.source)}</div>`:''}
       ${f.text?`<details><summary>Detalles</summary><p>${esc(f.text)}</p></details>`:''}</div>`).join('')}</div>`:'<p class="empty">Sin rasgos.</p>'}</section>`;
-  const notes=`<section class="card"><h2>Notas de la partida</h2><textarea class="notes" id="play-notes" data-path="notes" placeholder="Nombres, pistas, misiones…">${esc(c.notes)}</textarea></section>`;
-  return`${viewTurn(c)}<div class="cols"><div class="col">${vit}${res}</div><div class="col">${abil}${sk}</div><div class="col">${atk}${mag}${feats}${notes}</div></div>`}
+  return`${viewTurn(c)}<div class="cols"><div class="col">${vit}${res}</div><div class="col">${abil}${sk}</div><div class="col">${atk}${mag}${feats}</div></div>`}
 function slotOptions(c,L){const o=[];
   if(c.pact.total>0&&c.pact.level>=L)o.push({kind:'pact',level:c.pact.level,avail:c.pact.total-c.pact.used});
   for(let l=L;l<=9;l++){const s=c.slots[l-1];if(s.total>0)o.push({kind:'slot',level:l,avail:s.total-s.used})}
@@ -376,23 +377,26 @@ function viewTurn(c){
 
 /* ================= Render: inventario ================= */
 function totalCp(c){return COINS.reduce((t,[k,,v])=>t+(+c.coins[k]||0)*v,0)}
-function viewInv(c){
-  const groups=CATS.map(([k,n])=>[k,n,c.equipment.map((e,i)=>[e,i]).filter(([e])=>(e.cat||'otro')===k)]).filter(g=>g[2].length);
-  const items=groups.length?groups.map(([k,n,list])=>`<div class="cat-h"><h3>${n}</h3></div><div class="list">${list.map(([e,i])=>`<div class="it"><div class="it-head"><span class="it-name">${esc(e.name)}</span>
-      <span class="counter"><button class="b sq" data-act="qty" data-i="${i}" data-d="-1" aria-label="Quitar uno">−</button><b style="min-width:2rem;text-align:center">${e.qty}</b><button class="b sq" data-act="qty" data-i="${i}" data-d="1" aria-label="Añadir uno">+</button></span></div>
-      ${e.notes?`<div class="meta">${esc(e.notes)}</div>`:''}</div>`).join('')}</div>`).join(''):'<p class="empty">Inventario vacío.</p>';
-  const tot=totalCp(c);
-  return`<div class="cols"><div class="col" style="grid-column:span 1">
-    <section class="card"><div class="card-head"><h2>Objetos</h2><button class="b sm pri" data-act="item-new">Añadir objeto</button></div>${items}
-      <p class="hint" style="margin-top:.6rem">La munición, las pociones, la comida y otros consumibles aparecen también en «Recursos», en la pestaña Partida. Para renombrar o borrar objetos ve a «Editar ficha».</p></section></div>
-    <div class="col"><section class="card"><h2>Dinero</h2>
-      <div class="coins">${COINS.map(([k,l])=>`<label>${l}<input id="coin-${k}" type="number" inputmode="numeric" min="0" data-path="coins.${k}" data-num="1" value="${c.coins[k]}"></label>`).join('')}</div>
+function moneyHTML(c){const tot=totalCp(c);
+  return`<div class="coins">${COINS.map(([k,l])=>`<label>${l}<input id="coin-${k}" type="number" inputmode="numeric" min="0" data-path="coins.${k}" data-num="1" value="${c.coins[k]}"></label>`).join('')}</div>
       <p class="total">Total: ${(tot/100).toLocaleString('es-ES',{maximumFractionDigits:2})} PO en monedas</p>
       <h3>Pagar o cobrar</h3>
       <div class="pay"><input id="pay-amt" type="number" inputmode="numeric" min="0" placeholder="0" aria-label="Cantidad"><select id="pay-coin" aria-label="Moneda">${COINS.map(([k,l])=>`<option value="${k}" ${k==='gp'?'selected':''}>${l}</option>`).join('')}</select>
         <button class="b bad" data-act="pay">Pagar</button><button class="b good" data-act="earn">Cobrar</button></div>
-      <p class="hint" style="margin-top:.5rem">Al pagar, si no tienes monedas de ese tipo, se cambian monedas mayores y te quedas el cambio. 1 PPt = 10 PO = 20 PE = 100 PP = 1000 PC.</p>
-    </section></div></div>`}
+      <p class="hint" style="margin-top:.5rem">Al pagar, si no tienes monedas de ese tipo, se cambian monedas mayores y te quedas el cambio. 1 PPt = 10 PO = 20 PE = 100 PP = 1000 PC.</p>`}
+function refreshMoney(){const b=$('#money-body');if(b)b.innerHTML=moneyHTML(C())}
+function openMoney(){openModal(`<div class="wz-head"><h2>Dinero</h2><button class="b sm" data-act="money-close">Hecho</button></div><div id="money-body">${moneyHTML(C())}</div>`)}
+function viewPj(c){
+  const groups=CATS.map(([k,n])=>[k,n,c.equipment.map((e,i)=>[e,i]).filter(([e])=>(e.cat||'otro')===k)]).filter(g=>g[2].length);
+  const items=groups.length?groups.map(([k,n,list])=>`<div class="cat-h"><h3>${n}</h3></div><div class="list">${list.map(([e,i])=>`<div class="it"><div class="it-head"><span class="it-name">${esc(e.name)}</span>
+      <span class="counter"><button class="b sq" data-act="qty" data-i="${i}" data-d="-1" aria-label="Quitar uno">−</button><b style="min-width:2rem;text-align:center">${e.qty}</b><button class="b sq" data-act="qty" data-i="${i}" data-d="1" aria-label="Añadir uno">+</button></span></div>
+      ${e.notes?`<div class="meta">${esc(e.notes)}</div>`:''}</div>`).join('')}</div>`).join(''):'<p class="empty">Sin objetos todavía.</p>';
+  return`<div class="pj">
+    <section class="card"><div class="card-head"><h2>Objetos</h2><button class="b sm pri" data-act="item-new">Añadir objeto</button></div>${items}
+      <p class="hint" style="margin-top:.6rem">La munición, las pociones, la comida y otros consumibles aparecen también en «Recursos», en Partida. Para renombrar o borrar objetos: ⚙ Ajustes → Editar ficha.</p></section>
+    ${viewStory(c)}
+    <section class="card"><h2>Notas</h2><textarea class="notes" id="play-notes" data-path="notes" placeholder="Nombres, pistas, misiones…">${esc(c.notes)}</textarea></section>
+  </div>`}
 function pay(c,amt,coin){
   let need=amt*COINV[coin];if(need>totalCp(c))return false;
   const cs=c.coins;
@@ -419,6 +423,7 @@ function viewEdit(c){
   const subOpts=def?[['','— Sin elegir —'],...Object.entries(def.subs).map(([k,s])=>[k,s.n])]:[['','—']];
   const ammoOpts=[['','Sin munición'],...c.equipment.filter(e=>e.cat==='municion').map(e=>[e.id,e.name])];
   return`<div class="ed">
+  <div class="ed-head"><h2>Editar ficha</h2><button class="b pri" data-act="tab" data-t="pj">Hecho</button></div>
   <section class="card"><h2>Identidad</h2><div class="grid">
     ${inp('Nombre','name',c.name)}
     ${sel('Especie','speciesKey',c.speciesKey,[['','Otra (escribe abajo)'],...Object.entries(SPEC).map(([k,d])=>[k,d.n])],{rr:1})}
@@ -523,7 +528,7 @@ function loadPortrait(file){
     render()};
   img.onerror=()=>{URL.revokeObjectURL(url);toast('<div class="t-parts">No se ha podido abrir la imagen.</div>')};
   img.src=url}
-function renderView(){const c=C();$('#view').innerHTML=S.tab==='edit'?viewEdit(c):S.tab==='chars'?viewChars(c):S.tab==='inv'?viewInv(c):S.tab==='story'?viewStory(c):viewPlay(c)}
+function renderView(){const c=C();$('#view').innerHTML=S.tab==='edit'?viewEdit(c):S.tab==='chars'?viewChars(c):S.tab==='pj'?viewPj(c):viewPlay(c)}
 function applyTheme(){const k=(C()||{}).classKey||'',r=document.documentElement;
   if(k)r.dataset.class=k;else delete r.dataset.class;
   const bg=getComputedStyle(r).getPropertyValue('--surface').trim();document.querySelectorAll('meta[name="theme-color"]').forEach(m=>m.setAttribute('content',bg||'#ffffff'))}
@@ -678,7 +683,7 @@ function wizBody(step){
       <label><input type="radio" name="wz-asi" value="2" ${a.mode==='2'?'checked':''}><span><b>+2 a una característica</b></span></label>
       <label><input type="radio" name="wz-asi" value="11" ${a.mode==='11'?'checked':''}><span><b>+1 a dos características</b></span></label>
       <label><input type="radio" name="wz-asi" value="feat" ${a.mode==='feat'?'checked':''}><span><b>Una dote</b><br><small>Escribe su nombre y, si quieres, un resumen.</small></span></label></div>
-    ${a.mode==='feat'?`<div class="grid"><label class="f"><span>Dote</span><input id="wz-feat" value="${esc(a.feat)}" placeholder="Alerta, Afortunado…"></label><label class="f wide"><span>Qué hace</span><textarea id="wz-feattext">${esc(a.featText)}</textarea></label></div><p class="hint">Si la dote sube una característica, cámbiala luego en «Editar ficha».</p>`
+    ${a.mode==='feat'?`<div class="grid"><label class="f"><span>Dote</span><input id="wz-feat" value="${esc(a.feat)}" placeholder="Alerta, Afortunado…"></label><label class="f wide"><span>Qué hace</span><textarea id="wz-feattext">${esc(a.featText)}</textarea></label></div><p class="hint">Si la dote sube una característica, cámbiala luego en ⚙ Ajustes → Editar ficha.</p>`
       :`<div class="grid"><label class="f"><span>${a.mode==='2'?'Característica (+2)':'Primera (+1)'}</span><select id="wz-asi-a">${[['','—'],...ABIL.map(x=>[x[0],`${x[2]} (${W.ab[x[0]]})`])].map(([k,n])=>`<option value="${k}" ${a.a===k?'selected':''}>${n}</option>`).join('')}</select></label>
         ${a.mode==='11'?`<label class="f"><span>Segunda (+1)</span><select id="wz-asi-b">${[['','—'],...ABIL.map(x=>[x[0],`${x[2]} (${W.ab[x[0]]})`])].map(([k,n])=>`<option value="${k}" ${a.b===k?'selected':''}>${n}</option>`).join('')}</select></label>`:''}</div>
         <p class="hint">Máximo 20 en cada característica.</p>`}`}
@@ -691,7 +696,7 @@ function wizBody(step){
     if(W.mode==='create'){const d=def,sp=specOf(W.speciesKey),ln=linOf(W.speciesKey,W.lineageKey);return`<p>Vas a crear a <b>${esc(W.name||'Sin nombre')}</b>, ${esc(sp?sp.n+(ln?` (${ln.n})`:''):W.species)} ${d?d.n+' 1':''}${BG[W.bgKey]?`, ${esc(BG[W.bgKey].n.toLowerCase())}`:''}.</p>
       <div class="diff"><span>PG máximos</span><b>${d?hpGain():'—'}</b>${sp?`<span>Velocidad</span><b>${(ln&&ln.speed)||sp.speed} pies</b>${((ln&&ln.dv)||sp.dv)?`<span>Visión en la oscuridad</span><b>${(ln&&ln.dv)||sp.dv} pies</b>`:''}<span>Conjuros de especie</span><b>${originSpellIds(W.speciesKey,W.lineageKey,1,1).map(id=>SPBY[id].n).join(', ')||'—'}</b>`:''}${wizFeats().length?`<span>Dotes</span><b>${wizFeats().map(k=>FEATS[k].n).join(', ')}</b>`:''}<span>Salvaciones</span><b>${d?d.saves.map(s=>AB[s][1]).join(', '):'—'}</b><span>Habilidades</span><b>${W.skills.length}</b><span>Conjuros</span><b>${W.spells.length}</b></div>
       ${newFeatures().map(f=>`<div class="feat"><b>${esc(f[0])}</b><p>${esc(f[1])}</p></div>`).join('')}
-      <p class="hint">Después podrás completar CA, armas, objetos y dinero en «Editar ficha» e «Inventario».</p>`}
+      <p class="hint">Después podrás completar CA y armas en ⚙ Ajustes → Editar ficha, y objetos y dinero en la pestaña de tu personaje.</p>`}
     const warn=[];const l=wizSpellLimits();if(l){if(l.cur.c>l.can)warn.push(`Tienes ${l.cur.c} trucos y tu límite es ${l.can}.`);if(l.cur.p>l.prep)warn.push(`Tienes ${l.cur.p} conjuros y tu límite de preparados es ${l.prep} (puede ser correcto si alguno es de subclase).`)}
     return`<p>Todo listo para subir a <b>${esc(c.name)}</b> a ${def.n} ${L}${sub?` (${sub.n})`:''}.</p>
       <div class="diff"><span>PG máximos</span><b>${c.hp.max} → <span class="up">${c.hp.max+hpGain()}</span></b><span>Rasgos nuevos</span><b>${newFeatures().length}</b>${W.asi&&def.asi.includes(L)?`<span>${L===19?'Don épico':'Mejora'}</span><b>${esc(W.asi.mode==='feat'?W.asi.feat||'(sin nombre)':W.asi.mode==='2'?(W.asi.a?AB[W.asi.a][2]+' +2':'—'):[W.asi.a,W.asi.b].filter(Boolean).map(k=>AB[k][2]+' +1').join(', ')||'—')}</b>`:''}</div>
@@ -779,7 +784,7 @@ function applyWizard(){
   if(!c.spellcasting.ability&&c.spells.length)c.spellcasting.ability=['int','wis','cha'].sort((a,b)=>c.abilities[b]-c.abilities[a])[0];
   const name=c.name,mode=W.mode;
   closeModal();S.tab='play';save();render();scrollTo(0,0);
-  toast(mode==='create'?`<div class="t-label">Personaje creado</div><div class="t-big">${esc(name)}</div><div class="t-parts">Completa CA, armas y objetos en «Editar ficha» e «Inventario».</div>`
+  toast(mode==='create'?`<div class="t-label">Personaje creado</div><div class="t-big">${esc(name)}</div><div class="t-parts">Completa CA y armas en ⚙ Ajustes → Editar ficha, y los objetos en la pestaña de tu personaje.</div>`
     :`<div class="t-label">¡Subida de nivel!</div><div class="t-big">${esc(def.n)} ${L}</div><div class="t-parts">Rasgos, recursos y espacios actualizados.</div>`)}
 
 /* Aplica a la ficha todo lo automatizable de su especie y linaje (y los recursos de sus dotes) */
@@ -868,8 +873,8 @@ const A={
     c.conditions=c.conditions.filter(x=>x!=='Inconsciente');if(c.speciesKey==='human')c.inspiration=true;closeModal();save();render();toast('<div class="t-label">Descanso largo terminado</div><div class="t-parts">Como nuevo.</div>')},
   pay:()=>{const c=C(),n=parseInt($('#pay-amt').value),k=$('#pay-coin').value;if(!(n>0)){$('#pay-amt').focus();return}
     if(!pay(c,n,k)){toast(`<div class="t-label">No te llega</div><div class="t-parts">Necesitas ${n} ${COINN[k]} y tienes el equivalente a ${(totalCp(c)/COINV[k]).toLocaleString('es-ES',{maximumFractionDigits:2})} ${COINN[k]}.</div>`);return}
-    save();render();toast(`<div class="t-label">Pagado</div><div class="t-big bad">−${n} ${COINN[k]}</div>`)},
-  earn:()=>{const c=C(),n=parseInt($('#pay-amt').value),k=$('#pay-coin').value;if(!(n>0)){$('#pay-amt').focus();return}c.coins[k]=(+c.coins[k]||0)+n;save();render();toast(`<div class="t-label">Cobrado</div><div class="t-big good">+${n} ${COINN[k]}</div>`)},
+    save();renderTop();refreshMoney();toast(`<div class="t-label">Pagado</div><div class="t-big bad">−${n} ${COINN[k]}</div>`)},
+  earn:()=>{const c=C(),n=parseInt($('#pay-amt').value),k=$('#pay-coin').value;if(!(n>0)){$('#pay-amt').focus();return}c.coins[k]=(+c.coins[k]||0)+n;save();renderTop();refreshMoney();toast(`<div class="t-label">Cobrado</div><div class="t-big good">+${n} ${COINN[k]}</div>`)},
   'item-new':()=>openModal(`<h2>Añadir objeto</h2><div class="grid">
       <label class="f wide"><span>Nombre</span><input id="ni-name" placeholder="Flechas, ración de viaje, poción de curación…" autocomplete="off"></label>
       <label class="f"><span>Cantidad</span><input id="ni-qty" type="number" inputmode="numeric" min="0" value="1"></label>
@@ -882,6 +887,11 @@ const A={
   add:el=>{C()[el.dataset.list].push(NEW[el.dataset.list]());save();renderView();const nm=[...document.querySelectorAll(`[data-path^="${el.dataset.list}."]`)].pop();nm&&nm.closest('.row-ed').querySelector('input').focus()},
   del:el=>{C()[el.dataset.list].splice(+el.dataset.i,1);save();renderView()},
   levelup:()=>startWizard('level'),
+  money:()=>openMoney(),
+  'money-close':()=>{closeModal();render()},
+  settings:()=>openModal(`<div class="wz-head"><h2>Ajustes</h2><button class="b sm" data-act="close-modal">Cerrar</button></div>
+    <button class="b opt" data-act="open-edit"><span><b>Editar ficha</b><br><small>Características, habilidades, armas, conjuros, rasgos y objetos</small></span><span aria-hidden="true">›</span></button>`),
+  'open-edit':()=>{closeModal();S.tab='edit';save();render();scrollTo(0,0)},
   gloss:el=>showGloss(el),
   't-fold':()=>{try{const o=localStorage.getItem('fichas-turn-open')!=='0';localStorage.setItem('fichas-turn-open',o?'0':'1')}catch(e){}renderView()},
   't-end':()=>{const c=C();c.turn={a:false,aa:false,r:false,atk:0};save();render()},
