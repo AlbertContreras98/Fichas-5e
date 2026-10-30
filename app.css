@@ -434,3 +434,4 @@ button.eff.cond-pill{border:1px solid color-mix(in srgb,var(--bad) 45%,var(--lin
 .acbox>div{display:flex;flex-direction:column}.acbox b{font-size:1.1rem}.acbox small{color:var(--muted)}
 .acbox .hint{margin:.35rem 0 0}
 .it .btns{margin-top:.35rem}
+.tuse{margin:.3rem 0;padding-left:1.1rem;font-size:.92rem}.tuse li{margin:.15rem 0}

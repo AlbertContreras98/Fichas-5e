@@ -90,7 +90,7 @@ function fillFromRef(s){const d=s.ref&&SPBY[s.ref];if(!d)return s;
 let S={chars:[],active:null,tab:'play'};
 function load(){
   try{const r=localStorage.getItem(KEY);if(r){const x=JSON.parse(r);S.chars=(x.chars||[]).map(normalize);S.active=x.active;if(x.tab)S.tab=x.tab;if(S.tab==='inv'||S.tab==='story')S.tab='pj';if(S.tab==='chars')S.tab='play'}}catch(e){}
-  S.chars.forEach(linkWeapons);S.chars.forEach(syncEffects);S.chars.forEach(linkArmor);
+  S.chars.forEach(linkWeapons);S.chars.forEach(linkGear);S.chars.forEach(syncEffects);S.chars.forEach(linkArmor);
   if(!S.chars.find(c=>c.id===S.active)) S.active=S.chars.length?S.chars[0].id:null}
 const OLDK={'Familiar':'familiar','Montura':'other','Invocación':'other','Compañero animal':'other','Otro':'other'};
 function syncEffects(c){if(!c)return;if(Array.isArray(c.attacks)&&Array.isArray(c.equipment))syncWeapons(c);if(Array.isArray(c.companions))c.companions.forEach(x=>{if(!CREA_KINDS[x.kind]){x.label=x.kind&&x.kind!=='Otro'&&x.kind!=='Familiar'?x.kind:'';x.kind=OLDK[x.kind]||'other'}if(!x.attacks)x.attacks=[];if(!x.hp)x.hp={max:0,current:0}});if(!Array.isArray(c.effects))c.effects=[];if(!Array.isArray(c.companions))c.companions=[];c.effects=c.effects.filter(e=>!e.conc||e.name===c.concentration);
@@ -417,7 +417,8 @@ function viewPlay(c){
   const feats=`<section class="card"><h2>Rasgos y dotes</h2>${c.features.length?`<div class="list">${c.features.map(f=>`<div class="it"><div class="it-head"><span class="it-name">${esc(f.name)}</span>${f.uses.max>0?`<span class="badge">${f.uses.max-f.uses.used}/${f.uses.max}</span>`:''}</div>
       ${f.source?`<div class="meta">${esc(f.source)}</div>`:''}
       ${f.text?`<details><summary>Detalles</summary><p>${esc(f.text)}</p></details>`:''}</div>`).join('')}</div>`:'<p class="empty">Sin rasgos.</p>'}</section>`;
-  return`<div class="cols"><div class="col">${vit}${res}</div><div class="col">${abil}${sk}</div><div class="col">${atk}${mag}${feats}</div></div>`}
+  const tl=toolsList(c);const tools=tl.length?`<section class="card"><h2>Herramientas</h2><div class="list">${tl.map(x=>toolDetail(c,x)).join('')}</div><p class="hint" style="margin-top:.5rem">Al usar una herramienta tiras 1d20 + ese bonificador contra la CD. Si además eres competente en una habilidad que encaje con la prueba (el máster decide cuál), tiras con ventaja.</p></section>`:'';
+  return`<div class="cols"><div class="col">${vit}${res}</div><div class="col">${abil}${sk}${tools}</div><div class="col">${atk}${mag}${feats}</div></div>`}
 function slotOptions(c,L){const o=[];
   if(c.pact.total>0&&c.pact.level>=L)o.push({kind:'pact',level:c.pact.level,avail:c.pact.total-c.pact.used});
   for(let l=L;l<=9;l++){const s=c.slots[l-1];if(s.total>0)o.push({kind:'slot',level:l,avail:s.total-s.used})}
@@ -496,7 +497,9 @@ function viewTurn(c){
   const lights=c.attacks.map((a,i)=>[a,i]).filter(([a])=>/ligera/i.test(a.notes||''));
   if(lights.length>=2)lights.forEach(([a,i])=>cols.AA.push(row(`${esc(a.name)} (arma ligera)`,'Ataque extra sin modificador al daño',`<button class="b sm" data-act="t-light" data-i="${i}" ${dis(T.aa)}>Atacar</button>`)));
   // Consumibles
-  c.equipment.forEach((e,i)=>{if(e.cat!=='pocion'&&e.cat!=='consumible')return;const k=e.cat==='pocion'?'AA':'A';const busy=k==='A'?!aFree:T.aa;
+  c.equipment.forEach((e,i)=>{const G=e.gear&&GEAR[e.gear];if(G){if(!G.act||G.act==='lit')return;const k=G.act==='atk'?'A':G.act,busy=G.act==='atk'?!atkOn:k==='A'?!aFree:T.aa;
+      cols[k].push(row(esc(e.name),`${G.act==='atk'?'sustituye un ataque · ':''}${G.keep?'':`quedan ${e.qty}`}`,`<button class="b sm" data-act="t-gear" data-i="${i}" ${dis(busy||(!G.keep&&e.qty<=0))}>Usar</button>`));return}
+    if(e.cat!=='pocion'&&e.cat!=='consumible')return;const k=e.cat==='pocion'?'AA':'A';const busy=k==='A'?!aFree:T.aa;
     cols[k].push(row(esc(e.name),`quedan ${e.qty}`,`<button class="b sm" data-act="t-item" data-i="${i}" data-eco="${k}" ${dis(busy||e.qty<=0)}>${e.cat==='pocion'?'Beber':'Usar'}</button>`))});
   // Acciones de cualquiera
   const generic=`<div class="chips">${GENERIC.map(([k,n])=>`<button class="chip" data-act="t-gen" data-k="${k}" ${dis(!aFree)}>${n}</button>`).join('')}</div>`;
@@ -524,6 +527,27 @@ function moneyHTML(c){const tot=totalCp(c);
       <p class="hint" style="margin-top:.5rem">Al pagar, si no tienes monedas de ese tipo, se cambian monedas mayores y te quedas el cambio. 1 PPt = 10 PO = 20 PE = 100 PP = 1000 PC.</p>`}
 function refreshMoney(){const b=$('#money-body');if(b)b.innerHTML=moneyHTML(C())}
 function openMoney(){openModal(`<div class="wz-head"><h2>Dinero</h2><button class="b sm" data-act="money-close">Hecho</button></div><div id="money-body">${moneyHTML(C())}</div>`)}
+function toolProf(c,T,v){const t=norm(c.proficiencies.tools||'');return t.includes(norm(T.n))||(!!v&&t.includes(norm(v)))||(T.vars&&/instrumento/.test(t)&&T===TOOLS.instrument)||(T===TOOLS.gaming&&/juego/.test(t))}
+function toolBonus(c,T,v){const pr=toolProf(c,T,v);return{b:M(c,T.ab)+(pr?pb(c):0),pr}}
+function toolsList(c){const out=[],seen=new Set();
+  c.equipment.forEach(e=>{const T=e.tool&&TOOLS[e.tool];if(!T)return;const k=e.tool+'|'+(e.tvar||'');if(seen.has(k))return;seen.add(k);out.push({T,v:e.tvar||'',name:e.name,have:true})});
+  const t=norm(c.proficiencies.tools||'');Object.entries(TOOLS).forEach(([k,T])=>{if(t.includes(norm(T.n))&&![...seen].some(x=>x.startsWith(k+'|')))out.push({T,v:'',name:T.n,have:false})});
+  return out}
+function toolDetail(c,x){const {b,pr}=toolBonus(c,x.T,x.v);
+  return`<div class="it"><div class="it-head"><span class="it-name">${esc(x.name)}${x.have?'':' <span class="tag">no la llevas</span>'}</span><span class="badge">${AB[x.T.ab][1]} ${sgn(b)}</span></div>
+    <div class="meta">${pr?'Competente: sumas tu bonificador de competencia':'Sin competencia: solo tu modificador de '+AB[x.T.ab][2]}</div>
+    <details><summary>Usos y fabricación</summary><ul class="tuse">${x.T.use.map(u=>`<li>${esc(u[0])} <b>CD ${u[1]}</b></li>`).join('')}</ul>${x.T.craft?`<p class="meta"><b>Puedes fabricar:</b> ${esc(x.T.craft)}</p>`:''}</details></div>`}
+function gearUse(i,eco){const c=C(),e=c.equipment[i],G=GEAR[e.gear];if(!G||(!G.keep&&e.qty<=0))return;const T=c.turn;let extra='';
+  if(G.act==='atk'){if(!T.a){T.a=true;T.atk=attacksPerAction(c)-1}else T.atk=Math.max(0,T.atk-1);extra=`Salvación de ${G.save} CD <b>${8+M(c,'dex')+pb(c)}</b> · si falla: ${esc(G.dmg)}.`}
+  else if(G.act==='A'||G.act==='AA')spendEco(c,G.act);
+  if(!G.keep)e.qty=Math.max(0,e.qty-1);
+  if(G.eff)c.effects.push(Object.assign({id:uid(),name:G.eff[0],conc:false},G.eff[1]));
+  save();render();refreshInv();
+  toast(`<div class="t-label">${G.act==='lit'?'Enciendes':'Usas'}</div><div class="t-big">${esc(e.name)}</div><div class="t-parts">${esc(G.d)}${extra?' '+extra:''}${G.keep?'':` Te quedan ${e.qty}${G.unit?' '+G.unit:''}.`}</div>`)}
+function linkGear(c){if(c._gearLinked)return;c._gearLinked=true;
+  c.equipment.forEach(e=>{if(e.tool||e.gear)return;const n=norm(e.name);
+    const tk=Object.keys(TOOLS).find(k=>n===norm(TOOLS[k].n)||n.startsWith(norm(TOOLS[k].n)));if(tk){e.tool=tk;return}
+    const gk=Object.keys(GEAR).find(k=>n===norm(GEAR[k].n)||(k==='rations'&&/^racion/.test(n))||(k==='torch'&&/^antorcha/.test(n))||(k==='waterskin'&&/^odre/.test(n)));if(gk)e.gear=gk})}
 const MASTERY_CLS=new Set(['barbarian','fighter','paladin','ranger','rogue']);
 function wpnProf(c,W){const t=norm(c.proficiencies.weapons||'');if(t.includes(norm(W.n)))return true;
   if(W.c==='s')return /sencill|marcial/.test(t);if(/marcial/.test(t)){if(/sutil|ligera/.test(t)&&!/sencillas y marciales$/.test(t))return(/sutil/.test(t)&&W.p.includes('sutil'))||(/ligera/.test(t)&&W.p.includes('ligera'));return true}return false}
@@ -582,7 +606,15 @@ function potModal(i,eco){const c=C(),e=c.equipment[i],P=POTIONS[e.potion];POT={i
 function itemModal(){const x=NI,f=(l,h,w)=>`<label class="f ${w||''}"><span>${l}</span>${h}</label>`;
   const c=C(),W=x.wpn&&WEAPONS[x.wpn],hasAmmo=W&&W.am&&c.equipment.find(e=>e.ammoKind===W.am[0]);
   const wGroups=[['s',0,'Sencillas cuerpo a cuerpo'],['s',1,'Sencillas a distancia'],['m',0,'Marciales cuerpo a cuerpo'],['m',1,'Marciales a distancia']];
-  const extra=x.cat==='arma'?f('Arma',`<select id="ni-wpn" data-ni="1"><option value="">Otra (la añades a mano)</option>${wGroups.map(([cc,r,lbl])=>`<optgroup label="${lbl}">${Object.entries(WEAPONS).filter(([,w])=>w.c===cc&&!!w.r===!!r).map(([k,w])=>`<option value="${k}" ${x.wpn===k?'selected':''}>${esc(w.n)} (${w.d}${w.d==='1'?'':''} ${w.t})</option>`).join('')}</optgroup>`).join('')}</select>`,'wide')
+  const gearOpts=cat=>Object.entries(GEAR).filter(([,g])=>g.cat===cat).map(([k,g])=>`<option value="g:${k}" ${x.gr==='g:'+k?'selected':''}>${esc(g.n)}</option>`).join('');
+  const TT=x.gr&&x.gr.startsWith('t:')&&TOOLS[x.gr.slice(2)],GG=x.gr&&x.gr.startsWith('g:')&&GEAR[x.gr.slice(2)];
+  const gearDesc=TT?`<p class="hint wide">${AB[TT.ab][2]} · ${TT.use.map(u=>`${esc(u[0])} (CD ${u[1]})`).join(' · ')}${TT.craft?`. Fabrica: ${esc(TT.craft)}`:''}</p>`:GG?`<p class="hint wide">${esc(GG.d)}</p>`:'';
+  const extra=x.cat==='herramienta'?f('Herramienta',`<select id="ni-gr" data-ni="1"><option value="">Otra</option><optgroup label="Herramientas de artesano">${Object.entries(TOOLS).filter(([,t])=>t.g==='a').map(([k,t])=>`<option value="t:${k}" ${x.gr==='t:'+k?'selected':''}>${esc(t.n)}</option>`).join('')}</optgroup><optgroup label="Otras herramientas">${Object.entries(TOOLS).filter(([,t])=>t.g==='o').map(([k,t])=>`<option value="t:${k}" ${x.gr==='t:'+k?'selected':''}>${esc(t.n)}</option>`).join('')}</optgroup><optgroup label="Equipo">${gearOpts('herramienta')}</optgroup></select>`,'wide')
+      +(TT&&TT.vars?f('Cuál',`<select id="ni-var" data-ni="1">${TT.vars.map(v=>`<option ${x.var===v?'selected':''}>${esc(v)}</option>`).join('')}</select>`,'wide'):'')+gearDesc
+    :x.cat==='consumible'||x.cat==='comida'?f(x.cat==='comida'?'Comida y bebida':'Objeto',`<select id="ni-gr" data-ni="1"><option value="">Otro</option>${gearOpts(x.cat)}</select>`,'wide')+gearDesc
+    :x.cat==='paquete'?f('Paquete',`<select id="ni-pack" data-ni="1">${Object.entries(PACKS).map(([k,o])=>`<option value="${k}" ${x.pack===k?'selected':''}>${esc(o.n)}</option>`).join('')}</select>`,'wide')
+      +`<p class="hint wide">Se añadirá todo su contenido: ${PACKS[x.pack||'explorer'].items.map(([k,q])=>`${GEAR[k]?GEAR[k].n.replace(/ \(días\)/,''):k}${q>1?' ×'+q:''}`).join(', ')}.</p>`
+    :x.cat==='arma'?f('Arma',`<select id="ni-wpn" data-ni="1"><option value="">Otra (la añades a mano)</option>${wGroups.map(([cc,r,lbl])=>`<optgroup label="${lbl}">${Object.entries(WEAPONS).filter(([,w])=>w.c===cc&&!!w.r===!!r).map(([k,w])=>`<option value="${k}" ${x.wpn===k?'selected':''}>${esc(w.n)} (${w.d}${w.d==='1'?'':''} ${w.t})</option>`).join('')}</optgroup>`).join('')}</select>`,'wide')
       +(W?f('Bonificador mágico',`<select id="ni-mag" data-ni="1">${[0,1,2,3].map(n=>`<option value="${n}" ${+x.mag===n?'selected':''}>${n?'+'+n:'Ninguno'}</option>`).join('')}</select>`)
         +`<p class="hint wide">${esc(wpnCalc(c,{wpn:x.wpn,magic:x.mag,mastery:x.ms}).notes)}. Maestría: <b>${MASTERY[W.ms][0]}</b> — ${esc(MASTERY[W.ms][1])}</p>`
         +`<label class="chk wide"><input type="checkbox" id="ni-atk" ${x.atk?'checked':''}> Añadirla a mis ataques (bonificador y daño calculados)</label>`
@@ -594,21 +626,23 @@ function itemModal(){const x=NI,f=(l,h,w)=>`<label class="f ${w||''}"><span>${l}
     :x.cat==='armadura'?f('Armadura o escudo',`<select id="ni-arm" data-ni="1"><option value="">Otra (no cambia la CA)</option>${['l','m','h','s'].map(t=>`<optgroup label="${ARMOR_T[t]}">${Object.entries(ARMORS).filter(([,a])=>a.t===t).map(([k,a])=>`<option value="${k}" ${x.arm===k?'selected':''}>${esc(a.n)} (${a.t==='s'?'+2':a.ac+(a.t==='l'?' + DES':a.t==='m'?' + DES máx. 2':'')})</option>`).join('')}</optgroup>`).join('')}</select>`,'wide')
       +(x.arm?f('Bonificador mágico',`<select id="ni-mag" data-ni="1">${[0,1,2,3].map(n=>`<option value="${n}" ${+x.mag===n?'selected':''}>${n?'+'+n:'Ninguno'}</option>`).join('')}</select>`)+`<label class="chk"><input type="checkbox" id="ni-eq" ${x.eq?'checked':''}> La llevo puesta</label>`:''):'';
   openModal(`<h2>Añadir objeto</h2><div class="grid">
-      ${f('Tipo',`<select id="ni-cat" data-ni="1">${CATS.map(([k,n])=>`<option value="${k}" ${x.cat===k?'selected':''}>${n}</option>`).join('')}</select>`)}
+      ${f('Tipo',`<select id="ni-cat" data-ni="1">${[...CATS,['paquete','Paquete de equipo (añade su contenido)']].map(([k,n])=>`<option value="${k}" ${x.cat===k?'selected':''}>${n}</option>`).join('')}</select>`)}
       ${f('Cantidad',`<input id="ni-qty" type="number" inputmode="numeric" min="0" value="${esc(x.qty)}">`)}
       ${extra}
       ${f('Nombre',`<input id="ni-name" value="${esc(x.name)}" placeholder="Flechas, ración de viaje, cuerda…" autocomplete="off">`,'wide')}
       ${f('Notas',`<input id="ni-notes" value="${esc(x.notes)}" placeholder="Opcional">`,'wide')}</div>
     <div class="btns"><button class="b pri" data-act="item-add">Añadir</button><button class="b" data-act="item-cancel">Cancelar</button></div>`)}
 function niCollect(){const g=id=>{const e=$('#'+id);return e?(e.type==='checkbox'?e.checked:e.value):undefined};
-  ['name','qty','cat','notes','pot','arm','mag','wpn','ak','spl'].forEach(k=>{const v=g('ni-'+k);if(v!==undefined)NI[k]=v});['eq','atk','ms','am'].forEach(k=>{const v=g('ni-'+k);if(v!==undefined)NI[k]=v})}
+  ['name','qty','cat','notes','pot','arm','mag','wpn','ak','spl','gr','var','pack'].forEach(k=>{const v=g('ni-'+k);if(v!==undefined)NI[k]=v});['eq','atk','ms','am'].forEach(k=>{const v=g('ni-'+k);if(v!==undefined)NI[k]=v})}
 const splFind=v=>{const k=norm(String(v||'').trim());return k?SP.find(d=>norm(d.n)===k||norm(d.en||'')===k):null};
-function niAutoName(){const sd=splFind(NI.spl);const base=NI.cat==='arma'&&NI.wpn?WEAPONS[NI.wpn].n+(+NI.mag?` +${NI.mag}`:''):NI.cat==='municion'&&NI.ak?AMMO[NI.ak][0]:NI.cat==='pergamino'&&sd?`Pergamino de ${sd.n.toLowerCase()}`:NI.cat==='pocion'&&NI.pot&&NI.pot!=='other'?POTIONS[NI.pot].n:NI.cat==='armadura'&&NI.arm?ARMORS[NI.arm].n+(+NI.mag?` +${NI.mag}`:''):'';
+function niAutoName(){const sd=splFind(NI.spl),TT=NI.gr&&NI.gr.startsWith('t:')&&TOOLS[NI.gr.slice(2)],GG=NI.gr&&NI.gr.startsWith('g:')&&GEAR[NI.gr.slice(2)];const base=TT?(TT.vars?(NI.var||TT.vars[0]):TT.n):GG?GG.n:NI.cat==='arma'&&NI.wpn?WEAPONS[NI.wpn].n+(+NI.mag?` +${NI.mag}`:''):NI.cat==='municion'&&NI.ak?AMMO[NI.ak][0]:NI.cat==='pergamino'&&sd?`Pergamino de ${sd.n.toLowerCase()}`:NI.cat==='pocion'&&NI.pot&&NI.pot!=='other'?POTIONS[NI.pot].n:NI.cat==='armadura'&&NI.arm?ARMORS[NI.arm].n+(+NI.mag?` +${NI.mag}`:''):'';
   if(!NI.name||NI.name===NI.auto)NI.name=base;NI.auto=base}
 function invHTML(c){
   const groups=CATS.map(([k,n])=>[k,n,c.equipment.map((e,i)=>[e,i]).filter(([e])=>(e.cat||'otro')===k)]).filter(g=>g[2].length);
   const items=groups.length?groups.map(([k,n,list])=>`<div class="cat-h"><h3>${n}</h3></div><div class="list">${list.map(([e,i])=>`<div class="it"><div class="it-head"><span class="it-name">${esc(e.name)}</span>
       <span class="counter"><button class="b sq" data-act="qty" data-i="${i}" data-d="-1" aria-label="Quitar uno">−</button><b style="min-width:2rem;text-align:center">${e.qty}</b><button class="b sq" data-act="qty" data-i="${i}" data-d="1" aria-label="Añadir uno">+</button></span></div>
+      ${e.tool&&TOOLS[e.tool]?(()=>{const T=TOOLS[e.tool],{b,pr}=toolBonus(C(),T,e.tvar);return`<div class="meta">${AB[T.ab][2]} · tu bonificador <b>${sgn(b)}</b>${pr?' (competente)':''} · ${T.use.map(u=>`${esc(u[0])} CD ${u[1]}`).join(' · ')}</div>`})():''}
+      ${e.gear&&GEAR[e.gear]?`<div class="meta">${esc(GEAR[e.gear].d)}${GEAR[e.gear].unit?` Quedan ${e.qty} ${GEAR[e.gear].unit}.`:''}</div>${GEAR[e.gear].act?`<div class="btns"><button class="b sm" data-act="gear" data-i="${i}" ${GEAR[e.gear].keep||e.qty>0?'':'disabled'}>${GEAR[e.gear].act==='lit'?'Encender':'Usar'}</button></div>`:''}`:''}
       ${e.weapon&&WEAPONS[e.weapon]?`<div class="meta">${WEAPONS[e.weapon].d} ${WEAPONS[e.weapon].t}${+e.magic?` · +${e.magic} mágica`:''} · ${WEAPONS[e.weapon].c==='s'?'sencilla':'marcial'} · maestría: ${MASTERY[WEAPONS[e.weapon].ms][0].toLowerCase()}</div>`:''}
       ${e.scroll&&SPBY[e.scroll]?`<div class="meta">${SPBY[e.scroll].l?`Conjuro de nivel ${SPBY[e.scroll].l}`:'Truco'} · lánzalo desde Magia (Partida) o desde Combate</div>`:''}
       ${e.armor&&ARMORS[e.armor]?`<div class="meta">${ARMOR_T[ARMORS[e.armor].t]} · ${ARMORS[e.armor].t==='s'?'+2 a la CA':`CA ${ARMORS[e.armor].ac}${ARMORS[e.armor].t==='l'?' + DES':ARMORS[e.armor].t==='m'?' + DES (máx. 2)':''}`}${+e.magic?` · +${e.magic} mágica`:''}${ARMORS[e.armor].str?` · FUE ${ARMORS[e.armor].str}`:''}${ARMORS[e.armor].st?' · desventaja en Sigilo':''}</div>
@@ -1214,21 +1248,31 @@ const A={
     toast(`<div class="t-label">Dado de golpe</div><div class="t-big good">+${c.hp.current-was}</div><div class="t-parts">${r} ${sgn(cm)} CON</div>`);save();renderTop();if(S.tab==='play')renderView();shortRestModal()},
   'short-done':()=>{const c=C();c.pact.used=0;endEffects(c,e=>e.r!=null||(e.m!=null&&e.m<=60));c.features.forEach(f=>{if(f.uses.recover==='corto')f.uses.used=0;if(f.uses.recover==='corto1')f.uses.used=Math.max(0,f.uses.used-1)});closeModal();save();render();toast('<div class="t-label">Descanso corto terminado</div><div class="t-parts">Recursos de descanso corto recuperados.</div>')},
   long:()=>{restOpen=false;renderTop();A.longModal()},
-  longModal:()=>openModal(`<h2>Descanso largo (8 horas)</h2><ul><li>Recuperas todos los PG y todos los dados de golpe</li><li>Recuperas todos los espacios de conjuro</li><li>Se recuperan los rasgos con usos limitados</li><li>Agotamiento −1 y pierdes los PG temporales</li>${C().companions.length?'<li>Tus compañeros recuperan todos sus PG</li>':''}</ul>
+  longModal:()=>openModal(`<h2>Descanso largo (8 horas)</h2><ul><li>Recuperas todos los PG y todos los dados de golpe</li><li>Recuperas todos los espacios de conjuro</li><li>Se recuperan los rasgos con usos limitados</li><li>Agotamiento −1 y pierdes los PG temporales</li>${C().companions.length?'<li>Tus compañeros recuperan todos sus PG</li>':''}</ul>${(()=>{const c=C(),r=c.equipment.find(e=>e.gear==='rations'&&e.qty>0);return`<label class="chk"><input type="checkbox" id="lr-eat" ${r?'checked':''}> ${r?`Comer: gastar 1 ración (te quedan ${r.qty})`:'He comido hoy (sin gastar raciones de la mochila)'}</label>${c.noFood?`<p class="hint warn">Llevas ${c.noFood} día${c.noFood>1?'s':''} sin comer.</p>`:''}`})()}
     <div class="btns"><button class="b pri" data-act="long-done">Hacer descanso largo</button><button class="b" data-act="close-modal">Cancelar</button></div>`),
-  'long-done':()=>{const c=C();c.companions.forEach(x=>{const st=creaStats(c,x);if(st.track)x.hp.current=st.hpMax});endEffects(c,e=>e.r!=null||(e.m!=null&&e.m<=480));c.hp.current=c.hp.max;c.hp.temp=0;c.hitDice.spent=0;c.slots.forEach(s=>s.used=0);c.pact.used=0;
+  'long-done':()=>{const c=C(),ate=$('#lr-eat')?$('#lr-eat').checked:true;c.companions.forEach(x=>{const st=creaStats(c,x);if(st.track)x.hp.current=st.hpMax});endEffects(c,e=>e.r!=null||(e.m!=null&&e.m<=480));c.hp.current=c.hp.max;c.hp.temp=0;c.hitDice.spent=0;c.slots.forEach(s=>s.used=0);c.pact.used=0;
     c.features.forEach(f=>{if(f.uses.recover)f.uses.used=0});c.exhaustion=Math.max(0,(+c.exhaustion||0)-1);c.deathSaves={success:0,fail:0};c.concentration='';
-    c.conditions=c.conditions.filter(x=>x!=='Inconsciente');if(c.speciesKey==='human')c.inspiration=true;closeModal();save();render();toast('<div class="t-label">Descanso largo terminado</div><div class="t-parts">Como nuevo.</div>')},
+    c.conditions=c.conditions.filter(x=>x!=='Inconsciente');if(c.speciesKey==='human')c.inspiration=true;
+    let food='';if(ate){const r=c.equipment.find(e=>e.gear==='rations'&&e.qty>0);if(r){r.qty--;food=` Gastas 1 ración (te quedan ${r.qty}).`}c.noFood=0}
+    else{c.noFood=(+c.noFood||0)+1;const lim=Math.max(1,3+M(c,'con'));if(c.noFood>lim){c.exhaustion=Math.min(6,(+c.exhaustion||0)+1);food=` Llevas ${c.noFood} días sin comer (aguantas ${lim}): ganas 1 nivel de agotamiento.`}else food=` Llevas ${c.noFood} día${c.noFood>1?'s':''} sin comer; aguantas ${lim} sin consecuencias.`}
+    closeModal();save();render();toast(`<div class="t-label">Descanso largo terminado</div><div class="t-parts">Como nuevo.${food}</div>`)},
   pay:()=>{const c=C(),n=parseInt($('#pay-amt').value),k=$('#pay-coin').value;if(!(n>0)){$('#pay-amt').focus();return}
     if(!pay(c,n,k)){toast(`<div class="t-label">No te llega</div><div class="t-parts">Necesitas ${n} ${COINN[k]} y tienes el equivalente a ${(totalCp(c)/COINV[k]).toLocaleString('es-ES',{maximumFractionDigits:2})} ${COINN[k]}.</div>`);return}
     save();renderTop();refreshMoney();toast(`<div class="t-label">Pagado</div><div class="t-big bad">−${n} ${COINN[k]}</div>`)},
   earn:()=>{const c=C(),n=parseInt($('#pay-amt').value),k=$('#pay-coin').value;if(!(n>0)){$('#pay-amt').focus();return}c.coins[k]=(+c.coins[k]||0)+n;save();renderTop();refreshMoney();toast(`<div class="t-label">Cobrado</div><div class="t-big good">+${n} ${COINN[k]}</div>`)},
-  'item-new':()=>{NI={name:'',qty:1,cat:'otro',notes:'',pot:'healing',arm:'',mag:0,eq:true,auto:'',wpn:'',atk:true,ms:true,am:true,ak:'',spl:''};itemModal();$('#ni-name').focus()},
+  'item-new':()=>{NI={name:'',qty:1,cat:'otro',notes:'',pot:'healing',arm:'',mag:0,eq:true,auto:'',wpn:'',atk:true,ms:true,am:true,ak:'',spl:'',gr:'',var:'',pack:'explorer'};itemModal();$('#ni-name').focus()},
   'item-cancel':()=>{closeModal();openInv()},
   inv:()=>openInv(),
-  'item-add':()=>{niCollect();const c=C(),n=NI.name.trim();if(!n){$('#ni-name').focus();return}
+  'item-add':()=>{niCollect();const c=C();
+    if(NI.cat==='paquete'){const P=PACKS[NI.pack||'explorer'],k=Math.max(1,parseInt(NI.qty)||1);
+      P.items.forEach(([key,q])=>{const G=GEAR[key],nm=G?G.n:key,ex=c.equipment.find(e=>G?e.gear===key:norm(e.name)===norm(nm));
+        if(ex)ex.qty=(+ex.qty||0)+q*k;else c.equipment.push(Object.assign({id:uid(),name:nm,qty:q*k,cat:G?G.cat:(/aceite|vela/i.test(nm)?'consumible':'otro'),notes:''},G?{gear:key}:{}))});
+      NI=null;closeModal();save();render();openInv();toast(`<div class="t-label">${esc(P.n)}</div><div class="t-parts">Añadido todo su contenido a la mochila.</div>`);return}
+    const n=NI.name.trim();if(!n){$('#ni-name').focus();return}
     const it={id:uid(),name:n,qty:Math.max(0,parseInt(NI.qty)||0),cat:NI.cat,notes:NI.notes.trim()};
     if(NI.cat==='pocion'&&NI.pot&&NI.pot!=='other')it.potion=NI.pot;
+    if(NI.gr&&NI.gr.startsWith('t:')){it.tool=NI.gr.slice(2);if(TOOLS[it.tool].vars)it.tvar=NI.var||TOOLS[it.tool].vars[0]}
+    if(NI.gr&&NI.gr.startsWith('g:')){it.gear=NI.gr.slice(2);it.cat=GEAR[it.gear].cat}
     if(NI.cat==='pergamino'){const d=splFind(NI.spl);if(!d){toast('<div class="t-parts">Elige un conjuro de la lista para el pergamino.</div>');$('#ni-spl').focus();return}it.scroll=d.id}
     if(NI.cat==='municion'&&NI.ak){it.ammoKind=NI.ak;c.attacks.forEach(a=>{const W=a.wpn&&WEAPONS[a.wpn];if(W&&W.am&&W.am[0]===NI.ak&&!a.ammo)a.ammo=it.id})}
     if(NI.cat==='arma'&&NI.wpn){const W=WEAPONS[NI.wpn];it.weapon=NI.wpn;it.magic=+NI.mag||0;
@@ -1239,6 +1283,8 @@ const A={
     c.equipment.push(it);NI=null;closeModal();save();render();openInv()},
   eq:el=>{const c=C(),e=c.equipment[+el.dataset.i],sh=ARMORS[e.armor].t==='s';e.equipped=!e.equipped;
     if(e.equipped)c.equipment.forEach(o=>{if(o!==e&&o.armor&&o.equipped&&(ARMORS[o.armor].t==='s')===sh)o.equipped=false});save();render();refreshInv()},
+  gear:el=>gearUse(+el.dataset.i),
+  't-gear':el=>gearUse(+el.dataset.i),
   pot:el=>{potModal(+el.dataset.i,'AA');POT.back=true},
   scroll:el=>scrollModal(+el.dataset.i,null),
   't-scroll':el=>scrollModal(+el.dataset.i,el.dataset.eco),
@@ -1427,7 +1473,7 @@ document.addEventListener('input',e=>{const el=e.target;
 document.addEventListener('change',e=>{const el=e.target;
   if(el.id==='imp-file'&&el.files&&el.files[0]){const r=new FileReader();r.onload=()=>{$('#imp-text').value=r.result;$('#imp-msg').textContent='Archivo cargado. Pulsa «Importar».'};r.readAsText(el.files[0]);return}
   if(el.id==='story-img'&&el.files&&el.files[0]){loadPortrait(el.files[0]);el.value='';return}
-  if(NI&&el.dataset&&el.dataset.ni){niCollect();if(el.id==='ni-cat'&&NI.cat==='pocion'&&!NI.pot)NI.pot='healing';if(el.id==='ni-ak'&&NI.ak)NI.qty=AMMO[NI.ak][1];niAutoName();itemModal();return}
+  if(NI&&el.dataset&&el.dataset.ni){niCollect();if(el.id==='ni-cat'&&NI.cat==='pocion'&&!NI.pot)NI.pot='healing';if(el.id==='ni-ak'&&NI.ak)NI.qty=AMMO[NI.ak][1];if(el.id==='ni-gr'){NI.var='';const G=NI.gr&&NI.gr.startsWith('g:')&&GEAR[NI.gr.slice(2)];NI.qty=G&&G.qty?G.qty:1}if(el.id==='ni-cat'){NI.gr='';if(NI.cat==='paquete'&&!NI.pack)NI.pack='explorer'}niAutoName();itemModal();return}
   if(CX&&el.dataset&&el.dataset.rr){const dn=k=>SUMMONS[k]?SUMMONS[k].n.replace(/^Invocar /,'').replace(/^./,m=>m.toUpperCase()):'';const oldS=CX.s,oldN=$('#cx-name')?$('#cx-name').value:'';
     creaCollect();if(CX.kind==='summon'&&CX.s!==oldS&&(!oldN||oldN===dn(oldS))){CX.name=dn(CX.s);CX.v=Object.keys(SUMMONS[CX.s].vars)[0];CX.L=SUMMONS[CX.s].L}creaModal();return}
   if(el.id==='sp-cls'){P.cls=el.value;refreshPicker();return}
