@@ -32,3 +32,56 @@ const ARMORS={
   plate:{n:'Armadura de placas',t:'h',ac:18,str:15,st:1},
   shield:{n:'Escudo',t:'s',ac:2}};
 const ARMOR_T={l:'Ligera',m:'Intermedia',h:'Pesada',s:'Escudo'};
+/* Armas (reglas de 2024). c: s sencilla / m marcial; r: a distancia; p: propiedades; ms: maestría;
+   th: alcance arrojadiza; am: [tipo de munición, alcance]; v: daño versátil */
+const MASTERY={
+  cleave:['Hendir','Si impactas, puedes hacer otro ataque contra una segunda criatura a 5 pies de la primera y a tu alcance, sin sumar tu modificador al daño. Una vez por turno.'],
+  graze:['Rozar','Si fallas, el objetivo recibe igualmente daño igual a tu modificador de característica.'],
+  nick:['Mellar','El ataque extra de la propiedad Ligera lo haces como parte de la acción de Atacar, no con la acción adicional. Una vez por turno.'],
+  push:['Empujar','Si impactas, puedes empujar al objetivo hasta 10 pies en dirección contraria a ti si es Grande o menor.'],
+  sap:['Debilitar','Si impactas, el objetivo tiene desventaja en su siguiente tirada de ataque antes de tu siguiente turno.'],
+  slow:['Ralentizar','Si impactas y haces daño, la velocidad del objetivo baja 10 pies hasta el inicio de tu siguiente turno.'],
+  topple:['Derribar','Si impactas, el objetivo hace una salvación de CON (CD 8 + tu modificador del ataque + tu competencia) o queda derribado.'],
+  vex:['Molestar','Si impactas y haces daño, tienes ventaja en tu siguiente ataque contra esa criatura antes del final de tu siguiente turno.']};
+const AMMO={arrow:['Flechas',20],bolt:['Virotes',20],slingbullet:['Balas de honda',20],firebullet:['Balas de arma de fuego',10],needle:['Agujas de cerbatana',50]};
+const WEAPONS={
+  club:{n:'Garrote',c:'s',d:'1d4',t:'contundente',p:['ligera'],ms:'slow'},
+  dagger:{n:'Daga',c:'s',d:'1d4',t:'perforante',p:['sutil','ligera'],th:'20/60',ms:'nick'},
+  greatclub:{n:'Gran garrote',c:'s',d:'1d8',t:'contundente',p:['a dos manos'],ms:'push'},
+  handaxe:{n:'Hacha de mano',c:'s',d:'1d6',t:'cortante',p:['ligera'],th:'20/60',ms:'vex'},
+  javelin:{n:'Jabalina',c:'s',d:'1d6',t:'perforante',p:[],th:'30/120',ms:'slow'},
+  lighthammer:{n:'Martillo ligero',c:'s',d:'1d4',t:'contundente',p:['ligera'],th:'20/60',ms:'nick'},
+  mace:{n:'Maza',c:'s',d:'1d6',t:'contundente',p:[],ms:'sap'},
+  quarterstaff:{n:'Bastón',c:'s',d:'1d6',t:'contundente',p:[],v:'1d8',ms:'topple'},
+  sickle:{n:'Hoz',c:'s',d:'1d4',t:'cortante',p:['ligera'],ms:'nick'},
+  spear:{n:'Lanza',c:'s',d:'1d6',t:'perforante',p:[],th:'20/60',v:'1d8',ms:'sap'},
+  dart:{n:'Dardo',c:'s',r:1,d:'1d4',t:'perforante',p:['sutil'],th:'20/60',ms:'vex'},
+  lightcrossbow:{n:'Ballesta ligera',c:'s',r:1,d:'1d8',t:'perforante',p:['recarga','a dos manos'],am:['bolt','80/320'],ms:'slow'},
+  shortbow:{n:'Arco corto',c:'s',r:1,d:'1d6',t:'perforante',p:['a dos manos'],am:['arrow','80/320'],ms:'vex'},
+  sling:{n:'Honda',c:'s',r:1,d:'1d4',t:'contundente',p:[],am:['slingbullet','30/120'],ms:'slow'},
+  battleaxe:{n:'Hacha de batalla',c:'m',d:'1d8',t:'cortante',p:[],v:'1d10',ms:'topple'},
+  flail:{n:'Mayal',c:'m',d:'1d8',t:'contundente',p:[],ms:'sap'},
+  glaive:{n:'Guja',c:'m',d:'1d10',t:'cortante',p:['pesada','alcance','a dos manos'],ms:'graze'},
+  greataxe:{n:'Gran hacha',c:'m',d:'1d12',t:'cortante',p:['pesada','a dos manos'],ms:'cleave'},
+  greatsword:{n:'Espadón',c:'m',d:'2d6',t:'cortante',p:['pesada','a dos manos'],ms:'graze'},
+  halberd:{n:'Alabarda',c:'m',d:'1d10',t:'cortante',p:['pesada','alcance','a dos manos'],ms:'cleave'},
+  lance:{n:'Lanza de caballería',c:'m',d:'1d10',t:'perforante',p:['pesada','alcance','a dos manos (salvo montado)'],ms:'topple'},
+  longsword:{n:'Espada larga',c:'m',d:'1d8',t:'cortante',p:[],v:'1d10',ms:'sap'},
+  maul:{n:'Mazo',c:'m',d:'2d6',t:'contundente',p:['pesada','a dos manos'],ms:'topple'},
+  morningstar:{n:'Lucero del alba',c:'m',d:'1d8',t:'perforante',p:[],ms:'sap'},
+  pike:{n:'Pica',c:'m',d:'1d10',t:'perforante',p:['pesada','alcance','a dos manos'],ms:'push'},
+  rapier:{n:'Estoque',c:'m',d:'1d8',t:'perforante',p:['sutil'],ms:'vex'},
+  scimitar:{n:'Cimitarra',c:'m',d:'1d6',t:'cortante',p:['sutil','ligera'],ms:'nick'},
+  shortsword:{n:'Espada corta',c:'m',d:'1d6',t:'perforante',p:['sutil','ligera'],ms:'vex'},
+  trident:{n:'Tridente',c:'m',d:'1d8',t:'perforante',p:[],th:'20/60',v:'1d10',ms:'topple'},
+  warhammer:{n:'Martillo de guerra',c:'m',d:'1d8',t:'contundente',p:[],v:'1d10',ms:'push'},
+  warpick:{n:'Pico de guerra',c:'m',d:'1d8',t:'perforante',p:[],v:'1d10',ms:'sap'},
+  whip:{n:'Látigo',c:'m',d:'1d4',t:'cortante',p:['sutil','alcance'],ms:'slow'},
+  blowgun:{n:'Cerbatana',c:'m',r:1,d:'1',t:'perforante',p:['recarga'],am:['needle','25/100'],ms:'vex'},
+  handcrossbow:{n:'Ballesta de mano',c:'m',r:1,d:'1d6',t:'perforante',p:['ligera','recarga'],am:['bolt','30/120'],ms:'vex'},
+  heavycrossbow:{n:'Ballesta pesada',c:'m',r:1,d:'1d10',t:'perforante',p:['pesada','recarga','a dos manos'],am:['bolt','100/400'],ms:'push'},
+  longbow:{n:'Arco largo',c:'m',r:1,d:'1d8',t:'perforante',p:['pesada','a dos manos'],am:['arrow','150/600'],ms:'slow'},
+  musket:{n:'Mosquete',c:'m',r:1,d:'1d12',t:'perforante',p:['recarga','a dos manos'],am:['firebullet','40/120'],ms:'slow'},
+  pistol:{n:'Pistola',c:'m',r:1,d:'1d10',t:'perforante',p:['recarga'],am:['firebullet','30/90'],ms:'vex'}};
+/* Pergaminos de conjuro: CD de salvación y bonificador de ataque según el nivel del conjuro */
+const SCROLL_STATS=[[13,5],[13,5],[13,5],[15,7],[15,7],[17,9],[17,9],[18,10],[18,10],[19,11]];

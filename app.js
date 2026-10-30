@@ -8,9 +8,9 @@ const SK=Object.fromEntries(SKILLS.map(s=>[s[0],s]));
 const CONDS=[['Agarrado','Velocidad 0. Desventaja al atacar a cualquiera que no sea quien te agarra.'],['Apresado','Velocidad 0. Desventaja en ataques y salvaciones de DES; te atacan con ventaja.'],['Asustado','Desventaja en pruebas y ataques mientras veas la fuente del miedo; no puedes acercarte a ella.'],['Aturdido','Incapacitado. Fallas salvaciones de FUE y DES; te atacan con ventaja.'],['Cegado','Fallas pruebas que requieran vista. Tus ataques con desventaja; te atacan con ventaja.'],['Derribado','Solo puedes arrastrarte o levantarte (mitad de movimiento). Desventaja al atacar; los ataques cuerpo a cuerpo contra ti tienen ventaja.'],['Ensordecido','No oyes y fallas pruebas que requieran oído.'],['Envenenado','Desventaja en tiradas de ataque y pruebas de característica.'],['Hechizado','No puedes atacar a quien te hechizó y tiene ventaja en interacciones sociales contigo.'],['Incapacitado','Sin acciones, acciones adicionales ni reacciones. Pierdes la concentración.'],['Inconsciente','Incapacitado y derribado; sueltas lo que llevas. Los golpes desde 5 pies son críticos.'],['Invisible','Tus ataques tienen ventaja; los ataques contra ti, desventaja.'],['Paralizado','Incapacitado. Fallas salvaciones de FUE y DES; los golpes desde 5 pies son críticos.'],['Petrificado','Convertido en piedra: incapacitado y con resistencia a todo el daño.']];
 const TIME={A:'Acción',AA:'Acción adicional',BA:'Acción adicional',R:'Reacción'};
 const FULL=[[2],[3],[4,2],[4,3],[4,3,2],[4,3,3],[4,3,3,1],[4,3,3,2],[4,3,3,3,1],[4,3,3,3,2],[4,3,3,3,2,1],[4,3,3,3,2,1],[4,3,3,3,2,1,1],[4,3,3,3,2,1,1],[4,3,3,3,2,1,1,1],[4,3,3,3,2,1,1,1],[4,3,3,3,2,1,1,1,1],[4,3,3,3,3,1,1,1,1],[4,3,3,3,3,2,1,1,1],[4,3,3,3,3,2,2,1,1]];
-const CATS=[['arma','Armas'],['armadura','Armaduras y escudos'],['municion','Munición'],['pocion','Pociones'],['comida','Comida y bebida'],['consumible','Otros consumibles'],['herramienta','Herramientas'],['tesoro','Tesoros'],['otro','Otros']];
+const CATS=[['arma','Armas'],['armadura','Armaduras y escudos'],['municion','Munición'],['pocion','Pociones'],['pergamino','Pergaminos de conjuro'],['comida','Comida y bebida'],['consumible','Otros consumibles'],['herramienta','Herramientas'],['tesoro','Tesoros'],['otro','Otros']];
 const CATN=Object.fromEntries(CATS);
-const USABLE=new Set(['municion','pocion','comida','consumible']);
+const USABLE=new Set(['municion','pocion','pergamino','comida','consumible']);
 const COINS=[['pp','PPt',1000],['gp','PO',100],['ep','PE',50],['sp','PP',10],['cp','PC',1]];
 const COINV=Object.fromEntries(COINS.map(c=>[c[0],c[2]]));
 const COINN=Object.fromEntries(COINS.map(c=>[c[0],c[1]]));
@@ -90,10 +90,10 @@ function fillFromRef(s){const d=s.ref&&SPBY[s.ref];if(!d)return s;
 let S={chars:[],active:null,tab:'play'};
 function load(){
   try{const r=localStorage.getItem(KEY);if(r){const x=JSON.parse(r);S.chars=(x.chars||[]).map(normalize);S.active=x.active;if(x.tab)S.tab=x.tab;if(S.tab==='inv'||S.tab==='story')S.tab='pj';if(S.tab==='chars')S.tab='play'}}catch(e){}
-  S.chars.forEach(syncEffects);S.chars.forEach(linkArmor);
+  S.chars.forEach(linkWeapons);S.chars.forEach(syncEffects);S.chars.forEach(linkArmor);
   if(!S.chars.find(c=>c.id===S.active)) S.active=S.chars.length?S.chars[0].id:null}
 const OLDK={'Familiar':'familiar','Montura':'other','Invocación':'other','Compañero animal':'other','Otro':'other'};
-function syncEffects(c){if(!c)return;if(Array.isArray(c.companions))c.companions.forEach(x=>{if(!CREA_KINDS[x.kind]){x.label=x.kind&&x.kind!=='Otro'&&x.kind!=='Familiar'?x.kind:'';x.kind=OLDK[x.kind]||'other'}if(!x.attacks)x.attacks=[];if(!x.hp)x.hp={max:0,current:0}});if(!Array.isArray(c.effects))c.effects=[];if(!Array.isArray(c.companions))c.companions=[];c.effects=c.effects.filter(e=>!e.conc||e.name===c.concentration);
+function syncEffects(c){if(!c)return;if(Array.isArray(c.attacks)&&Array.isArray(c.equipment))syncWeapons(c);if(Array.isArray(c.companions))c.companions.forEach(x=>{if(!CREA_KINDS[x.kind]){x.label=x.kind&&x.kind!=='Otro'&&x.kind!=='Familiar'?x.kind:'';x.kind=OLDK[x.kind]||'other'}if(!x.attacks)x.attacks=[];if(!x.hp)x.hp={max:0,current:0}});if(!Array.isArray(c.effects))c.effects=[];if(!Array.isArray(c.companions))c.companions=[];c.effects=c.effects.filter(e=>!e.conc||e.name===c.concentration);
   if(c.form&&!c.effects.some(e=>e.form))c.form=null;
   c.companions=c.companions.filter(x=>!x.conc||x.spell===c.concentration)}
 function save(){syncEffects(C());try{localStorage.setItem(KEY,JSON.stringify({chars:S.chars,active:S.active,tab:S.tab}))}catch(e){}}
@@ -398,8 +398,8 @@ function viewPlay(c){
       <div class="meta">${esc([a.type,a.notes].filter(Boolean).join(' · '))}</div>
       ${weaponTerms(a.notes).length?`<div class="chips" style="margin-top:.3rem">${weaponTerms(a.notes).map(w=>`<button class="chip" data-act="gloss" data-k="wp:${w[0]}">${esc(w[1])}</button>`).join('')}</div>`:''}</div>`}).join('')}</div>`:'<p class="empty">Sin armas. Añádelas en ⚙ Ajustes → Editar ficha.</p>'}
     <p class="hint" style="margin-top:.5rem">Al atacar tira 1d20 + el primer número contra la CA del enemigo; si impactas, tira el daño. ${term('¿Y si saco un 20?','crit')}</p></section>`;
-  let mag='';
-  if(c.spells.length||c.slots.some(s=>s.total>0)||c.pact.total>0||c.spellcasting.ability){
+  let mag='';const scrolls=c.equipment.map((e,i)=>[e,i]).filter(([e])=>e.scroll&&SPBY[e.scroll]&&e.qty>0);
+  if(scrolls.length||c.spells.length||c.slots.some(s=>s.total>0)||c.pact.total>0||c.spellcasting.ability){
     const groups={};c.spells.forEach((sp,i)=>{(groups[+sp.level||0]??=[]).push([sp,i])});
     const head=spMod(c)!==null?`<div class="spellhead"><span>Aptitud: <b>${AB[c.spellcasting.ability][2]}</b></span><span>${term('CD de salvación','dc')}: <b>${spDC(c)}</b></span><span>${term('Ataque de conjuro','spatk')}: <b>${sgn(spAtk(c))}</b></span></div>`:'';
     mag=`<section class="card"><div class="card-head"><h2>Magia</h2><button class="b sm" data-act="sp-open">Buscar conjuros</button></div>${head}
@@ -412,7 +412,8 @@ function viewPlay(c){
           <button class="b sm ${ok?'pri':''}" data-act="cast" data-i="${i}" ${ok?'':'disabled'}>${+sp.level===0?'Usar':ok?'Lanzar':'Sin espacios'}</button></div>
           <div class="meta">${esc([TIME[sp.time]||sp.time,sp.range,sp.dur,sp.material&&`M: ${sp.material}`].filter(Boolean).join(' · '))}</div>
           ${desc?`<details><summary>Qué hace</summary><p>${esc(desc)}</p></details>`:''}</div>`}).join('')}</div>`).join('')}
-      ${!c.spells.length?'<p class="empty">Sin conjuros. Pulsa «Buscar conjuros» para añadirlos.</p>':''}</section>`}
+      ${scrolls.length?`<h3>Pergaminos</h3><div class="list">${scrolls.map(([e,i])=>{const d=SPBY[e.scroll];return`<div class="it"><div class="it-head"><span class="it-name">${esc(d.n)} <span class="tag">×${e.qty}</span></span><button class="b sm" data-act="scroll" data-i="${i}" ${e.qty>0?'':'disabled'}>Lanzar</button></div><div class="meta">${d.l?`Nivel ${d.l}`:'Truco'} · ${esc(TIME[d.t]||d.t)} · CD ${SCROLL_STATS[+d.l||0][0]} · ataque ${sgn(SCROLL_STATS[+d.l||0][1])}</div></div>`}).join('')}</div>`:''}
+      ${!c.spells.length&&!scrolls.length?'<p class="empty">Sin conjuros. Pulsa «Buscar conjuros» para añadirlos.</p>':''}</section>`}
   const feats=`<section class="card"><h2>Rasgos y dotes</h2>${c.features.length?`<div class="list">${c.features.map(f=>`<div class="it"><div class="it-head"><span class="it-name">${esc(f.name)}</span>${f.uses.max>0?`<span class="badge">${f.uses.max-f.uses.used}/${f.uses.max}</span>`:''}</div>
       ${f.source?`<div class="meta">${esc(f.source)}</div>`:''}
       ${f.text?`<details><summary>Detalles</summary><p>${esc(f.text)}</p></details>`:''}</div>`).join('')}</div>`:'<p class="empty">Sin rasgos.</p>'}</section>`;
@@ -477,6 +478,8 @@ function viewTurn(c){
   if(!fm)c.attacks.forEach((a,i)=>{const am=a.ammo&&c.equipment.find(e=>e.id===a.ammo);const noAmmo=am&&am.qty<=0;
     cols.A.push(row(`${esc(a.name)}`,`${sgn(+a.atk||0)} · ${esc(a.dmg||'')}${am?` · quedan ${am.qty}`:''}`,`<button class="b sm pri" data-act="t-atk" data-i="${i}" ${dis(!atkOn||noAmmo)}>Atacar</button>`))});
   // Conjuros por tiempo de lanzamiento
+  if(!noSpells)c.equipment.forEach((e,i)=>{const d=e.scroll&&SPBY[e.scroll];if(!d||e.qty<=0)return;const t=d.t==='BA'?'AA':d.t;if(!['A','AA','R'].includes(t))return;
+    const busy=t==='A'?!aFree:t==='AA'?T.aa:T.r;cols[t].push(row(`${esc(d.n)} <span class="tag">pergamino</span>`,`${d.l?'Nivel '+d.l:'Truco'} · quedan ${e.qty}`,`<button class="b sm" data-act="t-scroll" data-i="${i}" data-eco="${t}" ${dis(busy)}>Lanzar</button>`))});
   if(!noSpells)c.spells.forEach((sp,i)=>{const t=sp.time==='BA'?'AA':sp.time;if(!['A','AA','R'].includes(t))return;
     const busy=t==='A'?!aFree:t==='AA'?T.aa:T.r;const ok=canCast(c,sp);
     cols[t].push(row(`${esc(sp.name)}${sp.conc?' <span class="tag">C</span>':''}`,`${+sp.level?'Nivel '+sp.level:'Truco'}`,`<button class="b sm ${ok&&!busy?'pri':''}" data-act="t-cast" data-i="${i}" data-eco="${t}" ${dis(busy||!ok)}>${ok?(+sp.level?'Lanzar':'Usar'):'Sin espacios'}</button>`))});
@@ -521,6 +524,28 @@ function moneyHTML(c){const tot=totalCp(c);
       <p class="hint" style="margin-top:.5rem">Al pagar, si no tienes monedas de ese tipo, se cambian monedas mayores y te quedas el cambio. 1 PPt = 10 PO = 20 PE = 100 PP = 1000 PC.</p>`}
 function refreshMoney(){const b=$('#money-body');if(b)b.innerHTML=moneyHTML(C())}
 function openMoney(){openModal(`<div class="wz-head"><h2>Dinero</h2><button class="b sm" data-act="money-close">Hecho</button></div><div id="money-body">${moneyHTML(C())}</div>`)}
+const MASTERY_CLS=new Set(['barbarian','fighter','paladin','ranger','rogue']);
+function wpnProf(c,W){const t=norm(c.proficiencies.weapons||'');if(t.includes(norm(W.n)))return true;
+  if(W.c==='s')return /sencill|marcial/.test(t);if(/marcial/.test(t)){if(/sutil|ligera/.test(t)&&!/sencillas y marciales$/.test(t))return(/sutil/.test(t)&&W.p.includes('sutil'))||(/ligera/.test(t)&&W.p.includes('ligera'));return true}return false}
+function wpnCalc(c,a){const W=WEAPONS[a.wpn],str=M(c,'str'),dex=M(c,'dex'),mg=+a.magic||0;
+  const mod=W.p.includes('sutil')?Math.max(str,dex):W.r?dex:str,prof=wpnProf(c,W);
+  const dm=x=>{const b=mod+mg;return W.d==='1'?`${Math.max(1,1+b)}`:`${x}${b?` ${b>0?'+':'−'} ${Math.abs(b)}`:''}`};
+  const props=W.p.map(x=>x).concat(W.th?[`arrojadiza (${W.th})`]:[]).concat(W.am?[`munición (${W.am[1]})`]:[]).concat(W.v?[`versátil (${W.v})`]:[]);
+  const notes=[props.join(', ').replace(/^./,m=>m.toUpperCase()),a.mastery?`Maestría: ${MASTERY[W.ms][0].toLowerCase()}`:'',prof?'':'sin competencia'].filter(Boolean).join(' · ');
+  return{atk:mod+(prof?pb(c):0)+mg,dmg:dm(W.d)+(W.v?` (${dm(W.v)} a dos manos)`:''),type:W.t,notes,prof}}
+function syncWeapons(c){c.attacks.forEach(a=>{if(a.wpn&&WEAPONS[a.wpn])Object.assign(a,(({atk,dmg,type,notes})=>({atk,dmg,type,notes}))(wpnCalc(c,a)))})}
+function linkWeapons(c){if(c._wpnLinked)return;c._wpnLinked=true;
+  c.attacks.forEach(a=>{if(a.wpn)return;const k=Object.keys(WEAPONS).find(k=>norm(WEAPONS[k].n)===norm(a.name));if(!k)return;
+    const r=wpnCalc(c,{wpn:k});if(r.atk===+a.atk&&r.dmg.replace(/[\s−]/g,m=>m==='−'?'-':'')===String(a.dmg).replace(/\s/g,'')){a.wpn=k;a.notes=r.notes;a.type=a.type||r.type}})}
+const maxSlotL=c=>Math.max(c.pact.total>0?c.pact.level:0,...c.slots.map((x,i)=>x.total>0?i+1:0));
+let SCR=null;
+function scrollModal(i,eco){const c=C(),e=c.equipment[i],d=SPBY[e.scroll];if(!d)return;const L=+d.l||0,[dc,at]=SCROLL_STATS[L],onList=(d.c||[]).includes(c.classKey),hard=L>0&&L>maxSlotL(c);SCR={i,eco};
+  openModal(`<h2>${esc(e.name)}</h2><p><b>${esc(d.n)}</b> · ${L?`nivel ${L}`:'truco'} · ${esc(TIME[d.t]||d.t)}${d.k?' · concentración':''}</p>
+    <p class="hint">Con el pergamino: CD de salvación <b>${dc}</b> y ataque de conjuro <b>${sgn(at)}</b>. No necesitas componentes materiales. Al lanzarlo, el pergamino se gasta.</p>
+    ${!onList?`<p class="hint warn">${esc(d.n)} no está en la lista de conjuros de tu clase, así que no puedes lanzarlo desde el pergamino (salvo que el máster diga otra cosa).</p>`
+      :hard?`<p class="hint warn">Es de un nivel mayor que los que puedes lanzar: haz una prueba de INT (Conocimiento Arcano) CD <b>${10+L}</b>. Si la fallas, el pergamino se desmorona sin efecto.</p>`:''}
+    <details><summary>Qué hace</summary><p>${esc(d.de)}</p></details>
+    <div class="btns">${hard&&onList?`<button class="b pri" data-act="scr-cast">La supero: lanzar</button><button class="b bad" data-act="scr-fail">La fallo</button>`:`<button class="b pri" data-act="scr-cast">${onList?'Lanzar':'Lanzarlo igualmente'}</button>`}<button class="b" data-act="close-modal">Cancelar</button></div>`)}
 const armorAuto=c=>c.equipment.some(e=>e.armor&&ARMORS[e.armor]);
 function acCalc(c){const dex=M(c,'dex'),eq=c.equipment.filter(e=>e.armor&&ARMORS[e.armor]&&e.equipped);
   const body=eq.find(e=>ARMORS[e.armor].t!=='s'),shield=eq.find(e=>ARMORS[e.armor].t==='s');let base,src;
@@ -555,7 +580,17 @@ function potModal(i,eco){const c=C(),e=c.equipment[i],P=POTIONS[e.potion];POT={i
       <div class="btns"><button class="b pri" data-act="pot-fx">Beber</button><button class="b" data-act="pot-give">Dársela a otro</button><button class="b" data-act="close-modal">Cancelar</button></div>`}`);
   const f=$('#pot-roll')||$('#pot-ask');if(f)f.focus()}
 function itemModal(){const x=NI,f=(l,h,w)=>`<label class="f ${w||''}"><span>${l}</span>${h}</label>`;
-  const extra=x.cat==='pocion'?f('Tipo de poción',`<select id="ni-pot" data-ni="1">${Object.entries(POTIONS).map(([k,o])=>`<option value="${k}" ${x.pot===k?'selected':''}>${esc(o.n)}${o.heal?` (${o.heal})`:''}</option>`).join('')}</select>`,'wide')+(POTIONS[x.pot]&&POTIONS[x.pot].d?`<p class="hint wide">${esc(POTIONS[x.pot].d)}</p>`:'')
+  const c=C(),W=x.wpn&&WEAPONS[x.wpn],hasAmmo=W&&W.am&&c.equipment.find(e=>e.ammoKind===W.am[0]);
+  const wGroups=[['s',0,'Sencillas cuerpo a cuerpo'],['s',1,'Sencillas a distancia'],['m',0,'Marciales cuerpo a cuerpo'],['m',1,'Marciales a distancia']];
+  const extra=x.cat==='arma'?f('Arma',`<select id="ni-wpn" data-ni="1"><option value="">Otra (la añades a mano)</option>${wGroups.map(([cc,r,lbl])=>`<optgroup label="${lbl}">${Object.entries(WEAPONS).filter(([,w])=>w.c===cc&&!!w.r===!!r).map(([k,w])=>`<option value="${k}" ${x.wpn===k?'selected':''}>${esc(w.n)} (${w.d}${w.d==='1'?'':''} ${w.t})</option>`).join('')}</optgroup>`).join('')}</select>`,'wide')
+      +(W?f('Bonificador mágico',`<select id="ni-mag" data-ni="1">${[0,1,2,3].map(n=>`<option value="${n}" ${+x.mag===n?'selected':''}>${n?'+'+n:'Ninguno'}</option>`).join('')}</select>`)
+        +`<p class="hint wide">${esc(wpnCalc(c,{wpn:x.wpn,magic:x.mag,mastery:x.ms}).notes)}. Maestría: <b>${MASTERY[W.ms][0]}</b> — ${esc(MASTERY[W.ms][1])}</p>`
+        +`<label class="chk wide"><input type="checkbox" id="ni-atk" ${x.atk?'checked':''}> Añadirla a mis ataques (bonificador y daño calculados)</label>`
+        +(MASTERY_CLS.has(c.classKey)?`<label class="chk wide"><input type="checkbox" id="ni-ms" ${x.ms?'checked':''}> Uso su maestría (${MASTERY[W.ms][0]})</label>`:'')
+        +(W.am?(hasAmmo?`<p class="hint wide">Se enlazará con tus ${esc(hasAmmo.name)} (quedan ${hasAmmo.qty}).</p>`:`<label class="chk wide"><input type="checkbox" id="ni-am" ${x.am?'checked':''}> Añadir también ${AMMO[W.am[0]][1]} ${AMMO[W.am[0]][0].toLowerCase()}</label>`):''):'')
+    :x.cat==='municion'?f('Munición',`<select id="ni-ak" data-ni="1"><option value="">Otra</option>${Object.entries(AMMO).map(([k,a])=>`<option value="${k}" ${x.ak===k?'selected':''}>${a[0]}</option>`).join('')}</select>`,'wide')
+    :x.cat==='pergamino'?f('Conjuro del pergamino',`<input id="ni-spl" list="ni-spl-list" value="${esc(x.spl||'')}" placeholder="Escribe para buscar…" autocomplete="off" data-ni-in="1"><datalist id="ni-spl-list">${SP.map(d=>`<option value="${esc(d.n)}">${d.l?`Nivel ${d.l}`:'Truco'}</option>`).join('')}</datalist>`,'wide')
+    :x.cat==='pocion'?f('Tipo de poción',`<select id="ni-pot" data-ni="1">${Object.entries(POTIONS).map(([k,o])=>`<option value="${k}" ${x.pot===k?'selected':''}>${esc(o.n)}${o.heal?` (${o.heal})`:''}</option>`).join('')}</select>`,'wide')+(POTIONS[x.pot]&&POTIONS[x.pot].d?`<p class="hint wide">${esc(POTIONS[x.pot].d)}</p>`:'')
     :x.cat==='armadura'?f('Armadura o escudo',`<select id="ni-arm" data-ni="1"><option value="">Otra (no cambia la CA)</option>${['l','m','h','s'].map(t=>`<optgroup label="${ARMOR_T[t]}">${Object.entries(ARMORS).filter(([,a])=>a.t===t).map(([k,a])=>`<option value="${k}" ${x.arm===k?'selected':''}>${esc(a.n)} (${a.t==='s'?'+2':a.ac+(a.t==='l'?' + DES':a.t==='m'?' + DES máx. 2':'')})</option>`).join('')}</optgroup>`).join('')}</select>`,'wide')
       +(x.arm?f('Bonificador mágico',`<select id="ni-mag" data-ni="1">${[0,1,2,3].map(n=>`<option value="${n}" ${+x.mag===n?'selected':''}>${n?'+'+n:'Ninguno'}</option>`).join('')}</select>`)+`<label class="chk"><input type="checkbox" id="ni-eq" ${x.eq?'checked':''}> La llevo puesta</label>`:''):'';
   openModal(`<h2>Añadir objeto</h2><div class="grid">
@@ -566,13 +601,16 @@ function itemModal(){const x=NI,f=(l,h,w)=>`<label class="f ${w||''}"><span>${l}
       ${f('Notas',`<input id="ni-notes" value="${esc(x.notes)}" placeholder="Opcional">`,'wide')}</div>
     <div class="btns"><button class="b pri" data-act="item-add">Añadir</button><button class="b" data-act="item-cancel">Cancelar</button></div>`)}
 function niCollect(){const g=id=>{const e=$('#'+id);return e?(e.type==='checkbox'?e.checked:e.value):undefined};
-  ['name','qty','cat','notes','pot','arm','mag'].forEach(k=>{const v=g('ni-'+k);if(v!==undefined)NI[k]=v});const eq=g('ni-eq');if(eq!==undefined)NI.eq=eq}
-function niAutoName(){const base=NI.cat==='pocion'&&NI.pot&&NI.pot!=='other'?POTIONS[NI.pot].n:NI.cat==='armadura'&&NI.arm?ARMORS[NI.arm].n+(+NI.mag?` +${NI.mag}`:''):'';
+  ['name','qty','cat','notes','pot','arm','mag','wpn','ak','spl'].forEach(k=>{const v=g('ni-'+k);if(v!==undefined)NI[k]=v});['eq','atk','ms','am'].forEach(k=>{const v=g('ni-'+k);if(v!==undefined)NI[k]=v})}
+const splFind=v=>{const k=norm(String(v||'').trim());return k?SP.find(d=>norm(d.n)===k||norm(d.en||'')===k):null};
+function niAutoName(){const sd=splFind(NI.spl);const base=NI.cat==='arma'&&NI.wpn?WEAPONS[NI.wpn].n+(+NI.mag?` +${NI.mag}`:''):NI.cat==='municion'&&NI.ak?AMMO[NI.ak][0]:NI.cat==='pergamino'&&sd?`Pergamino de ${sd.n.toLowerCase()}`:NI.cat==='pocion'&&NI.pot&&NI.pot!=='other'?POTIONS[NI.pot].n:NI.cat==='armadura'&&NI.arm?ARMORS[NI.arm].n+(+NI.mag?` +${NI.mag}`:''):'';
   if(!NI.name||NI.name===NI.auto)NI.name=base;NI.auto=base}
 function invHTML(c){
   const groups=CATS.map(([k,n])=>[k,n,c.equipment.map((e,i)=>[e,i]).filter(([e])=>(e.cat||'otro')===k)]).filter(g=>g[2].length);
   const items=groups.length?groups.map(([k,n,list])=>`<div class="cat-h"><h3>${n}</h3></div><div class="list">${list.map(([e,i])=>`<div class="it"><div class="it-head"><span class="it-name">${esc(e.name)}</span>
       <span class="counter"><button class="b sq" data-act="qty" data-i="${i}" data-d="-1" aria-label="Quitar uno">−</button><b style="min-width:2rem;text-align:center">${e.qty}</b><button class="b sq" data-act="qty" data-i="${i}" data-d="1" aria-label="Añadir uno">+</button></span></div>
+      ${e.weapon&&WEAPONS[e.weapon]?`<div class="meta">${WEAPONS[e.weapon].d} ${WEAPONS[e.weapon].t}${+e.magic?` · +${e.magic} mágica`:''} · ${WEAPONS[e.weapon].c==='s'?'sencilla':'marcial'} · maestría: ${MASTERY[WEAPONS[e.weapon].ms][0].toLowerCase()}</div>`:''}
+      ${e.scroll&&SPBY[e.scroll]?`<div class="meta">${SPBY[e.scroll].l?`Conjuro de nivel ${SPBY[e.scroll].l}`:'Truco'} · lánzalo desde Magia (Partida) o desde Combate</div>`:''}
       ${e.armor&&ARMORS[e.armor]?`<div class="meta">${ARMOR_T[ARMORS[e.armor].t]} · ${ARMORS[e.armor].t==='s'?'+2 a la CA':`CA ${ARMORS[e.armor].ac}${ARMORS[e.armor].t==='l'?' + DES':ARMORS[e.armor].t==='m'?' + DES (máx. 2)':''}`}${+e.magic?` · +${e.magic} mágica`:''}${ARMORS[e.armor].str?` · FUE ${ARMORS[e.armor].str}`:''}${ARMORS[e.armor].st?' · desventaja en Sigilo':''}</div>
         <div class="btns"><button class="chip ${e.equipped?'on':''}" data-act="eq" data-i="${i}" aria-pressed="${!!e.equipped}">${e.equipped?(ARMORS[e.armor].t==='s'?'Embrazado':'Puesta'):'Ponérmela'}</button></div>`:''}
       ${e.potion&&POTIONS[e.potion]&&e.potion!=='other'?`<div class="meta">${esc(POTIONS[e.potion].d)}</div><div class="btns"><button class="b sm good" data-act="pot" data-i="${i}" ${e.qty>0?'':'disabled'}>Beber</button></div>`:''}
@@ -1185,17 +1223,28 @@ const A={
     if(!pay(c,n,k)){toast(`<div class="t-label">No te llega</div><div class="t-parts">Necesitas ${n} ${COINN[k]} y tienes el equivalente a ${(totalCp(c)/COINV[k]).toLocaleString('es-ES',{maximumFractionDigits:2})} ${COINN[k]}.</div>`);return}
     save();renderTop();refreshMoney();toast(`<div class="t-label">Pagado</div><div class="t-big bad">−${n} ${COINN[k]}</div>`)},
   earn:()=>{const c=C(),n=parseInt($('#pay-amt').value),k=$('#pay-coin').value;if(!(n>0)){$('#pay-amt').focus();return}c.coins[k]=(+c.coins[k]||0)+n;save();renderTop();refreshMoney();toast(`<div class="t-label">Cobrado</div><div class="t-big good">+${n} ${COINN[k]}</div>`)},
-  'item-new':()=>{NI={name:'',qty:1,cat:'otro',notes:'',pot:'healing',arm:'',mag:0,eq:true,auto:''};itemModal();$('#ni-name').focus()},
+  'item-new':()=>{NI={name:'',qty:1,cat:'otro',notes:'',pot:'healing',arm:'',mag:0,eq:true,auto:'',wpn:'',atk:true,ms:true,am:true,ak:'',spl:''};itemModal();$('#ni-name').focus()},
   'item-cancel':()=>{closeModal();openInv()},
   inv:()=>openInv(),
   'item-add':()=>{niCollect();const c=C(),n=NI.name.trim();if(!n){$('#ni-name').focus();return}
     const it={id:uid(),name:n,qty:Math.max(0,parseInt(NI.qty)||0),cat:NI.cat,notes:NI.notes.trim()};
     if(NI.cat==='pocion'&&NI.pot&&NI.pot!=='other')it.potion=NI.pot;
+    if(NI.cat==='pergamino'){const d=splFind(NI.spl);if(!d){toast('<div class="t-parts">Elige un conjuro de la lista para el pergamino.</div>');$('#ni-spl').focus();return}it.scroll=d.id}
+    if(NI.cat==='municion'&&NI.ak){it.ammoKind=NI.ak;c.attacks.forEach(a=>{const W=a.wpn&&WEAPONS[a.wpn];if(W&&W.am&&W.am[0]===NI.ak&&!a.ammo)a.ammo=it.id})}
+    if(NI.cat==='arma'&&NI.wpn){const W=WEAPONS[NI.wpn];it.weapon=NI.wpn;it.magic=+NI.mag||0;
+      if(NI.atk){const a=Object.assign(NEW.attacks(),{name:n,wpn:NI.wpn,magic:+NI.mag||0,mastery:MASTERY_CLS.has(c.classKey)&&!!NI.ms,item:it.id});
+        if(W.am){let am=c.equipment.find(e=>e.ammoKind===W.am[0]);if(!am&&NI.am){am={id:uid(),name:AMMO[W.am[0]][0],qty:AMMO[W.am[0]][1],cat:'municion',notes:'',ammoKind:W.am[0]};c.equipment.push(am)}if(am)a.ammo=am.id}
+        c.attacks.push(a)}}
     if(NI.cat==='armadura'&&NI.arm){it.armor=NI.arm;it.magic=+NI.mag||0;it.equipped=!!NI.eq;if(it.equipped)c.equipment.forEach(o=>{if(o.armor&&o.equipped&&(ARMORS[o.armor].t==='s')===(ARMORS[it.armor].t==='s'))o.equipped=false})}
     c.equipment.push(it);NI=null;closeModal();save();render();openInv()},
   eq:el=>{const c=C(),e=c.equipment[+el.dataset.i],sh=ARMORS[e.armor].t==='s';e.equipped=!e.equipped;
     if(e.equipped)c.equipment.forEach(o=>{if(o!==e&&o.armor&&o.equipped&&(ARMORS[o.armor].t==='s')===sh)o.equipped=false});save();render();refreshInv()},
   pot:el=>{potModal(+el.dataset.i,'AA');POT.back=true},
+  scroll:el=>scrollModal(+el.dataset.i,null),
+  't-scroll':el=>scrollModal(+el.dataset.i,el.dataset.eco),
+  'scr-cast':()=>{const c=C(),e=c.equipment[SCR.i],d=SPBY[e.scroll],L=+d.l||0,[dc,at]=SCROLL_STATS[L],eco=SCR.eco;closeModal();e.qty=Math.max(0,e.qty-1);
+    if(eco)pendingEco=eco==='BA'?'AA':eco;lastCastL=L;const sp=fillFromRef({ref:d.id,name:d.n,level:L});afterCast(sp,`Desde pergamino · CD ${dc} · ataque ${sgn(at)} · te quedan ${e.qty}`)},
+  'scr-fail':()=>{const c=C(),e=c.equipment[SCR.i];e.qty=Math.max(0,e.qty-1);if(SCR.eco)spendEco(c,SCR.eco==='BA'?'AA':SCR.eco);closeModal();save();render();toast(`<div class="t-label">El pergamino se desmorona</div><div class="t-parts">${esc(e.name)} se pierde sin efecto. Te quedan ${e.qty}.</div>`)},
   'pot-heal':()=>{const c=C(),e=c.equipment[POT.i],P=POTIONS[e.potion],inp=$('#pot-roll'),n=parseInt(inp.value),[lo,hi]=diceRange(P.heal);
     if(!(n>=lo&&n<=hi)){inp.focus();toast(`<div class="t-parts">Con ${P.heal} el total va de ${lo} a ${hi}.</div>`);return}
     e.qty=Math.max(0,e.qty-1);spendEco(c,POT.eco);const got=healBy(c,n);const back=POT.back;closeModal();save();render();if(back)openInv();
@@ -1281,7 +1330,7 @@ const A={
   't-atk':el=>{const c=C(),a=c.attacks[+el.dataset.i],T=c.turn;
     const am=a.ammo&&c.equipment.find(e=>e.id===a.ammo);if(am){if(am.qty<=0)return;am.qty--}
     if(!T.a){T.a=true;T.atk=attacksPerAction(c)-1}else T.atk=Math.max(0,T.atk-1);
-    save();render();toast(`<div class="t-label">Ataque con ${esc(a.name)}</div><div class="t-big">1d20 ${sgn(+a.atk||0)}</div><div class="t-parts">Si impactas, daño: ${esc(a.dmg||'—')} ${esc(a.type||'')}${am?` · quedan ${am.qty} ${esc(am.name)}`:''}${T.atk>0?` · te quedan ${T.atk} ataques`:''}</div>`)},
+    save();render();toast(`<div class="t-label">Ataque con ${esc(a.name)}</div><div class="t-big">1d20 ${sgn(+a.atk||0)}</div><div class="t-parts">Si impactas, daño: ${esc(a.dmg||'—')} ${esc(a.type||'')}${am?` · quedan ${am.qty} ${esc(am.name)}`:''}${T.atk>0?` · te quedan ${T.atk} ataques`:''}</div>${a.wpn&&a.mastery&&WEAPONS[a.wpn]?`<div class="t-parts"><b>${MASTERY[WEAPONS[a.wpn].ms][0]}:</b> ${esc(MASTERY[WEAPONS[a.wpn].ms][1])}</div>`:''}`)},
   't-light':el=>{const c=C(),a=c.attacks[+el.dataset.i];c.turn.aa=true;save();render();
     toast(`<div class="t-label">Ataque con ${esc(a.name)} (acción adicional)</div><div class="t-big">1d20 ${sgn(+a.atk||0)}</div><div class="t-parts">Daño: ${esc(a.dmg||'—')} sin sumar tu modificador.</div>`)},
   't-cast':el=>{pendingEco=el.dataset.eco;A.cast(el)},
@@ -1353,6 +1402,7 @@ document.addEventListener('input',e=>{const el=e.target;
   if(D&&(el.id==='d-text'||el.id==='d-title')){const n=dGet(D.note);if(n){if(el.id==='d-text')n.text=el.value;else n.name=el.value;n.updated=Date.now();if(UNDO.length){UNDO.length=0;renderTop()}save()}return}
   if(D&&el.id==='d-pq'){D.pq=el.value;const pos=el.selectionStart;renderDiary();const q=$('#d-pq');if(q){q.focus();q.setSelectionRange(pos,pos)}return}
   if(D&&el.id==='d-q'){D.q=el.value;const pos=el.selectionStart;renderDiary();const q=$('#d-q');if(q){q.focus();q.setSelectionRange(pos,pos)}return}
+  if(NI&&el.id==='ni-spl'){NI.spl=el.value;const nm=$('#ni-name');if(nm&&(!nm.value||nm.value===NI.auto)){niAutoName();nm.value=NI.name}return}
   if(el.id==='sp-q'){P.q=el.value;refreshPicker();return}
   if(W){
     if(el.id==='wz-name')W.name=el.value;else if(el.id==='wz-species')W.species=el.value;else if(el.id==='wz-background')W.background=el.value;
@@ -1377,7 +1427,7 @@ document.addEventListener('input',e=>{const el=e.target;
 document.addEventListener('change',e=>{const el=e.target;
   if(el.id==='imp-file'&&el.files&&el.files[0]){const r=new FileReader();r.onload=()=>{$('#imp-text').value=r.result;$('#imp-msg').textContent='Archivo cargado. Pulsa «Importar».'};r.readAsText(el.files[0]);return}
   if(el.id==='story-img'&&el.files&&el.files[0]){loadPortrait(el.files[0]);el.value='';return}
-  if(NI&&el.dataset&&el.dataset.ni){niCollect();if(el.id==='ni-cat'&&NI.cat==='pocion'&&!NI.pot)NI.pot='healing';niAutoName();itemModal();return}
+  if(NI&&el.dataset&&el.dataset.ni){niCollect();if(el.id==='ni-cat'&&NI.cat==='pocion'&&!NI.pot)NI.pot='healing';if(el.id==='ni-ak'&&NI.ak)NI.qty=AMMO[NI.ak][1];niAutoName();itemModal();return}
   if(CX&&el.dataset&&el.dataset.rr){const dn=k=>SUMMONS[k]?SUMMONS[k].n.replace(/^Invocar /,'').replace(/^./,m=>m.toUpperCase()):'';const oldS=CX.s,oldN=$('#cx-name')?$('#cx-name').value:'';
     creaCollect();if(CX.kind==='summon'&&CX.s!==oldS&&(!oldN||oldN===dn(oldS))){CX.name=dn(CX.s);CX.v=Object.keys(SUMMONS[CX.s].vars)[0];CX.L=SUMMONS[CX.s].L}creaModal();return}
   if(el.id==='sp-cls'){P.cls=el.value;refreshPicker();return}
