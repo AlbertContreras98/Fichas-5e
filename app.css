@@ -435,3 +435,7 @@ button.eff.cond-pill{border:1px solid color-mix(in srgb,var(--bad) 45%,var(--lin
 .acbox .hint{margin:.35rem 0 0}
 .it .btns{margin-top:.35rem}
 .tuse{margin:.3rem 0;padding-left:1.1rem;font-size:.92rem}.tuse li{margin:.15rem 0}
+.condnotes{border:1px solid color-mix(in srgb,var(--bad) 40%,var(--line));background:color-mix(in srgb,var(--bad) 8%,var(--surface));border-radius:9px;padding:.4rem .7rem;margin:.5rem 0}
+.condnotes p{margin:.25rem 0;font-size:.92rem}
+.mibox{border:1px dashed var(--line);border-radius:9px;padding:.2rem .6rem .6rem}
+.muted{color:var(--muted)}

@@ -132,3 +132,14 @@ const PACKS={
   burglar:{n:'Paquete de ladrón',items:[['Mochila',1],['ballbearings',1],['Campana',1],['Velas',10],['Palanca',1],['Linterna sorda',1],['Aceite (frasco)',7],['rations',5],['Cuerda',1],['Yesquero',1],['waterskin',1]]},
   entertainer:{n:'Paquete de artista',items:[['Mochila',1],['Saco de dormir',1],['Campana',1],['Linterna de ojo de buey',1],['Disfraz',3],['Espejo',1],['Aceite (frasco)',8],['rations',9],['Yesquero',1],['waterskin',1]]},
   diplomat:{n:'Paquete de diplomático',items:[['Cofre',1],['Ropa fina',1],['Tinta',1],['Pluma',5],['Lámpara',1],['Estuche para mapas o pergaminos',2],['Aceite (frasco)',4],['Papel (hojas)',5],['Pergamino (hojas)',5],['Perfume',1],['Yesquero',1]]}};
+/* Objetos mágicos frecuentes. att: requiere sintonización; ac/sv: bonificador a CA y salvaciones;
+   noarm: solo sin armadura ni escudo; ch: cargas; rec: lo que recupera al amanecer */
+const MAGIC={
+  ringprot:{n:'Anillo de protección',att:1,ac:1,sv:1,d:'+1 a la CA y a las tiradas de salvación.'},
+  cloakprot:{n:'Capa de protección',att:1,ac:1,sv:1,d:'+1 a la CA y a las tiradas de salvación.'},
+  bracers:{n:'Brazales de defensa',att:1,ac:2,noarm:1,d:'+2 a la CA si no llevas armadura ni escudo.'},
+  wandmm:{n:'Varita de proyectiles mágicos',ch:7,rec:'1d6 + 1',d:'Gasta 1 carga para lanzar Proyectil mágico de nivel 1; cada carga extra sube un nivel el conjuro. Si gastas la última, tira 1d20: con un 1 se deshace.'},
+  wandweb:{n:'Varita de telarañas',att:1,ch:7,rec:'1d6 + 1',d:'Requiere sintonización de un lanzador de conjuros. Gasta 1 carga para lanzar Telaraña (CD 15). Si gastas la última, tira 1d20: con un 1 se deshace.'},
+  other:{n:'Otro objeto mágico',d:''}};
+/* Cuándo puede cada clase cambiar sus conjuros preparados (reglas de 2024) */
+const PREP_RULE={cleric:'all',druid:'all',wizard:'all',paladin:'one',ranger:'one'};

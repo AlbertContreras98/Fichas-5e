@@ -103,7 +103,12 @@ const C=()=>S.chars.find(c=>c.id===S.active);
 const pbAt=L=>2+Math.floor((clamp(L,1,20)-1)/4);
 const pb=c=>pbAt(+c.level||1);
 const M=(c,k)=>mod(c.abilities[k]);
-const saveB=(c,k)=>M(c,k)+(c.saveProf.includes(k)?pb(c):0);
+const miOn=e=>e.mi&&(!e.mi.att||e.mi.on);
+const wearsArmor=c=>c.equipment.some(e=>e.armor&&ARMORS[e.armor]&&e.equipped);
+const miAC=c=>c.equipment.reduce((t,e)=>t+(miOn(e)&&+e.mi.ac&&!(e.mi.noarm&&wearsArmor(c))?+e.mi.ac:0),0);
+const miSave=c=>c.equipment.reduce((t,e)=>t+(miOn(e)?+e.mi.sv||0:0),0);
+const attuned=c=>c.equipment.filter(e=>e.mi&&e.mi.att&&e.mi.on).length;
+const saveB=(c,k)=>M(c,k)+(c.saveProf.includes(k)?pb(c):0)+miSave(c);
 const skillB=(c,s)=>{const p=+c.skills[s[0]]||0;return M(c,s[2])+(p===2?2*pb(c):p===1?pb(c):0)};
 const featsOf=c=>(c.featKeys||[]).map(k=>FEATS[k]).filter(Boolean);
 const init=c=>M(c,'dex')+(+c.initiativeBonus||0)+(featsOf(c).some(f=>f.initPB)?pb(c):0);
@@ -466,7 +471,16 @@ function attacksPerAction(c){const has=n=>c.features.some(f=>norm(f.name).includ
 function spendEco(c,k){if(k==='A'){c.turn.a=true;c.turn.atk=0}else if(k==='AA')c.turn.aa=true;else if(k==='R')c.turn.r=true}
 const featLeft=f=>f.uses.max-f.uses.used;
 function viewTurn(c){
-  const T=c.turn,aFree=!T.a,atkOn=aFree||T.atk>0,dis=b=>b?'disabled':'';
+  const incap=c.conditions.find(n=>INCAP.includes(n));const T0=c.turn,T=incap?{a:true,aa:true,r:true,atk:0}:T0,aFree=!T.a,atkOn=aFree||T.atk>0,dis=b=>b?'disabled':'';
+  const condNotes=[];if(incap)condNotes.push(`<b>${esc(incap)}:</b> no puedes hacer acciones, acciones adicionales ni reacciones${['Paralizado','Petrificado','Inconsciente'].includes(incap)?' y tu velocidad es 0':''}.`);
+  if(c.conditions.includes('Derribado'))condNotes.push('<b>Derribado:</b> levantarte cuesta la mitad de tu velocidad. Tus ataques tienen desventaja; los cuerpo a cuerpo contra ti, ventaja.');
+  if(c.conditions.includes('Agarrado'))condNotes.push('<b>Agarrado:</b> tu velocidad es 0. Puedes usar una acción para intentar soltarte.');
+  if(c.conditions.includes('Apresado'))condNotes.push('<b>Apresado:</b> velocidad 0, desventaja en tus ataques y en salvaciones de DES; te atacan con ventaja.');
+  if(c.conditions.includes('Envenenado'))condNotes.push('<b>Envenenado:</b> desventaja en tiradas de ataque y pruebas de característica.');
+  if(c.conditions.includes('Asustado'))condNotes.push('<b>Asustado:</b> desventaja en pruebas y ataques mientras veas la fuente; no puedes acercarte a ella.');
+  if(c.conditions.includes('Cegado'))condNotes.push('<b>Cegado:</b> tus ataques tienen desventaja; los ataques contra ti, ventaja.');
+  if(c.conditions.includes('Invisible'))condNotes.push('<b>Invisible:</b> tus ataques tienen ventaja; los ataques contra ti, desventaja.');
+  if(+c.exhaustion)condNotes.push(`<b>Agotamiento ${c.exhaustion}:</b> −${2*c.exhaustion} a tus tiradas d20.`);
   const row=(name,meta,btn)=>`<div class="trow"><div class="tname">${name}${meta?`<small>${meta}</small>`:''}</div>${btn}</div>`;
   const cols={A:[],AA:[],R:[],free:[]};
   // Atacar
@@ -501,6 +515,8 @@ function viewTurn(c){
       cols[k].push(row(esc(e.name),`${G.act==='atk'?'sustituye un ataque · ':''}${G.keep?'':`quedan ${e.qty}`}`,`<button class="b sm" data-act="t-gear" data-i="${i}" ${dis(busy||(!G.keep&&e.qty<=0))}>Usar</button>`));return}
     if(e.cat!=='pocion'&&e.cat!=='consumible')return;const k=e.cat==='pocion'?'AA':'A';const busy=k==='A'?!aFree:T.aa;
     cols[k].push(row(esc(e.name),`quedan ${e.qty}`,`<button class="b sm" data-act="t-item" data-i="${i}" data-eco="${k}" ${dis(busy||e.qty<=0)}>${e.cat==='pocion'?'Beber':'Usar'}</button>`))});
+  c.equipment.forEach((e,i)=>{if(!e.mi||!+e.mi.ch||!miOn(e))return;const left=e.mi.ch-(+e.mi.used||0);
+    cols.A.push(row(`${esc(e.name)} <span class="tag">mágico</span>`,`quedan ${left}/${e.mi.ch} cargas`,`<button class="b sm" data-act="t-mi" data-i="${i}" ${dis(!aFree||left<=0)}>Usar</button>`))});
   // Acciones de cualquiera
   const generic=`<div class="chips">${GENERIC.map(([k,n])=>`<button class="chip" data-act="t-gen" data-k="${k}" ${dis(!aFree)}>${n}</button>`).join('')}</div>`;
   cols.R.push(row(term('Ataque de oportunidad','a_opp'),'',`<button class="b sm" data-act="t-opp" ${dis(T.r)}>Usar</button>`));
@@ -508,7 +524,8 @@ function viewTurn(c){
   const aState=T.a?(T.atk>0?`Atacando · ${T.atk} más`:'Gastada'):'';
   const col=(k,title,gk,body)=>`<div class="tcol ${k==='A'?(aFree||T.atk>0?'':'off'):k==='AA'?(T.aa?'off':''):k==='R'?(T.r?'off':''):''}"><h3>${term(title,gk)}</h3>${body||'<p class="empty">Nada por ahora.</p>'}</div>`;
   return`<section class="card turn"><div class="card-head"><h2>Tu turno</h2><div class="btns"><button class="b" data-act="t-end">Terminar turno</button></div></div>
-    <div class="pills">${pill('Acción','action',T.a,aState)}${pill('Acción adicional','bonus',T.aa)}${pill('Reacción','reaction',T.r)}</div>
+    <div class="pills">${pill('Acción','action',T.a,incap?'Bloqueada':aState)}${pill('Acción adicional','bonus',T.aa,incap?'Bloqueada':'')}${pill('Reacción','reaction',T.r,incap?'Bloqueada':'')}</div>
+    ${condNotes.length?`<div class="condnotes">${condNotes.map(n=>`<p>${n}</p>`).join('')}</div>`:''}
     <div class="tgrid">
       ${col('A','Acción','action',`${nAtk>1?`<p class="hint">Con la acción de Atacar haces ${nAtk} ataques.</p>`:''}${cols.A.join('')}<h3 class="sub3">Otras acciones</h3>${generic}`)}
       ${col('AA','Acción adicional','bonus',cols.AA.join(''))}
@@ -582,12 +599,13 @@ function acCalc(c){const dex=M(c,'dex'),eq=c.equipment.filter(e=>e.armor&&ARMORS
     o.sort((a,b)=>b[0]-a[0]);[base,src]=o[0]}
   let ac=base;if(shield){const mg=+shield.magic||0;ac+=2+mg;src+=` + escudo ${2+mg}`}
   if(+c.acBonus){ac+=+c.acBonus;src+=` + otros ${+c.acBonus}`}
+  const mac=miAC(c);if(mac){ac+=mac;src+=` + objetos mágicos ${mac}`}
   const warn=[];const prof=norm(c.proficiencies.armor||''),has=k=>/todas/.test(prof)||prof.includes(k);
   if(body){const A=ARMORS[body.armor];if(!has({l:'liger',m:'intermed',h:'pesad'}[A.t]))warn.push(`No eres competente con armadura ${ARMOR_T[A.t].toLowerCase()}: desventaja en pruebas, salvaciones y ataques de FUE y DES, y no puedes lanzar conjuros.`);
     if(A.str&&c.abilities.str<A.str)warn.push(`Necesitas FUE ${A.str}: tu velocidad baja 10 pies.`);if(A.st)warn.push('Desventaja en pruebas de DES (Sigilo).')}
   if(shield&&!has('escud'))warn.push('No eres competente con escudos: desventaja en pruebas, salvaciones y ataques de FUE y DES, y no puedes lanzar conjuros.');
   return{ac,src,warn,slow:!!(body&&ARMORS[body.armor].str&&c.abilities.str<ARMORS[body.armor].str)}}
-const acOf=c=>armorAuto(c)?acCalc(c).ac:c.ac;
+const acOf=c=>armorAuto(c)?acCalc(c).ac:(+c.ac||0)+miAC(c);
 function linkArmor(c){if(c._armorLinked)return;c._armorLinked=true;if(armorAuto(c))return;
   const cands=Object.entries(ARMORS).sort((a,b)=>b[1].n.length-a[1].n.length),touched=[];let body=false;
   c.equipment.forEach(e=>{if(e.cat!=='armadura')return;const hit=cands.find(([k,A])=>norm(e.name).includes(norm(A.n))||(k==='padded'&&/acolchad/.test(norm(e.name))));
@@ -630,9 +648,18 @@ function itemModal(){const x=NI,f=(l,h,w)=>`<label class="f ${w||''}"><span>${l}
       ${f('Cantidad',`<input id="ni-qty" type="number" inputmode="numeric" min="0" value="${esc(x.qty)}">`)}
       ${extra}
       ${f('Nombre',`<input id="ni-name" value="${esc(x.name)}" placeholder="Flechas, ración de viaje, cuerda…" autocomplete="off">`,'wide')}
+      ${x.cat==='paquete'?'':`<label class="chk wide"><input type="checkbox" id="ni-mi" data-ni="1" ${x.mi?'checked':''}> Es un objeto mágico</label>`}
+      ${x.mi?`<div class="mibox wide">${f('Objeto',`<select id="ni-mip" data-ni="1">${Object.entries(MAGIC).map(([k,o])=>`<option value="${k}" ${x.mip===k?'selected':''}>${esc(o.n)}</option>`).join('')}</select>`)}
+        <label class="chk"><input type="checkbox" id="ni-matt" ${x.mi.att?'checked':''}> Requiere sintonización</label>
+        <div class="effdur3">${f('+ CA',`<input id="ni-mac" type="number" inputmode="numeric" value="${esc(x.mi.ac||0)}">`)}${f('+ Salvaciones',`<input id="ni-msv" type="number" inputmode="numeric" value="${esc(x.mi.sv||0)}">`)}${f('Cargas',`<input id="ni-mch" type="number" inputmode="numeric" min="0" value="${esc(x.mi.ch||0)}">`)}</div>
+        ${f('Recupera al amanecer',`<input id="ni-mrec" value="${esc(x.mi.rec||'')}" placeholder="1d6 + 1, «todas» o vacío">`)}
+        ${f('Qué hace',`<textarea id="ni-md" rows="2">${esc(x.mi.d||'')}</textarea>`)}</div>`:''}
       ${f('Notas',`<input id="ni-notes" value="${esc(x.notes)}" placeholder="Opcional">`,'wide')}</div>
     <div class="btns"><button class="b pri" data-act="item-add">Añadir</button><button class="b" data-act="item-cancel">Cancelar</button></div>`)}
 function niCollect(){const g=id=>{const e=$('#'+id);return e?(e.type==='checkbox'?e.checked:e.value):undefined};
+  const mi=g('ni-mi');if(mi!==undefined){if(mi&&!NI.mi){NI.mi={att:0,ac:0,sv:0,ch:0,rec:'',d:''};NI.mip='other'}if(!mi)NI.mi=null}
+  if(NI.mi){const mp=g('ni-mip');if(mp!==undefined)NI.mip=mp;const a=g('ni-matt');if(a!==undefined)NI.mi.att=a?1:0;
+    [['mac','ac'],['msv','sv'],['mch','ch']].forEach(([id,k])=>{const v=g('ni-'+id);if(v!==undefined)NI.mi[k]=+v||0});const r=g('ni-mrec');if(r!==undefined)NI.mi.rec=r.trim();const d=g('ni-md');if(d!==undefined)NI.mi.d=d}
   ['name','qty','cat','notes','pot','arm','mag','wpn','ak','spl','gr','var','pack'].forEach(k=>{const v=g('ni-'+k);if(v!==undefined)NI[k]=v});['eq','atk','ms','am'].forEach(k=>{const v=g('ni-'+k);if(v!==undefined)NI[k]=v})}
 const splFind=v=>{const k=norm(String(v||'').trim());return k?SP.find(d=>norm(d.n)===k||norm(d.en||'')===k):null};
 function niAutoName(){const sd=splFind(NI.spl),TT=NI.gr&&NI.gr.startsWith('t:')&&TOOLS[NI.gr.slice(2)],GG=NI.gr&&NI.gr.startsWith('g:')&&GEAR[NI.gr.slice(2)];const base=TT?(TT.vars?(NI.var||TT.vars[0]):TT.n):GG?GG.n:NI.cat==='arma'&&NI.wpn?WEAPONS[NI.wpn].n+(+NI.mag?` +${NI.mag}`:''):NI.cat==='municion'&&NI.ak?AMMO[NI.ak][0]:NI.cat==='pergamino'&&sd?`Pergamino de ${sd.n.toLowerCase()}`:NI.cat==='pocion'&&NI.pot&&NI.pot!=='other'?POTIONS[NI.pot].n:NI.cat==='armadura'&&NI.arm?ARMORS[NI.arm].n+(+NI.mag?` +${NI.mag}`:''):'';
@@ -643,15 +670,18 @@ function invHTML(c){
       <span class="counter"><button class="b sq" data-act="qty" data-i="${i}" data-d="-1" aria-label="Quitar uno">−</button><b style="min-width:2rem;text-align:center">${e.qty}</b><button class="b sq" data-act="qty" data-i="${i}" data-d="1" aria-label="Añadir uno">+</button></span></div>
       ${e.tool&&TOOLS[e.tool]?(()=>{const T=TOOLS[e.tool],{b,pr}=toolBonus(C(),T,e.tvar);return`<div class="meta">${AB[T.ab][2]} · tu bonificador <b>${sgn(b)}</b>${pr?' (competente)':''} · ${T.use.map(u=>`${esc(u[0])} CD ${u[1]}`).join(' · ')}</div>`})():''}
       ${e.gear&&GEAR[e.gear]?`<div class="meta">${esc(GEAR[e.gear].d)}${GEAR[e.gear].unit?` Quedan ${e.qty} ${GEAR[e.gear].unit}.`:''}</div>${GEAR[e.gear].act?`<div class="btns"><button class="b sm" data-act="gear" data-i="${i}" ${GEAR[e.gear].keep||e.qty>0?'':'disabled'}>${GEAR[e.gear].act==='lit'?'Encender':'Usar'}</button></div>`:''}`:''}
+      ${e.mi?`<div class="meta">✦ ${[e.mi.d,!e.mi.d&&+e.mi.ac?`+${e.mi.ac} CA${e.mi.noarm?' (sin armadura ni escudo)':''}`:'',!e.mi.d&&+e.mi.sv?`+${e.mi.sv} salvaciones`:''].filter(Boolean).map(esc).join(' · ')}${e.mi.att&&!e.mi.on?' <b>(sin sintonizar: no funciona)</b>':''}</div>
+        <div class="btns">${e.mi.att?`<button class="chip ${e.mi.on?'on':''}" data-act="mi-att" data-i="${i}" aria-pressed="${!!e.mi.on}">${e.mi.on?'Sintonizado':'Sintonizar'}</button>`:''}
+        ${+e.mi.ch?`<span class="counter"><button class="b sq" data-act="mi-ch" data-i="${i}" data-d="1" aria-label="Gastar una carga">−</button><b style="min-width:3.2rem;text-align:center">${e.mi.ch-(+e.mi.used||0)}/${e.mi.ch}</b><button class="b sq" data-act="mi-ch" data-i="${i}" data-d="-1" aria-label="Recuperar una carga">+</button></span><small class="muted">cargas${e.mi.rec?` · recupera ${esc(e.mi.rec)} al amanecer`:''}</small>`:''}</div>`:''}
       ${e.weapon&&WEAPONS[e.weapon]?`<div class="meta">${WEAPONS[e.weapon].d} ${WEAPONS[e.weapon].t}${+e.magic?` · +${e.magic} mágica`:''} · ${WEAPONS[e.weapon].c==='s'?'sencilla':'marcial'} · maestría: ${MASTERY[WEAPONS[e.weapon].ms][0].toLowerCase()}</div>`:''}
       ${e.scroll&&SPBY[e.scroll]?`<div class="meta">${SPBY[e.scroll].l?`Conjuro de nivel ${SPBY[e.scroll].l}`:'Truco'} · lánzalo desde Magia (Partida) o desde Combate</div>`:''}
       ${e.armor&&ARMORS[e.armor]?`<div class="meta">${ARMOR_T[ARMORS[e.armor].t]} · ${ARMORS[e.armor].t==='s'?'+2 a la CA':`CA ${ARMORS[e.armor].ac}${ARMORS[e.armor].t==='l'?' + DES':ARMORS[e.armor].t==='m'?' + DES (máx. 2)':''}`}${+e.magic?` · +${e.magic} mágica`:''}${ARMORS[e.armor].str?` · FUE ${ARMORS[e.armor].str}`:''}${ARMORS[e.armor].st?' · desventaja en Sigilo':''}</div>
         <div class="btns"><button class="chip ${e.equipped?'on':''}" data-act="eq" data-i="${i}" aria-pressed="${!!e.equipped}">${e.equipped?(ARMORS[e.armor].t==='s'?'Embrazado':'Puesta'):'Ponérmela'}</button></div>`:''}
       ${e.potion&&POTIONS[e.potion]&&e.potion!=='other'?`<div class="meta">${esc(POTIONS[e.potion].d)}</div><div class="btns"><button class="b sm good" data-act="pot" data-i="${i}" ${e.qty>0?'':'disabled'}>Beber</button></div>`:''}
       ${e.notes?`<div class="meta">${esc(e.notes)}</div>`:''}</div>`).join('')}</div>`).join(''):'<p class="empty">Sin objetos todavía.</p>';
-  const A=armorAuto(c)?acCalc(c):null;
+  const A=armorAuto(c)?acCalc(c):null,att=attuned(c),anyAtt=c.equipment.some(e=>e.mi&&e.mi.att);
   const acBox=A?`<div class="acbox"><div><b>CA ${A.ac}</b><small>${esc(A.src)}</small></div>${A.warn.map(w=>`<p class="hint warn">${esc(w)}</p>`).join('')}</div>`:'';
-  return`<div class="btns" style="margin-bottom:.4rem"><button class="b sm pri" data-act="item-new">Añadir objeto</button></div>${acBox}${items}
+  return`<div class="btns" style="margin-bottom:.4rem"><button class="b sm pri" data-act="item-new">Añadir objeto</button>${anyAtt?`<span class="badge" style="${att>3?'color:var(--bad)':''}">Sintonización ${att}/3</span>`:''}</div>${acBox}${items}
     <p class="hint" style="margin-top:.6rem">La munición, las pociones, la comida y otros consumibles aparecen también en «Recursos», en Partida. Para renombrar o borrar objetos: ⚙ Ajustes → Editar ficha.</p>`}
 function refreshInv(){const b=$('#inv-body');if(b)b.innerHTML=invHTML(C())}
 function openInv(){openModal(`<div class="wz-head"><h2>Objetos</h2><button class="b sm" data-act="close-modal">Hecho</button></div><div id="inv-body">${invHTML(C())}</div>`,true)}
@@ -815,7 +845,7 @@ const CLASS_OPTS=()=>[['','Todas las clases'],...Object.entries(CL).filter(([k,d
 function spellObj(d){return{level:d.l,name:d.n,time:d.t,range:d.r,dur:d.d,conc:d.k,ritual:d.ri,material:d.m,desc:'',ref:d.id}}
 function spFiltered(){
   const q=norm(P.q);
-  return SP.filter(s=>(P.cls===''||s.c.includes(P.cls))&&(P.lvl===''||s.l===+P.lvl)&&(P.max==null||s.l<=P.max)&&(!q||norm(s.n).includes(q)||norm(s.en).includes(q)))}
+  return SP.filter(s=>(P.cls===''||s.c.includes(P.cls))&&(P.lvl===''||s.l===+P.lvl)&&(P.max==null||s.l<=P.max)&&(P.min==null||s.l>=P.min)&&(!q||norm(s.n).includes(q)||norm(s.en).includes(q)))}
 function spResultsHTML(){
   const all=spFiltered(),list=all.slice(0,80),mine=new Set(P.list.map(s=>s.ref).filter(Boolean));
   return`<p class="sp-count">${all.length} conjuro${all.length===1?'':'s'}${all.length>80?' · mostrando 80, afina la búsqueda':''}</p>`+list.map(s=>{
@@ -831,7 +861,14 @@ function spPickerHTML(){
     <select id="sp-cls" aria-label="Clase">${CLASS_OPTS().map(([k,n])=>`<option value="${k}" ${P.cls===k?'selected':''}>${n}</option>`).join('')}</select>
     <select id="sp-lvl" aria-label="Nivel">${lv.map(([k,n])=>`<option value="${k}" ${P.lvl===k?'selected':''}>${n}</option>`).join('')}</select></div>
     <div id="sp-results">${spResultsHTML()}</div>`}
-function refreshPicker(){const r=$('#sp-results');if(r)r.innerHTML=spResultsHTML();if(W)renderWizCounts()}
+function refreshPicker(){const r=$('#sp-results');if(r)r.innerHTML=spResultsHTML();if(W)renderWizCounts();const pc=$('#prep-counts');if(pc&&P&&P.target==='prep')pc.innerHTML=prepCounts()}
+function prepCounts(){const c=C(),ca=casterOf(defOf(c),subOf(c));if(!ca)return'';const can=ca.cantrips?ca.cantrips[c.level-1]:0,prep=ca.prepared?ca.prepared[c.level-1]:0;
+  return countsHTML({can,prep,cur:{c:c.spells.filter(s=>!s.src&&+s.level===0).length,p:c.spells.filter(s=>!s.src&&+s.level>0).length},max:maxSpellLevel(ca.type,c.level)})}
+function openPrepModal(){const c=C(),ca=casterOf(defOf(c),subOf(c));if(!ca)return;const rule=PREP_RULE[c.classKey];
+  P={target:'prep',q:'',lvl:'',cls:ca.list,open:'',list:c.spells,max:maxSpellLevel(ca.type,c.level),min:1};
+  openModal(`<div class="wz-head"><h2>Cambiar conjuros preparados</h2><button class="b sm" data-act="sp-close">Hecho</button></div>
+    <p class="hint">${rule==='one'?'Tras un descanso largo puedes cambiar <b>uno</b> de tus conjuros preparados por otro de tu lista.':c.classKey==='wizard'?'Tras un descanso largo puedes cambiar los que quieras, eligiendo entre los de tu libro de conjuros.':'Tras un descanso largo puedes cambiar los que quieras de tu lista de clase.'} Los marcados como «Siempre preparado» no cuentan en el límite.</p>
+    <div id="prep-counts" style="margin:.3rem 0 .6rem">${prepCounts()}</div><div class="wz-body">${spPickerHTML()}</div>`,true)}
 function openSpellModal(){
   const c=C(),def=defOf(c),ca=casterOf(def,subOf(c));
   P={target:'edit',q:'',lvl:'',cls:ca?ca.list:'',open:'',list:c.spells,max:null};
@@ -1248,14 +1285,15 @@ const A={
     toast(`<div class="t-label">Dado de golpe</div><div class="t-big good">+${c.hp.current-was}</div><div class="t-parts">${r} ${sgn(cm)} CON</div>`);save();renderTop();if(S.tab==='play')renderView();shortRestModal()},
   'short-done':()=>{const c=C();c.pact.used=0;endEffects(c,e=>e.r!=null||(e.m!=null&&e.m<=60));c.features.forEach(f=>{if(f.uses.recover==='corto')f.uses.used=0;if(f.uses.recover==='corto1')f.uses.used=Math.max(0,f.uses.used-1)});closeModal();save();render();toast('<div class="t-label">Descanso corto terminado</div><div class="t-parts">Recursos de descanso corto recuperados.</div>')},
   long:()=>{restOpen=false;renderTop();A.longModal()},
-  longModal:()=>openModal(`<h2>Descanso largo (8 horas)</h2><ul><li>Recuperas todos los PG y todos los dados de golpe</li><li>Recuperas todos los espacios de conjuro</li><li>Se recuperan los rasgos con usos limitados</li><li>Agotamiento −1 y pierdes los PG temporales</li>${C().companions.length?'<li>Tus compañeros recuperan todos sus PG</li>':''}</ul>${(()=>{const c=C(),r=c.equipment.find(e=>e.gear==='rations'&&e.qty>0);return`<label class="chk"><input type="checkbox" id="lr-eat" ${r?'checked':''}> ${r?`Comer: gastar 1 ración (te quedan ${r.qty})`:'He comido hoy (sin gastar raciones de la mochila)'}</label>${c.noFood?`<p class="hint warn">Llevas ${c.noFood} día${c.noFood>1?'s':''} sin comer.</p>`:''}`})()}
+  longModal:()=>openModal(`<h2>Descanso largo (8 horas)</h2><ul><li>Recuperas todos los PG y todos los dados de golpe</li><li>Recuperas todos los espacios de conjuro</li><li>Se recuperan los rasgos con usos limitados</li><li>Agotamiento −1 y pierdes los PG temporales</li>${C().companions.length?'<li>Tus compañeros recuperan todos sus PG</li>':''}</ul>${(()=>{const c=C(),ch=c.equipment.filter(e=>e.mi&&+e.mi.ch&&+e.mi.used&&e.mi.rec);return ch.length?`<h3>Cargas al amanecer</h3>${ch.map(e=>/todas/i.test(e.mi.rec)?`<p class="hint">${esc(e.name)} recupera todas sus cargas.</p>`:`<label class="f"><span>${esc(e.name)} (${e.mi.ch-e.mi.used}/${e.mi.ch}): tira ${esc(e.mi.rec)} y escribe el resultado</span><input id="lr-ch-${e.id}" type="number" inputmode="numeric" min="0"></label>`).join('')}`:''})()}${(()=>{const c=C(),r=c.equipment.find(e=>e.gear==='rations'&&e.qty>0);return`<label class="chk"><input type="checkbox" id="lr-eat" ${r?'checked':''}> ${r?`Comer: gastar 1 ración (te quedan ${r.qty})`:'He comido hoy (sin gastar raciones de la mochila)'}</label>${c.noFood?`<p class="hint warn">Llevas ${c.noFood} día${c.noFood>1?'s':''} sin comer.</p>`:''}`})()}
     <div class="btns"><button class="b pri" data-act="long-done">Hacer descanso largo</button><button class="b" data-act="close-modal">Cancelar</button></div>`),
-  'long-done':()=>{const c=C(),ate=$('#lr-eat')?$('#lr-eat').checked:true;c.companions.forEach(x=>{const st=creaStats(c,x);if(st.track)x.hp.current=st.hpMax});endEffects(c,e=>e.r!=null||(e.m!=null&&e.m<=480));c.hp.current=c.hp.max;c.hp.temp=0;c.hitDice.spent=0;c.slots.forEach(s=>s.used=0);c.pact.used=0;
+  'long-done':()=>{const c=C(),ate=$('#lr-eat')?$('#lr-eat').checked:true;
+    c.equipment.forEach(e=>{if(!e.mi||!+e.mi.ch||!+e.mi.used||!e.mi.rec)return;if(/todas/i.test(e.mi.rec)){e.mi.used=0;return}const v=$('#lr-ch-'+e.id),n=v?parseInt(v.value):NaN;if(n>0)e.mi.used=Math.max(0,e.mi.used-n)});c.companions.forEach(x=>{const st=creaStats(c,x);if(st.track)x.hp.current=st.hpMax});endEffects(c,e=>e.r!=null||(e.m!=null&&e.m<=480));c.hp.current=c.hp.max;c.hp.temp=0;c.hitDice.spent=0;c.slots.forEach(s=>s.used=0);c.pact.used=0;
     c.features.forEach(f=>{if(f.uses.recover)f.uses.used=0});c.exhaustion=Math.max(0,(+c.exhaustion||0)-1);c.deathSaves={success:0,fail:0};c.concentration='';
     c.conditions=c.conditions.filter(x=>x!=='Inconsciente');if(c.speciesKey==='human')c.inspiration=true;
     let food='';if(ate){const r=c.equipment.find(e=>e.gear==='rations'&&e.qty>0);if(r){r.qty--;food=` Gastas 1 ración (te quedan ${r.qty}).`}c.noFood=0}
     else{c.noFood=(+c.noFood||0)+1;const lim=Math.max(1,3+M(c,'con'));if(c.noFood>lim){c.exhaustion=Math.min(6,(+c.exhaustion||0)+1);food=` Llevas ${c.noFood} días sin comer (aguantas ${lim}): ganas 1 nivel de agotamiento.`}else food=` Llevas ${c.noFood} día${c.noFood>1?'s':''} sin comer; aguantas ${lim} sin consecuencias.`}
-    closeModal();save();render();toast(`<div class="t-label">Descanso largo terminado</div><div class="t-parts">Como nuevo.${food}</div>`)},
+    closeModal();save();render();const pr=PREP_RULE[c.classKey];toast(`<div class="t-label">Descanso largo terminado</div><div class="t-parts">Como nuevo.${food}</div>${pr?`<div class="t-parts">${pr==='all'?'Puedes cambiar tus conjuros preparados.':'Puedes cambiar uno de tus conjuros preparados.'}</div><div class="t-actions"><button class="b sm pri" data-act="prep-open">Cambiar conjuros</button></div>`:''}`,!!pr)},
   pay:()=>{const c=C(),n=parseInt($('#pay-amt').value),k=$('#pay-coin').value;if(!(n>0)){$('#pay-amt').focus();return}
     if(!pay(c,n,k)){toast(`<div class="t-label">No te llega</div><div class="t-parts">Necesitas ${n} ${COINN[k]} y tienes el equivalente a ${(totalCp(c)/COINV[k]).toLocaleString('es-ES',{maximumFractionDigits:2})} ${COINN[k]}.</div>`);return}
     save();renderTop();refreshMoney();toast(`<div class="t-label">Pagado</div><div class="t-big bad">−${n} ${COINN[k]}</div>`)},
@@ -1280,10 +1318,16 @@ const A={
         if(W.am){let am=c.equipment.find(e=>e.ammoKind===W.am[0]);if(!am&&NI.am){am={id:uid(),name:AMMO[W.am[0]][0],qty:AMMO[W.am[0]][1],cat:'municion',notes:'',ammoKind:W.am[0]};c.equipment.push(am)}if(am)a.ammo=am.id}
         c.attacks.push(a)}}
     if(NI.cat==='armadura'&&NI.arm){it.armor=NI.arm;it.magic=+NI.mag||0;it.equipped=!!NI.eq;if(it.equipped)c.equipment.forEach(o=>{if(o.armor&&o.equipped&&(ARMORS[o.armor].t==='s')===(ARMORS[it.armor].t==='s'))o.equipped=false})}
+    if(NI.mi){it.mi=Object.assign({},NI.mi,{on:0,used:0});if(NI.mip&&MAGIC[NI.mip]&&MAGIC[NI.mip].noarm)it.mi.noarm=1}
     c.equipment.push(it);NI=null;closeModal();save();render();openInv()},
   eq:el=>{const c=C(),e=c.equipment[+el.dataset.i],sh=ARMORS[e.armor].t==='s';e.equipped=!e.equipped;
     if(e.equipped)c.equipment.forEach(o=>{if(o!==e&&o.armor&&o.equipped&&(ARMORS[o.armor].t==='s')===sh)o.equipped=false});save();render();refreshInv()},
   gear:el=>gearUse(+el.dataset.i),
+  'mi-att':el=>{const c=C(),e=c.equipment[+el.dataset.i];if(!e.mi.on&&attuned(c)>=3){toast('<div class="t-label">Máximo 3 objetos sintonizados</div><div class="t-parts">Deja de sintonizar otro primero (se hace durante un descanso corto).</div>');return}
+    e.mi.on=e.mi.on?0:1;save();render();refreshInv();if(e.mi.on)toast(`<div class="t-label">Sintonizado</div><div class="t-parts">${esc(e.name)} ya funciona. Sintonizarse requiere un descanso corto con el objeto.</div>`)},
+  'mi-ch':el=>{const c=C(),e=c.equipment[+el.dataset.i];e.mi.used=clamp((+e.mi.used||0)+(+el.dataset.d),0,e.mi.ch);save();render();refreshInv()},
+  't-mi':el=>{const c=C(),e=c.equipment[+el.dataset.i];if(!e.mi||e.mi.ch-(+e.mi.used||0)<=0)return;e.mi.used=(+e.mi.used||0)+1;spendEco(c,'A');save();render();
+    toast(`<div class="t-label">Usas ${esc(e.name)}</div><div class="t-parts">${esc(e.mi.d||'Gastas 1 carga.')} Te quedan ${e.mi.ch-e.mi.used} cargas.</div>`)},
   't-gear':el=>gearUse(+el.dataset.i),
   pot:el=>{potModal(+el.dataset.i,'AA');POT.back=true},
   scroll:el=>scrollModal(+el.dataset.i,null),
@@ -1408,6 +1452,7 @@ const A={
   'wz-skill':el=>{const k=el.dataset.k,i=W.skills.indexOf(k);i>=0?W.skills.splice(i,1):W.skills.push(k);W._keepScroll=true;renderWizard()},
   'wz-sp-del':el=>{W.spells.splice(+el.dataset.i,1);W._keepScroll=true;renderWizard()},
   'sp-open':openSpellModal,
+  'prep-open':el=>{const t=el.closest('.toast');if(t)t.remove();openPrepModal()},
   'sp-close':()=>{closeModal();save();render()},
   'sp-det':el=>{P.open=P.open===el.dataset.id?'':el.dataset.id;refreshPicker()},
   'sp-tog':el=>{const d=SPBY[el.dataset.id],i=P.list.findIndex(s=>s.ref===d.id);
@@ -1473,7 +1518,8 @@ document.addEventListener('input',e=>{const el=e.target;
 document.addEventListener('change',e=>{const el=e.target;
   if(el.id==='imp-file'&&el.files&&el.files[0]){const r=new FileReader();r.onload=()=>{$('#imp-text').value=r.result;$('#imp-msg').textContent='Archivo cargado. Pulsa «Importar».'};r.readAsText(el.files[0]);return}
   if(el.id==='story-img'&&el.files&&el.files[0]){loadPortrait(el.files[0]);el.value='';return}
-  if(NI&&el.dataset&&el.dataset.ni){niCollect();if(el.id==='ni-cat'&&NI.cat==='pocion'&&!NI.pot)NI.pot='healing';if(el.id==='ni-ak'&&NI.ak)NI.qty=AMMO[NI.ak][1];if(el.id==='ni-gr'){NI.var='';const G=NI.gr&&NI.gr.startsWith('g:')&&GEAR[NI.gr.slice(2)];NI.qty=G&&G.qty?G.qty:1}if(el.id==='ni-cat'){NI.gr='';if(NI.cat==='paquete'&&!NI.pack)NI.pack='explorer'}niAutoName();itemModal();return}
+  if(NI&&el.dataset&&el.dataset.ni){niCollect();if(el.id==='ni-cat'&&NI.cat==='pocion'&&!NI.pot)NI.pot='healing';if(el.id==='ni-ak'&&NI.ak)NI.qty=AMMO[NI.ak][1];if(el.id==='ni-gr'){NI.var='';const G=NI.gr&&NI.gr.startsWith('g:')&&GEAR[NI.gr.slice(2)];NI.qty=G&&G.qty?G.qty:1}if(el.id==='ni-mip'&&NI.mi){const P=MAGIC[NI.mip];NI.mi={att:P.att||0,ac:P.ac||0,sv:P.sv||0,ch:P.ch||0,rec:P.rec||'',d:P.d||'',noarm:P.noarm||0};if(NI.mip!=='other'&&(!NI.name||NI.name===NI.auto)){NI.name=P.n;NI.auto=P.n}itemModal();return}
+    if(el.id==='ni-cat'){NI.gr='';if(NI.cat==='paquete'&&!NI.pack)NI.pack='explorer'}niAutoName();itemModal();return}
   if(CX&&el.dataset&&el.dataset.rr){const dn=k=>SUMMONS[k]?SUMMONS[k].n.replace(/^Invocar /,'').replace(/^./,m=>m.toUpperCase()):'';const oldS=CX.s,oldN=$('#cx-name')?$('#cx-name').value:'';
     creaCollect();if(CX.kind==='summon'&&CX.s!==oldS&&(!oldN||oldN===dn(oldS))){CX.name=dn(CX.s);CX.v=Object.keys(SUMMONS[CX.s].vars)[0];CX.L=SUMMONS[CX.s].L}creaModal();return}
   if(el.id==='sp-cls'){P.cls=el.value;refreshPicker();return}
