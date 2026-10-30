@@ -381,3 +381,18 @@ textarea.notes.diary{min-height:55vh;flex:1 1 auto}
 .card.welcome{max-width:34rem;margin:12vh auto 0;text-align:center}
 .card.welcome h1{font-family:var(--display,inherit);font-size:2rem;margin:.2rem 0 .6rem}
 .card.welcome .btns{justify-content:center;margin:1rem 0 .4rem}
+/* Efectos con duración */
+.effrow{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.55rem}
+.eff{display:inline-flex;align-items:center;gap:.35rem;max-width:100%;padding:.2rem .25rem .2rem .65rem;border-radius:999px;background:var(--accent-soft);font-size:.88rem;line-height:1.25}
+.eff span{min-width:0;overflow-wrap:anywhere}
+.eff .b.sq{flex:0 0 auto;width:1.7rem;height:1.7rem;min-height:0;padding:0;border-radius:999px;font-size:.8rem}
+.effdur{display:grid;grid-template-columns:6rem 1fr;gap:.5rem;margin:.6rem 0}
+#modal .f{margin-top:.5rem}
+/* Enlaces del diario */
+.sheet .dread-title{margin:.6rem 0 .3rem;font-size:1.25rem;text-transform:none;letter-spacing:0;color:var(--ink)}
+.dread{line-height:1.6;overflow-wrap:anywhere;padding:.2rem 0 .6rem}
+.dlink{display:inline;border:0;background:none;padding:0;font:inherit;color:var(--accent);text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.dlink.missing{text-decoration-style:dashed;opacity:.8}
+.dback{border-top:1px solid var(--line);padding-top:.5rem;margin-top:.3rem;font-size:.92rem}
+.dback small{color:var(--muted);margin-right:.2rem}
+.dback .dlink{margin-right:.5rem}

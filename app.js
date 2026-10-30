@@ -35,7 +35,7 @@ function blank(){return{
   abilities:{str:10,dex:10,con:10,int:10,wis:10,cha:10},saveProf:[],skills:{},
   ac:10,speedFt:30,size:'M',initiativeBonus:0,
   hp:{max:8,current:8,temp:0},hitDice:{die:'d8',total:1,spent:0},deathSaves:{success:0,fail:0},
-  inspiration:false,exhaustion:0,conditions:[],concentration:'',
+  inspiration:false,exhaustion:0,conditions:[],concentration:'',effects:[],
   attacks:[],spellcasting:{ability:''},slots:Array.from({length:9},()=>({total:0,used:0})),pact:{level:0,total:0,used:0},spells:[],
   features:[],equipment:[],coins:{cp:0,sp:0,ep:0,gp:0,pp:0},languages:'',proficiencies:{armor:'',weapons:'',tools:''},notes:'',
   story:{img:'',alignment:'',age:'',appearance:'',personality:'',history:''},turn:{a:false,aa:false,r:false,atk:0},diary:{items:[]}}}
@@ -91,7 +91,8 @@ let S={chars:[],active:null,tab:'play'};
 function load(){
   try{const r=localStorage.getItem(KEY);if(r){const x=JSON.parse(r);S.chars=(x.chars||[]).map(normalize);S.active=x.active;if(x.tab)S.tab=x.tab;if(S.tab==='inv'||S.tab==='story')S.tab='pj';if(S.tab==='chars')S.tab='play'}}catch(e){}
   if(!S.chars.find(c=>c.id===S.active)) S.active=S.chars.length?S.chars[0].id:null}
-function save(){try{localStorage.setItem(KEY,JSON.stringify({chars:S.chars,active:S.active,tab:S.tab}))}catch(e){}}
+function syncEffects(c){if(!c)return;if(!Array.isArray(c.effects))c.effects=[];c.effects=c.effects.filter(e=>!e.conc||e.name===c.concentration)}
+function save(){syncEffects(C());try{localStorage.setItem(KEY,JSON.stringify({chars:S.chars,active:S.active,tab:S.tab}))}catch(e){}}
 const C=()=>S.chars.find(c=>c.id===S.active);
 
 /* ================= Reglas ================= */
@@ -178,7 +179,23 @@ function toast(html,keep){
   setTimeout(()=>t.remove(),keep?30000:7000)}
 function openModal(h,big){const m=$('#modal');m.innerHTML=`<div class="sheet${big?' big':''}" role="dialog" aria-modal="true">${h}</div>`;m.hidden=false;const f=m.querySelector('input:not([type=hidden]),button');f&&!big&&f.focus()}
 function closeModal(){const m=$('#modal');m.hidden=true;m.innerHTML='';W=null;P=null;pendingEco=null}
-let pendingEco=null,restOpen=false;const UNDO=[];
+let pendingEco=null,restOpen=false;
+/* Duraciones: {r:rondas} | {m:minutos} | {inf:true} */
+function parseDur(t){t=norm(t||'').replace(/^hasta\s+/,'');let m;
+  if(/disipe/.test(t))return{inf:true};
+  if((m=t.match(/^(\d+)\s*asaltos?/)))return{r:+m[1]};
+  if((m=t.match(/^(\d+)\s*minutos?/)))return +m[1]<=1?{r:10*+m[1]}:{m:+m[1]};
+  if((m=t.match(/^(\d+)\s*horas?/)))return{m:60*+m[1]};
+  if((m=t.match(/^(\d+)\s*dias?/)))return{m:1440*+m[1]};
+  return null}
+function fmtEff(e){if(e.r!=null)return`${e.r} ronda${e.r===1?'':'s'}`;if(e.inf)return'hasta que se disipe';const m=e.m||0;
+  return m<60?`${m} min`:m<1440?`${+(m/60).toFixed(1)} h`:`${+(m/1440).toFixed(1)} día${m===1440?'':'s'}`}
+function addEffect(c,name,d,conc){if(!d)return;c.effects=c.effects.filter(e=>e.name!==name||(!!e.conc!==!!conc));c.effects.push(Object.assign({id:uid(),name,conc:!!conc},d))}
+function endEffects(c,pred){const gone=c.effects.filter(pred);if(!gone.length)return[];c.effects=c.effects.filter(e=>!pred(e));if(gone.some(e=>e.conc))c.concentration='';return gone.map(e=>e.name)}
+function effectsBar(c){const ce=c.concentration&&c.effects.find(e=>e.conc&&e.name===c.concentration);const pills=[];
+  if(c.concentration)pills.push(`<div class="eff conc-pill"><span>${term('Concentrado','conc')} en <b>${esc(c.concentration)}</b>${ce?` · ${fmtEff(ce)}`:''}</span><button class="b sm sq" data-act="end-conc" aria-label="Terminar concentración" title="Terminar concentración">✕</button></div>`);
+  c.effects.filter(e=>!e.conc).forEach(e=>pills.push(`<div class="eff"><span><b>${esc(e.name)}</b> · ${fmtEff(e)}</span><button class="b sm sq" data-act="eff-del" data-id="${e.id}" aria-label="Quitar ${esc(e.name)}" title="Quitar">✕</button></div>`));
+  return pills.length?`<div class="effrow">${pills.join('')}</div>`:''}const UNDO=[];
 
 /* ================= Render: barra superior ================= */
 function pips(kind,a,T,filled){let h='<span class="pips">';for(let k=0;k<T;k++)h+=`<button class="pip${k<filled?' full':''}" data-act="pip" data-kind="${kind}" data-a="${a}" data-i="${k}" aria-label="Casilla ${k+1} de ${T}"></button>`;return h+'</span>'}
@@ -200,7 +217,7 @@ function renderTop(){
       <button class="b qbtn icon" data-act="undo" title="Deshacer" aria-label="Deshacer el último cambio" ${UNDO.length?'':'disabled'}><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 14L4 9l5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       <button class="b qbtn money" data-act="money" aria-label="Dinero"><span class="coin" aria-hidden="true"></span><span>${(Math.floor(totalCp(c)/10)/10).toLocaleString('es-ES')} PO</span></button>
     </div>
-    ${c.concentration?`<div class="conc topconc"><span>${term('Concentrado','conc')} en <b>${esc(c.concentration)}</b></span><button class="b sm sq" data-act="end-conc" aria-label="Terminar concentración" title="Terminar concentración">✕</button></div>`:''}</div>
+    ${effectsBar(c)}</div>
     <div class="tabrow"><nav class="tabs">${[['play','Partida'],['pj',c.name||'Personaje']].map(([t,n])=>`<button class="${S.tab===t||(t==='pj'&&(S.tab==='edit'||S.tab==='data'))?'on':''}" data-act="tab" data-t="${t}">${esc(n)}</button>`).join('')}</nav>
     <button class="b gear" data-act="settings" aria-label="Ajustes"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3.3h-4l-.4 2.6a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1l.4 2.6h4l.4-2.6a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5A3.5 3.5 0 1 1 13 8.5a3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg></button></div></div>`}
 
@@ -230,7 +247,7 @@ function viewPlay(c){
       <div class="kv"><span>${term('Percepción pasiva','passive')}</span><b>${10+skillB(c,SK.perception)}</b></div>
       <div class="kv"><span>${term('Inspiración heroica','insp')}</span><button class="chip ${c.inspiration?'on':''}" data-act="insp">${c.inspiration?'La tienes':'No'}</button></div>
     </div>
-    <h3>Estados</h3><div class="chips">${active.map(([n])=>`<button class="chip on" data-act="cond" data-n="${n}" aria-label="Quitar ${n}">${n} ×</button>`).join('')}<button class="chip add" data-act="conds">${active.length?'Cambiar':'Añadir estado'}</button></div>
+    <h3>Estados</h3><div class="chips">${active.map(([n])=>`<button class="chip on" data-act="cond" data-n="${n}" aria-label="Quitar ${n}">${n} ×</button>`).join('')}<button class="chip add" data-act="conds">${active.length?'Cambiar':'Añadir estado'}</button><button class="chip add" data-act="eff-add">+ Efecto con duración</button></div>
     ${active.length?`<ul class="condlist">${active.map(([n,ds])=>`<li><b>${n}:</b> ${esc(ds)}</li>`).join('')}</ul>`:''}
     <div class="exh"><span>${term('Agotamiento','exh')}</span><button class="b sq" data-act="exh" data-d="-1" aria-label="Menos">−</button><b>${c.exhaustion}</b><button class="b sq" data-act="exh" data-d="1" aria-label="Más">+</button>
       <small>${c.exhaustion?`Resta ${2*c.exhaustion} a tus tiradas d20 y ${5*c.exhaustion} pies de velocidad${c.exhaustion>=6?' · nivel 6: muerte':''}`:'Ninguno'}</small></div>
@@ -292,6 +309,7 @@ function afterCast(sp,how){
   const c=C();let note='';
   if(pendingEco){spendEco(c,pendingEco);pendingEco=null}
   if(sp.conc){if(c.concentration&&c.concentration!==sp.name)note=`<div class="t-parts">Dejas de concentrarte en ${esc(c.concentration)}.</div>`;c.concentration=sp.name}
+  addEffect(c,sp.name,parseDur(sp.dur),sp.conc);
   save();render();
   const extra=spMod(c)!==null?`<div class="t-parts">CD de salvación ${spDC(c)} · ataque de conjuro ${sgn(spAtk(c))}</div>`:'';
   toast(`<div class="t-label">Lanzas</div><div class="t-big">${esc(sp.name)}</div><div class="t-parts">${esc(how)}${sp.conc?' · requiere concentración':''}</div>${extra}${note}`)}
@@ -821,10 +839,21 @@ function dRow(x){const n=x.type==='folder'?dDesc(x.id).filter(y=>y.type==='note'
 function renderDiary(){
   const c=C();let body;
   if(D.note){const n=dGet(D.note);if(!n){D.note=null;return renderDiary()}
-    body=`<div class="crumbs">${crumbs(n.parent)}</div>
+    if(D.pick){const pq=norm(D.pq),opts=dItems().filter(x=>x.id!==n.id&&(!pq||norm(x.name).includes(pq))).sort((a,b)=>a.name.localeCompare(b.name,'es',{numeric:true}));
+      body=`<p>Enlazar a otra entrada desde <b>${esc(n.name)}</b>:</p><div class="dtools"><input type="search" id="d-pq" placeholder="Buscar o escribir un nombre nuevo" value="${esc(D.pq)}" autocomplete="off"></div>
+        <div class="charlist">${D.pq.trim()&&!dFind(D.pq.trim())?`<button class="b opt" data-act="d-pick" data-name="${esc(D.pq.trim())}"><span>+ Enlazar a «<b>${esc(D.pq.trim())}</b>» (entrada nueva)</span></button>`:''}
+        ${opts.map(x=>`<button class="b opt" data-act="d-pick" data-name="${esc(x.name)}"><span>${x.type==='folder'?ICON_FOLDER:ICON_NOTE} <b>${esc(x.name)}</b> <small>${esc(dPath(x.parent).map(p=>p.name).join(' / '))}</small></span></button>`).join('')}</div>
+        <div class="btns"><button class="b" data-act="d-pick-cancel">Cancelar</button></div>`}
+    else if(D.edit){body=`<div class="crumbs">${crumbs(n.parent)}</div>
       <input class="dtitle" id="d-title" value="${esc(n.name)}" placeholder="Título" aria-label="Título">
       <textarea class="notes diary" id="d-text" placeholder="Escribe aquí…">${esc(n.text||'')}</textarea>
-      <div class="btns"><button class="b" data-act="d-back">← Volver</button></div>`}
+      <p class="hint">Para enlazar otra entrada usa «Enlazar» o escribe su nombre entre corchetes dobles: [[Puerto Brumoso]].</p>
+      <div class="btns"><button class="b pri" data-act="d-done">Listo</button><button class="b" data-act="d-linkpick">Enlazar…</button></div>`}
+    else{const back=dBacklinks(n);
+      body=`<div class="crumbs">${crumbs(n.parent)}</div><h3 class="dread-title">${esc(n.name||'Sin título')}</h3>
+      <div class="dread">${n.text?dRender(n.text):'<p class="empty">Entrada vacía.</p>'}</div>
+      ${back.length?`<div class="dback"><small>Mencionada en:</small> ${back.map(x=>`<button class="dlink" data-act="d-goto" data-id="${x.id}">${esc(x.name)}</button>`).join(' ')}</div>`:''}
+      <div class="btns"><button class="b" data-act="d-back">← Volver</button><button class="b pri" data-act="d-edit">Editar</button></div>`}}
   else if(D.move){const x=dGet(D.move),bad=new Set([x.id,...(x.type==='folder'?dDesc(x.id).map(y=>y.id):[])]);
     const folders=dItems().filter(y=>y.type==='folder'&&!bad.has(y.id));
     body=`<p>Mover <b>${esc(x.name)}</b> a:</p><div class="charlist">
@@ -838,6 +867,17 @@ function renderDiary(){
       <div class="dlist">${list.length?list.map(dRow).join(''):`<p class="empty">${D.q?'No hay resultados.':D.folder?'Esta categoría está vacía.':'Tu diario está vacío. Crea una entrada o una categoría (por ejemplo «Lugares», «Personajes» o «Facciones»); dentro de una categoría puedes crear otras.'}</p>`}</div>`}
   const html=`<div class="wz-head"><h2>Diario</h2><button class="b sm" data-act="d-close">Hecho</button></div><div class="wz-body" id="d-body">${body}</div>`;
   const m=$('#modal');if(m.hidden||!m.querySelector('.sheet.big'))openModal(html,true);else m.querySelector('.sheet').innerHTML=html}
+function dLinks(t){const out=[];const re=/\[\[([^\[\]\n]{1,80})\]\]/g;let m;while((m=re.exec(t||'')))out.push(m[1].trim());return out}
+function dFind(nm){const k=norm(nm.trim());const its=dItems();return its.find(x=>x.type==='note'&&norm(x.name)===k)||its.find(x=>x.type==='folder'&&norm(x.name)===k)}
+function dRender(t){let out='',last=0;const re=/\[\[([^\[\]\n]{1,80})\]\]/g;let m;
+  while((m=re.exec(t))){out+=esc(t.slice(last,m.index));const nm=m[1].trim(),tg=dFind(nm);
+    out+=`<button class="dlink${tg?'':' missing'}" data-act="d-link" data-name="${esc(nm)}"${tg?'':' title="Aún no existe: tócalo para crearla"'}>${esc(nm)}</button>`;last=re.lastIndex}
+  return(out+esc(t.slice(last))).replace(/\n/g,'<br>')}
+function dBacklinks(n){const k=norm(n.name);return dItems().filter(x=>x.type==='note'&&x.id!==n.id&&dLinks(x.text).some(l=>norm(l)===k))}
+function dRelink(oldN,newN){if(!oldN||!newN||norm(oldN)===norm(newN))return;const k=norm(oldN);
+  dItems().forEach(x=>{if(x.type==='note'&&x.text)x.text=x.text.replace(/\[\[([^\[\]\n]{1,80})\]\]/g,(all,nm)=>norm(nm.trim())===k?`[[${newN}]]`:all)})}
+function dLeave(){if(!D||!D.note)return;const n=dGet(D.note);if(n&&D.edit&&D.orig)dRelink(D.orig,n.name);D.edit=false;D.orig='';D.pick=false;save()}
+function dOpenNote(id,edit){const n=dGet(id);D.note=id;D.edit=!!edit;D.orig=edit&&n?n.name:'';D.pick=false;D.menu=null}
 function crumbs(id){const path=dPath(id);return[`<button class="crumb" data-act="d-go" data-id="">Diario</button>`,...path.map(p=>`<button class="crumb" data-act="d-go" data-id="${p.id}">${esc(p.name)}</button>`)].join('<span aria-hidden="true">›</span>')}
 function dPrompt(title,val,act,id,extra){openModal(`<h2>${title}</h2><input class="dtitle" id="d-name" value="${esc(val)}" autocomplete="off"><div class="btns"><button class="b pri" data-act="${act}" data-id="${id||''}" ${extra||''}>Guardar</button><button class="b" data-act="d-cancel">Cancelar</button></div>`);setTimeout(()=>{const i=$('#d-name');if(i){i.focus();i.select()}},30)}
 
@@ -905,21 +945,33 @@ const A={
     $('#hpAmt').value='';save();render()},
   nat20:()=>{const c=C();c.hp.current=1;c.deathSaves={success:0,fail:0};c.conditions=c.conditions.filter(x=>x!=='Inconsciente');save();render();toast('<div class="t-label">¡20 natural!</div><div class="t-parts">Recuperas 1 PG y te despiertas.</div>')},
   nat1:()=>{const c=C();c.deathSaves.fail=Math.min(3,c.deathSaves.fail+2);save();render()},
-  'd-close':()=>{D=null;closeModal()},
-  'd-open':el=>{const x=dGet(el.dataset.id);D.menu=null;if(x.type==='folder'){D.folder=x.id;D.q=''}else D.note=x.id;renderDiary()},
-  'd-go':el=>{D.folder=el.dataset.id||null;D.note=null;D.menu=null;renderDiary()},
-  'd-back':()=>{const n=dGet(D.note);D.note=null;D.folder=n?n.parent:D.folder;renderDiary()},
+  'd-close':()=>{dLeave();D=null;closeModal()},
+  'd-open':el=>{const x=dGet(el.dataset.id);D.menu=null;D.hist=[];if(x.type==='folder'){D.folder=x.id;D.q=''}else dOpenNote(x.id,!x.text);renderDiary()},
+  'd-go':el=>{dLeave();D.hist=[];D.folder=el.dataset.id||null;D.note=null;D.menu=null;renderDiary()},
+  'd-back':()=>{dLeave();const n=dGet(D.note);let prev=null;while(D.hist.length&&!prev)prev=dGet(D.hist.pop());
+    if(prev)dOpenNote(prev.id,false);else{D.note=null;D.folder=n?n.parent:D.folder}renderDiary()},
+  'd-edit':()=>{dOpenNote(D.note,true);renderDiary();const t=$('#d-text');if(t)t.focus()},
+  'd-done':()=>{dLeave();renderDiary()},
+  'd-link':el=>{const nm=el.dataset.name;const cur=dGet(D.note);dLeave();let tg=dFind(nm);
+    if(tg&&tg.type==='folder'){D.hist=[];D.note=null;D.folder=tg.id;D.q='';return renderDiary()}
+    let isNew=false;if(!tg){tg={id:uid(),type:'note',name:nm,parent:cur?cur.parent:D.folder,text:'',updated:Date.now()};dItems().push(tg);save();isNew=true}
+    if(cur)D.hist.push(cur.id);dOpenNote(tg.id,isNew);renderDiary();if(isNew){const t=$('#d-text');if(t)t.focus()}},
+  'd-goto':el=>{const cur=D.note;dLeave();if(cur)D.hist.push(cur);dOpenNote(el.dataset.id,false);renderDiary()},
+  'd-linkpick':()=>{const t=$('#d-text');D.caret=t?t.selectionStart:null;D.pick=true;D.pq='';renderDiary();const q=$('#d-pq');if(q)q.focus()},
+  'd-pick-cancel':()=>{D.pick=false;renderDiary()},
+  'd-pick':el=>{const n=dGet(D.note),ins=`[[${el.dataset.name}]]`,t=n.text||'',at=D.caret==null?t.length:Math.min(D.caret,t.length);
+    n.text=t.slice(0,at)+ins+t.slice(at);n.updated=Date.now();D.pick=false;save();renderDiary();const ta=$('#d-text');if(ta){ta.focus();ta.setSelectionRange(at+ins.length,at+ins.length)}},
   'd-menu':el=>{D.menu=D.menu===el.dataset.id&&!D.confirm?null:el.dataset.id;D.confirm=null;renderDiary()},
   'd-session':()=>{let f=dItems().find(x=>x.type==='folder'&&!x.parent&&norm(x.name)===norm('Sesiones'));
     if(!f){f={id:uid(),type:'folder',name:'Sesiones',parent:null,text:'',updated:Date.now()};dItems().push(f)}
     const n=dKids(f.id).filter(x=>x.type==='note').length+1,day=new Date().toLocaleDateString('es-ES',{day:'numeric',month:'short'}).replace('.','');
     const x={id:uid(),type:'note',name:`Sesión ${n} – ${day}`,parent:f.id,text:'',updated:Date.now()};dItems().push(x);save();
-    D.q='';D.menu=null;D.folder=f.id;D.note=x.id;renderDiary();const t=$('#d-text');if(t)t.focus()},
+    D.q='';D.hist=[];D.folder=f.id;dOpenNote(x.id,true);renderDiary();const t=$('#d-text');if(t)t.focus()},
   'd-new':el=>{const t=el.dataset.type;dPrompt(t==='folder'?'Nueva categoría':'Nueva entrada','', 'd-create','',`data-type="${t}"`)},
   'd-create':el=>{const name=$('#d-name').value.trim()||(el.dataset.type==='folder'?'Nueva categoría':'Nueva entrada');const x={id:uid(),type:el.dataset.type,name,parent:D.folder,text:'',updated:Date.now()};
-    dItems().push(x);save();$('#modal').innerHTML='';$('#modal').hidden=true;if(x.type==='note')D.note=x.id;renderDiary()},
+    dItems().push(x);save();$('#modal').innerHTML='';$('#modal').hidden=true;if(x.type==='note'){D.hist=[];dOpenNote(x.id,true)}renderDiary()},
   'd-rename':el=>{const x=dGet(el.dataset.id);dPrompt('Renombrar',x.name,'d-rename-ok',x.id)},
-  'd-rename-ok':el=>{const x=dGet(el.dataset.id);const v=$('#d-name').value.trim();if(v)x.name=v;D.menu=null;save();$('#modal').hidden=true;renderDiary()},
+  'd-rename-ok':el=>{const x=dGet(el.dataset.id);const v=$('#d-name').value.trim();if(v){dRelink(x.name,v);x.name=v}D.menu=null;save();$('#modal').hidden=true;renderDiary()},
   'd-cancel':()=>{$('#modal').hidden=true;renderDiary()},
   'd-del':el=>{D.confirm=el.dataset.id;renderDiary()},
   'd-del-ok':el=>{const x=dGet(el.dataset.id),gone=new Set([x.id,...(x.type==='folder'?dDesc(x.id).map(y=>y.id):[])]);C().diary.items=dItems().filter(y=>!gone.has(y.id));D.menu=D.confirm=null;save();renderDiary()},
@@ -929,18 +981,18 @@ const A={
   'rest-menu':()=>{restOpen=!restOpen;renderTop()},
   undo:()=>{const u=UNDO.pop();if(!u)return;S.chars=JSON.parse(u.chars);S.active=S.chars.some(x=>x.id===u.active)?u.active:(S.chars[0]&&S.chars[0].id);
     restOpen=false;D=null;closeModal();save();render();toast(`<div class="t-label">Deshecho</div><div class="t-parts">Has vuelto al estado anterior al último cambio.${UNDO.length?'':' No quedan más cambios por deshacer.'}</div>`)},
-  diary:()=>{D={folder:null,note:null,menu:null,confirm:null,move:null,q:''};renderDiary()},
+  diary:()=>{D={folder:null,note:null,menu:null,confirm:null,move:null,q:'',hist:[],edit:false,orig:'',pick:false,pq:''};renderDiary()},
   short:()=>{restOpen=false;renderTop();shortRestModal()},
   hd:()=>{const c=C(),r=parseInt($('#hd-roll').value),f=+String(c.hitDice.die).replace(/\D/g,'')||8;
     if(!(r>=1&&r<=f)){$('#hd-roll').focus();toast(`<div class="t-parts">Escribe lo que has sacado en el ${esc(c.hitDice.die)} (de 1 a ${f}).</div>`);return}
     const cm=M(c,'con'),heal=Math.max(0,r+cm),was=c.hp.current;
     c.hitDice.spent=Math.min(c.hitDice.total,c.hitDice.spent+1);c.hp.current=Math.min(c.hp.max,c.hp.current+heal);
     toast(`<div class="t-label">Dado de golpe</div><div class="t-big good">+${c.hp.current-was}</div><div class="t-parts">${r} ${sgn(cm)} CON</div>`);save();renderTop();if(S.tab==='play')renderView();shortRestModal()},
-  'short-done':()=>{const c=C();c.pact.used=0;c.features.forEach(f=>{if(f.uses.recover==='corto')f.uses.used=0;if(f.uses.recover==='corto1')f.uses.used=Math.max(0,f.uses.used-1)});closeModal();save();render();toast('<div class="t-label">Descanso corto terminado</div><div class="t-parts">Recursos de descanso corto recuperados.</div>')},
+  'short-done':()=>{const c=C();c.pact.used=0;endEffects(c,e=>e.r!=null||(e.m!=null&&e.m<=60));c.features.forEach(f=>{if(f.uses.recover==='corto')f.uses.used=0;if(f.uses.recover==='corto1')f.uses.used=Math.max(0,f.uses.used-1)});closeModal();save();render();toast('<div class="t-label">Descanso corto terminado</div><div class="t-parts">Recursos de descanso corto recuperados.</div>')},
   long:()=>{restOpen=false;renderTop();A.longModal()},
   longModal:()=>openModal(`<h2>Descanso largo (8 horas)</h2><ul><li>Recuperas todos los PG y todos los dados de golpe</li><li>Recuperas todos los espacios de conjuro</li><li>Se recuperan los rasgos con usos limitados</li><li>Agotamiento −1 y pierdes los PG temporales</li></ul>
     <div class="btns"><button class="b pri" data-act="long-done">Hacer descanso largo</button><button class="b" data-act="close-modal">Cancelar</button></div>`),
-  'long-done':()=>{const c=C();c.hp.current=c.hp.max;c.hp.temp=0;c.hitDice.spent=0;c.slots.forEach(s=>s.used=0);c.pact.used=0;
+  'long-done':()=>{const c=C();endEffects(c,e=>e.r!=null||(e.m!=null&&e.m<=480));c.hp.current=c.hp.max;c.hp.temp=0;c.hitDice.spent=0;c.slots.forEach(s=>s.used=0);c.pact.used=0;
     c.features.forEach(f=>{if(f.uses.recover)f.uses.used=0});c.exhaustion=Math.max(0,(+c.exhaustion||0)-1);c.deathSaves={success:0,fail:0};c.concentration='';
     c.conditions=c.conditions.filter(x=>x!=='Inconsciente');if(c.speciesKey==='human')c.inspiration=true;closeModal();save();render();toast('<div class="t-label">Descanso largo terminado</div><div class="t-parts">Como nuevo.</div>')},
   pay:()=>{const c=C(),n=parseInt($('#pay-amt').value),k=$('#pay-coin').value;if(!(n>0)){$('#pay-amt').focus();return}
@@ -973,7 +1025,18 @@ const A={
   'open-edit':()=>{closeModal();S.tab='edit';save();render();scrollTo(0,0)},
   gloss:el=>showGloss(el),
   't-fold':()=>{try{const o=localStorage.getItem('fichas-turn-open')!=='0';localStorage.setItem('fichas-turn-open',o?'0':'1')}catch(e){}renderView()},
-  't-end':()=>{const c=C();c.turn={a:false,aa:false,r:false,atk:0};save();render()},
+  't-end':()=>{const c=C();c.turn={a:false,aa:false,r:false,atk:0};c.effects.forEach(e=>{if(e.r!=null)e.r--});
+    const gone=endEffects(c,e=>e.r!=null&&e.r<=0);save();render();
+    if(gone.length)toast(`<div class="t-label">Efecto terminado</div><div class="t-parts">${gone.map(esc).join(', ')} ${gone.length>1?'han':'ha'} terminado.</div>`)},
+  'eff-del':el=>{const c=C();endEffects(c,e=>e.id===el.dataset.id);save();render()},
+  'eff-add':()=>openModal(`<h2>Añadir efecto</h2><p class="hint">Algo que dura un tiempo: un conjuro que te han lanzado, un veneno, una bendición… Las rondas bajan al pulsar «Terminar turno» (1 ronda = 6 segundos).</p>
+    <label class="f"><span>Nombre</span><input id="eff-name" autocomplete="off" placeholder="Envenenado"></label>
+    <div class="effdur"><label class="f"><span>Duración</span><input id="eff-n" type="number" inputmode="numeric" min="1" value="1"></label>
+    <label class="f"><span>&nbsp;</span><select id="eff-u"><option value="r">rondas</option><option value="min" selected>minutos</option><option value="h">horas</option><option value="d">días</option><option value="inf">hasta que se disipe</option></select></label></div>
+    <div class="btns"><button class="b pri" data-act="eff-add-ok">Añadir</button><button class="b" data-act="close-modal">Cancelar</button></div>`),
+  'eff-add-ok':()=>{const c=C(),name=$('#eff-name').value.trim(),n=Math.max(1,parseInt($('#eff-n').value)||1),u=$('#eff-u').value;if(!name){$('#eff-name').focus();return}
+    const d=u==='inf'?{inf:true}:u==='r'?{r:n}:u==='min'?(n<=1?{r:10}:{m:n}):u==='h'?{m:60*n}:{m:1440*n};
+    c.effects.push(Object.assign({id:uid(),name,conc:false},d));closeModal();save();render()},
   't-atk':el=>{const c=C(),a=c.attacks[+el.dataset.i],T=c.turn;
     const am=a.ammo&&c.equipment.find(e=>e.id===a.ammo);if(am){if(am.qty<=0)return;am.qty--}
     if(!T.a){T.a=true;T.atk=attacksPerAction(c)-1}else T.atk=Math.max(0,T.atk-1);
@@ -1037,7 +1100,7 @@ function copy(text,btn){const old=btn.textContent;
 
 /* ================= Eventos ================= */
 document.addEventListener('click',e=>{
-  if(e.target.id==='modal'){if(W)return;if(D){D=null;closeModal();return}const wasPicker=!!P;closeModal();if(wasPicker){save();render()}return}
+  if(e.target.id==='modal'){if(W)return;if(D){dLeave();D=null;closeModal();return}const wasPicker=!!P;closeModal();if(wasPicker){save();render()}return}
   const el=e.target.closest('[data-act]');
   if(restOpen&&!e.target.closest('.menuwrap')){restOpen=false;renderTop()}
   if(!el||el.disabled)return;const f=A[el.dataset.act];if(!f)return;e.preventDefault();
@@ -1046,6 +1109,7 @@ document.addEventListener('click',e=>{
   if(JSON.stringify(S.chars)!==before){UNDO.push({chars:before,active:act});if(UNDO.length>40)UNDO.shift();if(C())renderTop()}});
 document.addEventListener('input',e=>{const el=e.target;
   if(D&&(el.id==='d-text'||el.id==='d-title')){const n=dGet(D.note);if(n){if(el.id==='d-text')n.text=el.value;else n.name=el.value;n.updated=Date.now();if(UNDO.length){UNDO.length=0;renderTop()}save()}return}
+  if(D&&el.id==='d-pq'){D.pq=el.value;const pos=el.selectionStart;renderDiary();const q=$('#d-pq');if(q){q.focus();q.setSelectionRange(pos,pos)}return}
   if(D&&el.id==='d-q'){D.q=el.value;const pos=el.selectionStart;renderDiary();const q=$('#d-q');if(q){q.focus();q.setSelectionRange(pos,pos)}return}
   if(el.id==='sp-q'){P.q=el.value;refreshPicker();return}
   if(W){
