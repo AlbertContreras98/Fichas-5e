@@ -355,3 +355,23 @@ button.who:hover .caret{color:var(--accent)}
 textarea.notes.diary{min-height:55vh;flex:1 1 auto}
 @media (min-width:700px){.ctl.quick{width:auto}}
 @media (max-width:360px){.b.qbtn:not(.money) span{display:none}}
+
+/* Botones de icono y plegado */
+.b.qbtn.icon{width:2.6rem;height:2.6rem;justify-content:center;padding:0}
+.b.fold svg{transition:transform .2s ease}
+.b.fold.open svg{transform:rotate(180deg)}
+@media (prefers-reduced-motion:reduce){.b.fold svg{transition:none}}
+
+/* Diario */
+.crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem;font-size:.9rem;color:var(--muted)}
+.crumb{border:0;background:none;padding:.15rem .3rem;border-radius:5px;font:inherit;color:var(--accent);cursor:pointer}
+.crumb:last-of-type{color:var(--ink);font-weight:700}
+.dtools input{width:100%;padding:.45rem .6rem;border:1px solid var(--line);border-radius:7px;background:var(--sunk);font-size:16px}
+.dlist{display:flex;flex-direction:column;gap:.4rem}
+.drow{display:grid;grid-template-columns:1fr auto;gap:.4rem;align-items:center;border:1px solid var(--line);border-radius:9px;padding:.35rem}
+.dopen{display:flex;align-items:center;gap:.6rem;border:0;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer;min-width:0;padding:.2rem}
+.dic{display:inline-flex;flex:0 0 auto;color:var(--muted)}
+.dic.folder{color:var(--accent)}
+.dtxt{min-width:0}.dtxt b{display:block;overflow-wrap:anywhere}.dtxt small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dtitle{width:100%;padding:.5rem .6rem;border:1px solid var(--line);border-radius:7px;background:var(--sunk);font-size:1.05rem;font-weight:700}
+.b.opt svg{vertical-align:-4px;color:var(--accent)}

@@ -38,7 +38,7 @@ function blank(){return{
   inspiration:false,exhaustion:0,conditions:[],concentration:'',
   attacks:[],spellcasting:{ability:''},slots:Array.from({length:9},()=>({total:0,used:0})),pact:{level:0,total:0,used:0},spells:[],
   features:[],equipment:[],coins:{cp:0,sp:0,ep:0,gp:0,pp:0},languages:'',proficiencies:{armor:'',weapons:'',tools:''},notes:'',
-  story:{img:'',alignment:'',age:'',appearance:'',personality:'',history:''},turn:{a:false,aa:false,r:false,atk:0}}}
+  story:{img:'',alignment:'',age:'',appearance:'',personality:'',history:''},turn:{a:false,aa:false,r:false,atk:0},diary:{items:[]}}}
 const NEW={
   attacks:()=>({name:'',atk:0,dmg:'',type:'',notes:'',ammo:''}),
   spells:()=>({level:0,name:'',time:'A',range:'',dur:'',conc:false,ritual:false,material:'',desc:'',ref:'',src:'',free:''}),
@@ -60,7 +60,9 @@ function classKeyFrom(name){const n=norm(name);if(!n)return'';
   for(const k in CL){if(norm(CL[k].n)===n||norm(CL[k].en)===n||n.startsWith(norm(CL[k].n))||n.startsWith(norm(CL[k].en)))return k}return''}
 function normalize(src){
   const c=Object.assign(blank(),JSON.parse(JSON.stringify(src||{}))),B=blank();
-  for(const k of ['abilities','hp','hitDice','deathSaves','coins','proficiencies','spellcasting','pact','story','turn']) c[k]=Object.assign(B[k],c[k]||{});
+  for(const k of ['abilities','hp','hitDice','deathSaves','coins','proficiencies','spellcasting','pact','story','turn','diary']) c[k]=Object.assign(B[k],c[k]||{});
+  if(!Array.isArray(c.diary.items))c.diary.items=[];
+  if(!c.diary.items.length&&String(c.notes||'').trim())c.diary.items.push({id:uid(),type:'note',name:'Notas',parent:null,text:c.notes,updated:Date.now()});
   if(typeof c.skills!=='object'||!c.skills||Array.isArray(c.skills)) c.skills={};
   for(const k of ['saveProf','conditions','attacks','spells','features','equipment']) if(!Array.isArray(c[k])) c[k]=[];
   const sl=Array.isArray(c.slots)?c.slots:[];
@@ -211,9 +213,9 @@ function renderTop(){
       <button class="stat" data-act="gloss" data-k="speed"><b>${Math.max(0,c.speedFt-5*(+c.exhaustion||0))}</b><small>pies</small></button>
     </div>
     <div class="ctl quick">
-      <div class="menuwrap"><button class="b qbtn" data-act="rest-menu" aria-haspopup="true" aria-expanded="${restOpen}" aria-label="Descansar"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect x="2" y="11" width="20" height="9" rx="4.5" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="4" y="12.8" width="5" height="5.4" rx="2.2" fill="currentColor" opacity=".55"/><path d="M11.5 15.5h8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="1.6 1.4"/><path d="M14 3.5h4l-4 4h4M19.5 6.5h2.5l-2.5 2.5h2.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Descansar</span></button>
+      <div class="menuwrap"><button class="b qbtn icon" data-act="rest-menu" title="Descansar" aria-haspopup="true" aria-expanded="${restOpen}" aria-label="Descansar"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 8h7l-7 9h7M14 4h6l-6 7.5h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         ${restOpen?`<div class="popmenu" role="menu"><button class="b opt" role="menuitem" data-act="short"><span><b>Descanso corto</b><br><small>1 hora · dados de golpe</small></span></button><button class="b opt" role="menuitem" data-act="long"><span><b>Descanso largo</b><br><small>8 horas · lo recuperas todo</small></span></button></div>`:''}</div>
-      <button class="b qbtn" data-act="diary" aria-label="Diario"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M5 4.5h10a1.5 1.5 0 0 1 1.5 1.5v13.5H6.5A1.5 1.5 0 0 1 5 18z"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M8 8.5h5.5M8 11.5h4"/><path fill="currentColor" d="M19.6 7.2l1.2 1.2-6.3 6.3-1.8.6.6-1.8z"/></svg><span>Diario</span></button>
+      <button class="b qbtn icon" data-act="diary" title="Diario" aria-label="Diario"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M5 4.5h10a1.5 1.5 0 0 1 1.5 1.5v13.5H6.5A1.5 1.5 0 0 1 5 18z"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M8 8.5h5.5M8 11.5h4"/><path fill="currentColor" d="M19.6 7.2l1.2 1.2-6.3 6.3-1.8.6.6-1.8z"/></svg></button>
       <button class="b qbtn money" data-act="money" aria-label="Dinero"><span class="coin" aria-hidden="true"></span><span>${(Math.floor(totalCp(c)/10)/10).toLocaleString('es-ES')} PO</span></button>
     </div></div>
     <div class="tabrow"><nav class="tabs">${[['play','Partida'],['pj',c.name||'Personaje']].map(([t,n])=>`<button class="${S.tab===t||(t==='pj'&&(S.tab==='edit'||S.tab==='data'))?'on':''}" data-act="tab" data-t="${t}">${esc(n)}</button>`).join('')}</nav>
@@ -370,7 +372,7 @@ function viewTurn(c){
   const aState=T.a?(T.atk>0?`Atacando · ${T.atk} más`:'Gastada'):'';
   const col=(k,title,gk,body)=>`<div class="tcol ${k==='A'?(aFree||T.atk>0?'':'off'):k==='AA'?(T.aa?'off':''):k==='R'?(T.r?'off':''):''}"><h3>${term(title,gk)}</h3>${body||'<p class="empty">Nada por ahora.</p>'}</div>`;
   let open=true;try{open=localStorage.getItem('fichas-turn-open')!=='0'}catch(e){}
-  return`<section class="card turn"><div class="card-head"><h2>Tu turno</h2><div class="btns"><button class="b" data-act="t-end">Terminar turno</button><button class="b sm" data-act="t-fold" aria-expanded="${open}">${open?'Plegar':'Desplegar'}</button></div></div>
+  return`<section class="card turn"><div class="card-head"><h2>Tu turno</h2><div class="btns"><button class="b" data-act="t-end">Terminar turno</button><button class="b sq fold ${open?'open':''}" data-act="t-fold" aria-expanded="${open}" aria-label="${open?'Plegar':'Desplegar'}" title="${open?'Plegar':'Desplegar'}"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div>
     <div class="pills">${pill('Acción','action',T.a,aState)}${pill('Acción adicional','bonus',T.aa)}${pill('Reacción','reaction',T.r)}</div>
     <div class="tgrid" ${open?'':'hidden'}>
       ${col('A','Acción','action',`${nAtk>1?`<p class="hint">Con la acción de Atacar haces ${nAtk} ataques.</p>`:''}${cols.A.join('')}<h3 class="sub3">Otras acciones</h3>${generic}`)}
@@ -809,6 +811,46 @@ function applyOrigin(c){
   addOriginSpells(c,originSpellIds(c.speciesKey,c.lineageKey,1,c.level));
   upsertRes(c,originRes(c.speciesKey,c.lineageKey,c.featKeys||[],c.level),sp.n)}
 
+/* ================= Diario ================= */
+let D=null;
+const dItems=()=>C().diary.items;
+const dGet=id=>dItems().find(x=>x.id===id);
+const dKids=pid=>dItems().filter(x=>(x.parent||null)===(pid||null)).sort((a,b)=>a.type===b.type?a.name.localeCompare(b.name,'es'):a.type==='folder'?-1:1);
+function dPath(id){const out=[];let x=id&&dGet(id);while(x){out.unshift(x);x=x.parent&&dGet(x.parent)}return out}
+function dDesc(id){const out=[];for(const k of dKids(id)){out.push(k);if(k.type==='folder')out.push(...dDesc(k.id))}return out}
+const ICON_FOLDER='<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="currentColor" opacity=".85"/></svg>';
+const ICON_NOTE='<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 3h8l4 4v14H6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 11h6M9 14.5h6M9 18h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+function dRow(x){const n=x.type==='folder'?dDesc(x.id).filter(y=>y.type==='note').length:0;
+  const where=D.q?dPath(x.parent).map(p=>p.name).join(' / '):'';
+  return`<div class="drow">
+    <button class="dopen" data-act="d-open" data-id="${x.id}"><span class="dic ${x.type}">${x.type==='folder'?ICON_FOLDER:ICON_NOTE}</span><span class="dtxt"><b>${esc(x.name||'Sin título')}</b><small>${x.type==='folder'?`${n} entrada${n===1?'':'s'}`:esc((x.text||'').replace(/\s+/g,' ').slice(0,70)||'Vacía')}${where?` · en ${esc(where)}`:''}</small></span></button>
+    <button class="b sm sq" data-act="d-menu" data-id="${x.id}" aria-label="Opciones de ${esc(x.name)}" aria-expanded="${D.menu===x.id}">⋯</button>
+    ${D.menu===x.id?`<div class="charmenu">${D.confirm===x.id?`<span class="hint" style="margin:0">¿Borrar${x.type==='folder'?' la categoría y todo lo que contiene':''}?</span><button class="b sm bad" data-act="d-del-ok" data-id="${x.id}">Borrar</button><button class="b sm" data-act="d-menu" data-id="${x.id}">Cancelar</button>`
+      :`<button class="b sm" data-act="d-rename" data-id="${x.id}">Renombrar</button><button class="b sm" data-act="d-move" data-id="${x.id}">Mover a…</button><button class="b sm bad" data-act="d-del" data-id="${x.id}">Borrar</button>`}</div>`:''}
+  </div>`}
+function renderDiary(){
+  const c=C();let body;
+  if(D.note){const n=dGet(D.note);if(!n){D.note=null;return renderDiary()}
+    body=`<div class="crumbs">${crumbs(n.parent)}</div>
+      <input class="dtitle" id="d-title" value="${esc(n.name)}" placeholder="Título" aria-label="Título">
+      <textarea class="notes diary" id="d-text" placeholder="Escribe aquí…">${esc(n.text||'')}</textarea>
+      <div class="btns"><button class="b" data-act="d-back">← Volver</button></div>`}
+  else if(D.move){const x=dGet(D.move),bad=new Set([x.id,...(x.type==='folder'?dDesc(x.id).map(y=>y.id):[])]);
+    const folders=dItems().filter(y=>y.type==='folder'&&!bad.has(y.id));
+    body=`<p>Mover <b>${esc(x.name)}</b> a:</p><div class="charlist">
+      <button class="b opt" data-act="d-move-to" data-id=""><span>${ICON_FOLDER} <b>Diario</b> (principal)</span></button>
+      ${folders.map(f=>`<button class="b opt" data-act="d-move-to" data-id="${f.id}"><span>${ICON_FOLDER} <b>${esc(dPath(f.id).map(p=>p.name).join(' / '))}</b></span></button>`).join('')}</div>
+      <div class="btns"><button class="b" data-act="d-move-cancel">Cancelar</button></div>`}
+  else{const list=D.q?dItems().filter(x=>norm(x.name+' '+(x.text||'')).includes(norm(D.q))):dKids(D.folder);
+    body=`<div class="dtools"><input type="search" id="d-q" placeholder="Buscar en todo el diario" value="${esc(D.q)}" autocomplete="off"></div>
+      ${D.q?'':`<div class="crumbs">${crumbs(D.folder)}</div>`}
+      <div class="btns"><button class="b sm pri" data-act="d-new" data-type="note">+ Entrada</button><button class="b sm" data-act="d-new" data-type="folder">+ Categoría</button></div>
+      <div class="dlist">${list.length?list.map(dRow).join(''):`<p class="empty">${D.q?'No hay resultados.':D.folder?'Esta categoría está vacía.':'Tu diario está vacío. Crea una entrada o una categoría (por ejemplo «Lugares», «Personajes» o «Facciones»); dentro de una categoría puedes crear otras.'}</p>`}</div>`}
+  const html=`<div class="wz-head"><h2>Diario</h2><button class="b sm" data-act="d-close">Hecho</button></div><div class="wz-body" id="d-body">${body}</div>`;
+  const m=$('#modal');if(m.hidden||!m.querySelector('.sheet.big'))openModal(html,true);else m.querySelector('.sheet').innerHTML=html}
+function crumbs(id){const path=dPath(id);return[`<button class="crumb" data-act="d-go" data-id="">Diario</button>`,...path.map(p=>`<button class="crumb" data-act="d-go" data-id="${p.id}">${esc(p.name)}</button>`)].join('<span aria-hidden="true">›</span>')}
+function dPrompt(title,val,act,id,extra){openModal(`<h2>${title}</h2><input class="dtitle" id="d-name" value="${esc(val)}" autocomplete="off"><div class="btns"><button class="b pri" data-act="${act}" data-id="${id||''}" ${extra||''}>Guardar</button><button class="b" data-act="d-cancel">Cancelar</button></div>`);setTimeout(()=>{const i=$('#d-name');if(i){i.focus();i.select()}},30)}
+
 /* ================= Descansos ================= */
 function shortRestModal(){const c=C(),left=c.hitDice.total-c.hitDice.spent,cm=M(c,'con');
   const rec=c.features.filter(f=>f.uses.max>0&&(f.uses.recover==='corto'||f.uses.recover==='corto1'));
@@ -873,10 +915,24 @@ const A={
     $('#hpAmt').value='';save();render()},
   nat20:()=>{const c=C();c.hp.current=1;c.deathSaves={success:0,fail:0};c.conditions=c.conditions.filter(x=>x!=='Inconsciente');save();render();toast('<div class="t-label">¡20 natural!</div><div class="t-parts">Recuperas 1 PG y te despiertas.</div>')},
   nat1:()=>{const c=C();c.deathSaves.fail=Math.min(3,c.deathSaves.fail+2);save();render()},
+  'd-close':()=>{D=null;closeModal()},
+  'd-open':el=>{const x=dGet(el.dataset.id);D.menu=null;if(x.type==='folder'){D.folder=x.id;D.q=''}else D.note=x.id;renderDiary()},
+  'd-go':el=>{D.folder=el.dataset.id||null;D.note=null;D.menu=null;renderDiary()},
+  'd-back':()=>{const n=dGet(D.note);D.note=null;D.folder=n?n.parent:D.folder;renderDiary()},
+  'd-menu':el=>{D.menu=D.menu===el.dataset.id&&!D.confirm?null:el.dataset.id;D.confirm=null;renderDiary()},
+  'd-new':el=>{const t=el.dataset.type;dPrompt(t==='folder'?'Nueva categoría':'Nueva entrada','', 'd-create','',`data-type="${t}"`)},
+  'd-create':el=>{const name=$('#d-name').value.trim()||(el.dataset.type==='folder'?'Nueva categoría':'Nueva entrada');const x={id:uid(),type:el.dataset.type,name,parent:D.folder,text:'',updated:Date.now()};
+    dItems().push(x);save();$('#modal').innerHTML='';$('#modal').hidden=true;if(x.type==='note')D.note=x.id;renderDiary()},
+  'd-rename':el=>{const x=dGet(el.dataset.id);dPrompt('Renombrar',x.name,'d-rename-ok',x.id)},
+  'd-rename-ok':el=>{const x=dGet(el.dataset.id);const v=$('#d-name').value.trim();if(v)x.name=v;D.menu=null;save();$('#modal').hidden=true;renderDiary()},
+  'd-cancel':()=>{$('#modal').hidden=true;renderDiary()},
+  'd-del':el=>{D.confirm=el.dataset.id;renderDiary()},
+  'd-del-ok':el=>{const x=dGet(el.dataset.id),gone=new Set([x.id,...(x.type==='folder'?dDesc(x.id).map(y=>y.id):[])]);C().diary.items=dItems().filter(y=>!gone.has(y.id));D.menu=D.confirm=null;save();renderDiary()},
+  'd-move':el=>{D.move=el.dataset.id;D.menu=null;renderDiary()},
+  'd-move-to':el=>{const x=dGet(D.move);x.parent=el.dataset.id||null;D.move=null;save();renderDiary()},
+  'd-move-cancel':()=>{D.move=null;renderDiary()},
   'rest-menu':()=>{restOpen=!restOpen;renderTop()},
-  diary:()=>openModal(`<div class="wz-head"><h2>Diario</h2><button class="b sm" data-act="close-modal">Hecho</button></div>
-    <p class="hint">Apunta lo que quieras: lo que pasa en cada sesión, nombres, pistas, misiones… Se guarda solo.</p>
-    <textarea class="notes diary" id="diary-text" data-path="notes" placeholder="Sesión 1: llegamos a la aldea de…">${esc(C().notes)}</textarea>`,true),
+  diary:()=>{D={folder:null,note:null,menu:null,confirm:null,move:null,q:''};renderDiary()},
   short:()=>{restOpen=false;renderTop();shortRestModal()},
   hd:()=>{const c=C(),r=parseInt($('#hd-roll').value),f=+String(c.hitDice.die).replace(/\D/g,'')||8;
     if(!(r>=1&&r<=f)){$('#hd-roll').focus();toast(`<div class="t-parts">Escribe lo que has sacado en el ${esc(c.hitDice.die)} (de 1 a ${f}).</div>`);return}
@@ -984,11 +1040,13 @@ function copy(text,btn){const old=btn.textContent;
 
 /* ================= Eventos ================= */
 document.addEventListener('click',e=>{
-  if(e.target.id==='modal'){if(W)return;const wasPicker=!!P;closeModal();if(wasPicker){save();render()}return}
+  if(e.target.id==='modal'){if(W)return;if(D){D=null;closeModal();return}const wasPicker=!!P;closeModal();if(wasPicker){save();render()}return}
   const el=e.target.closest('[data-act]');
   if(restOpen&&!e.target.closest('.menuwrap')){restOpen=false;renderTop()}
   if(!el||el.disabled)return;const f=A[el.dataset.act];if(f){e.preventDefault();f(el)}});
 document.addEventListener('input',e=>{const el=e.target;
+  if(D&&(el.id==='d-text'||el.id==='d-title')){const n=dGet(D.note);if(n){if(el.id==='d-text')n.text=el.value;else n.name=el.value;n.updated=Date.now();save()}return}
+  if(D&&el.id==='d-q'){D.q=el.value;const pos=el.selectionStart;renderDiary();const q=$('#d-q');if(q){q.focus();q.setSelectionRange(pos,pos)}return}
   if(el.id==='sp-q'){P.q=el.value;refreshPicker();return}
   if(W){
     if(el.id==='wz-name')W.name=el.value;else if(el.id==='wz-species')W.species=el.value;else if(el.id==='wz-background')W.background=el.value;
@@ -1037,6 +1095,7 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Escape'&&restOpen){restOpen=false;renderTop()}
   if(e.key==='Escape'&&!$('#modal').hidden){if(P&&P.target==='edit'){A['sp-close']()}else closeModal()}
   if(e.key==='Enter'&&e.target.id==='hpAmt')A.hp({dataset:{m:'dmg'}});
-  if(e.key==='Enter'&&e.target.id==='ni-name')A['item-add']()});
+  if(e.key==='Enter'&&e.target.id==='ni-name')A['item-add']()
+  if(e.key==='Enter'&&e.target.id==='d-name'){const b=document.querySelector('.sheet [data-act=d-create],.sheet [data-act=d-rename-ok]');if(b)b.click()}});
 
 load();render();
