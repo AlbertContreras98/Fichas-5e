@@ -396,3 +396,12 @@ textarea.notes.diary{min-height:55vh;flex:1 1 auto}
 .dback{border-top:1px solid var(--line);padding-top:.5rem;margin-top:.3rem;font-size:.92rem}
 .dback small{color:var(--muted);margin-right:.2rem}
 .dback .dlink{margin-right:.5rem}
+/* Compañeros */
+.compc{border:1px solid var(--line);border-radius:10px;padding:.6rem .7rem;margin-top:.6rem}
+.comp-top{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+.comp-top small{color:var(--muted);font-size:.8rem}
+.comp-stats{display:flex;flex-wrap:wrap;gap:.3rem 1rem;font-size:.9rem;color:var(--muted);margin:.25rem 0 .4rem}
+.comp-stats b{color:var(--ink)}
+.comp-hp{display:grid;grid-template-columns:auto 1fr;gap:.6rem;align-items:center;margin-bottom:.45rem}
+.comp-notes{margin:.4rem 0 0;font-size:.92rem;overflow-wrap:anywhere}
+.effdur3{display:grid;grid-template-columns:repeat(auto-fit,minmax(5.5rem,1fr));gap:.5rem}

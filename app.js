@@ -35,7 +35,7 @@ function blank(){return{
   abilities:{str:10,dex:10,con:10,int:10,wis:10,cha:10},saveProf:[],skills:{},
   ac:10,speedFt:30,size:'M',initiativeBonus:0,
   hp:{max:8,current:8,temp:0},hitDice:{die:'d8',total:1,spent:0},deathSaves:{success:0,fail:0},
-  inspiration:false,exhaustion:0,conditions:[],concentration:'',effects:[],
+  inspiration:false,exhaustion:0,conditions:[],concentration:'',effects:[],companions:[],
   attacks:[],spellcasting:{ability:''},slots:Array.from({length:9},()=>({total:0,used:0})),pact:{level:0,total:0,used:0},spells:[],
   features:[],equipment:[],coins:{cp:0,sp:0,ep:0,gp:0,pp:0},languages:'',proficiencies:{armor:'',weapons:'',tools:''},notes:'',
   story:{img:'',alignment:'',age:'',appearance:'',personality:'',history:''},turn:{a:false,aa:false,r:false,atk:0},diary:{items:[]}}}
@@ -91,7 +91,7 @@ let S={chars:[],active:null,tab:'play'};
 function load(){
   try{const r=localStorage.getItem(KEY);if(r){const x=JSON.parse(r);S.chars=(x.chars||[]).map(normalize);S.active=x.active;if(x.tab)S.tab=x.tab;if(S.tab==='inv'||S.tab==='story')S.tab='pj';if(S.tab==='chars')S.tab='play'}}catch(e){}
   if(!S.chars.find(c=>c.id===S.active)) S.active=S.chars.length?S.chars[0].id:null}
-function syncEffects(c){if(!c)return;if(!Array.isArray(c.effects))c.effects=[];c.effects=c.effects.filter(e=>!e.conc||e.name===c.concentration)}
+function syncEffects(c){if(!c)return;if(!Array.isArray(c.effects))c.effects=[];if(!Array.isArray(c.companions))c.companions=[];c.effects=c.effects.filter(e=>!e.conc||e.name===c.concentration)}
 function save(){syncEffects(C());try{localStorage.setItem(KEY,JSON.stringify({chars:S.chars,active:S.active,tab:S.tab}))}catch(e){}}
 const C=()=>S.chars.find(c=>c.id===S.active);
 
@@ -180,6 +180,32 @@ function toast(html,keep){
 function openModal(h,big){const m=$('#modal');m.innerHTML=`<div class="sheet${big?' big':''}" role="dialog" aria-modal="true">${h}</div>`;m.hidden=false;const f=m.querySelector('input:not([type=hidden]),button');f&&!big&&f.focus()}
 function closeModal(){const m=$('#modal');m.hidden=true;m.innerHTML='';W=null;P=null;pendingEco=null}
 let pendingEco=null,restOpen=false;
+const INCAP=['Incapacitado','Aturdido','Paralizado','Petrificado','Inconsciente'];
+const COMP_KINDS=['Familiar','Montura','Invocación','Compañero animal','Otro'];
+function compCard(c){const L=c.companions;
+  return`<section class="card comp"><div class="card-head"><h2>Compañeros</h2><button class="b sm" data-act="comp-new">+ Añadir</button></div>
+    ${L.length?L.map(x=>{const pct=x.hp.max?clamp(x.hp.current/x.hp.max*100,0,100):0;
+      return`<div class="compc">
+        <div class="comp-top"><span><b>${esc(x.name||'Sin nombre')}</b>${x.kind?` <small>${esc(x.kind)}</small>`:''}</span><button class="b sm" data-act="comp-edit" data-id="${x.id}">Editar</button></div>
+        <div class="comp-stats"><span>CA <b>${esc(x.ac||'—')}</b></span>${x.speed?`<span>${esc(x.speed)}</span>`:''}</div>
+        <div class="comp-hp"><span><b>${x.hp.current}</b> / ${x.hp.max} PG</span><div class="bar"><i class="${pct<=25?'low':''}" style="width:${pct}%"></i></div></div>
+        <div class="hpctl"><input id="cp-${x.id}" type="number" inputmode="numeric" min="0" placeholder="PG" aria-label="PG de ${esc(x.name)}"><button class="b bad" data-act="comp-hp" data-m="dmg" data-id="${x.id}">Daño</button><button class="b good" data-act="comp-hp" data-m="heal" data-id="${x.id}">Curar</button></div>
+        ${x.hp.current<=0?'<p class="hint warn">A 0 PG. Un familiar o una criatura invocada desaparece; otras criaturas caen. Pregunta al máster.</p>':''}
+        ${x.notes?`<details><summary>Ataques y rasgos</summary><p class="comp-notes">${esc(x.notes).replace(/\n/g,'<br>')}</p></details>`:''}</div>`}).join('')
+      :'<p class="hint">Familiar, montura o criatura invocada: lleva aquí su CA, sus PG y sus ataques.</p>'}</section>`}
+function compModal(x,confirm){const isNew=!x.id;
+  openModal(`<h2>${isNew?'Nuevo compañero':'Editar compañero'}</h2>
+    <label class="f"><span>Nombre</span><input id="cp-name" value="${esc(x.name||'')}" placeholder="Búho" autocomplete="off"></label>
+    <label class="f"><span>Tipo</span><select id="cp-kind">${COMP_KINDS.map(k=>`<option ${x.kind===k?'selected':''}>${k}</option>`).join('')}</select></label>
+    <div class="effdur3"><label class="f"><span>CA</span><input id="cp-ac" type="number" inputmode="numeric" value="${esc(x.ac??'')}"></label>
+      <label class="f"><span>PG máx.</span><input id="cp-max" type="number" inputmode="numeric" min="1" value="${esc(x.hp?x.hp.max:'')}"></label>
+      ${isNew?'':`<label class="f"><span>PG actuales</span><input id="cp-cur" type="number" inputmode="numeric" min="0" value="${esc(x.hp.current)}"></label>`}</div>
+    <label class="f"><span>Velocidad</span><input id="cp-speed" value="${esc(x.speed||'')}" placeholder="10 pies, volar 60 pies" autocomplete="off"></label>
+    <label class="f"><span>Ataques y rasgos</span><textarea id="cp-notes" rows="4" placeholder="Garras: +3, 1d4 cortante. Vuelo sin provocar ataques de oportunidad…">${esc(x.notes||'')}</textarea></label>
+    <p class="hint">Copia los datos del bloque de estadísticas de la criatura (te lo da el máster o el conjuro que la invoca).</p>
+    <div class="btns"><button class="b pri" data-act="comp-save" data-id="${x.id||''}">Guardar</button>
+      ${isNew?'':confirm?`<button class="b bad" data-act="comp-del-ok" data-id="${x.id}">Sí, borrar</button>`:`<button class="b bad" data-act="comp-del" data-id="${x.id}">Borrar</button>`}
+      <button class="b" data-act="close-modal">Cancelar</button></div>`);if(isNew)$('#cp-name').focus()}
 /* Duraciones: {r:rondas} | {m:minutos} | {inf:true} */
 function parseDur(t){t=norm(t||'').replace(/^hasta\s+/,'');let m;
   if(/disipe/.test(t))return{inf:true};
@@ -296,7 +322,7 @@ function viewPlay(c){
   const feats=`<section class="card"><h2>Rasgos y dotes</h2>${c.features.length?`<div class="list">${c.features.map(f=>`<div class="it"><div class="it-head"><span class="it-name">${esc(f.name)}</span>${f.uses.max>0?`<span class="badge">${f.uses.max-f.uses.used}/${f.uses.max}</span>`:''}</div>
       ${f.source?`<div class="meta">${esc(f.source)}</div>`:''}
       ${f.text?`<details><summary>Detalles</summary><p>${esc(f.text)}</p></details>`:''}</div>`).join('')}</div>`:'<p class="empty">Sin rasgos.</p>'}</section>`;
-  return`${viewTurn(c)}<div class="cols"><div class="col">${vit}${res}</div><div class="col">${abil}${sk}</div><div class="col">${atk}${mag}${feats}</div></div>`}
+  return`${viewTurn(c)}<div class="cols"><div class="col">${vit}${compCard(c)}${res}</div><div class="col">${abil}${sk}</div><div class="col">${atk}${mag}${feats}</div></div>`}
 function slotOptions(c,L){const o=[];
   if(c.pact.total>0&&c.pact.level>=L)o.push({kind:'pact',level:c.pact.level,avail:c.pact.total-c.pact.used});
   for(let l=L;l<=9;l++){const s=c.slots[l-1];if(s.total>0)o.push({kind:'slot',level:l,avail:s.total-s.used})}
@@ -921,7 +947,9 @@ const A={
   'conc-keep':el=>el.closest('.toast').remove(),
   'conc-lose':el=>{el.closest('.toast').remove();C().concentration='';save();render()},
   insp:()=>{const c=C();c.inspiration=!c.inspiration;save();render()},
-  cond:el=>{const c=C(),n=el.dataset.n,i=c.conditions.indexOf(n);i>=0?c.conditions.splice(i,1):c.conditions.push(n);save();render();if(el.closest('.sheet'))A.conds()},
+  cond:el=>{const c=C(),n=el.dataset.n,i=c.conditions.indexOf(n);i>=0?c.conditions.splice(i,1):c.conditions.push(n);
+    if(i<0&&INCAP.includes(n)&&c.concentration){const lost=c.concentration;c.concentration='';toast(`<div class="t-label">Pierdes la concentración</div><div class="t-parts">${esc(lost)} termina: ${n==='Incapacitado'?'estás incapacitado':`el estado ${esc(n)} te incapacita`}.</div>`)}
+    save();render();if(el.closest('.sheet'))A.conds()},
   conds:()=>{const c=C();openModal(`<div class="wz-head"><h2>Estados</h2><button class="b sm" data-act="close-modal">Hecho</button></div>
     <p class="hint">Toca para activar o quitar. Debajo de cada uno, qué hace.</p>
     <div class="condpick">${CONDS.map(([n,ds])=>`<button class="b opt ${c.conditions.includes(n)?'pri':''}" data-act="cond" data-n="${n}" aria-pressed="${c.conditions.includes(n)}"><span><b>${n}</b><br><small>${esc(ds)}</small></span><span aria-hidden="true">${c.conditions.includes(n)?'✓':''}</span></button>`).join('')}</div>`)},
@@ -990,9 +1018,9 @@ const A={
     toast(`<div class="t-label">Dado de golpe</div><div class="t-big good">+${c.hp.current-was}</div><div class="t-parts">${r} ${sgn(cm)} CON</div>`);save();renderTop();if(S.tab==='play')renderView();shortRestModal()},
   'short-done':()=>{const c=C();c.pact.used=0;endEffects(c,e=>e.r!=null||(e.m!=null&&e.m<=60));c.features.forEach(f=>{if(f.uses.recover==='corto')f.uses.used=0;if(f.uses.recover==='corto1')f.uses.used=Math.max(0,f.uses.used-1)});closeModal();save();render();toast('<div class="t-label">Descanso corto terminado</div><div class="t-parts">Recursos de descanso corto recuperados.</div>')},
   long:()=>{restOpen=false;renderTop();A.longModal()},
-  longModal:()=>openModal(`<h2>Descanso largo (8 horas)</h2><ul><li>Recuperas todos los PG y todos los dados de golpe</li><li>Recuperas todos los espacios de conjuro</li><li>Se recuperan los rasgos con usos limitados</li><li>Agotamiento −1 y pierdes los PG temporales</li></ul>
+  longModal:()=>openModal(`<h2>Descanso largo (8 horas)</h2><ul><li>Recuperas todos los PG y todos los dados de golpe</li><li>Recuperas todos los espacios de conjuro</li><li>Se recuperan los rasgos con usos limitados</li><li>Agotamiento −1 y pierdes los PG temporales</li>${C().companions.length?'<li>Tus compañeros recuperan todos sus PG</li>':''}</ul>
     <div class="btns"><button class="b pri" data-act="long-done">Hacer descanso largo</button><button class="b" data-act="close-modal">Cancelar</button></div>`),
-  'long-done':()=>{const c=C();endEffects(c,e=>e.r!=null||(e.m!=null&&e.m<=480));c.hp.current=c.hp.max;c.hp.temp=0;c.hitDice.spent=0;c.slots.forEach(s=>s.used=0);c.pact.used=0;
+  'long-done':()=>{const c=C();c.companions.forEach(x=>x.hp.current=x.hp.max);endEffects(c,e=>e.r!=null||(e.m!=null&&e.m<=480));c.hp.current=c.hp.max;c.hp.temp=0;c.hitDice.spent=0;c.slots.forEach(s=>s.used=0);c.pact.used=0;
     c.features.forEach(f=>{if(f.uses.recover)f.uses.used=0});c.exhaustion=Math.max(0,(+c.exhaustion||0)-1);c.deathSaves={success:0,fail:0};c.concentration='';
     c.conditions=c.conditions.filter(x=>x!=='Inconsciente');if(c.speciesKey==='human')c.inspiration=true;closeModal();save();render();toast('<div class="t-label">Descanso largo terminado</div><div class="t-parts">Como nuevo.</div>')},
   pay:()=>{const c=C(),n=parseInt($('#pay-amt').value),k=$('#pay-coin').value;if(!(n>0)){$('#pay-amt').focus();return}
@@ -1028,6 +1056,21 @@ const A={
   't-end':()=>{const c=C();c.turn={a:false,aa:false,r:false,atk:0};c.effects.forEach(e=>{if(e.r!=null)e.r--});
     const gone=endEffects(c,e=>e.r!=null&&e.r<=0);save();render();
     if(gone.length)toast(`<div class="t-label">Efecto terminado</div><div class="t-parts">${gone.map(esc).join(', ')} ${gone.length>1?'han':'ha'} terminado.</div>`)},
+  'comp-new':()=>compModal({kind:'Familiar'}),
+  'comp-edit':el=>compModal(C().companions.find(x=>x.id===el.dataset.id)),
+  'comp-save':el=>{const c=C(),name=$('#cp-name').value.trim();if(!name){$('#cp-name').focus();return}
+    const max=Math.max(1,parseInt($('#cp-max').value)||1);let x=c.companions.find(y=>y.id===el.dataset.id);
+    if(!x){x={id:uid(),hp:{max,current:max}};c.companions.push(x)}
+    else{x.hp.max=max;const cur=parseInt($('#cp-cur').value);x.hp.current=clamp(isNaN(cur)?x.hp.current:cur,0,max)}
+    Object.assign(x,{name,kind:$('#cp-kind').value,ac:$('#cp-ac').value===''?'':+$('#cp-ac').value,speed:$('#cp-speed').value.trim(),notes:$('#cp-notes').value});
+    closeModal();save();render()},
+  'comp-del':el=>{const x=C().companions.find(y=>y.id===el.dataset.id);
+    const keep={name:$('#cp-name').value,kind:$('#cp-kind').value,ac:$('#cp-ac').value,speed:$('#cp-speed').value,notes:$('#cp-notes').value,hp:{max:$('#cp-max').value,current:$('#cp-cur').value}};
+    compModal(Object.assign({},x,keep,{id:x.id}),true)},
+  'comp-del-ok':el=>{const c=C();c.companions=c.companions.filter(y=>y.id!==el.dataset.id);closeModal();save();render()},
+  'comp-hp':el=>{const c=C(),x=c.companions.find(y=>y.id===el.dataset.id),inp=$('#cp-'+x.id),n=Math.max(0,parseInt(inp.value)||0);if(!n){inp.focus();return}
+    const was=x.hp.current;x.hp.current=el.dataset.m==='heal'?Math.min(x.hp.max,was+n):Math.max(0,was-n);save();render();
+    toast(`<div class="t-label">${esc(x.name)}</div><div class="t-big ${el.dataset.m==='heal'?'good':'bad'}">${el.dataset.m==='heal'?'+'+(x.hp.current-was):'−'+n}</div><div class="t-parts">PG: ${x.hp.current} / ${x.hp.max}${x.hp.current===0&&was>0?' · ha caído a 0 PG':''}</div>`)},
   'eff-del':el=>{const c=C();endEffects(c,e=>e.id===el.dataset.id);save();render()},
   'eff-add':()=>openModal(`<h2>Añadir efecto</h2><p class="hint">Algo que dura un tiempo: un conjuro que te han lanzado, un veneno, una bendición… Las rondas bajan al pulsar «Terminar turno» (1 ronda = 6 segundos).</p>
     <label class="f"><span>Nombre</span><input id="eff-name" autocomplete="off" placeholder="Envenenado"></label>
