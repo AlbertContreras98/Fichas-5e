@@ -824,18 +824,19 @@ function viewData(c){
   </div>`}
 const CREDITS=`<p>Fichas 5e es contenido de fans no oficial permitido bajo la Fan Content Policy. No aprobado ni respaldado por Wizards. Partes de los materiales usados son propiedad de Wizards of the Coast. ©Wizards of the Coast LLC.</p><p>Esta app incluye material del System Reference Document 5.2 («SRD 5.2») de Wizards of the Coast LLC, disponible en https://www.dndbeyond.com/srd, bajo licencia Creative Commons Attribution 4.0 International (https://creativecommons.org/licenses/by/4.0/legalcode). Los textos de los conjuros están traducidos y adaptados al castellano. Los resúmenes de rasgos de clase y subclase están escritos para esta app; consulta el Manual del Jugador para el texto completo.</p>`;
 const ALIGN=['','Legal bueno','Neutral bueno','Caótico bueno','Legal neutral','Neutral','Caótico neutral','Legal malvado','Neutral malvado','Caótico malvado'];
-function viewStory(c){const st=c.story;
+function viewStory(c){const st=c.story;if(st.appearance&&st.appearance.trim()){st.personality=`Apariencia: ${st.appearance.trim()}${st.personality?'\n\n'+st.personality:''}`;st.appearance='';save()}
   return`<div class="story">
   <section class="card portrait-card"><h2>Retrato</h2>
     <div class="portrait">${st.img?`<img src="${st.img}" alt="Retrato de ${esc(c.name)}">`:`<div class="portrait-empty">Sin imagen</div>`}</div>
     <div class="btns"><label class="b pri" for="story-img">${st.img?'Cambiar imagen':'Elegir imagen'}</label><input id="story-img" type="file" accept="image/*" hidden>${st.img?'<button class="b bad" data-act="img-del">Quitar</button>':''}</div>
     <p class="hint">Desde la galería o la cámara. Se guarda reducida en este dispositivo.</p>
     <div class="grid">${sel('Alineamiento','story.alignment',st.alignment,ALIGN.map(a=>[a,a||'Sin especificar']))}${inp('Edad','story.age',st.age,{ph:'Ej. 23 años'})}</div></section>
+  <div class="story-col">
   <section class="card"><h2>Personalidad</h2>
-    <label class="f wide"><span>Apariencia</span><textarea id="f-story-appearance" class="notes" data-path="story.appearance" placeholder="Altura, rasgos, cicatrices, ropa, cómo se mueve…">${esc(st.appearance)}</textarea></label>
-    <label class="f wide" style="margin-top:.7rem"><span>Personalidad</span><textarea id="f-story-personality" class="notes" data-path="story.personality" placeholder="Cómo es, qué valora, a quién o qué está unido, sus miedos y defectos…">${esc(st.personality)}</textarea></label></section>
-  <section class="card story-history"><h2>Historia</h2>
+    <textarea id="f-story-personality" class="notes" data-path="story.personality" placeholder="Cómo es, qué valora, a quién o qué está unido, sus miedos y defectos…">${esc(st.personality)}</textarea></section>
+  <section class="card"><h2>Historia</h2>
     <textarea id="f-story-history" class="notes tall" data-path="story.history" placeholder="De dónde viene, qué le ha pasado y por qué se ha hecho aventurero…">${esc(st.history)}</textarea></section>
+  </div>
   </div>`}
 function loadPortrait(file){
   if(!file||!/^image\//.test(file.type)){toast('<div class="t-parts">Ese archivo no es una imagen.</div>');return}
