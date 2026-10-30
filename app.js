@@ -501,10 +501,9 @@ function viewTurn(c){
   const pill=(lbl,k,used,extra)=>`<span class="pill ${used?'used':''}">${term(lbl,k)}<b>${extra||(used?'Gastada':'Disponible')}</b></span>`;
   const aState=T.a?(T.atk>0?`Atacando · ${T.atk} más`:'Gastada'):'';
   const col=(k,title,gk,body)=>`<div class="tcol ${k==='A'?(aFree||T.atk>0?'':'off'):k==='AA'?(T.aa?'off':''):k==='R'?(T.r?'off':''):''}"><h3>${term(title,gk)}</h3>${body||'<p class="empty">Nada por ahora.</p>'}</div>`;
-  let open=true;try{open=localStorage.getItem('fichas-turn-open')!=='0'}catch(e){}
-  return`<section class="card turn"><div class="card-head"><h2>Tu turno</h2><div class="btns"><button class="b" data-act="t-end">Terminar turno</button><button class="b sq fold ${open?'open':''}" data-act="t-fold" aria-expanded="${open}" aria-label="${open?'Plegar':'Desplegar'}" title="${open?'Plegar':'Desplegar'}"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div>
+  return`<section class="card turn"><div class="card-head"><h2>Tu turno</h2><div class="btns"><button class="b" data-act="t-end">Terminar turno</button></div></div>
     <div class="pills">${pill('Acción','action',T.a,aState)}${pill('Acción adicional','bonus',T.aa)}${pill('Reacción','reaction',T.r)}</div>
-    <div class="tgrid" ${open?'':'hidden'}>
+    <div class="tgrid">
       ${col('A','Acción','action',`${nAtk>1?`<p class="hint">Con la acción de Atacar haces ${nAtk} ataques.</p>`:''}${cols.A.join('')}<h3 class="sub3">Otras acciones</h3>${generic}`)}
       ${col('AA','Acción adicional','bonus',cols.AA.join(''))}
       ${col('R','Reacción','reaction',cols.R.join(''))}
@@ -1160,7 +1159,6 @@ const A={
   'open-credits':()=>openModal(`<div class="wz-head"><h2>Créditos y aviso legal</h2><button class="b sm" data-act="close-modal">Cerrar</button></div><div class="credits">${CREDITS}</div>`),
   'open-edit':()=>{closeModal();S.tab='edit';save();render();scrollTo(0,0)},
   gloss:el=>showGloss(el),
-  't-fold':()=>{try{const o=localStorage.getItem('fichas-turn-open')!=='0';localStorage.setItem('fichas-turn-open',o?'0':'1')}catch(e){}renderView()},
   't-end':()=>{const c=C();c.turn={a:false,aa:false,r:false,atk:0};c.effects.forEach(e=>{if(e.r!=null)e.r--});
     const gone=endEffects(c,e=>e.r!=null&&e.r<=0);save();render();
     if(gone.length)toast(`<div class="t-label">Efecto terminado</div><div class="t-parts">${gone.map(esc).join(', ')} ${gone.length>1?'han':'ha'} terminado.</div>`)},
