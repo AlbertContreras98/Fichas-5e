@@ -284,6 +284,18 @@ main {
     grid-template-columns: 1fr 1fr;
   }
 }
+/* Partida en 2 columnas: la 1.ª ocupa las dos filas y Rasgos va debajo de Magia. */
+@media (min-width: 780px) and (max-width: 1149.98px) {
+  .cols.play {
+    grid-template-rows: auto 1fr;
+  }
+  .cols.play > .col:first-child {
+    grid-row: span 2;
+  }
+  .cols.play > .col:nth-child(3) {
+    grid-column: 2;
+  }
+}
 @media (min-width: 1150px) {
   .cols {
     grid-template-columns: 1fr 1fr 1fr;
