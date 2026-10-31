@@ -481,3 +481,12 @@ button.eff.cond-pill{border:1px solid color-mix(in srgb,var(--bad) 45%,var(--lin
 .avatar.ph{display:flex;align-items:center;justify-content:center;background:var(--accent-soft);color:var(--accent);font-family:var(--f-display);font-size:1.5rem;font-weight:700}
 .avatar-btn{cursor:pointer;transition:box-shadow .15s}
 .avatar-btn.on{box-shadow:0 0 0 3px var(--surface),0 0 0 5px var(--accent)}
+.vida-top{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:.2rem 1rem;margin-bottom:.6rem}
+.vida-top .vida-hp{margin:0}
+.vida-hd{flex:1 1 100%}
+@media (min-width:380px){.vida-hd{flex:0 1 auto;text-align:right}}
+.vida-hd>summary{cursor:pointer;list-style:none;font-size:.95rem;color:var(--ink)}
+.vida-hd>summary::-webkit-details-marker{display:none}
+.vida-hd>summary::before{content:'▸ ';color:var(--muted)}
+.vida-hd[open]>summary::before{content:'▾ '}
+.vida-hd>.hint{text-align:left;margin:.3rem 0 0}
