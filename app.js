@@ -90,7 +90,7 @@ function fillFromRef(s){const d=s.ref&&SPBY[s.ref];if(!d)return s;
 let S={chars:[],active:null,tab:'play'};
 function load(){
   try{const r=localStorage.getItem(KEY);if(r){const x=JSON.parse(r);S.chars=(x.chars||[]).map(normalize);S.active=x.active;if(x.tab)S.tab=x.tab;if(S.tab==='inv'||S.tab==='story')S.tab='pj';if(S.tab==='chars')S.tab='play'}}catch(e){}
-  S.chars.forEach(linkWeapons);S.chars.forEach(linkGear);S.chars.forEach(syncEffects);S.chars.forEach(linkArmor);
+  S.chars.forEach(linkWeapons);S.chars.forEach(linkGear);S.chars.forEach(linkItemWeapons);S.chars.forEach(syncEffects);S.chars.forEach(linkArmor);
   if(!S.chars.find(c=>c.id===S.active)) S.active=S.chars.length?S.chars[0].id:null}
 const OLDK={'Familiar':'familiar','Montura':'other','Invocación':'other','Compañero animal':'other','Otro':'other'};
 function syncEffects(c){if(!c)return;if(Array.isArray(c.attacks)&&Array.isArray(c.equipment))syncWeapons(c);if(Array.isArray(c.companions))c.companions.forEach(x=>{if(!CREA_KINDS[x.kind]){x.label=x.kind&&x.kind!=='Otro'&&x.kind!=='Familiar'?x.kind:'';x.kind=OLDK[x.kind]||'other'}if(!x.attacks)x.attacks=[];if(!x.hp)x.hp={max:0,current:0}});if(!Array.isArray(c.effects))c.effects=[];if(!Array.isArray(c.companions))c.companions=[];c.effects=c.effects.filter(e=>!e.conc||e.name===c.concentration);
@@ -584,6 +584,7 @@ function gearUse(i,eco){const c=C(),e=c.equipment[i],G=GEAR[e.gear];if(!G||(!G.k
   if(G.eff)c.effects.push(Object.assign({id:uid(),name:G.eff[0],conc:false},G.eff[1]));
   save();render();refreshInv();
   toast(`<div class="t-label">${G.act==='lit'?'Enciendes':'Usas'}</div><div class="t-big">${esc(e.name)}</div><div class="t-parts">${esc(G.d)}${extra?' '+extra:''}${G.keep?'':` Te quedan ${e.qty}${G.unit?' '+G.unit:''}.`}</div>`)}
+function linkItemWeapons(c){if(c._itemWpnLinked)return;c._itemWpnLinked=true;c.equipment.forEach(e=>{if(e.weapon||e.cat!=='arma')return;const n=norm(e.name).replace(/\s*\(.*\)$/,'');const k=Object.keys(WEAPONS).find(k=>norm(WEAPONS[k].n)===n);if(k)e.weapon=k})}
 function linkGear(c){if(c._gearLinked)return;c._gearLinked=true;
   c.equipment.forEach(e=>{if(e.tool||e.gear)return;const n=norm(e.name);
     const tk=Object.keys(TOOLS).find(k=>n===norm(TOOLS[k].n)||n.startsWith(norm(TOOLS[k].n)));if(tk){e.tool=tk;return}
@@ -696,6 +697,7 @@ function invHTML(c){
       ${e.mi?`<div class="meta">✦ ${[e.mi.d,!e.mi.d&&+e.mi.ac?`+${e.mi.ac} CA${e.mi.noarm?' (sin armadura ni escudo)':''}`:'',!e.mi.d&&+e.mi.sv?`+${e.mi.sv} salvaciones`:''].filter(Boolean).map(esc).join(' · ')}${e.mi.att&&!e.mi.on?' <b>(sin sintonizar: no funciona)</b>':''}</div>
         <div class="btns">${e.mi.att?`<button class="chip ${e.mi.on?'on':''}" data-act="mi-att" data-i="${i}" aria-pressed="${!!e.mi.on}">${e.mi.on?'Sintonizado':'Sintonizar'}</button>`:''}
         ${+e.mi.ch?`<span class="counter"><button class="b sq" data-act="mi-ch" data-i="${i}" data-d="1" aria-label="Gastar una carga">−</button><b style="min-width:3.2rem;text-align:center">${e.mi.ch-(+e.mi.used||0)}/${e.mi.ch}</b><button class="b sq" data-act="mi-ch" data-i="${i}" data-d="-1" aria-label="Recuperar una carga">+</button></span><small class="muted">cargas${e.mi.rec?` · recupera ${esc(e.mi.rec)} al amanecer`:''}</small>`:''}</div>`:''}
+      ${e.weapon&&WEAPONS[e.weapon]&&!C().attacks.some(a=>a.item===e.id||(a.wpn===e.weapon&&norm(a.name)===norm(e.name)))?`<div class="btns"><button class="b sm" data-act="wpn-atk" data-i="${i}">Añadir a mis ataques</button></div>`:''}
       ${e.weapon&&WEAPONS[e.weapon]?`<div class="meta">${WEAPONS[e.weapon].d} ${WEAPONS[e.weapon].t}${+e.magic?` · +${e.magic} mágica`:''} · ${WEAPONS[e.weapon].c==='s'?'sencilla':'marcial'} · maestría: ${MASTERY[WEAPONS[e.weapon].ms][0].toLowerCase()}</div>`:''}
       ${e.scroll&&SPBY[e.scroll]?`<div class="meta">${SPBY[e.scroll].l?`Conjuro de nivel ${SPBY[e.scroll].l}`:'Truco'} · lánzalo desde Magia (Partida) o desde Combate</div>`:''}
       ${e.armor&&ARMORS[e.armor]?`<div class="meta">${ARMOR_T[ARMORS[e.armor].t]} · ${ARMORS[e.armor].t==='s'?'+2 a la CA':`CA ${ARMORS[e.armor].ac}${ARMORS[e.armor].t==='l'?' + DES':ARMORS[e.armor].t==='m'?' + DES (máx. 2)':''}`}${+e.magic?` · +${e.magic} mágica`:''}${ARMORS[e.armor].str?` · FUE ${ARMORS[e.armor].str}`:''}${ARMORS[e.armor].st?' · desventaja en Sigilo':''}</div>
@@ -1347,6 +1349,9 @@ const A={
   eq:el=>{const c=C(),e=c.equipment[+el.dataset.i],sh=ARMORS[e.armor].t==='s';e.equipped=!e.equipped;
     if(e.equipped)c.equipment.forEach(o=>{if(o!==e&&o.armor&&o.equipped&&(ARMORS[o.armor].t==='s')===sh)o.equipped=false});save();render();refreshInv()},
   gear:el=>gearUse(+el.dataset.i),
+  'wpn-atk':el=>{const c=C(),e=c.equipment[+el.dataset.i];const a=Object.assign(NEW.attacks(),{name:e.name,wpn:e.weapon,magic:+e.magic||0,mastery:MASTERY_CLS.has(c.classKey),item:e.id});
+    const W=WEAPONS[e.weapon];if(W.am){const am=c.equipment.find(x=>x.ammoKind===W.am[0]);if(am)a.ammo=am.id}c.attacks.push(a);save();render();refreshInv();
+    toast(`<div class="t-label">${esc(e.name)} añadida a tus ataques</div><div class="t-parts">${sgn(a.atk)} · ${esc(a.dmg)} ${esc(a.type||'')}</div>`)},
   'mi-att':el=>{const c=C(),e=c.equipment[+el.dataset.i];if(!e.mi.on&&attuned(c)>=3){toast('<div class="t-label">Máximo 3 objetos sintonizados</div><div class="t-parts">Deja de sintonizar otro primero (se hace durante un descanso corto).</div>');return}
     e.mi.on=e.mi.on?0:1;save();render();refreshInv();if(e.mi.on)toast(`<div class="t-label">Sintonizado</div><div class="t-parts">${esc(e.name)} ya funciona. Sintonizarse requiere un descanso corto con el objeto.</div>`)},
   'mi-ch':el=>{const c=C(),e=c.equipment[+el.dataset.i];e.mi.used=clamp((+e.mi.used||0)+(+el.dataset.d),0,e.mi.ch);save();render();refreshInv()},
