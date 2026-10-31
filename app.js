@@ -1259,7 +1259,13 @@ const A={
     <p class="hint">Toca para activar o quitar. Debajo de cada uno, qué hace.</p>
     <div class="condpick">${CONDS.map(([n,ds])=>`<button class="b opt ${c.conditions.includes(n)?'pri':''}" data-act="cond" data-n="${n}" aria-pressed="${c.conditions.includes(n)}"><span><b>${n}</b><br><small>${esc(ds)}</small></span><span aria-hidden="true">${c.conditions.includes(n)?'✓':''}</span></button>`).join('')}</div>`)},
   exh:el=>{const c=C();c.exhaustion=clamp((+c.exhaustion||0)+(+el.dataset.d),0,6);save();render()},
-  qty:el=>{const e=C().equipment[+el.dataset.i];e.qty=Math.max(0,(+e.qty||0)+(+el.dataset.d));save();render();refreshInv()},
+  qty:el=>{const c=C(),i=+el.dataset.i,e=c.equipment[i];
+    if(+el.dataset.d<0&&(+e.qty||0)<=1&&el.closest('#inv-body')){openModal(`<h2>¿Quitar ${esc(e.name)}?</h2><p>Se ha quedado a 0. ¿Lo quitas de la mochila?</p><p class="hint">Si piensas reponerlo (munición, raciones…), puedes dejarlo a 0.</p>
+      <div class="btns"><button class="b bad" data-act="item-del" data-id="${e.id}">Quitar</button><button class="b" data-act="item-zero" data-id="${e.id}">Dejar a 0</button><button class="b" data-act="item-cancel">Cancelar</button></div>`);return}
+    e.qty=Math.max(0,(+e.qty||0)+(+el.dataset.d));save();render();refreshInv()},
+  'item-del':el=>{const c=C(),id=el.dataset.id,e=c.equipment.find(x=>x.id===id);c.equipment=c.equipment.filter(x=>x.id!==id);
+    c.attacks.forEach(a=>{if(a.ammo===id)a.ammo='';if(a.item===id)a.item=''});closeModal();save();render();openInv();toast(`<div class="t-label">Quitado</div><div class="t-parts">${esc(e?e.name:'Objeto')} ya no está en la mochila.</div>`)},
+  'item-zero':el=>{const e=C().equipment.find(x=>x.id===el.dataset.id);if(e)e.qty=0;closeModal();save();render();openInv()},
   ammo:el=>{const c=C(),a=c.attacks[+el.dataset.i],e=c.equipment.find(x=>x.id===a.ammo);if(!e||e.qty<=0)return;e.qty--;save();render();
     toast(`<div class="t-label">${esc(a.name)}</div><div class="t-parts">Gastas 1 ${esc(e.name)}. Te quedan <b>${e.qty}</b>.${e.qty===0?' ¡Sin munición!':''}</div><div class="t-actions"><button class="b sm" data-act="ammo-back" data-id="${e.id}">Recuperar 1</button></div>`)},
   'ammo-back':el=>{const e=C().equipment.find(x=>x.id===el.dataset.id);if(e){e.qty++;save();render()}el.closest('.toast').remove()},
