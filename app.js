@@ -352,7 +352,6 @@ function openInfo(){const c=C(),info=infoFor(defOf(c),subOf(c),c.level);
   const list=pre=>c.features.filter(f=>norm(f.name).startsWith(norm(pre))).map(f=>`<details><summary>${esc(f.name.replace(/^[^:]*:\s*/,''))}</summary><p>${esc(f.text||'')}</p></details>`).join('');
   openModal(`<div class="wz-head"><h2>Datos de ${esc(c.name||'tu personaje')}</h2><button class="b sm" data-act="close-modal">Hecho</button></div>
     ${row('Bonificador de competencia','pb',sgn(pb(c)),'Lo sumas a todo aquello en lo que eres competente: ataques, habilidades, salvaciones, herramientas y conjuros. Sube con el nivel.')}
-    ${(()=>{const L=String(c.languages||'').split(/\s*(?:,|;|\by\b)\s*/).map(x=>x.trim()).filter(Boolean);return`<details class="inforow"><summary><span>Idiomas</span><b>${L.length||'—'}</b></summary>${L.length?`<ul class="langs">${L.map(x=>`<li>${esc(x.replace(/^./,m=>m.toUpperCase()))}</li>`).join('')}</ul>`:'<p class="hint">Sin idiomas apuntados. Añádelos en ⚙ Ajustes → Editar ficha.</p>'}</details>`})()}
     ${row('Percepción pasiva','passive',String(10+skillB(c,SK.perception)),'Lo que notas sin tirar dados. El máster la usa para ver si detectas enemigos escondidos, trampas o a quien te sigue.')}
     ${Object.keys(info).length?`<h3>Datos de clase</h3>${Object.entries(info).map(([k,v])=>row(k,'',String(v),INFO_DESC[k]||'')+(k==='Invocaciones'?list('Invocación'):k==='Metamagias conocidas'?list('Metamagia'):'')).join('')}`:''}`,true)}
 function renderTop(){
@@ -832,7 +831,7 @@ function viewStory(c){const st=c.story;if(st.appearance&&st.appearance.trim()){s
     <div class="portrait">${st.img?`<img src="${st.img}" alt="Retrato de ${esc(c.name)}">`:`<div class="portrait-empty">Sin imagen</div>`}</div>
     <div class="btns"><label class="b pri" for="story-img">${st.img?'Cambiar imagen':'Elegir imagen'}</label><input id="story-img" type="file" accept="image/*" hidden>${st.img?'<button class="b bad" data-act="img-del">Quitar</button>':''}</div>
     <p class="hint">Desde la galería o la cámara. Se guarda reducida en este dispositivo.</p>
-    <div class="grid">${sel('Alineamiento','story.alignment',st.alignment,ALIGN.map(a=>[a,a||'Sin especificar']))}${inp('Edad','story.age',st.age,{ph:'Ej. 23 años'})}</div></section>
+    <div class="grid">${sel('Alineamiento','story.alignment',st.alignment,ALIGN.map(a=>[a,a||'Sin especificar']))}${inp('Edad','story.age',st.age,{ph:'Ej. 23 años'})}${inp('Idiomas','languages',c.languages||'',{w:'wide',ph:'Común, Infernal…'})}</div></section>
   <div class="story-col">
   <section class="card"><h2>Personalidad</h2>
     <textarea id="f-story-personality" class="notes" data-path="story.personality" placeholder="Cómo es, qué valora, a quién o qué está unido, sus miedos y defectos…">${esc(st.personality)}</textarea></section>
