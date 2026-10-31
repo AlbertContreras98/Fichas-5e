@@ -490,3 +490,5 @@ button.eff.cond-pill{border:1px solid color-mix(in srgb,var(--bad) 45%,var(--lin
 .vida-hd>summary::before{content:'▸ ';color:var(--muted)}
 .vida-hd[open]>summary::before{content:'▾ '}
 .vida-hd>.hint{text-align:left;margin:.3rem 0 0}
+.abil-extra{margin-top:.6rem;border-top:1px solid var(--line);padding-top:.2rem}
+.classinfo{margin-bottom:.6rem;padding-bottom:.3rem;border-bottom:1px solid var(--line)}
