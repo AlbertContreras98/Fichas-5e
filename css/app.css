@@ -284,7 +284,7 @@ main {
     grid-template-columns: 1fr 1fr;
   }
 }
-/* Partida en 2 columnas: la 1.ª ocupa las dos filas y Rasgos va debajo de Magia. */
+/* Partida en 2 columnas: la 1.ª ocupa las dos filas y la 3.ª va debajo de la 2.ª. */
 @media (min-width: 780px) and (max-width: 1149.98px) {
   .cols.play {
     grid-template-rows: auto 1fr;

@@ -183,7 +183,7 @@ function viewPlay(c) {
   const tools = tl.length
     ? `<section class="card"><h2>Herramientas</h2><div class="list">${tl.map(x => toolDetail(c, x)).join('')}</div><p class="hint" style="margin-top:.5rem">Al usar una herramienta tiras 1d20 + ese bonificador contra la CD. Si además eres competente en una habilidad que encaje con la prueba (el máster decide cuál), tiras con ventaja.</p></section>`
     : '';
-  return `<div class="cols play"><div class="col">${abil}${sk}${tools}</div><div class="col">${atk}${mag}</div><div class="col">${feats}</div></div>`;
+  return `<div class="cols play"><div class="col">${abil}${sk}</div><div class="col">${atk}${tools}</div><div class="col">${mag}${feats}</div></div>`;
 }
 function slotOptions(c, L) {
   const o = [];
