@@ -129,7 +129,7 @@ function alwaysIds(ck,sk,from,to){const A=window.ALWAYS_PREPARED,ids=[];
 const FREE_LINK={'hunters-mark':'Marca del cazador gratis','divine-smite':'Castigo del paladín gratis'};
 function addAlways(c,ids){for(const id of ids)if(!c.spells.some(s=>s.ref===id)){const o=spellObj(SPBY[id]);o.src='Siempre preparado';if(FREE_LINK[id])o.free=FREE_LINK[id];c.spells.push(o)}
   c.spells.sort((a,b)=>a.level-b.level||a.name.localeCompare(b.name,'es'))}
-function addOriginSpells(c,ids){for(const id of ids)if(!c.spells.some(s=>s.ref===id))c.spells.push(originSpellObj(id,c.speciesKey,c.lineageKey));c.spells.sort((a,b)=>a.level-b.level||a.name.localeCompare(b.name,'es'))}
+function addOriginSpells(c,ids){for(const id of ids){const ex=c.spells.find(s=>s.ref===id);if(!ex)c.spells.push(originSpellObj(id,c.speciesKey,c.lineageKey));else if(!ex.src){const o=originSpellObj(id,c.speciesKey,c.lineageKey);ex.src=o.src;if(o.free)ex.free=o.free}}c.spells.sort((a,b)=>a.level-b.level||a.name.localeCompare(b.name,'es'))}
 function upsertRes(c,list,source){for(const r of list){let f=c.features.find(x=>x.name===r.n);
   if(!f){f={name:r.n,source,text:'',uses:{max:0,used:0,recover:''}};c.features.push(f)}
   f.uses.max=r.max;f.uses.recover=r.rec;f.uses.pool=r.pool;f.uses.used=clamp(f.uses.used||0,0,r.max)}}
