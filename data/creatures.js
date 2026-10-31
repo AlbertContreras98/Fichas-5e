@@ -1,5 +1,5 @@
 /* Plantillas de criaturas y formas (reglas de 2024).
-   Las estadísticas que dependen del nivel se calculan en app.js con estas fórmulas.
+   Las estadísticas que dependen del nivel se calculan en js/features/creatures.js con estas fórmulas.
    L = nivel del conjuro. Todos los ataques usan tu bonificador de ataque de conjuro. */
 const SUMMONS={
   beast:{n:'Invocar bestia',L:2,ref:'summon-beast',who:'Druida, explorador',

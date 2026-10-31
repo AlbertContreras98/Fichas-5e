@@ -1,0 +1,14 @@
+{
+  "name": "fichas-5e",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Fichas de personaje interactivas para D&D 5.ª edición (reglas de 2024)",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "format": "prettier --write \"js/**/*.js\" css/app.css sw.js",
+    "format:check": "prettier --check \"js/**/*.js\" css/app.css sw.js"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2"
+  }
+}

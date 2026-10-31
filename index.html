@@ -14,8 +14,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@500;700&family=Alegreya+Sans:wght@400;500;700&family=Pirata+One&family=Playfair+Display+SC:wght@700&family=Cinzel:wght@700&family=Uncial+Antiqua&family=Saira+Stencil+One&family=Philosopher:wght@700&family=Cinzel+Decorative:wght@700&family=IM+Fell+English+SC&family=Special+Elite&family=Metamorphous&family=Grenze+Gotisch:wght@600&family=Marcellus+SC&display=swap">
-<link rel="stylesheet" href="app.css">
-<link rel="stylesheet" href="themes.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/themes.css">
 </head>
 <body>
 <div id="deco" aria-hidden="true"><i class="d-glow"></i><i class="d-tile"></i><i class="d-c1"></i><i class="d-c2"></i></div>
@@ -31,17 +31,38 @@
 <script src="data/creatures.js"></script>
 <script src="data/items.js"></script>
 <script src="data/beasts.js"></script>
-<script src="app.js"></script>
-<script>
-let deferredInstall=null;
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;const b=document.getElementById('install-btn');if(b)b.hidden=false});
-window.addEventListener('appinstalled',()=>{deferredInstall=null;const b=document.getElementById('install-btn');if(b)b.hidden=true});
-document.addEventListener('click',async e=>{if(e.target.id!=='install-btn'||!deferredInstall)return;deferredInstall.prompt();await deferredInstall.userChoice;deferredInstall=null;e.target.hidden=true});
-if('serviceWorker' in navigator){
-  const hadController=!!navigator.serviceWorker.controller;let reloaded=false;
-  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController&&!reloaded){reloaded=true;location.reload()}});
-  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{
-    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')r.update().catch(()=>{})})}).catch(()=>{}))}
-</script>
+<!-- Código de la app: el orden importa (cada archivo usa lo definido en los anteriores) -->
+<script src="js/core/constants.js"></script>
+<script src="js/core/utils.js"></script>
+<script src="js/core/model.js"></script>
+<script src="js/core/rules.js"></script>
+<script src="js/ui/glossary.js"></script>
+<script src="js/ui/modals.js"></script>
+<script src="js/features/creatures.js"></script>
+<script src="js/core/effects.js"></script>
+<script src="js/views/top.js"></script>
+<script src="js/views/play.js"></script>
+<script src="js/views/turn.js"></script>
+<script src="js/views/inventory.js"></script>
+<script src="js/views/editor.js"></script>
+<script src="js/views/characters.js"></script>
+<script src="js/views/render.js"></script>
+<script src="js/features/tour.js"></script>
+<script src="js/features/spell-search.js"></script>
+<script src="js/features/wizard.js"></script>
+<script src="js/features/diary.js"></script>
+<script src="js/features/rest.js"></script>
+<script src="js/actions/index.js"></script>
+<script src="js/actions/play.js"></script>
+<script src="js/actions/combat.js"></script>
+<script src="js/actions/inventory.js"></script>
+<script src="js/actions/creatures.js"></script>
+<script src="js/actions/diary.js"></script>
+<script src="js/actions/rest.js"></script>
+<script src="js/actions/wizard.js"></script>
+<script src="js/actions/characters.js"></script>
+<script src="js/actions/settings.js"></script>
+<script src="js/events.js"></script>
+<script src="js/pwa.js"></script>
 </body>
 </html>
