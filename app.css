@@ -492,3 +492,27 @@ button.eff.cond-pill{border:1px solid color-mix(in srgb,var(--bad) 45%,var(--lin
 .vida-hd>.hint{text-align:left;margin:.3rem 0 0}
 .abil-extra{margin-top:.6rem;border-top:1px solid var(--line);padding-top:.2rem}
 .classinfo{margin-bottom:.6rem;padding-bottom:.3rem;border-bottom:1px solid var(--line)}
+
+/* ===== Combate: iniciar / terminar ===== */
+.cbstart{display:flex;align-items:center;justify-content:space-between;gap:.8rem 1rem;flex-wrap:wrap;margin-bottom:1rem;border-color:var(--accent);background:var(--accent-soft)}
+.cbstart h2{margin:0 0 .2rem}.cbstart .hint{margin:0}
+.cbstart .b.pri{padding:.6rem 1.1rem;font-size:1rem}
+.turn .card-head{flex-wrap:wrap}
+.round{display:inline-block;margin-left:.4rem;padding:.1rem .55rem;border-radius:999px;background:var(--accent);color:var(--accent-ink);font-size:.8rem;font-family:var(--f-body);font-weight:700;vertical-align:middle}
+.tabs .live{display:inline-block;width:7px;height:7px;margin-left:.35rem;border-radius:50%;background:var(--bad,#c0392b);vertical-align:middle;animation:livepulse 1.6s ease-in-out infinite}
+@keyframes livepulse{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.tabs .live{animation:none}}
+
+/* ===== Tutorial y pistas ===== */
+#tour{position:fixed;inset:0;z-index:40}
+#tour .tour-hole{position:fixed;border-radius:10px;box-shadow:0 0 0 9999px rgb(0 0 0 / .62);outline:2px solid var(--accent);outline-offset:0;transition:all .2s ease;pointer-events:none}
+#tour .tour-dim{position:fixed;inset:0;background:rgb(0 0 0 / .62)}
+#tour .tour-bub{position:fixed;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:.85rem .95rem .7rem;box-shadow:0 12px 34px rgb(0 0 0 / .35);transition:top .2s ease,left .2s ease}
+#tour .tour-n{font-size:.75rem;color:var(--muted);margin-bottom:.15rem}
+#tour h3{margin:0 0 .3rem;font-size:1.05rem}
+#tour p{margin:0 0 .7rem;line-height:1.45}
+#tour .tour-btns{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
+#tour .tour-btns .sp{flex:1 1 auto}
+#tour .b.link{border-color:transparent;background:none;color:var(--muted);padding-left:0;padding-right:.3rem}
+#tour .b.link:hover{color:var(--ink)}
+@media (prefers-reduced-motion:reduce){#tour .tour-hole,#tour .tour-bub{transition:none}}

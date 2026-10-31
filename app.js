@@ -38,7 +38,7 @@ function blank(){return{
   inspiration:false,exhaustion:0,conditions:[],concentration:'',effects:[],companions:[],
   attacks:[],spellcasting:{ability:''},slots:Array.from({length:9},()=>({total:0,used:0})),pact:{level:0,total:0,used:0},spells:[],
   features:[],equipment:[],coins:{cp:0,sp:0,ep:0,gp:0,pp:0},languages:'',proficiencies:{armor:'',weapons:'',tools:''},notes:'',
-  story:{img:'',alignment:'',age:'',appearance:'',personality:'',history:''},turn:{a:false,aa:false,r:false,atk:0},diary:{items:[]}}}
+  story:{img:'',alignment:'',age:'',appearance:'',personality:'',history:''},turn:{a:false,aa:false,r:false,atk:0},combat:null,diary:{items:[]}}}
 const NEW={
   attacks:()=>({name:'',atk:0,dmg:'',type:'',notes:'',ammo:''}),
   spells:()=>({level:0,name:'',time:'A',range:'',dur:'',conc:false,ritual:false,material:'',desc:'',ref:'',src:'',free:''}),
@@ -388,7 +388,7 @@ function renderTop(){
       <button class="b qbtn money" data-act="money" aria-label="Dinero"><span class="coin" aria-hidden="true"></span><span>${(Math.floor(totalCp(c)/10)/10).toLocaleString('es-ES')} PO</span></button>
     </div>
     ${effectsBar(c)}</div>
-    <div class="tabrow"><nav class="tabs">${[['play','Partida'],['combat','Combate'],['crea','Criaturas']].map(([t,n])=>`<button class="${S.tab===t||(t==='pj'&&(S.tab==='edit'||S.tab==='data'))?'on':''}" data-act="tab" data-t="${t}">${esc(n)}</button>`).join('')}</nav>
+    <div class="tabrow"><nav class="tabs">${[['play','Partida'],['combat','Combate'],['crea','Criaturas']].map(([t,n])=>`<button class="${S.tab===t||(t==='pj'&&(S.tab==='edit'||S.tab==='data'))?'on':''}" data-act="tab" data-t="${t}">${esc(n)}${t==='combat'&&c.combat?'<span class="live" title="En combate"></span>':''}</button>`).join('')}</nav>
     <button class="b gear" data-act="settings" aria-label="Ajustes"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3.3h-4l-.4 2.6a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1l.4 2.6h4l.4-2.6a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5A3.5 3.5 0 1 1 13 8.5a3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg></button></div></div>`}
 
 /* ================= Render: partida ================= */
@@ -417,9 +417,10 @@ function vidaHTML(c){const active=CONDS.filter(x=>c.conditions.includes(x[0]));
     <div class="exh"><span>${term('Agotamiento','exh')}</span><button class="b sq" data-act="exh" data-d="-1" aria-label="Menos">−</button><b>${c.exhaustion}</b><button class="b sq" data-act="exh" data-d="1" aria-label="Más">+</button>
       <small>${c.exhaustion?`Resta ${2*c.exhaustion} a tus tiradas d20 y ${5*c.exhaustion} pies de velocidad${c.exhaustion>=6?' · nivel 6: muerte':''}`:'Ninguno'}</small></div>
     <h3>Efectos</h3>${effectsBar(c,true)||'<p class="hint">Ninguno activo.</p>'}<div class="btns"><button class="b sm" data-act="eff-add" data-from="vida">+ Efecto con duración</button></div>`}
-function openVida(){restOpen=false;openModal(`<div class="wz-head"><h2>Vida y estado</h2><button class="b sm" data-act="close-modal">Hecho</button></div><div id="vida-body">${vidaHTML(C())}</div>`,true)}
+function openVida(){restOpen=false;openModal(`<div class="wz-head"><h2>Vida y estado</h2><button class="b sm" data-act="close-modal">Hecho</button></div><div id="vida-body">${vidaHTML(C())}</div>`,true);tipMaybe('vida')}
 function refreshVida(){const b=$('#vida-body');if(b&&C())b.innerHTML=vidaHTML(C())}
-function viewCombat(c){return`${c.hp.current<=0?`<section class="card">${deathHTML(c)}</section>`:''}${viewTurn(c)}`}
+function viewCombat(c){const start=c.combat?'':`<section class="card cbstart"><div><h2>¿Empieza la pelea?</h2><p class="hint">Inicia el combate para llevar la cuenta de las rondas. Al terminarlo podrás quitar los efectos y estados que ya no tengan sentido.</p></div><button class="b pri" data-act="cb-start">Iniciar combate</button></section>`;
+  return`${c.hp.current<=0?`<section class="card">${deathHTML(c)}</section>`:''}${start}${viewTurn(c)}`}
 function viewPlay(c){
   const p=pb(c),def=defOf(c),sub=subOf(c);
   const irow=(lbl,val,desc)=>`<details class="inforow"><summary><span>${esc(lbl)}</span><b>${esc(val)}</b></summary><p class="hint">${esc(desc)}</p></details>`;
@@ -559,7 +560,7 @@ function viewTurn(c){
   const pill=(lbl,k,used,extra)=>`<span class="pill ${used?'used':''}">${term(lbl,k)}<b>${extra||(used?'Gastada':'Disponible')}</b></span>`;
   const aState=T.a?(T.atk>0?`Atacando · ${T.atk} más`:'Gastada'):'';
   const col=(k,title,gk,body)=>`<div class="tcol ${k==='A'?(aFree||T.atk>0?'':'off'):k==='AA'?(T.aa?'off':''):k==='R'?(T.r?'off':''):''}"><h3>${term(title,gk)}</h3>${body||'<p class="empty">Nada por ahora.</p>'}</div>`;
-  return`<section class="card turn"><div class="card-head"><h2>Tu turno</h2><div class="btns"><button class="b" data-act="t-end">Terminar turno</button></div></div>
+  return`<section class="card turn"><div class="card-head"><h2>Tu turno${c.combat?` <span class="round">Ronda ${c.combat.round}</span>`:''}</h2><div class="btns"><button class="b" data-act="t-end">Terminar turno</button>${c.combat?'<button class="b bad" data-act="cb-end">Terminar combate</button>':''}</div></div>
     <div class="pills">${pill('Acción','action',T.a,incap?'Bloqueada':aState)}${pill('Acción adicional','bonus',T.aa,incap?'Bloqueada':'')}${pill('Reacción','reaction',T.r,incap?'Bloqueada':'')}</div>
     ${condNotes.length?`<div class="condnotes">${condNotes.map(n=>`<p>${n}</p>`).join('')}</div>`:''}
     <div class="tgrid">
@@ -722,7 +723,7 @@ function invHTML(c){
   return`<div class="btns" style="margin-bottom:.4rem"><button class="b sm pri" data-act="item-new">Añadir objeto</button>${anyAtt?`<span class="badge" style="${att>3?'color:var(--bad)':''}">Sintonización ${att}/3</span>`:''}</div>${acBox}${items}
     <p class="hint" style="margin-top:.6rem">Las pociones, la munición y otros consumibles se gastan también desde la pestaña Combate. Para renombrar o borrar objetos: ⚙ Ajustes → Editar ficha.</p>`}
 function refreshInv(){const b=$('#inv-body');if(b)b.innerHTML=invHTML(C())}
-function openInv(){openModal(`<div class="wz-head"><h2>Objetos</h2><button class="b sm" data-act="close-modal">Hecho</button></div><div id="inv-body">${invHTML(C())}</div>`,true)}
+function openInv(){openModal(`<div class="wz-head"><h2>Objetos</h2><button class="b sm" data-act="close-modal">Hecho</button></div><div id="inv-body">${invHTML(C())}</div>`,true);tipMaybe('inv')}
 function viewPj(c){return`<div class="pj">${viewStory(c)}</div>`}
 function pay(c,amt,coin){
   let need=amt*COINV[coin];if(need>totalCp(c))return false;
@@ -868,7 +869,7 @@ function renderView(){const c=C();$('#view').innerHTML=S.tab==='edit'?viewEdit(c
 function applyTheme(){const k=(C()||{}).classKey||'',r=document.documentElement;
   if(k)r.dataset.class=k;else delete r.dataset.class;
   const bg=getComputedStyle(r).getPropertyValue('--surface').trim();document.querySelectorAll('meta[name="theme-color"]').forEach(m=>m.setAttribute('content',bg||'#ffffff'))}
-function render(){applyTheme();if(!C()){renderWelcome();return}renderTop();renderView();refreshVida()}
+function render(){applyTheme();if(!C()){renderWelcome();return}renderTop();renderView();refreshVida();tourMaybe()}
 function renderWelcome(){
   $('#top').innerHTML='';
   if(S.tab==='data'){$('#view').innerHTML=viewData(null);return}
@@ -877,6 +878,63 @@ function renderWelcome(){
     <p class="hint">Las fichas se guardan solo en este dispositivo.</p>
     <div class="btns"><button class="b pri" data-act="create">Crear personaje</button><button class="b" data-act="tab" data-t="data">Importar ficha</button></div>
     <p class="hint">¿Tienes una copia de seguridad o una ficha exportada desde otro dispositivo? Usa «Importar ficha».</p></section>`}
+
+/* ================= Tutorial y pistas =================
+   Se guarda por dispositivo (no en la ficha). tour: visita guiada vista; seen: pistas vistas; off: sin pistas */
+const TIPK='fichas-tips';
+let TIPS=null,TOUR=null;
+function tipsSet(t){try{localStorage.setItem(TIPK,JSON.stringify(t))}catch(e){}}
+function tipsInit(){try{TIPS=JSON.parse(localStorage.getItem(TIPK))}catch(e){TIPS=null}
+  // Quien ya tenía fichas antes de que existiera el tutorial no lo ve de golpe (lo tiene en el engranaje)
+  if(!TIPS||typeof TIPS!=='object'){TIPS=S.chars.length?{tour:1,seen:{play:1,combat:1,combatTab:1,crea:1,inv:1,vida:1},off:0}:{tour:0,seen:{},off:0};tipsSet(TIPS)}
+  if(!TIPS.seen)TIPS.seen={}}
+const TOUR_STEPS=[
+  {t:'¡Bienvenido!',d:'Te enseño la ficha en un minuto. Puedes saltarlo cuando quieras y repetirlo desde el engranaje.'},
+  {sel:'#top .hpbox',t:'Puntos de golpe',d:'Toca aquí para recibir daño, curarte, añadir PG temporales y marcar estados. Dentro también tienes tus dados de golpe.'},
+  {sel:'#top .vit .stat',t:'CA, iniciativa y velocidad',d:'Se calculan solas con tu armadura, tus características y tus estados. Toca cualquiera para ver de dónde sale.'},
+  {sel:'#top .slotline',t:'Espacios de conjuro',d:'Cada rombo es un espacio. Se gastan solos al lanzar un conjuro y vuelven al descansar. También puedes tocarlos para marcarlos a mano.'},
+  {sel:'#top .ctl.quick',t:'Accesos rápidos',d:'Descansar (zZ), diario de partida, deshacer el último cambio, inspiración heroica, mochila y dinero.'},
+  {sel:'#top .effrow',t:'Estados y efectos',d:'Aquí aparecen la concentración, los estados y los efectos con duración. Los efectos se quitan solos cuando se acaban.'},
+  {sel:'#top .tabs',t:'Pestañas',d:'Partida: tu ficha para jugar. Combate: tu turno, con acciones y ataques. Criaturas: familiares, invocaciones y formas.'},
+  {sel:'#top .avatar-btn',t:'Tu personaje',d:'Retrato, personalidad, historia e idiomas. Tocando el nombre cambias de personaje o creas otro.'},
+  {sel:'#top .gear',t:'Ajustes',d:'Subir de nivel, editar la ficha, el tema, las copias de seguridad y repetir este tutorial.'},
+  {sel:'#view .card',t:'Partida',d:'Características, habilidades, ataques, conjuros y rasgos. Toca cualquier nombre para ver qué hace y qué tienes que tirar.'},
+  {t:'¡Listo!',d:'La primera vez que abras cada sección te saldrá una pista corta. Si ya lo controlas, puedes desactivarlas.'}];
+const TIPS_DEF={
+  combatTab:[{sel:'[data-act=cb-start]',t:'Combate',d:'Cuando empiece una pelea, pulsa «Iniciar combate». Llevarás la cuenta de las rondas y te explico esta pestaña.'}],
+  combat:[{sel:'.turn .pills',t:'Tu turno',d:'En cada turno tienes una acción, una acción adicional y una reacción. Se marcan como gastadas cuando usas algo.'},
+    {sel:'.turn .tgrid',t:'Qué puedes hacer',d:'Tus ataques, conjuros, rasgos y objetos, ordenados según lo que gastan. Al pulsar te dice qué tirar y lo descuenta todo (espacios, munición, usos…).'},
+    {sel:'[data-act=t-end]',t:'Terminar turno',d:'Recupera tus acciones, baja las rondas de los efectos y suma una ronda al contador.'},
+    {sel:'[data-act=cb-end]',t:'Terminar combate',d:'Cuando acabe la pelea: quita el contador y te deja elegir qué efectos de rondas y qué estados (Derribado, Agarrado…) se acaban.'}],
+  crea:[{sel:'[data-act=crea-new]',t:'Criaturas y formas',d:'Añade familiares, compañeros, monturas, invocaciones o las formas en las que te transformas. Elige del catálogo y las estadísticas se rellenan solas.'}],
+  inv:[{sel:'#inv-body [data-act=item-new]',t:'Mochila',d:'Añade objetos del catálogo: armas, armaduras, pociones, herramientas, kits… Muchos tienen botones para usarlos directamente.'},
+    {sel:'#inv-body .counter',t:'Cantidades',d:'Con − y + cambias cuántos llevas. Si algo llega a 0, te pregunta si quieres quitarlo.'}],
+  vida:[{sel:'#vida-body .hpctl',t:'Daño y curación',d:'Escribe la cantidad y pulsa Daño, Curar o PG temporales. El daño gasta primero los PG temporales.'},
+    {sel:'#vida-body .chips',t:'Estados',d:'Toca un estado para activarlo o quitarlo. Los que te impiden actuar bloquean tus acciones en Combate.'}]};
+const tourEls=s=>s.sel?[...document.querySelectorAll(s.sel)].filter(e=>e.getClientRects().length):[];
+function tourStart(key,steps){steps=steps.filter(s=>!s.sel||tourEls(s).length);if(!steps.length)return;TOUR={key,steps,i:0};tourDraw()}
+function tourEnd(){if(!TOUR)return;if(TOUR.key==='tour'){TIPS.tour=1;TIPS.seen.play=1}else TIPS.seen[TOUR.key]=1;tipsSet(TIPS);TOUR=null;const o=$('#tour');if(o)o.remove()}
+function tourDraw(){let o=$('#tour');if(!o){o=document.createElement('div');o.id='tour';document.body.appendChild(o)}
+  const s=TOUR.steps[TOUR.i],n=TOUR.steps.length,last=TOUR.i===n-1,isTour=TOUR.key==='tour',els=tourEls(s);
+  if(els[0]){const r=els[0].getBoundingClientRect();if(r.top<0||r.bottom>innerHeight)els[0].scrollIntoView({block:'center'})}
+  const left=isTour?(last?'<button class="b sm link" data-act="tips-off">Sin pistas</button>':'<button class="b sm link" data-act="tour-skip">Saltar</button>'):'<button class="b sm link" data-act="tips-off">No mostrar más pistas</button>';
+  o.innerHTML=`<div class="tour-hole" ${els.length?'':'hidden'}></div>${els.length?'':'<div class="tour-dim"></div>'}<div class="tour-bub" role="dialog" aria-modal="true" aria-labelledby="tour-t">${n>1?`<div class="tour-n">${TOUR.i+1} de ${n}</div>`:''}<h3 id="tour-t">${s.t}</h3><p>${s.d}</p>
+    <div class="tour-btns">${left}<span class="sp"></span>${TOUR.i?'<button class="b sm" data-act="tour-prev">Atrás</button>':''}<button class="b sm pri" data-act="tour-next">${last?(isTour?'Empezar':'Entendido'):'Siguiente'}</button></div></div>`;
+  tourPlace();o.querySelector('[data-act=tour-next]').focus({preventScroll:true})}
+function tourPlace(){const o=$('#tour');if(!o||!TOUR)return;const s=TOUR.steps[TOUR.i],els=tourEls(s),hole=o.querySelector('.tour-hole'),bub=o.querySelector('.tour-bub');
+  const VW=document.documentElement.clientWidth,VH=innerHeight,g=12,bw=Math.min(340,VW-2*g);bub.style.width=bw+'px';
+  if(!els.length){bub.style.left=(VW-bw)/2+'px';bub.style.top=Math.max(g,(VH-bub.offsetHeight)/2)+'px';return}
+  let x1=1e9,y1=1e9,x2=-1e9,y2=-1e9;els.forEach(e=>{const r=e.getBoundingClientRect();x1=Math.min(x1,r.left);y1=Math.min(y1,r.top);x2=Math.max(x2,r.right);y2=Math.max(y2,r.bottom)});
+  const p=6;x1=Math.max(4,x1-p);y1=Math.max(4,y1-p);x2=Math.min(VW-4,x2+p);y2=Math.min(VH-4,y2+p);
+  Object.assign(hole.style,{left:x1+'px',top:y1+'px',width:Math.max(0,x2-x1)+'px',height:Math.max(0,y2-y1)+'px'});
+  const bh=bub.offsetHeight,top=y2+10+bh<=VH-g?y2+10:y1-10-bh>=g?y1-10-bh:VH-bh-g;
+  bub.style.left=Math.min(Math.max(g,(x1+x2)/2-bw/2),VW-bw-g)+'px';bub.style.top=top+'px'}
+function tipMaybe(key){if(!TIPS||TOUR||!TIPS.tour||TIPS.off||TIPS.seen[key]||!TIPS_DEF[key])return;
+  setTimeout(()=>{if(TOUR||TIPS.seen[key]||TIPS.off)return;tourStart(key,TIPS_DEF[key])},350)}
+function tourMaybe(){if(!TIPS||TOUR||!C())return;
+  if(!TIPS.tour){if(!$('#modal').hidden||!['play','combat','crea'].includes(S.tab))return;
+    setTimeout(()=>{if(TOUR||TIPS.tour||!$('#modal').hidden||!C())return;if(S.tab!=='play'){S.tab='play';save();render()}scrollTo(0,0);tourStart('tour',TOUR_STEPS)},400);return}
+  if($('#modal').hidden){if(S.tab==='crea')tipMaybe('crea');else if(S.tab==='combat')tipMaybe(C().combat?'combat':'combatTab')}}
 
 /* ================= Buscador de conjuros ================= */
 let P=null; // {target:'edit'|'wizard', q, lvl, cls, open, list(ref a array de conjuros), max}
@@ -1404,15 +1462,34 @@ const A={
     <button class="b opt" data-act="open-edit"><span><b>Editar ficha</b><br><small>Características, habilidades, armas, conjuros, rasgos y objetos</small></span><span aria-hidden="true">›</span></button>
     <div class="setting"><b>Tema</b><div class="seg" role="group" aria-label="Tema">${[['','Sistema'],['light','Claro'],['dark','Oscuro']].map(([k,n])=>`<button class="${t===k?'on':''}" data-act="theme" data-v="${k}" aria-pressed="${t===k}">${n}</button>`).join('')}</div></div>
     <button class="b opt" data-act="open-data"><span><b>Copia de seguridad</b><br><small>Importar y exportar fichas</small></span><span aria-hidden="true">›</span></button>
+    <button class="b opt" data-act="tour-replay"><span><b>Ver tutorial</b><br><small>Repite la visita guiada y vuelve a activar las pistas</small></span><span aria-hidden="true">›</span></button>
     <button class="b opt" data-act="open-credits"><span><b>Créditos y aviso legal</b><br><small>Aviso de contenido de fans y licencia del SRD</small></span><span aria-hidden="true">›</span></button>`)},
   theme:el=>{setTheme(el.dataset.v);render();A.settings()},
   'open-data':()=>{closeModal();S.tab='data';save();render();scrollTo(0,0)},
   'open-credits':()=>openModal(`<div class="wz-head"><h2>Créditos y aviso legal</h2><button class="b sm" data-act="close-modal">Cerrar</button></div><div class="credits">${CREDITS}</div>`),
   'open-edit':()=>{closeModal();S.tab='edit';save();render();scrollTo(0,0)},
   gloss:el=>showGloss(el),
-  't-end':()=>{const c=C();c.turn={a:false,aa:false,r:false,atk:0};c.effects.forEach(e=>{if(e.r!=null)e.r--});
+  't-end':()=>{const c=C();c.turn={a:false,aa:false,r:false,atk:0};if(c.combat)c.combat.round++;c.effects.forEach(e=>{if(e.r!=null)e.r--});
     const gone=endEffects(c,e=>e.r!=null&&e.r<=0);save();render();
     if(gone.length)toast(`<div class="t-label">Efecto terminado</div><div class="t-parts">${gone.map(esc).join(', ')} ${gone.length>1?'han':'ha'} terminado.</div>`)},
+  'cb-start':()=>{const c=C();c.combat={round:1};c.turn={a:false,aa:false,r:false,atk:0};S.tab='combat';save();render();scrollTo(0,0);
+    toast(`<div class="t-label">¡Combate!</div><div class="t-big">Iniciativa: 1d20 ${sgn(init(c))}</div><div class="t-parts">Tira y díselo al máster. Estás en la ronda 1.</div>`)},
+  'cb-end':()=>{const c=C();if(!c.combat)return;const re=c.effects.filter(e=>e.r!=null),cs=['Derribado','Agarrado','Apresado'].filter(n=>c.conditions.includes(n)),n=c.combat.round;
+    const box=(k,v,lbl,on,note)=>`<label class="chk"><input type="checkbox" data-cb="${k}" value="${esc(v)}" ${on?'checked':''}><span>${lbl}${note?`<br><small class="muted">${note}</small>`:''}</span></label>`;
+    openModal(`<h2>Terminar combate</h2><p>Habéis llegado a la ronda ${n}. Se quita el contador y tu turno vuelve a empezar limpio.</p>
+      ${re.length?`<h3>Efectos que duran rondas</h3><p class="hint">Marca los que se acaban. Si el combate ha sido corto, alguno puede seguir activo.</p>${re.map(e=>box('eff',e.id,`<b>${esc(e.name)}</b> · ${fmtEff(e)}`,!e.conc,e.conc?'Concentración: si lo quitas, dejas de concentrarte.':'')).join('')}`:''}
+      ${cs.length?`<h3>Estados de combate</h3><p class="hint">Marca los que ya no tienes.</p>${cs.map(x=>box('cond',x,`<b>${x}</b>`,true)).join('')}`:''}
+      <p class="hint">Las invocaciones, la concentración y las transformaciones no se tocan: terminan por sus propias reglas.</p>
+      <div class="btns"><button class="b pri" data-act="cb-end-ok">Terminar combate</button><button class="b" data-act="close-modal">Cancelar</button></div>`)},
+  'cb-end-ok':()=>{const c=C(),m=$('#modal'),ids=[...m.querySelectorAll('[data-cb=eff]:checked')].map(x=>x.value),cs=[...m.querySelectorAll('[data-cb=cond]:checked')].map(x=>x.value);
+    const gone=endEffects(c,e=>ids.includes(e.id));c.conditions=c.conditions.filter(x=>!cs.includes(x));const n=c.combat?c.combat.round:0,out=[...gone,...cs];
+    c.combat=null;c.turn={a:false,aa:false,r:false,atk:0};closeModal();save();render();
+    toast(`<div class="t-label">Combate terminado</div><div class="t-parts">${n} ronda${n===1?'':'s'}.${out.length?` Fuera: ${out.map(esc).join(', ')}.`:''}</div>`)},
+  'tour-next':()=>{if(!TOUR)return;if(TOUR.i<TOUR.steps.length-1){TOUR.i++;tourDraw()}else tourEnd()},
+  'tour-prev':()=>{if(TOUR&&TOUR.i>0){TOUR.i--;tourDraw()}},
+  'tour-skip':()=>tourEnd(),
+  'tips-off':()=>{TIPS.off=1;tourEnd();toast('<div class="t-label">Pistas desactivadas</div><div class="t-parts">Puedes volver a verlas desde el engranaje → «Ver tutorial».</div>')},
+  'tour-replay':()=>{closeModal();TIPS={tour:0,seen:{},off:0};tipsSet(TIPS);S.tab='play';save();render();scrollTo(0,0)},
   'crea-new':()=>creaPick(),
   'crea-kind':el=>{CX=creaBlank(C(),el.dataset.k);creaModal()},
   'crea-from-cast':el=>{const c=C(),tt=el.closest('.toast');if(tt)tt.remove();CX=creaBlank(c,el.dataset.k,{s:el.dataset.s,L:+el.dataset.l||0,cast:el.dataset.spell});if(el.dataset.k==='summon'||el.dataset.k==='steed'){CX.conc=el.dataset.k==='summon';CX.spell=el.dataset.spell}creaModal()},
@@ -1597,11 +1674,13 @@ document.addEventListener('change',e=>{const el=e.target;
     return}
   if(el.dataset&&el.dataset.rr)renderView()});
 document.addEventListener('keydown',e=>{
+  if(TOUR){if(e.key==='Escape')tourEnd();return}
   if(e.key==='Escape'&&restOpen){restOpen=false;renderTop()}
   if(e.key==='Escape'&&!$('#modal').hidden){if(P&&P.target==='edit'){A['sp-close']()}else closeModal()}
   if(e.key==='Enter'&&e.target.id==='hpAmt')A.hp({dataset:{m:'dmg'}});
   if(e.key==='Enter'&&e.target.id==='ni-name')A['item-add']()
   if(e.key==='Enter'&&e.target.id==='d-name'){const b=document.querySelector('.sheet [data-act=d-create],.sheet [data-act=d-rename-ok]');if(b)b.click()}});
 
-load();render();
+load();tipsInit();render();
+addEventListener('resize',tourPlace);addEventListener('scroll',tourPlace,true);
 document.addEventListener('click',e=>{document.querySelectorAll('.xsel-list:not([hidden])').forEach(l=>{if(!l.parentNode.contains(e.target)){l.hidden=true;const b=l.previousElementSibling;b&&b.setAttribute('aria-expanded','false')}})},true);
