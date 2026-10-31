@@ -58,12 +58,12 @@ const PRIMAL={land:{n:'Bestia de la tierra',hp:[5,5],speed:'40 pies, trepar 40',
   sky:{n:'Bestia del cielo',hp:[4,4],speed:'10 pies, volar 60',dmg:'1d4 + 3',types:['cortante'],
     trait:'Pasada en vuelo: no provoca ataques de oportunidad al salir volando del alcance de un enemigo.'}};
 const CREA_KINDS={
-  form:{n:'Forma o transformación',d:'Forma salvaje del druida, Polimorfar, Cambiar de forma… Te transformas tú: guardas aquí la ficha de la forma.'},
+  form:{n:'Forma o transformación',d:'Forma salvaje del druida, Polimorfar, Cambiar de forma… Elige la bestia del catálogo y te transformas tú.'},
   familiar:{n:'Familiar',d:'Encontrar familiar (cualquier lanzador que lo tenga, el Pacto de la cadena del brujo o el Compañero salvaje del druida).'},
   primal:{n:'Compañero primigenio',d:'Explorador Señor de las Bestias. Sus estadísticas se calculan solas y suben con tu nivel.'},
   steed:{n:'Montura sobrenatural',d:'Encontrar montura (el paladín la tiene siempre preparada a nivel 5). Se calcula según el nivel del conjuro.'},
   summon:{n:'Invocación de conjuro',d:'Invocar bestia, feérico, muerto viviente, elemental, constructo, aberración, celestial, infernal, dragón o Insecto gigante. Se calcula según el nivel del conjuro.'},
-  other:{n:'Otra criatura',d:'Montura normal, no muertos de Animar a los muertos, un PNJ aliado… La rellenas tú.'}};
+  other:{n:'Otra criatura',d:'Montura normal, no muertos de Animar a los muertos, un animal aliado… Elígela del catálogo o rellénala tú.'}};
 const CREA_RULES={
   familiar:'No puede atacar (salvo con el Pacto de la cadena: renuncias a uno de tus ataques y él ataca con su reacción). Telepatía contigo a 100 pies; con una acción adicional ves y oyes a través de él. Puede entregar tus conjuros de toque. A 0 PG desaparece hasta que lo vuelvas a invocar.',
   primal:'Actúa en tu turno. Si no le das órdenes, usa la acción de Esquivar. Con una acción adicional le ordenas usar una acción (normalmente Golpe de bestia); también puedes cambiar uno de tus ataques por su Golpe de bestia. Si muere, puedes revivirlo en la hora siguiente con una acción mágica gastando un espacio de conjuro.',

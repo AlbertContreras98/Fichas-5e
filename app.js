@@ -262,10 +262,22 @@ function creaBlank(c,k,o){o=o||{};const x={kind:k,name:'',attacks:[],notes:'',hp
   return x}
 function creaCollect(){if(!CX)return;const g=id=>{const e=$('#'+id);return e?(e.type==='checkbox'?e.checked:e.value):undefined};
   const set=(k,id,num)=>{const v=g(id);if(v!==undefined)CX[k]=num?(v===''?'':+v):v};
-  set('name','cx-name');set('v','cx-v');set('s','cx-s');set('L','cx-L',1);set('via','cx-via');set('cr','cx-cr');set('dtype','cx-dtype');set('ac','cx-ac',1);set('speed','cx-speed');set('notes','cx-notes');set('label','cx-label');
+  set('name','cx-name');set('v','cx-v');set('s','cx-s');set('L','cx-L',1);set('via','cx-via');set('cr','cx-cr');set('dtype','cx-dtype');set('ac','cx-ac',1);set('speed','cx-speed');set('notes','cx-notes');set('label','cx-label');set('cat','cx-cat');
   ['illus','spend','concNew'].forEach(k=>{const v=g('cx-'+k);if(v!==undefined)CX[k]=v});
   const mx=g('cx-max');if(mx!==undefined)CX.hp.max=mx===''?'':+mx;const cu=g('cx-cur');if(cu!==undefined&&cu!=='')CX.hp.current=+cu;
   if(CX.attacks)CX.attacks=CX.attacks.map((a,i)=>({n:g('cx-an'+i)??a.n,hit:g('cx-ah'+i)??a.hit,dmg:g('cx-ad'+i)??a.dmg}))}
+const crNum=v=>{v=String(v);return v.includes('/')?(+v.split('/')[0])/(+v.split('/')[1]):+v};
+function catOptions(c,x){const ws=wsInfo(c),beasts=BEASTS.filter(b=>b.t==='Bestia');let groups=[];
+  if(x.kind==='form'){if(x.via==='wild'&&ws){const mx=crNum(ws.cr);groups=[[`Bestias que puedes usar (VD ${ws.cr} o menos${ws.fly?'':', sin vuelo'})`,beasts.filter(b=>b.cr<=mx&&(ws.fly||!b.fly))]]}
+    else groups=[['Bestias',beasts]]}
+  else if(x.kind==='familiar')groups=[['Familiares (bestias de VD 0)',beasts.filter(b=>b.cr===0)],['Formas especiales del Pacto de la cadena',BEASTS.filter(b=>b.chain)]];
+  else groups=[['No muertos (Animar a los muertos)',BEASTS.filter(b=>b.undead)],['Bestias y monturas',beasts],['Otras criaturas',BEASTS.filter(b=>b.t!=='Bestia'&&!b.undead)]];
+  return groups.filter(g=>g[1].length)}
+function catSelect(c,x){const g=catOptions(c,x);return`<label class="f"><span>Elegir del catálogo</span><select id="cx-cat" data-rr="1"><option value="">— Rellenar a mano —</option>${g.map(([lbl,list])=>`<optgroup label="${esc(lbl)}">${list.map(b=>`<option value="${b.id}" ${x.cat===b.id?'selected':''}>${esc(b.n)} (VD ${b.crs})</option>`).join('')}</optgroup>`).join('')}</select></label>`}
+function beastNotes(b){const AB6=['FUE','DES','CON','INT','SAB','CAR'];
+  return[`${b.t} ${b.sz.toLowerCase()} · VD ${b.crs}`,b.ab.map((v,i)=>`${AB6[i]} ${v} (${sgn(Math.floor((v-10)/2))})`).join(' · '),b.sen,b.res,b.lang?'Idiomas: '+b.lang:'',...b.tr.map(t=>`${t[0]}: ${t[1]}`),...b.ex.map(t=>`${t[0]}: ${t[1]}`)].filter(Boolean).join('\n')}
+function applyBeast(x,b){const auto=!x.name||x.name===x._autoName;if(auto){x.name=b.n;x._autoName=b.n}
+  Object.assign(x,{cat:b.id,ac:b.ac,speed:b.sp,cr:b.crs,notes:beastNotes(b),attacks:b.at.map(a=>({n:a[0],hit:a[1],dmg:a[2]}))});x.hp=Object.assign({},x.hp,{max:b.hp,current:b.hp})}
 function creaModal(){const c=C(),x=CX,isNew=!x.id,k=x.kind,ws=wsInfo(c);const f=(lbl,inner)=>`<label class="f"><span>${lbl}</span>${inner}</label>`;
   const inp=(id,val,extra)=>`<input id="${id}" value="${esc(val??'')}" autocomplete="off" ${extra||''}>`;
   const sel=(id,opts,val,rr)=>`<select id="${id}" ${rr?'data-rr="1"':''}>${opts.map(([v,t])=>`<option value="${v}" ${String(val)===String(v)?'selected':''}>${esc(t)}</option>`).join('')}</select>`;
@@ -273,7 +285,7 @@ function creaModal(){const c=C(),x=CX,isNew=!x.id,k=x.kind,ws=wsInfo(c);const f=
   const atkRows=()=>`<h3>Ataques</h3>${x.attacks.map((a,i)=>`<div class="atkrow">${inp('cx-an'+i,a.n,'placeholder="Mordisco"')}${inp('cx-ah'+i,a.hit,'placeholder="+4" inputmode="text"')}${inp('cx-ad'+i,a.dmg,'placeholder="2d4 + 2 perforante"')}<button class="b sm sq" data-act="cx-atk-del" data-i="${i}" aria-label="Quitar ataque">✕</button></div>`).join('')}<button class="b sm" data-act="cx-atk-add">+ Ataque</button>`;
   let body='';
   if(k==='form'){const vias=[...(ws?[['wild','Forma salvaje (druida)']]:[]),['poly','Polimorfar o Polimorfar verdadero'],['other','Otra (Cambiar de forma, Formas animales…)']];
-    body=`${f('Bestia o forma',inp('cx-name',x.name,'placeholder="Lobo"'))}${f('Cómo te transformas',sel('cx-via',vias,x.via,1))}
+    body=`${f('Cómo te transformas',sel('cx-via',vias,x.via,1))}${catSelect(c,x)}${f('Bestia o forma',inp('cx-name',x.name,'placeholder="Lobo"'))}
       ${x.via==='wild'&&ws?`<p class="hint">Puedes conocer ${ws.known} formas de VD ${ws.cr} como máximo${ws.fly?'':', sin velocidad de vuelo'}. Al transformarte ganas ${ws.temp} PG temporales.</p>`:x.via==='poly'?'<p class="hint">Polimorfar: ganas tantos PG temporales como los PG de la bestia, y la transformación termina cuando se te acaban.</p>':''}
       <div class="effdur3">${f('VD',inp('cx-cr',x.cr,'placeholder="1/4"'))}${f('CA',inp('cx-ac',x.ac,'type="number" inputmode="numeric"'))}${f('PG de la bestia',inp('cx-max',x.hp.max,'type="number" inputmode="numeric"'))}</div>
       ${f('Velocidad',inp('cx-speed',x.speed,'placeholder="40 pies"'))}${atkRows()}${f('Rasgos y sentidos',`<textarea id="cx-notes" rows="3" placeholder="Olfato agudo, Tácticas de manada…">${esc(x.notes)}</textarea>`)}`}
@@ -286,11 +298,11 @@ function creaModal(){const c=C(),x=CX,isNew=!x.id,k=x.kind,ws=wsInfo(c);const f=
       ${Object.keys(S.vars).length>1?f('Variante',sel('cx-v',Object.entries(S.vars),x.v,1)):''}${f('Nivel al que lo lanzas',sel('cx-L',lv(S.L),x.L,1))}${f('Nombre',inp('cx-name',x.name))}
       ${c.subclassKey==='illusionist'&&['beast','fey'].includes(x.s)?`<label class="chk"><input type="checkbox" id="cx-illus" ${x.illus?'checked':''}> Ilusoria (Criaturas fantasmales del Ilusionista: mitad de PG)</label>`:''}
       ${isNew&&!x.fromCast?`<label class="chk"><input type="checkbox" id="cx-concNew" ${x.concNew?'checked':''}> La acabo de invocar: empiezo a concentrarme en ${esc(S.n)}</label><label class="chk"><input type="checkbox" id="cx-spend" ${x.spend?'checked':''}> Gastar un espacio de nivel ${x.L}</label>`:''}`}
-  else{body=`${f(k==='familiar'?'Nombre y forma':'Nombre',inp('cx-name',x.name,k==='familiar'?'placeholder="Ceniza (búho)"':''))}${k==='other'?f('Tipo (opcional)',inp('cx-label',x.label,'placeholder="Montura, esqueleto, aliado…"')):''}
+  else{body=`${catSelect(c,x)}${f(k==='familiar'?'Nombre y forma':'Nombre',inp('cx-name',x.name,k==='familiar'?'placeholder="Ceniza (búho)"':''))}${k==='other'?f('Tipo (opcional)',inp('cx-label',x.label,'placeholder="Montura, esqueleto, aliado…"')):''}
       <div class="effdur3">${f('CA',inp('cx-ac',x.ac,'type="number" inputmode="numeric"'))}${f('PG máx.',inp('cx-max',x.hp.max,'type="number" inputmode="numeric" min="1"'))}${isNew?'':f('PG actuales',inp('cx-cur',x.hp.current,'type="number" inputmode="numeric" min="0"'))}</div>
-      ${f('Velocidad',inp('cx-speed',x.speed,'placeholder="10 pies, volar 60 pies"'))}${k==='other'?atkRows():''}
+      ${f('Velocidad',inp('cx-speed',x.speed,'placeholder="10 pies, volar 60 pies"'))}${atkRows()}
       ${f(k==='familiar'?'Rasgos y sentidos':'Rasgos y notas',`<textarea id="cx-notes" rows="3">${esc(x.notes)}</textarea>`)}
-      ${k==='familiar'?'<p class="hint">Copia los datos de la forma que elijas (murciélago, gato, rana, halcón, búho, rata, cuervo, araña…). Con el Pacto de la cadena hay formas especiales: diablillo, pseudodragón, quasit, esqueleto, renacuajo de slaad, esfinge de las maravillas, duendecillo o serpiente venenosa.</p>':''}`}
+      ${k==='familiar'?'<p class="hint">Un familiar no puede atacar, salvo con el Pacto de la cadena (renuncias a uno de tus ataques y él ataca con su reacción).</p>':''}`}
   if(!isNew&&TRACKED(k)&&k!=='other'&&k!=='familiar')body+=`<div class="effdur3">${f('PG actuales',inp('cx-cur',x.hp.current,'type="number" inputmode="numeric" min="0"'))}</div>`;
   if(['primal','steed','summon'].includes(k)){const st=creaStats(c,x);body+=`<div class="preview"><b>Vista previa:</b> CA ${st.ac} · ${st.hpMax} PG · ${esc(st.speed)}<br>${st.atks.map(a=>`${esc(a[0])} ${esc(a[1])} · ${esc(a[2])}`).join('<br>')}${st.n>1?`<br>${st.n} ataques por turno`:''}</div>`}
   openModal(`<h2>${isNew?'Añadir':'Editar'}: ${esc(CREA_KINDS[k].n.toLowerCase())}</h2>${body}<p class="hint" id="cx-msg" role="status"></p>
@@ -1411,7 +1423,7 @@ const A={
     if(isNew&&x.kind==='summon'){const S=SUMMONS[x.s];if(x.fromCast){x.conc=true;x.spell=x.fromCast}else if(x.concNew){c.concentration=S.n;addEffect(c,S.n,x.s==='insect'?{m:10}:{m:60},true);x.conc=true;x.spell=S.n}}
     if(x.kind==='steed'&&isNew)c.companions=c.companions.filter(y=>y.kind!=='steed');
     if(st.track){if(isNew)x.hp.current=st.hpMax;x.hp.max=st.hpMax}else x.hp.max=x.hp.max===''?0:+x.hp.max;
-    ['spend','concNew','fromCast','confirm'].forEach(k=>delete x[k]);
+    ['spend','concNew','fromCast','confirm','_autoName'].forEach(k=>delete x[k]);
     if(isNew){x.id=uid();c.companions.push(x)}else{const i=c.companions.findIndex(y=>y.id===x.id);c.companions[i]=x}
     CX=null;closeModal();S.tab='crea';save();render()},
   'crea-del':()=>{creaCollect();CX.confirm=true;creaModal()},
@@ -1555,7 +1567,8 @@ document.addEventListener('change',e=>{const el=e.target;
   if(NI&&el.dataset&&el.dataset.ni){niCollect();if(el.id==='ni-cat'&&NI.cat==='pocion'&&!NI.pot)NI.pot='healing';if(el.id==='ni-ak'&&NI.ak)NI.qty=AMMO[NI.ak][1];if(el.id==='ni-gr'){NI.var='';const G=NI.gr&&NI.gr.startsWith('g:')&&GEAR[NI.gr.slice(2)];NI.qty=G&&G.qty?G.qty:1}if(el.id==='ni-mip'&&NI.mi){const P=MAGIC[NI.mip];NI.mi={att:P.att||0,ac:P.ac||0,sv:P.sv||0,ch:P.ch||0,rec:P.rec||'',d:P.d||'',noarm:P.noarm||0};if(NI.mip!=='other'&&(!NI.name||NI.name===NI.auto)){NI.name=P.n;NI.auto=P.n}itemModal();return}
     if(el.id==='ni-cat'){NI.gr='';if(NI.cat==='paquete'&&!NI.pack)NI.pack='explorer'}niAutoName();itemModal();return}
   if(CX&&el.dataset&&el.dataset.rr){const dn=k=>SUMMONS[k]?SUMMONS[k].n.replace(/^Invocar /,'').replace(/^./,m=>m.toUpperCase()):'';const oldS=CX.s,oldN=$('#cx-name')?$('#cx-name').value:'';
-    creaCollect();if(CX.kind==='summon'&&CX.s!==oldS&&(!oldN||oldN===dn(oldS))){CX.name=dn(CX.s);CX.v=Object.keys(SUMMONS[CX.s].vars)[0];CX.L=SUMMONS[CX.s].L}creaModal();return}
+    creaCollect();if(CX.kind==='summon'&&CX.s!==oldS&&(!oldN||oldN===dn(oldS))){CX.name=dn(CX.s);CX.v=Object.keys(SUMMONS[CX.s].vars)[0];CX.L=SUMMONS[CX.s].L}
+    if(el.id==='cx-cat'&&CX.cat){const b=BEASTS.find(z=>z.id===CX.cat);if(b)applyBeast(CX,b)}creaModal();return}
   if(el.id==='sp-cls'){P.cls=el.value;refreshPicker();return}
   if(el.id==='sp-lvl'){P.lvl=el.value;refreshPicker();return}
   if(el.dataset&&el.dataset.actInput==='res-set'){render();return}
