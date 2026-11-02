@@ -19,6 +19,23 @@ function slotLine(c) {
     parts.push(
       `<span class="sl" title="Espacios de pacto (nivel ${c.pact.level})">${pips('pact', 0, c.pact.total, c.pact.total - c.pact.used)}</span>`
     );
+  /* Sin espacios de conjuro: atajo con los rasgos de usos limitados (furia, tomar aliento…), máx. 3 */
+  if (!parts.length)
+    c.features
+      .map((f, i) => [f, i])
+      .filter(([f]) => f.uses && f.uses.max > 0)
+      .slice(0, 3)
+      .forEach(([f, i]) => {
+        const u = f.uses,
+          left = u.max - u.used;
+        parts.push(
+          `<span class="sl feat-sl" title="${esc(f.name)}"><small>${esc(f.name)}</small>${
+            u.pool || u.max > 6
+              ? `<span class="counter"><button class="b sq" data-act="res-d" data-i="${i}" data-d="-1" aria-label="Gastar 1 de ${esc(f.name)}">−</button><b>${left}/${u.max}</b><button class="b sq" data-act="res-d" data-i="${i}" data-d="1" aria-label="Recuperar 1 de ${esc(f.name)}">+</button></span>`
+              : pips('feat', i, u.max, left)
+          }</span>`
+        );
+      });
   return parts.length ? `<div class="slotline">${parts.join('')}</div>` : '';
 }
 const INFO_DESC = {

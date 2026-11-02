@@ -3023,3 +3023,17 @@ button.eff.cond-pill {
 .hpctl2 > small {
   color: var(--muted);
 }
+
+/* Rasgos con usos en la barra de arriba (personajes sin espacios de conjuro) */
+.slotline .feat-sl small {
+  max-width: 9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.slotline .feat-sl .counter .b.sq {
+  width: 1.7rem;
+  height: 1.7rem;
+  padding: 0;
+  justify-content: center;
+}
