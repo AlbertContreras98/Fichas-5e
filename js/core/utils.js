@@ -69,3 +69,31 @@ function copy(text, btn) {
     fail();
   }
 }
+/* Lee una imagen del dispositivo, la reduce a `max` píxeles de lado como mucho y la devuelve como JPEG (data URL) */
+function imgToData(file, max, cb) {
+  if (!file || !/^image\//.test(file.type)) {
+    toast('<div class="t-parts">Ese archivo no es una imagen.</div>');
+    return;
+  }
+  const url = URL.createObjectURL(file),
+    img = new Image();
+  img.onload = () => {
+    const k = Math.min(1, max / Math.max(img.width, img.height)),
+      cv = document.createElement('canvas');
+    cv.width = Math.round(img.width * k);
+    cv.height = Math.round(img.height * k);
+    const g = cv.getContext('2d');
+    g.fillStyle = '#fff';
+    g.fillRect(0, 0, cv.width, cv.height);
+    g.drawImage(img, 0, 0, cv.width, cv.height);
+    URL.revokeObjectURL(url);
+    cb(cv.toDataURL('image/jpeg', 0.82));
+  };
+  img.onerror = () => {
+    URL.revokeObjectURL(url);
+    toast('<div class="t-parts">No se ha podido abrir la imagen.</div>');
+  };
+  img.src = url;
+}
+const FULL_MSG =
+  '<div class="t-label">No cabe la imagen</div><div class="t-parts">El almacenamiento del dispositivo está lleno. Prueba con otra imagen o quita imágenes que ya no uses (retratos o mapas).</div>';

@@ -19,7 +19,7 @@ function prompt4Claude() {
 - slots: 9 entradas, una por nivel de conjuro (total = espacios). Los espacios de brujo van en "pact" (level y total), no en "slots".
 - spells: time "A" acción, "AA" acción adicional, "R" reacción u otro texto. Pon en "ref" el nombre en inglés del conjuro en minúsculas y con guiones (p. ej. "hellish-rebuke") para enlazarlo con la base de datos.
 - attacks.atk: bonificador de ataque como número; dmg: fórmula como "1d6+2".
-- equipment.cat: arma, armadura, municion, pocion, comida, consumible, herramienta, tesoro u otro.
+- equipment.cat: arma, armadura, municion, pocion, comida, consumible, herramienta, mapa, tesoro u otro. Los mapas se llaman «Mapa: [zona que mapea]».
 - features: rasgos de especie y clase y dotes; uses.max y uses.recover ("corto", "corto1" o "largo") solo si tienen usos limitados.
 - Lo que no aparezca en la ficha, déjalo con el valor por defecto. Devuelve solo el JSON.
 
@@ -101,37 +101,15 @@ function viewStory(c) {
   </div>`;
 }
 function loadPortrait(file) {
-  if (!file || !/^image\//.test(file.type)) {
-    toast('<div class="t-parts">Ese archivo no es una imagen.</div>');
-    return;
-  }
-  const url = URL.createObjectURL(file),
-    img = new Image();
-  img.onload = () => {
-    const max = 900,
-      k = Math.min(1, max / Math.max(img.width, img.height));
-    const cv = document.createElement('canvas');
-    cv.width = Math.round(img.width * k);
-    cv.height = Math.round(img.height * k);
-    cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
-    URL.revokeObjectURL(url);
+  imgToData(file, 900, data => {
     const c = C(),
       prev = c.story.img;
-    c.story.img = cv.toDataURL('image/jpeg', 0.82);
-    try {
-      localStorage.setItem(KEY, JSON.stringify({ chars: S.chars, active: S.active, tab: S.tab }));
-    } catch (e) {
+    c.story.img = data;
+    if (!saveOk()) {
       c.story.img = prev;
-      toast(
-        '<div class="t-label">No cabe la imagen</div><div class="t-parts">El almacenamiento del dispositivo está lleno. Prueba con otra imagen o quita retratos de otros personajes.</div>'
-      );
+      toast(FULL_MSG);
       return;
     }
     render();
-  };
-  img.onerror = () => {
-    URL.revokeObjectURL(url);
-    toast('<div class="t-parts">No se ha podido abrir la imagen.</div>');
-  };
-  img.src = url;
+  });
 }

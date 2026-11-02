@@ -247,8 +247,15 @@ function syncEffects(c) {
 }
 function save() {
   syncEffects(C());
+  saveOk();
+}
+/* Guarda y dice si ha cabido (false si el almacenamiento del dispositivo está lleno) */
+function saveOk() {
   try {
     localStorage.setItem(KEY, JSON.stringify({ chars: S.chars, active: S.active, tab: S.tab }));
-  } catch (e) {}
+    return true;
+  } catch (e) {
+    return false;
+  }
 }
 const C = () => S.chars.find(c => c.id === S.active);

@@ -86,6 +86,7 @@ const CATS = [
   ['comida', 'Comida y bebida'],
   ['consumible', 'Otros consumibles'],
   ['herramienta', 'Herramientas'],
+  ['mapa', 'Mapas'],
   ['tesoro', 'Tesoros'],
   ['otro', 'Otros'],
 ];

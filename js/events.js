@@ -78,6 +78,11 @@ document.addEventListener('input', e => {
     }
     return;
   }
+  if (NI && el.id === 'ni-name' && NI.cat === 'mapa') {
+    const t = $('#ni-mapname');
+    if (t) t.textContent = mapName(mapZone({ name: el.value }) || 'zona');
+    return;
+  }
   if (NI && el.id === 'ni-spl') {
     NI.spl = el.value;
     const nm = $('#ni-name');
@@ -178,6 +183,20 @@ document.addEventListener('change', e => {
   }
   if (el.id === 'story-img' && el.files && el.files[0]) {
     loadPortrait(el.files[0]);
+    el.value = '';
+    return;
+  }
+  if (el.id === 'ni-img' && NI && el.files && el.files[0]) {
+    niCollect();
+    imgToData(el.files[0], MAP_MAX, d => {
+      if (!NI) return;
+      NI.img = d;
+      itemModal();
+    });
+    return;
+  }
+  if (el.id === 'map-file' && el.files && el.files[0]) {
+    mapSetImg(el.dataset.id, el.files[0]);
     el.value = '';
     return;
   }
@@ -357,6 +376,10 @@ document.addEventListener('change', e => {
 document.addEventListener('keydown', e => {
   if (TOUR) {
     if (e.key === 'Escape') tourEnd();
+    return;
+  }
+  if (MAPV) {
+    if (e.key === 'Escape') mapClose();
     return;
   }
   if (e.key === 'Escape' && restOpen) {

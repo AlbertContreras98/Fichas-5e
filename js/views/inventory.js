@@ -349,8 +349,11 @@ function itemModal() {
     : GG
       ? `<p class="hint wide">${esc(GG.d)}</p>`
       : '';
-  const extra =
-    x.cat === 'herramienta'
+  const isMap = x.cat === 'mapa';
+  const extra = isMap
+    ? `<div class="f wide"><span>Imagen del mapa (opcional)</span><div class="map-pick">${x.img ? `<img src="${esc(x.img)}" alt="Vista previa del mapa">` : ''}<label class="b sm">${x.img ? 'Cambiar imagen' : 'Añadir imagen'}<input type="file" id="ni-img" accept="image/*" hidden></label>${x.img ? '<button class="b sm bad" data-act="ni-img-del">Quitar</button>' : ''}</div></div>
+      <p class="hint wide">Si el máster te da el dibujo o la foto del mapa, añádela y podrás abrirlo desde el botón de mapas de la mochila. Sin imagen, queda como un objeto más para rolear.</p>`
+    : x.cat === 'herramienta'
       ? f(
           'Herramienta',
           `<select id="ni-gr" data-ni="1"><option value="">Otra</option><optgroup label="Herramientas de artesano">${Object.entries(
@@ -486,10 +489,11 @@ function itemModal() {
                     : '';
   openModal(`<h2>Añadir objeto</h2><div class="grid">
       ${f('Tipo', `<select id="ni-cat" data-ni="1">${[...CATS, ['paquete', 'Paquete de equipo (añade su contenido)']].map(([k, n]) => `<option value="${k}" ${x.cat === k ? 'selected' : ''}>${n}</option>`).join('')}</select>`)}
-      ${f('Cantidad', `<input id="ni-qty" type="number" inputmode="numeric" min="0" value="${esc(x.qty)}">`)}
+      ${isMap ? '' : f('Cantidad', `<input id="ni-qty" type="number" inputmode="numeric" min="0" value="${esc(x.qty)}">`)}
+      ${isMap ? f('Zona que mapea', `<input id="ni-name" value="${esc(x.name)}" placeholder="Bosque de Neverwinter, la cripta…" autocomplete="off">`, 'wide') + `<p class="hint wide">En la mochila aparecerá como «<span id="ni-mapname">${esc(mapName(mapZone({ name: x.name }) || 'zona'))}</span>».</p>` : ''}
       ${extra}
-      ${f('Nombre', `<input id="ni-name" value="${esc(x.name)}" placeholder="Flechas, ración de viaje, cuerda…" autocomplete="off">`, 'wide')}
-      ${x.cat === 'paquete' ? '' : `<label class="chk wide"><input type="checkbox" id="ni-mi" data-ni="1" ${x.mi ? 'checked' : ''}> Es un objeto mágico</label>`}
+      ${isMap ? '' : f('Nombre', `<input id="ni-name" value="${esc(x.name)}" placeholder="Flechas, ración de viaje, cuerda…" autocomplete="off">`, 'wide')}
+      ${x.cat === 'paquete' || isMap ? '' : `<label class="chk wide"><input type="checkbox" id="ni-mi" data-ni="1" ${x.mi ? 'checked' : ''}> Es un objeto mágico</label>`}
       ${
         x.mi
           ? `<div class="mibox wide">${f(
@@ -579,7 +583,7 @@ function invHTML(c) {
   const groups = CATS.map(([k, n]) => [
     k,
     n,
-    c.equipment.map((e, i) => [e, i]).filter(([e]) => (e.cat || 'otro') === k),
+    c.equipment.map((e, i) => [e, i]).filter(([e]) => (e.cat || 'otro') === k && !(k === 'mapa' && e.img)),
   ]).filter(g => g[2].length);
   const items = groups.length
     ? groups
@@ -588,7 +592,7 @@ function invHTML(c) {
             `<div class="cat-h"><h3>${n}</h3></div><div class="list">${list
               .map(
                 ([e, i]) => `<div class="it"><div class="it-head"><span class="it-name">${esc(e.name)}</span>
-      <span class="counter"><button class="b sq" data-act="qty" data-i="${i}" data-d="-1" aria-label="Quitar uno">−</button><b style="min-width:2rem;text-align:center">${e.qty}</b><button class="b sq" data-act="qty" data-i="${i}" data-d="1" aria-label="Añadir uno">+</button></span></div>
+      ${e.cat === 'mapa' ? `<button class="b sm" data-act="map-open" data-id="${e.id}">Abrir</button>` : `<span class="counter"><button class="b sq" data-act="qty" data-i="${i}" data-d="-1" aria-label="Quitar uno">−</button><b style="min-width:2rem;text-align:center">${e.qty}</b><button class="b sq" data-act="qty" data-i="${i}" data-d="1" aria-label="Añadir uno">+</button></span>`}</div>
       ${
         e.tool && TOOLS[e.tool]
           ? (() => {
@@ -621,7 +625,9 @@ function invHTML(c) {
               .join('')}</div>`
         )
         .join('')
-    : '<p class="empty">Sin objetos todavía.</p>';
+    : mapsWithImg(c).length
+      ? ''
+      : '<p class="empty">Sin objetos todavía.</p>';
   const A = armorAuto(c) ? acCalc(c) : null,
     att = attuned(c),
     anyAtt = c.equipment.some(e => e.mi && e.mi.att);
@@ -629,7 +635,7 @@ function invHTML(c) {
     ? `<div class="acbox"><div><b>CA ${A.ac}</b><small>${esc(A.src)}</small></div>${A.warn.map(w => `<p class="hint warn">${esc(w)}</p>`).join('')}</div>`
     : '';
   return `<div class="btns" style="margin-bottom:.4rem"><button class="b sm pri" data-act="item-new">Añadir objeto</button>${anyAtt ? `<span class="badge" style="${att > 3 ? 'color:var(--bad)' : ''}">Sintonización ${att}/3</span>` : ''}</div>${acBox}${items}
-    <p class="hint" style="margin-top:.6rem">Las pociones, la munición y otros consumibles se gastan también desde la pestaña Combate. Para renombrar o borrar objetos: ⚙ Ajustes → Editar ficha.</p>`;
+    <p class="hint" style="margin-top:.6rem">Las pociones, la munición y otros consumibles se gastan también desde la pestaña Combate. Para renombrar o borrar objetos: ⚙ Ajustes → Editar ficha.</p>${mapFab(c)}`;
 }
 function refreshInv() {
   const b = $('#inv-body');

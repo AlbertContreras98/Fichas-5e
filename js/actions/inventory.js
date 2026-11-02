@@ -115,6 +115,7 @@ Object.assign(A, {
       gr: '',
       var: '',
       pack: 'explorer',
+      img: '',
     };
     itemModal();
     $('#ni-name').focus();
@@ -162,6 +163,34 @@ Object.assign(A, {
     const n = NI.name.trim();
     if (!n) {
       $('#ni-name').focus();
+      return;
+    }
+    if (NI.cat === 'mapa') {
+      const z = mapZone({ name: n });
+      if (!z) {
+        $('#ni-name').focus();
+        return;
+      }
+      if (mapDup(c, z)) {
+        toast(`<div class="t-parts">Ya tienes un mapa de «${esc(z)}». Ponle otro nombre a la zona.</div>`);
+        $('#ni-name').focus();
+        return;
+      }
+      const m = { id: uid(), name: mapName(z), qty: 1, cat: 'mapa', notes: NI.notes.trim() };
+      if (NI.img) m.img = NI.img;
+      c.equipment.push(m);
+      if (!saveOk()) {
+        c.equipment.pop();
+        toast(FULL_MSG);
+        return;
+      }
+      NI = null;
+      closeModal();
+      render();
+      openInv();
+      toast(
+        `<div class="t-label">${esc(m.name)}</div><div class="t-parts">${m.img ? 'Guardado en la mochila. Ábrelo con el botón «Mapa» de abajo.' : 'Guardado en la mochila, sin imagen.'}</div>`
+      );
       return;
     }
     const it = {
