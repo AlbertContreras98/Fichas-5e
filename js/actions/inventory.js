@@ -125,6 +125,30 @@ Object.assign(A, {
     openInv();
   },
   inv: () => openInv(),
+  'item-open': el => itemSheet(el.dataset.id),
+  'item-save': el => {
+    const c = C(),
+      e = c.equipment.find(x => x.id === el.dataset.id),
+      n = $('#it-name').value.trim();
+    if (!e) return openInv();
+    if (!n) {
+      $('#it-name').focus();
+      return;
+    }
+    e.name = n;
+    e.qty = Math.max(0, parseInt($('#it-qty').value) || 0);
+    e.cat = $('#it-cat').value;
+    e.notes = $('#it-notes').value.trim();
+    save();
+    render();
+    openInv();
+  },
+  'item-delask': el => {
+    const e = C().equipment.find(x => x.id === el.dataset.id);
+    if (!e) return openInv();
+    openModal(`<h2>¿Borrar ${esc(e.name)}?</h2><p>Se quitará de la mochila.${C().attacks.some(a => a.item === e.id) ? ' El ataque que tenías con él se queda en tu lista de ataques.' : ''}</p>
+      <div class="btns"><button class="b bad" data-act="item-del" data-id="${e.id}">Borrar</button><button class="b" data-act="item-open" data-id="${e.id}">Cancelar</button></div>`);
+  },
   'item-add': () => {
     niCollect();
     const c = C();

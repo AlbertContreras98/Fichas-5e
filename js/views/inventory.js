@@ -579,25 +579,58 @@ function niAutoName() {
   if (!NI.name || NI.name === NI.auto) NI.name = base;
   NI.auto = base;
 }
-function invHTML(c) {
-  const groups = CATS.map(([k, n]) => [
-    k,
-    n,
-    c.equipment.map((e, i) => [e, i]).filter(([e]) => (e.cat || 'otro') === k && !(k === 'mapa' && e.img)),
-  ]).filter(g => g[2].length);
-  const items = groups.length
-    ? groups
-        .map(
-          ([k, n, list]) =>
-            `<div class="cat-h"><h3>${n}</h3></div><div class="list">${list
-              .map(
-                ([e, i]) => `<div class="it"><div class="it-head"><span class="it-name">${esc(e.name)}</span>
-      ${e.cat === 'mapa' ? `<button class="b sm" data-act="map-open" data-id="${e.id}">Abrir</button>` : `<span class="counter"><button class="b sq" data-act="qty" data-i="${i}" data-d="-1" aria-label="Quitar uno">−</button><b style="min-width:2rem;text-align:center">${e.qty}</b><button class="b sq" data-act="qty" data-i="${i}" data-d="1" aria-label="Añadir uno">+</button></span>`}</div>
+/* Iconos de las categorías de la mochila */
+const CAT_ICON = {
+  arma: '<path d="M14.5 17.5 3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2"/>',
+  armadura: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>',
+  municion: '<path d="M19 5 5 19M19 5h-6M19 5v6M5 19H2M5 19v3M8 16H5M8 16v3"/>',
+  pocion: '<path d="M10 2v7.5L4.5 19A2 2 0 0 0 6.3 22h11.4a2 2 0 0 0 1.8-3L14 9.5V2M8.5 2h7M7 16h10"/>',
+  pergamino:
+    '<path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4M19 17V5a2 2 0 0 0-2-2H4"/>',
+  comida: '<path d="M12 7c-2-2-6-1.5-6 3 0 4 3 10 6 9 3 1 6-5 6-9 0-4.5-4-5-6-3ZM12 7c0-2 1-3 3-4"/>',
+  consumible:
+    '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.4-.5-2-1-3-1.1-2.1-.2-4 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.2.4-2.3 1-3a2.5 2.5 0 0 0 2.5 2.5Z"/>',
+  herramienta:
+    '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9l-3.8 3.8Z"/>',
+  mapa: '<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2ZM9 4v14M15 6v14"/>',
+  tesoro: '<path d="M6 3h12l4 6-10 13L2 9ZM11 3 8 9l4 13 4-13-3-6M2 9h20"/>',
+  otro: '<path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.7ZM3.3 7 12 12l8.7-5M12 22V12"/>',
+};
+const catIcon = k =>
+  `<svg class="cat-ic" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${CAT_ICON[k] || CAT_ICON.otro}</svg>`;
+/* Resumen de una línea bajo el nombre del objeto en la lista */
+function itemSub(c, e) {
+  const p = [];
+  if (e.weapon && WEAPONS[e.weapon]) p.push(`${WEAPONS[e.weapon].d} ${WEAPONS[e.weapon].t}`);
+  if (e.armor && ARMORS[e.armor]) {
+    const R = ARMORS[e.armor];
+    p.push(
+      R.t === 's'
+        ? '+2 a la CA'
+        : `CA ${R.ac}${R.t === 'l' ? ' + DES' : R.t === 'm' ? ' + DES (máx. 2)' : ''}`
+    );
+    if (e.equipped) p.push(R.t === 's' ? 'embrazado' : 'puesta');
+  }
+  if (+e.magic) p.push(`+${e.magic} mágica`);
+  if (e.mi) {
+    if (e.mi.att) p.push(e.mi.on ? 'sintonizado' : 'sin sintonizar');
+    if (+e.mi.ch) p.push(`${e.mi.ch - (+e.mi.used || 0)}/${e.mi.ch} cargas`);
+  }
+  if (e.potion && POTIONS[e.potion] && POTIONS[e.potion].heal) p.push(`cura ${POTIONS[e.potion].heal}`);
+  if (e.scroll && SPBY[e.scroll]) p.push(SPBY[e.scroll].l ? `nivel ${SPBY[e.scroll].l}` : 'truco');
+  if (e.tool && TOOLS[e.tool]) p.push(`tu bonificador ${sgn(toolBonus(c, TOOLS[e.tool], e.tvar).b)}`);
+  if (e.cat === 'mapa') p.push('sin imagen');
+  if (e.notes) p.push(e.notes);
+  return p.map(esc).join(' · ');
+}
+/* Detalles y botones de uso de un objeto (en su ventana) */
+function itemInfo(c, e, i) {
+  return `
       ${
         e.tool && TOOLS[e.tool]
           ? (() => {
               const T = TOOLS[e.tool],
-                { b, pr } = toolBonus(C(), T, e.tvar);
+                { b, pr } = toolBonus(c, T, e.tvar);
               return `<div class="meta">${AB[T.ab][2]} · tu bonificador <b>${sgn(b)}</b>${pr ? ' (competente)' : ''} · ${T.use.map(u => `${esc(u[0])} CD ${u[1]}`).join(' · ')}</div>`;
             })()
           : ''
@@ -610,8 +643,8 @@ function invHTML(c) {
         ${+e.mi.ch ? `<span class="counter"><button class="b sq" data-act="mi-ch" data-i="${i}" data-d="1" aria-label="Gastar una carga">−</button><b style="min-width:3.2rem;text-align:center">${e.mi.ch - (+e.mi.used || 0)}/${e.mi.ch}</b><button class="b sq" data-act="mi-ch" data-i="${i}" data-d="-1" aria-label="Recuperar una carga">+</button></span><small class="muted">cargas${e.mi.rec ? ` · recupera ${esc(e.mi.rec)} al amanecer` : ''}</small>` : ''}</div>`
           : ''
       }
-      ${e.weapon && WEAPONS[e.weapon] && !C().attacks.some(a => a.item === e.id || (a.wpn === e.weapon && norm(a.name) === norm(e.name))) ? `<div class="btns"><button class="b sm" data-act="wpn-atk" data-i="${i}">Añadir a mis ataques</button></div>` : ''}
       ${e.weapon && WEAPONS[e.weapon] ? `<div class="meta">${WEAPONS[e.weapon].d} ${WEAPONS[e.weapon].t}${+e.magic ? ` · +${e.magic} mágica` : ''} · ${WEAPONS[e.weapon].c === 's' ? 'sencilla' : 'marcial'} · maestría: ${MASTERY[WEAPONS[e.weapon].ms][0].toLowerCase()}</div>` : ''}
+      ${e.weapon && WEAPONS[e.weapon] && !c.attacks.some(a => a.item === e.id || (a.wpn === e.weapon && norm(a.name) === norm(e.name))) ? `<div class="btns"><button class="b sm" data-act="wpn-atk" data-i="${i}">Añadir a mis ataques</button></div>` : ''}
       ${e.scroll && SPBY[e.scroll] ? `<div class="meta">${SPBY[e.scroll].l ? `Conjuro de nivel ${SPBY[e.scroll].l}` : 'Truco'} · lánzalo desde Magia (Partida) o desde Combate</div>` : ''}
       ${
         e.armor && ARMORS[e.armor]
@@ -620,8 +653,52 @@ function invHTML(c) {
           : ''
       }
       ${e.potion && POTIONS[e.potion] && e.potion !== 'other' ? `<div class="meta">${esc(POTIONS[e.potion].d)}</div><div class="btns"><button class="b sm good" data-act="pot" data-i="${i}" ${e.qty > 0 ? '' : 'disabled'}>Beber</button></div>` : ''}
-      ${e.notes ? `<div class="meta">${esc(e.notes)}</div>` : ''}</div>`
-              )
+      ${e.scroll && SPBY[e.scroll] && e.qty > 0 ? `<div class="btns"><button class="b sm" data-act="scroll" data-i="${i}">Lanzar el conjuro</button></div>` : ''}`;
+}
+/* Ventana de un objeto: detalles, usar, editar y borrar */
+function itemSheet(id) {
+  const c = C(),
+    i = c.equipment.findIndex(x => x.id === id),
+    e = c.equipment[i];
+  if (!e) return openInv();
+  if (e.cat === 'mapa') return e.img ? (openInv(), mapView(id)) : mapDetail(id);
+  const f = (l, h, w) => `<label class="f ${w || ''}"><span>${l}</span>${h}</label>`;
+  const info = itemInfo(c, e, i).trim();
+  openModal(`<div class="wz-head"><h2 class="it-title">${catIcon(e.cat || 'otro')}<span>${esc(e.name)}</span></h2><button class="b sm" data-act="inv">Volver</button></div>
+    <div id="it-acts" data-id="${e.id}" class="it-acts"${info ? '' : ' hidden'}>${info}</div>
+    <div class="grid">
+      ${f('Nombre', `<input id="it-name" value="${esc(e.name)}" autocomplete="off">`, 'wide')}
+      ${f('Cantidad', `<input id="it-qty" type="number" inputmode="numeric" min="0" value="${esc(e.qty)}">`)}
+      ${f(
+        'Tipo',
+        `<select id="it-cat">${CATS.filter(([k]) => k !== 'mapa')
+          .map(([k, n]) => `<option value="${k}" ${(e.cat || 'otro') === k ? 'selected' : ''}>${n}</option>`)
+          .join('')}</select>`
+      )}
+      ${f('Notas', `<textarea id="it-notes" rows="2" placeholder="Opcional">${esc(e.notes || '')}</textarea>`, 'wide')}
+    </div>
+    <div class="btns"><button class="b pri" data-act="item-save" data-id="${e.id}">Guardar</button><button class="b" data-act="inv">Cancelar</button><button class="b bad" data-act="item-delask" data-id="${e.id}" style="margin-left:auto">Borrar</button></div>`);
+}
+function invHTML(c) {
+  const groups = CATS.map(([k, n]) => [
+    k,
+    n,
+    c.equipment.map((e, i) => [e, i]).filter(([e]) => (e.cat || 'otro') === k && !(k === 'mapa' && e.img)),
+  ]).filter(g => g[2].length);
+  const items = groups.length
+    ? groups
+        .map(
+          ([k, n, list]) =>
+            `<div class="cat-h"><h3>${catIcon(k)}${n} <span class="cat-n">(${list.length})</span></h3></div><div class="list">${list
+              .map(([e, i]) => {
+                const sub = itemSub(c, e),
+                  qty = USABLE.has(e.cat)
+                    ? `<span class="counter"><button class="b sq" data-act="qty" data-i="${i}" data-d="-1" aria-label="Quitar uno de ${esc(e.name)}">−</button><b style="min-width:2rem;text-align:center">${e.qty}</b><button class="b sq" data-act="qty" data-i="${i}" data-d="1" aria-label="Añadir uno de ${esc(e.name)}">+</button></span>`
+                    : e.cat !== 'mapa' && +e.qty !== 1
+                      ? `<span class="it-qty">×${e.qty}</span>`
+                      : '';
+                return `<div class="it it-row${+e.qty === 0 && e.cat !== 'mapa' ? ' zero' : ''}"><button class="it-main" data-act="item-open" data-id="${e.id}"><span class="it-name">${esc(e.name)}</span>${sub ? `<span class="it-sub">${sub}</span>` : ''}</button>${qty}<span class="it-chev" aria-hidden="true">›</span></div>`;
+              })
               .join('')}</div>`
         )
         .join('')
@@ -635,11 +712,22 @@ function invHTML(c) {
     ? `<div class="acbox"><div><b>CA ${A.ac}</b><small>${esc(A.src)}</small></div>${A.warn.map(w => `<p class="hint warn">${esc(w)}</p>`).join('')}</div>`
     : '';
   return `<div class="btns" style="margin-bottom:.4rem"><button class="b sm pri" data-act="item-new">Añadir objeto</button>${anyAtt ? `<span class="badge" style="${att > 3 ? 'color:var(--bad)' : ''}">Sintonización ${att}/3</span>` : ''}</div>${acBox}${items}
-    <p class="hint" style="margin-top:.6rem">Las pociones, la munición y otros consumibles se gastan también desde la pestaña Combate. Para renombrar o borrar objetos: ⚙ Ajustes → Editar ficha.</p>${mapFab(c)}`;
+    <p class="hint" style="margin-top:.6rem">Toca un objeto para ver qué hace, usarlo, cambiarle el nombre o borrarlo. Las pociones, la munición y otros consumibles se gastan también desde la pestaña Combate.</p>${mapFab(c)}`;
 }
 function refreshInv() {
   const b = $('#inv-body');
   if (b) b.innerHTML = invHTML(C());
+  const t = $('#it-acts');
+  if (t) {
+    const c = C(),
+      i = c.equipment.findIndex(x => x.id === t.dataset.id);
+    if (i >= 0) {
+      t.innerHTML = itemInfo(c, c.equipment[i], i);
+      t.hidden = !t.innerHTML.trim();
+      const q = $('#it-qty');
+      if (q) q.value = c.equipment[i].qty;
+    }
+  }
 }
 function openInv() {
   openModal(
