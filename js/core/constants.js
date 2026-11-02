@@ -84,7 +84,7 @@ const CATS = [
   ['pocion', 'Pociones'],
   ['pergamino', 'Pergaminos de conjuro'],
   ['comida', 'Comida y bebida'],
-  ['consumible', 'Otros consumibles'],
+  ['consumible', 'Consumibles'],
   ['herramienta', 'Herramientas'],
   ['mapa', 'Mapas'],
   ['tesoro', 'Tesoros'],

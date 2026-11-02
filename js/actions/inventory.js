@@ -127,6 +127,12 @@ Object.assign(A, {
   inv: () => openInv(),
   'item-open': el => itemSheet(el.dataset.id),
   belt: el => beltOpen(el.dataset.k),
+  'cat-tog': el => {
+    invShutToggle(el.dataset.k);
+    refreshInv();
+    const b = $(`.cat-tog[data-k="${el.dataset.k}"]`);
+    if (b) b.focus();
+  },
   give1: el => {
     const e = C().equipment[+el.dataset.i];
     if (!e || +e.qty <= 0) return;

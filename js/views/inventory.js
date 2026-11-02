@@ -685,7 +685,25 @@ function itemSheet(id) {
     </div>
     <div class="btns"><button class="b pri" data-act="item-save" data-id="${e.id}">Guardar</button><button class="b" data-act="inv">Cancelar</button><button class="b bad" data-act="item-delask" data-id="${e.id}" style="margin-left:auto">Borrar</button></div>`);
 }
+/* Categorías plegadas de la mochila (se recuerdan en este dispositivo) */
+const INV_SHUT = 'fichas-inv-plegadas';
+function invShut() {
+  try {
+    return JSON.parse(localStorage.getItem(INV_SHUT)) || {};
+  } catch (e) {
+    return {};
+  }
+}
+function invShutToggle(k) {
+  const o = invShut();
+  if (o[k]) delete o[k];
+  else o[k] = 1;
+  try {
+    localStorage.setItem(INV_SHUT, JSON.stringify(o));
+  } catch (e) {}
+}
 function invHTML(c) {
+  const shut = invShut();
   const groups = CATS.map(([k, n]) => [
     k,
     n,
@@ -695,17 +713,21 @@ function invHTML(c) {
     ? groups
         .map(
           ([k, n, list]) =>
-            `<div class="cat-h"><h3>${catIcon(k)}${n} <span class="cat-n">(${list.length})</span></h3></div><div class="list">${list
-              .map(([e, i]) => {
-                const sub = itemSub(c, e),
-                  qty = USABLE.has(e.cat)
-                    ? `<span class="counter"><button class="b sq" data-act="qty" data-i="${i}" data-d="-1" aria-label="Quitar uno de ${esc(e.name)}">−</button><b style="min-width:2rem;text-align:center">${e.qty}</b><button class="b sq" data-act="qty" data-i="${i}" data-d="1" aria-label="Añadir uno de ${esc(e.name)}">+</button></span>`
-                    : e.cat !== 'mapa' && +e.qty !== 1
-                      ? `<span class="it-qty">×${e.qty}</span>`
-                      : '';
-                return `<div class="it it-row${+e.qty === 0 && e.cat !== 'mapa' ? ' zero' : ''}"><button class="it-main" data-act="item-open" data-id="${e.id}"><span class="it-name">${esc(e.name)}</span>${sub ? `<span class="it-sub">${sub}</span>` : ''}</button>${qty}<span class="it-chev" aria-hidden="true">›</span></div>`;
-              })
-              .join('')}</div>`
+            `<div class="cat-h"><h3><button class="cat-tog" data-act="cat-tog" data-k="${k}" aria-expanded="${!shut[k]}">${catIcon(k)}${n} <span class="cat-n">(${list.length})</span><span class="cat-arr" aria-hidden="true">▾</span></button></h3></div>${
+              shut[k]
+                ? ''
+                : `<div class="list">${list
+                    .map(([e, i]) => {
+                      const sub = itemSub(c, e),
+                        qty = USABLE.has(e.cat)
+                          ? `<span class="counter"><button class="b sq" data-act="qty" data-i="${i}" data-d="-1" aria-label="Quitar uno de ${esc(e.name)}">−</button><b style="min-width:2rem;text-align:center">${e.qty}</b><button class="b sq" data-act="qty" data-i="${i}" data-d="1" aria-label="Añadir uno de ${esc(e.name)}">+</button></span>`
+                          : e.cat !== 'mapa' && +e.qty !== 1
+                            ? `<span class="it-qty">×${e.qty}</span>`
+                            : '';
+                      return `<div class="it it-row${+e.qty === 0 && e.cat !== 'mapa' ? ' zero' : ''}"><button class="it-main" data-act="item-open" data-id="${e.id}"><span class="it-name">${esc(e.name)}</span>${sub ? `<span class="it-sub">${sub}</span>` : ''}</button>${qty}<span class="it-chev" aria-hidden="true">›</span></div>`;
+                    })
+                    .join('')}</div>`
+            }`
         )
         .join('')
     : c.equipment.some(inBelt)

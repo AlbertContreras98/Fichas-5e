@@ -2955,3 +2955,32 @@ button.eff.cond-pill {
 .map-row.zero > span:first-child {
   opacity: 0.55;
 }
+
+/* Categorías plegables de la mochila */
+.cat-tog {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.2rem 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.cat-h h3 {
+  flex: 1;
+}
+.cat-arr {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 1rem;
+  transition: transform 0.15s;
+}
+.cat-tog[aria-expanded='false'] .cat-arr {
+  transform: rotate(-90deg);
+}
