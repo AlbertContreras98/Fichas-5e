@@ -311,6 +311,10 @@ Object.assign(A, {
     save();
     render();
     openInv();
+    if (inBelt(it))
+      toast(
+        `<div class="t-label">${esc(it.name)}</div><div class="t-parts">Guardado en el cinturón, abajo de la mochila.</div>`
+      );
   },
   eq: el => {
     const c = C(),

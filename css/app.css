@@ -2951,3 +2951,7 @@ button.eff.cond-pill {
   background: var(--bad);
   color: #fff;
 }
+
+.map-row.zero > span:first-child {
+  opacity: 0.55;
+}
