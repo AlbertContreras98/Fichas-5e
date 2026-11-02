@@ -653,6 +653,12 @@ function itemInfo(c, e, i) {
           : ''
       }
       ${e.potion && POTIONS[e.potion] && e.potion !== 'other' ? `<div class="meta">${esc(POTIONS[e.potion].d)}</div><div class="btns"><button class="b sm good" data-act="pot" data-i="${i}" ${e.qty > 0 ? '' : 'disabled'}>Beber</button></div>` : ''}
+      ${
+        e.cat === 'municion' || e.gear === 'rations'
+          ? `<div class="btns"><span class="counter"><button class="b sq" data-act="qty" data-i="${i}" data-d="-1" aria-label="Quitar una">−</button><b style="min-width:2rem;text-align:center">${e.qty}</b><button class="b sq" data-act="qty" data-i="${i}" data-d="1" aria-label="Sumar una">+</button></span>${e.gear === 'rations' ? `<button class="b sm" data-act="give1" data-i="${i}" ${e.qty > 0 ? '' : 'disabled'}>Dar una</button>` : ''}</div>
+        <p class="meta">${e.gear === 'rations' ? 'Al hacer un descanso largo se gasta una sola. Para darle una a un compañero, pulsa «Dar una».' : 'Al disparar se descuenta sola desde Combate. Las que recuperes o te den, súmalas con +.'}</p>`
+          : ''
+      }
       ${e.scroll && SPBY[e.scroll] && e.qty > 0 ? `<div class="btns"><button class="b sm" data-act="scroll" data-i="${i}">Lanzar el conjuro</button></div>` : ''}`;
 }
 /* Ventana de un objeto: detalles, usar, editar y borrar */
@@ -712,7 +718,7 @@ function invHTML(c) {
     ? `<div class="acbox"><div><b>CA ${A.ac}</b><small>${esc(A.src)}</small></div>${A.warn.map(w => `<p class="hint warn">${esc(w)}</p>`).join('')}</div>`
     : '';
   return `<div class="btns" style="margin-bottom:.4rem"><button class="b sm pri" data-act="item-new">Añadir objeto</button>${anyAtt ? `<span class="badge" style="${att > 3 ? 'color:var(--bad)' : ''}">Sintonización ${att}/3</span>` : ''}</div>${acBox}${items}
-    <p class="hint" style="margin-top:.6rem">Toca un objeto para ver qué hace, usarlo, cambiarle el nombre o borrarlo. Las pociones, la munición y otros consumibles se gastan también desde la pestaña Combate.</p>${mapFab(c)}`;
+    <p class="hint" style="margin-top:.6rem">Toca un objeto para ver qué hace, usarlo, cambiarle el nombre o borrarlo. Las pociones, la munición y otros consumibles se gastan también desde la pestaña Combate.</p>${beltHTML(c)}`;
 }
 function refreshInv() {
   const b = $('#inv-body');

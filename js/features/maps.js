@@ -1,4 +1,4 @@
-/* Mapas de la mochila: nombre «Mapa: zona», imagen opcional, botón flotante, selector y visor con zoom. */
+/* Mapas de la mochila: nombre «Mapa: zona», imagen opcional, selector y visor con zoom (se abren desde el cinturón). */
 'use strict';
 
 const MAP_MAX = 1600;
@@ -11,15 +11,6 @@ const mapsWithImg = c => c.equipment.filter(e => e.cat === 'mapa' && e.img);
 const mapGet = id => C().equipment.find(e => e.id === id && e.cat === 'mapa');
 const mapDup = (c, z, id) =>
   c.equipment.some(e => e.cat === 'mapa' && e.id !== id && norm(mapZone(e)) === norm(z));
-const MAP_ICON =
-  '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14M15 6v14"/></svg>';
-
-/* Botón flotante dentro de la mochila (solo si hay algún mapa con imagen) */
-function mapFab(c) {
-  const ms = mapsWithImg(c);
-  if (!ms.length) return '';
-  return `<div class="map-fab-wrap"><button class="map-fab" data-act="map-fab" aria-label="${ms.length > 1 ? `Abrir mapas (${ms.length})` : `Abrir ${esc(ms[0].name)}`}">${MAP_ICON}<span>${ms.length > 1 ? `Mapas <b class="map-n">${ms.length}</b>` : 'Mapa'}</span></button></div>`;
-}
 
 /* Menú para elegir mapa cuando hay más de uno con imagen */
 function mapMenu() {

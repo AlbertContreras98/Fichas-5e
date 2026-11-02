@@ -126,6 +126,18 @@ Object.assign(A, {
   },
   inv: () => openInv(),
   'item-open': el => itemSheet(el.dataset.id),
+  belt: el => beltOpen(el.dataset.k),
+  give1: el => {
+    const e = C().equipment[+el.dataset.i];
+    if (!e || +e.qty <= 0) return;
+    e.qty--;
+    save();
+    render();
+    refreshInv();
+    toast(
+      `<div class="t-label">${esc(e.name)}</div><div class="t-parts">Das 1 a un compañero. Te quedan ${e.qty}. Él la suma con + en su ficha.</div>`
+    );
+  },
   'item-save': el => {
     const c = C(),
       e = c.equipment.find(x => x.id === el.dataset.id),
@@ -213,7 +225,7 @@ Object.assign(A, {
       render();
       openInv();
       toast(
-        `<div class="t-label">${esc(m.name)}</div><div class="t-parts">${m.img ? 'Guardado en la mochila. Ábrelo con el botón «Mapa» de abajo.' : 'Guardado en la mochila, sin imagen.'}</div>`
+        `<div class="t-label">${esc(m.name)}</div><div class="t-parts">${m.img ? 'Guardado en la mochila. Ábrelo desde el cinturón de abajo.' : 'Guardado en la mochila, sin imagen.'}</div>`
       );
       return;
     }

@@ -2678,39 +2678,6 @@ button.eff.cond-pill {
 }
 
 /* Mapas: botón flotante de la mochila, selector y visor a pantalla completa */
-.map-fab-wrap {
-  position: sticky;
-  bottom: 0;
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 0.6rem;
-  pointer-events: none;
-}
-.map-fab {
-  pointer-events: auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.7rem 1.1rem;
-  border: 0;
-  border-radius: 999px;
-  background: var(--accent);
-  color: var(--accent-ink);
-  font-weight: 600;
-  font-size: 1rem;
-  box-shadow: 0 4px 14px rgb(0 0 0 / 0.3);
-  cursor: pointer;
-}
-.map-fab .map-n {
-  display: inline-block;
-  min-width: 1.4rem;
-  margin-left: 0.2rem;
-  padding: 0 0.35rem;
-  border-radius: 999px;
-  background: var(--accent-ink);
-  color: var(--accent);
-  text-align: center;
-}
 .map-pick {
   display: flex;
   flex-wrap: wrap;
@@ -2920,4 +2887,67 @@ button.eff.cond-pill {
 }
 .it-acts .btns {
   margin: 0;
+}
+
+/* Cinturón de la mochila */
+.belt-wrap {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  margin-top: 0.6rem;
+  padding-top: 0.4rem;
+  pointer-events: none;
+}
+.belt {
+  pointer-events: auto;
+  display: flex;
+  gap: 0.2rem;
+  max-width: 100%;
+  padding: 0.3rem;
+  border-radius: 16px;
+  background: var(--accent);
+  box-shadow: 0 4px 14px rgb(0 0 0 / 0.3);
+}
+.belt-b {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  min-width: 3.7rem;
+  padding: 0.4rem 0.35rem 0.3rem;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--accent-ink);
+  font: inherit;
+  cursor: pointer;
+}
+.belt-b:hover,
+.belt-b:focus-visible {
+  background: rgb(255 255 255 / 0.15);
+}
+.belt .belt-b small {
+  color: inherit;
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1;
+}
+.belt-n {
+  position: absolute;
+  top: 0.05rem;
+  right: 0.1rem;
+  min-width: 1.15rem;
+  padding: 0 0.25rem;
+  border-radius: 999px;
+  background: var(--accent-ink);
+  color: var(--accent);
+  font-size: 0.7rem;
+  line-height: 1.15rem;
+  text-align: center;
+}
+.belt-b.low .belt-n {
+  background: var(--bad);
+  color: #fff;
 }

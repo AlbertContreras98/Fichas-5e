@@ -2,11 +2,6 @@
 'use strict';
 
 Object.assign(A, {
-  'map-fab': () => {
-    const ms = mapsWithImg(C());
-    if (ms.length === 1) mapView(ms[0].id);
-    else if (ms.length) mapMenu();
-  },
   'map-view': el => mapView(el.dataset.id),
   'map-open': el => {
     const e = mapGet(el.dataset.id);
