@@ -137,12 +137,22 @@ Object.assign(A, {
   },
   hp: el => {
     const c = C(),
-      n = Math.max(0, parseInt($('#hpAmt').value) || 0);
-    if (!n) {
+      rolled = Math.max(0, parseInt($('#hpAmt').value) || 0);
+    if (!rolled) {
       $('#hpAmt').focus();
       return;
     }
-    const m = el.dataset.m;
+    let m = el.dataset.m,
+      n = rolled,
+      why = '';
+    if (m === 'half' || m === 'double') {
+      n = m === 'half' ? Math.floor(rolled / 2) : rolled * 2;
+      why =
+        m === 'half'
+          ? `<div class="t-parts">Resistencia: la mitad de ${rolled}, redondeando hacia abajo.</div>`
+          : `<div class="t-parts">Vulnerabilidad: el doble de ${rolled}.</div>`;
+      m = 'dmg';
+    }
     if (m === 'heal') {
       const was = c.hp.current;
       c.hp.current = Math.min(c.hp.max, c.hp.current + n);
@@ -192,7 +202,7 @@ Object.assign(A, {
         acts = `<div class="t-parts">Concentración en ${esc(c.concentration)}: tira salvación de CON, CD <b>${dc}</b> (tu bonificador ${sgn(saveB(c, 'con'))}).</div><div class="t-actions"><button class="b sm" data-act="conc-keep">La supero</button><button class="b sm bad" data-act="conc-lose">La fallo</button></div>`;
       } else if (c.concentration && c.hp.current === 0) c.concentration = '';
       toast(
-        `<div class="t-label">Daño recibido</div><div class="t-big bad">−${n}</div><div class="t-parts">${fromTemp ? `${fromTemp} absorbidos por PG temporales · ` : ''}PG: ${c.hp.current} / ${c.hp.max}</div>${extra}${acts}`,
+        `<div class="t-label">Daño recibido</div><div class="t-big bad">−${n}</div>${why}<div class="t-parts">${fromTemp ? `${fromTemp} absorbidos por PG temporales · ` : ''}PG: ${c.hp.current} / ${c.hp.max}</div>${extra}${acts}`,
         !!acts
       );
     }
@@ -250,6 +260,8 @@ Object.assign(A, {
     <label class="f"><span>Nombre</span><input id="eff-name" autocomplete="off" placeholder="Envenenado"></label>
     <div class="effdur"><label class="f"><span>Duración</span><input id="eff-n" type="number" inputmode="numeric" min="1" value="1"></label>
     <label class="f"><span>&nbsp;</span><select id="eff-u"><option value="r">rondas</option><option value="min" selected>minutos</option><option value="h">horas</option><option value="d">días</option><option value="inf">hasta que se disipe</option></select></label></div>
+    <label class="chk"><input type="checkbox" id="eff-conc"> Requiere concentración</label>
+    <p class="hint">${term('¿Qué es la concentración?', 'conc')} Márcalo si el rasgo, la dote o el objeto dice que requiere concentración. Si recibes daño, la app te pedirá la tirada para mantenerla.${C().concentration ? ` Ahora estás concentrado en <b>${esc(C().concentration)}</b>: si lo marcas, eso termina.` : ''}</p>
     <div class="btns"><button class="b pri" data-act="eff-add-ok">Añadir</button><button class="b" data-act="eff-cancel">Cancelar</button></div>`);
   },
   'eff-add-ok': () => {
@@ -273,12 +285,21 @@ Object.assign(A, {
             : u === 'h'
               ? { m: 60 * n }
               : { m: 1440 * n };
-    c.effects.push(Object.assign({ id: uid(), name, conc: false }, d));
+    const conc = $('#eff-conc') && $('#eff-conc').checked,
+      prev = c.concentration;
+    if (conc) {
+      c.concentration = name;
+      addEffect(c, name, d, true);
+    } else c.effects.push(Object.assign({ id: uid(), name, conc: false }, d));
     const back = effBack;
     closeModal();
     save();
     render();
     if (back) openVida();
+    if (conc)
+      toast(
+        `<div class="t-label">Concentrado en</div><div class="t-big">${esc(name)}</div>${prev && prev !== name ? `<div class="t-parts">Dejas de concentrarte en ${esc(prev)}.</div>` : ''}`
+      );
   },
   info: () => openInfo(),
   'atk-open': el => atkSheet(+el.dataset.i),

@@ -183,6 +183,9 @@ small {
   height: 100%;
   background: var(--good);
 }
+.bar i.mid {
+  background: #d9a514;
+}
 .bar i.low {
   background: var(--bad);
 }
@@ -3007,4 +3010,16 @@ button.eff.cond-pill {
 .it.off .badge,
 .it.off .meta {
   opacity: 0.55;
+}
+
+/* Daño con resistencia o vulnerabilidad */
+.hpctl2 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+}
+.hpctl2 > small {
+  color: var(--muted);
 }

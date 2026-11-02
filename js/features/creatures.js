@@ -110,7 +110,7 @@ function creaCard(c, x) {
     <div class="comp-stats"><span>CA <b>${esc(st.ac === '' || st.ac == null ? '—' : st.ac)}</b></span>${st.speed ? `<span>${esc(st.speed)}</span>` : ''}${isForm && st.hpMax ? `<span>PG de la bestia <b>${st.hpMax}</b></span>` : ''}${x.conc ? `<span>ligada a tu concentración</span>` : ''}</div>
     ${
       st.track
-        ? `<div class="comp-hp"><span><b>${x.hp.current}</b> / ${st.hpMax} PG</span><div class="bar"><i class="${pct <= 25 ? 'low' : ''}" style="width:${pct}%"></i></div></div>
+        ? `<div class="comp-hp"><span><b>${x.hp.current}</b> / ${st.hpMax} PG</span><div class="bar"><i class="${pct <= 25 ? 'low' : pct < 40 ? 'mid' : ''}" style="width:${pct}%"></i></div></div>
     <div class="hpctl"><input id="cp-${x.id}" type="number" inputmode="numeric" min="0" placeholder="PG" aria-label="PG de ${esc(x.name)}"><button class="b bad" data-act="crea-hp" data-m="dmg" data-id="${x.id}">Daño</button><button class="b good" data-act="crea-hp" data-m="heal" data-id="${x.id}">Curar</button></div>
     ${x.hp.current <= 0 ? `<p class="hint warn">${x.kind === 'other' ? 'A 0 PG: cae (pregunta al máster qué le pasa).' : x.kind === 'primal' ? 'A 0 PG muere. Puedes revivirlo durante la hora siguiente con una acción mágica gastando un espacio de conjuro.' : 'A 0 PG desaparece.'}</p>` : ''}`
         : ''
