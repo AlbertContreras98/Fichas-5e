@@ -1,5 +1,5 @@
 // Sube VERSION cada vez que cambies la app para que los dispositivos descarguen la nueva.
-const VERSION = 'fichas-v59';
+const VERSION = 'fichas-v60';
 const SHELL = [
   './',
   'index.html',

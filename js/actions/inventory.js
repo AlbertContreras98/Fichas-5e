@@ -131,9 +131,15 @@ Object.assign(A, {
   inv: () => openInv(),
   'item-open': el => itemSheet(el.dataset.id),
   'wpn-eq': el => {
-    const e = C().equipment.find(x => x.id === el.dataset.id);
+    const c = C(),
+      e = c.equipment.find(x => x.id === el.dataset.id);
     if (!e) return;
-    e.equipped = e.equipped === false;
+    if (wpnOn(c, e)) e.equipped = false;
+    else {
+      wpnEnsureAtk(c, e);
+      e.equipped = true;
+      wpnProfWarn(c, e);
+    }
     save();
     render();
     refreshInv();
@@ -334,6 +340,7 @@ Object.assign(A, {
     save();
     render();
     if (inCard(it)) {
+      if (it.cat === 'arma' && it.equipped) wpnProfWarn(c, it);
       toast(
         `<div class="t-label">${esc(it.name)}</div><div class="t-parts">Añadido a ${it.cat === 'arma' ? 'Armas y ataques' : it.cat === 'armadura' ? 'Armaduras y escudos' : 'Herramientas'}, en la pestaña Partida.</div>`
       );
@@ -360,29 +367,6 @@ Object.assign(A, {
     refreshInv();
   },
   gear: el => gearUse(+el.dataset.i),
-  'wpn-atk': el => {
-    const c = C(),
-      e = c.equipment[+el.dataset.i];
-    const a = Object.assign(NEW.attacks(), {
-      name: e.name,
-      wpn: e.weapon,
-      magic: +e.magic || 0,
-      mastery: MASTERY_CLS.has(c.classKey),
-      item: e.id,
-    });
-    const W = WEAPONS[e.weapon];
-    if (W.am) {
-      const am = c.equipment.find(x => x.ammoKind === W.am[0]);
-      if (am) a.ammo = am.id;
-    }
-    c.attacks.push(a);
-    save();
-    render();
-    refreshInv();
-    toast(
-      `<div class="t-label">${esc(e.name)} añadida a tus ataques</div><div class="t-parts">${sgn(a.atk)} · ${esc(a.dmg)} ${esc(a.type || '')}</div>`
-    );
-  },
   'mi-att': el => {
     const c = C(),
       e = c.equipment[+el.dataset.i];

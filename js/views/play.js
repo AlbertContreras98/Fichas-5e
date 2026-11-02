@@ -90,9 +90,8 @@ function viewPlay(c) {
       : '';
   };
   const wpnRows = c.equipment
-    .map((e, ei) => [e, ei])
-    .filter(([e]) => e.cat === 'arma')
-    .map(([e, ei]) => {
+    .filter(e => e.cat === 'arma')
+    .map(e => {
       const i = c.attacks.findIndex(a => a.item === e.id),
         a =
           i >= 0
@@ -100,9 +99,9 @@ function viewPlay(c) {
             : e.weapon && WEAPONS[e.weapon]
               ? wpnCalc(c, { wpn: e.weapon, magic: e.magic })
               : null,
-        on = e.equipped !== false;
-      return `<div class="it${i >= 0 && !on ? ' off' : ''}"><div class="it-head"><button class="it-link" data-act="item-open" data-id="${e.id}">${esc(e.name)}</button>${a ? atkBadges(a) : ''}
-        ${i >= 0 ? `<button class="chip ${on ? 'on' : ''}" data-act="wpn-eq" data-id="${e.id}" aria-pressed="${on}">${on ? 'Equipada' : 'Sin equipar'}</button>${on ? shoot(c.attacks[i], i) : ''}` : e.weapon && WEAPONS[e.weapon] ? `<button class="b sm" data-act="wpn-atk" data-i="${ei}">Añadir a mis ataques</button>` : ''}</div>
+        on = wpnOn(c, e);
+      return `<div class="it${a && !on ? ' off' : ''}"><div class="it-head"><button class="it-link" data-act="item-open" data-id="${e.id}">${esc(e.name)}</button>${a ? atkBadges(a) : ''}
+        ${i >= 0 || (e.weapon && WEAPONS[e.weapon]) ? `<button class="chip ${on ? 'on' : ''}" data-act="wpn-eq" data-id="${e.id}" aria-pressed="${on}">${on ? 'Equipada' : 'Sin equipar'}</button>${on ? shoot(c.attacks[i], i) : ''}` : ''}</div>
       ${a ? `<div class="meta">${esc([a.type, a.notes].filter(Boolean).join(' · '))}</div>${atkChips(a.notes)}` : e.notes ? `<div class="meta">${esc(e.notes)}</div>` : ''}</div>`;
     });
   const otherRows = c.attacks

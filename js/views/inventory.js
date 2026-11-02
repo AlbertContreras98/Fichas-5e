@@ -90,6 +90,35 @@ const atkReady = (c, a) => {
   const e = atkItem(c, a);
   return !(e && e.cat === 'arma' && e.equipped === false);
 };
+/* ¿El arma sale en Combate? Tiene su ataque y no está desequipada */
+const wpnOn = (c, e) => e.equipped !== false && c.attacks.some(a => a.item === e.id);
+/* Crea el ataque de un arma del catálogo si todavía no lo tiene */
+function wpnEnsureAtk(c, e) {
+  if (c.attacks.some(a => a.item === e.id) || !e.weapon || !WEAPONS[e.weapon]) return;
+  const W = WEAPONS[e.weapon],
+    a = Object.assign(NEW.attacks(), {
+      name: e.name,
+      wpn: e.weapon,
+      magic: +e.magic || 0,
+      mastery: MASTERY_CLS.has(c.classKey),
+      item: e.id,
+    });
+  const r = wpnCalc(c, a);
+  Object.assign(a, { atk: r.atk, dmg: r.dmg, type: r.type, notes: r.notes });
+  if (W.am) {
+    const am = c.equipment.find(x => x.ammoKind === W.am[0]);
+    if (am) a.ammo = am.id;
+  }
+  c.attacks.push(a);
+}
+/* Aviso al equipar un arma con la que no se es competente */
+function wpnProfWarn(c, e) {
+  const W = e.weapon && WEAPONS[e.weapon];
+  if (W && !wpnProf(c, W))
+    toast(
+      `<div class="t-label">Sin competencia</div><div class="t-parts">No eres competente con ${esc(e.name)}: al atacar no sumas tu bonificador de competencia (+${pb(c)}), solo tu modificador. El daño es el mismo.</div>`
+    );
+}
 function linkItemWeapons(c) {
   if (c._itemWpnLinked) return;
   c._itemWpnLinked = true;
@@ -674,13 +703,9 @@ function itemInfo(c, e, i) {
       }
       ${e.weapon && WEAPONS[e.weapon] ? `<div class="meta">${WEAPONS[e.weapon].d} ${WEAPONS[e.weapon].t}${+e.magic ? ` · +${e.magic} mágica` : ''} · ${WEAPONS[e.weapon].c === 's' ? 'sencilla' : 'marcial'} · maestría: ${MASTERY[WEAPONS[e.weapon].ms][0].toLowerCase()}</div>` : ''}
       ${
-        e.cat === 'arma' && c.attacks.some(a => a.item === e.id)
-          ? `<div class="btns"><button class="chip ${e.equipped !== false ? 'on' : ''}" data-act="wpn-eq" data-id="${e.id}" aria-pressed="${e.equipped !== false}">${e.equipped !== false ? 'Equipada' : 'Sin equipar'}</button><small class="muted">${e.equipped !== false ? 'Sale en Combate para atacar con ella.' : 'No sale en Combate hasta que la equipes.'}</small></div>`
-          : e.weapon &&
-              WEAPONS[e.weapon] &&
-              !c.attacks.some(a => a.item === e.id || (a.wpn === e.weapon && norm(a.name) === norm(e.name)))
-            ? `<div class="btns"><button class="b sm" data-act="wpn-atk" data-i="${i}">Añadir a mis ataques</button></div>`
-            : ''
+        e.cat === 'arma' && (c.attacks.some(a => a.item === e.id) || (e.weapon && WEAPONS[e.weapon]))
+          ? `<div class="btns"><button class="chip ${wpnOn(c, e) ? 'on' : ''}" data-act="wpn-eq" data-id="${e.id}" aria-pressed="${wpnOn(c, e)}">${wpnOn(c, e) ? 'Equipada' : 'Sin equipar'}</button><small class="muted">${wpnOn(c, e) ? 'Sale en Combate para atacar con ella.' : 'No sale en Combate hasta que la equipes.'}</small></div>`
+          : ''
       }
       ${e.scroll && SPBY[e.scroll] ? `<div class="meta">${SPBY[e.scroll].l ? `Conjuro de nivel ${SPBY[e.scroll].l}` : 'Truco'} · lánzalo desde Magia (Partida) o desde Combate</div>` : ''}
       ${
