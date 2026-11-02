@@ -126,6 +126,7 @@ Object.assign(A, {
     for (const x of arr) {
       const n = normalize(x);
       n.spells.forEach(fillFromRef);
+      [linkWeapons, linkGear, linkItemWeapons, linkAttackItems, linkArmor].forEach(f => f(n));
       if (S.chars.some(c => c.id === n.id)) n.id = uid();
       S.chars.push(n);
       last = n;

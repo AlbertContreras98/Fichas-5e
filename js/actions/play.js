@@ -281,4 +281,46 @@ Object.assign(A, {
     if (back) openVida();
   },
   info: () => openInfo(),
+  'atk-open': el => atkSheet(+el.dataset.i),
+  'atk-save': el => {
+    const c = C(),
+      i = +el.dataset.i,
+      n = $('#at-name').value.trim(),
+      g = id => ($('#' + id) ? $('#' + id).value : undefined);
+    if (!n) {
+      $('#at-name').focus();
+      return;
+    }
+    const a = i >= 0 ? c.attacks[i] : NEW.attacks();
+    a.name = n;
+    if (g('at-atk') !== undefined) {
+      a.atk = parseInt(g('at-atk')) || 0;
+      a.dmg = g('at-dmg').trim();
+      a.type = g('at-type').trim();
+      a.notes = g('at-notes').trim();
+    }
+    if (g('at-ammo') !== undefined) a.ammo = g('at-ammo');
+    if (i < 0) c.attacks.push(a);
+    closeModal();
+    save();
+    render();
+  },
+  'atk-delask': el => {
+    const a = C().attacks[+el.dataset.i];
+    if (!a) return;
+    openModal(`<h2>¿Borrar ${esc(a.name || 'este ataque')}?</h2><p>Dejará de salir en Combate.</p>
+      <div class="btns"><button class="b bad" data-act="atk-del" data-i="${el.dataset.i}">Borrar</button><button class="b" data-act="atk-open" data-i="${el.dataset.i}">Cancelar</button></div>`);
+  },
+  'atk-del': el => {
+    const c = C(),
+      a = c.attacks[+el.dataset.i];
+    if (!a) return;
+    c.attacks.splice(+el.dataset.i, 1);
+    closeModal();
+    save();
+    render();
+    toast(
+      `<div class="t-label">Quitado</div><div class="t-parts">${esc(a.name || 'El ataque')} ya no está en tus ataques.</div>`
+    );
+  },
 });

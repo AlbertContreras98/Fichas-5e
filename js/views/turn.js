@@ -197,6 +197,7 @@ function viewTurn(c) {
   });
   if (!fm)
     c.attacks.forEach((a, i) => {
+      if (!atkReady(c, a)) return;
       const am = a.ammo && c.equipment.find(e => e.id === a.ammo);
       const noAmmo = am && am.qty <= 0;
       cols.A.push(
@@ -268,7 +269,9 @@ function viewTurn(c) {
     );
   });
   // Segunda arma ligera
-  const lights = c.attacks.map((a, i) => [a, i]).filter(([a]) => /ligera/i.test(a.notes || ''));
+  const lights = c.attacks
+    .map((a, i) => [a, i])
+    .filter(([a]) => atkReady(c, a) && /ligera/i.test(a.notes || ''));
   if (lights.length >= 2)
     lights.forEach(([a, i]) =>
       cols.AA.push(

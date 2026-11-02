@@ -44,7 +44,7 @@ function toolsList(c) {
     const k = e.tool + '|' + (e.tvar || '');
     if (seen.has(k)) return;
     seen.add(k);
-    out.push({ T, v: e.tvar || '', name: e.name, have: true });
+    out.push({ T, v: e.tvar || '', name: e.name, have: true, id: e.id });
   });
   const t = norm(c.proficiencies.tools || '');
   Object.entries(TOOLS).forEach(([k, T]) => {
@@ -55,7 +55,7 @@ function toolsList(c) {
 }
 function toolDetail(c, x) {
   const { b, pr } = toolBonus(c, x.T, x.v);
-  return `<div class="it"><div class="it-head"><span class="it-name">${esc(x.name)}${x.have ? '' : ' <span class="tag">no la llevas</span>'}</span><span class="badge">${AB[x.T.ab][1]} ${sgn(b)}</span></div>
+  return `<div class="it"><div class="it-head">${x.id ? `<button class="it-link" data-act="item-open" data-id="${x.id}">${esc(x.name)}</button>` : `<span class="it-name">${esc(x.name)} <span class="tag">no la llevas</span></span>`}<span class="badge">${AB[x.T.ab][1]} ${sgn(b)}</span></div>
     <div class="meta">${pr ? 'Competente: sumas tu bonificador de competencia' : 'Sin competencia: solo tu modificador de ' + AB[x.T.ab][2]}</div>
     <details><summary>Usos y fabricación</summary><ul class="tuse">${x.T.use.map(u => `<li>${esc(u[0])} <b>CD ${u[1]}</b></li>`).join('')}</ul>${x.T.craft ? `<p class="meta"><b>Puedes fabricar:</b> ${esc(x.T.craft)}</p>` : ''}</details></div>`;
 }
@@ -82,6 +82,14 @@ function gearUse(i, eco) {
     `<div class="t-label">${G.act === 'lit' ? 'Enciendes' : 'Usas'}</div><div class="t-big">${esc(e.name)}</div><div class="t-parts">${esc(G.d)}${extra ? ' ' + extra : ''}${G.keep ? '' : ` Te quedan ${e.qty}${G.unit ? ' ' + G.unit : ''}.`}</div>`
   );
 }
+/* Armas, armaduras y herramientas se gestionan en sus tarjetas de Partida, no en la mochila */
+const inCard = e => e.cat === 'arma' || e.cat === 'armadura' || e.cat === 'herramienta';
+const atkItem = (c, a) => (a.item ? c.equipment.find(e => e.id === a.item) : null);
+/* Un ataque sale en Combate salvo que sea de un arma sin equipar */
+const atkReady = (c, a) => {
+  const e = atkItem(c, a);
+  return !(e && e.cat === 'arma' && e.equipped === false);
+};
 function linkItemWeapons(c) {
   if (c._itemWpnLinked) return;
   c._itemWpnLinked = true;
@@ -90,6 +98,22 @@ function linkItemWeapons(c) {
     const n = norm(e.name).replace(/\s*\(.*\)$/, '');
     const k = Object.keys(WEAPONS).find(k => norm(WEAPONS[k].n) === n);
     if (k) e.weapon = k;
+  });
+}
+/* Fichas antiguas: enlaza cada ataque con el arma del equipo del mismo nombre (o del mismo tipo) */
+function linkAttackItems(c) {
+  if (c._atkItemLinked) return;
+  c._atkItemLinked = true;
+  const used = new Set(c.attacks.map(a => a.item).filter(Boolean));
+  c.attacks.forEach(a => {
+    if (a.item) return;
+    const e =
+      c.equipment.find(e => e.cat === 'arma' && !used.has(e.id) && norm(e.name) === norm(a.name)) ||
+      c.equipment.find(e => e.cat === 'arma' && !used.has(e.id) && a.wpn && e.weapon === a.wpn);
+    if (e) {
+      a.item = e.id;
+      used.add(e.id);
+    }
   });
 }
 function linkGear(c) {
@@ -419,7 +443,7 @@ function itemModal() {
                     `<select id="ni-mag" data-ni="1">${[0, 1, 2, 3].map(n => `<option value="${n}" ${+x.mag === n ? 'selected' : ''}>${n ? '+' + n : 'Ninguno'}</option>`).join('')}</select>`
                   ) +
                   `<p class="hint wide">${esc(wpnCalc(c, { wpn: x.wpn, magic: x.mag, mastery: x.ms }).notes)}. Maestría: <b>${MASTERY[W.ms][0]}</b> — ${esc(MASTERY[W.ms][1])}</p>` +
-                  `<label class="chk wide"><input type="checkbox" id="ni-atk" ${x.atk ? 'checked' : ''}> Añadirla a mis ataques (bonificador y daño calculados)</label>` +
+                  `<label class="chk wide"><input type="checkbox" id="ni-atk" ${x.atk ? 'checked' : ''}> Equipada: sale en Combate para atacar con ella (bonificador y daño calculados)</label>` +
                   (MASTERY_CLS.has(c.classKey)
                     ? `<label class="chk wide"><input type="checkbox" id="ni-ms" ${x.ms ? 'checked' : ''}> Uso su maestría (${MASTERY[W.ms][0]})</label>`
                     : '') +
@@ -487,8 +511,13 @@ function itemModal() {
                           `<label class="chk"><input type="checkbox" id="ni-eq" ${x.eq ? 'checked' : ''}> La llevo puesta</label>`
                         : '')
                     : '';
-  openModal(`<h2>Añadir objeto</h2><div class="grid">
-      ${f('Tipo', `<select id="ni-cat" data-ni="1">${[...CATS, ['paquete', 'Paquete de equipo (añade su contenido)']].map(([k, n]) => `<option value="${k}" ${x.cat === k ? 'selected' : ''}>${n}</option>`).join('')}</select>`)}
+  const FROM = {
+    arma: 'Añadir arma',
+    armadura: 'Añadir armadura o escudo',
+    herramienta: 'Añadir herramienta',
+  };
+  openModal(`<h2>${FROM[x.from] || 'Añadir objeto'}</h2><div class="grid">
+      ${x.from ? '' : f('Tipo', `<select id="ni-cat" data-ni="1">${[...CATS.filter(([k]) => !['arma', 'armadura', 'herramienta'].includes(k)), ['paquete', 'Paquete de equipo (añade su contenido)']].map(([k, n]) => `<option value="${k}" ${x.cat === k ? 'selected' : ''}>${n}</option>`).join('')}</select>`)}
       ${isMap ? '' : f('Cantidad', `<input id="ni-qty" type="number" inputmode="numeric" min="0" value="${esc(x.qty)}">`)}
       ${isMap ? f('Zona que mapea', `<input id="ni-name" value="${esc(x.name)}" placeholder="Bosque de Neverwinter, la cripta…" autocomplete="off">`, 'wide') + `<p class="hint wide">En la mochila aparecerá como «<span id="ni-mapname">${esc(mapName(mapZone({ name: x.name }) || 'zona'))}</span>».</p>` : ''}
       ${extra}
@@ -644,7 +673,15 @@ function itemInfo(c, e, i) {
           : ''
       }
       ${e.weapon && WEAPONS[e.weapon] ? `<div class="meta">${WEAPONS[e.weapon].d} ${WEAPONS[e.weapon].t}${+e.magic ? ` · +${e.magic} mágica` : ''} · ${WEAPONS[e.weapon].c === 's' ? 'sencilla' : 'marcial'} · maestría: ${MASTERY[WEAPONS[e.weapon].ms][0].toLowerCase()}</div>` : ''}
-      ${e.weapon && WEAPONS[e.weapon] && !c.attacks.some(a => a.item === e.id || (a.wpn === e.weapon && norm(a.name) === norm(e.name))) ? `<div class="btns"><button class="b sm" data-act="wpn-atk" data-i="${i}">Añadir a mis ataques</button></div>` : ''}
+      ${
+        e.cat === 'arma' && c.attacks.some(a => a.item === e.id)
+          ? `<div class="btns"><button class="chip ${e.equipped !== false ? 'on' : ''}" data-act="wpn-eq" data-id="${e.id}" aria-pressed="${e.equipped !== false}">${e.equipped !== false ? 'Equipada' : 'Sin equipar'}</button><small class="muted">${e.equipped !== false ? 'Sale en Combate para atacar con ella.' : 'No sale en Combate hasta que la equipes.'}</small></div>`
+          : e.weapon &&
+              WEAPONS[e.weapon] &&
+              !c.attacks.some(a => a.item === e.id || (a.wpn === e.weapon && norm(a.name) === norm(e.name)))
+            ? `<div class="btns"><button class="b sm" data-act="wpn-atk" data-i="${i}">Añadir a mis ataques</button></div>`
+            : ''
+      }
       ${e.scroll && SPBY[e.scroll] ? `<div class="meta">${SPBY[e.scroll].l ? `Conjuro de nivel ${SPBY[e.scroll].l}` : 'Truco'} · lánzalo desde Magia (Partida) o desde Combate</div>` : ''}
       ${
         e.armor && ARMORS[e.armor]
@@ -669,8 +706,9 @@ function itemSheet(id) {
   if (!e) return openInv();
   if (e.cat === 'mapa') return e.img ? (openInv(), mapView(id)) : mapDetail(id);
   const f = (l, h, w) => `<label class="f ${w || ''}"><span>${l}</span>${h}</label>`;
-  const info = itemInfo(c, e, i).trim();
-  openModal(`<div class="wz-head"><h2 class="it-title">${catIcon(e.cat || 'otro')}<span>${esc(e.name)}</span></h2><button class="b sm" data-act="inv">Volver</button></div>
+  const info = itemInfo(c, e, i).trim(),
+    back = inCard(e) ? 'close-modal' : 'inv';
+  openModal(`<div class="wz-head"><h2 class="it-title">${catIcon(e.cat || 'otro')}<span>${esc(e.name)}</span></h2><button class="b sm" data-act="${back}">Volver</button></div>
     <div id="it-acts" data-id="${e.id}" class="it-acts"${info ? '' : ' hidden'}>${info}</div>
     <div class="grid">
       ${f('Nombre', `<input id="it-name" value="${esc(e.name)}" autocomplete="off">`, 'wide')}
@@ -683,7 +721,7 @@ function itemSheet(id) {
       )}
       ${f('Notas', `<textarea id="it-notes" rows="2" placeholder="Opcional">${esc(e.notes || '')}</textarea>`, 'wide')}
     </div>
-    <div class="btns"><button class="b pri" data-act="item-save" data-id="${e.id}">Guardar</button><button class="b" data-act="inv">Cancelar</button><button class="b bad" data-act="item-delask" data-id="${e.id}" style="margin-left:auto">Borrar</button></div>`);
+    <div class="btns"><button class="b pri" data-act="item-save" data-id="${e.id}">Guardar</button><button class="b" data-act="${back}">Cancelar</button><button class="b bad" data-act="item-delask" data-id="${e.id}" style="margin-left:auto">Borrar</button></div>`);
 }
 /* Categorías plegadas de la mochila (se recuerdan en este dispositivo) */
 const INV_SHUT = 'fichas-inv-plegadas';
@@ -707,7 +745,7 @@ function invHTML(c) {
   const groups = CATS.map(([k, n]) => [
     k,
     n,
-    c.equipment.map((e, i) => [e, i]).filter(([e]) => (e.cat || 'otro') === k && !inBelt(e)),
+    c.equipment.map((e, i) => [e, i]).filter(([e]) => (e.cat || 'otro') === k && !inBelt(e) && !inCard(e)),
   ]).filter(g => g[2].length);
   const items = groups.length
     ? groups
@@ -733,14 +771,10 @@ function invHTML(c) {
     : c.equipment.some(inBelt)
       ? ''
       : '<p class="empty">Sin objetos todavía.</p>';
-  const A = armorAuto(c) ? acCalc(c) : null,
-    att = attuned(c),
+  const att = attuned(c),
     anyAtt = c.equipment.some(e => e.mi && e.mi.att);
-  const acBox = A
-    ? `<div class="acbox"><div><b>CA ${A.ac}</b><small>${esc(A.src)}</small></div>${A.warn.map(w => `<p class="hint warn">${esc(w)}</p>`).join('')}</div>`
-    : '';
-  return `<div class="btns" style="margin-bottom:.4rem"><button class="b sm pri" data-act="item-new">Añadir objeto</button>${anyAtt ? `<span class="badge" style="${att > 3 ? 'color:var(--bad)' : ''}">Sintonización ${att}/3</span>` : ''}</div>${acBox}${items}
-    <p class="hint" style="margin-top:.6rem">Toca un objeto para ver qué hace, usarlo, cambiarle el nombre o borrarlo.${c.equipment.some(inBelt) ? ' Los mapas, las pociones, el kit de sanador, las raciones y la munición están en el cinturón de abajo.' : ''}</p>${beltHTML(c)}`;
+  return `<div class="btns" style="margin-bottom:.4rem"><button class="b sm pri" data-act="item-new">Añadir objeto</button>${anyAtt ? `<span class="badge" style="${att > 3 ? 'color:var(--bad)' : ''}">Sintonización ${att}/3</span>` : ''}</div>${items}
+    <p class="hint" style="margin-top:.6rem">Toca un objeto para ver qué hace, usarlo, cambiarle el nombre o borrarlo. Las armas, armaduras y herramientas están en la pestaña Partida.${c.equipment.some(inBelt) ? ' Los mapas, las pociones, el kit de sanador, las raciones y la munición están en el cinturón de abajo.' : ''}</p>${beltHTML(c)}`;
 }
 function refreshInv() {
   const b = $('#inv-body');

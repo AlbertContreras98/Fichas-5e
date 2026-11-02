@@ -121,7 +121,7 @@ const TIPS_DEF = {
     {
       sel: '#inv-body [data-act=item-new]',
       t: 'Mochila',
-      d: 'Añade objetos del catálogo: armas, armaduras, pociones, herramientas, kits… Muchos tienen botones para usarlos directamente.',
+      d: 'Añade objetos del catálogo: pociones, comida, kits… Las armas, armaduras y herramientas se añaden desde sus tarjetas en la pestaña Partida. Toca un objeto para usarlo, editarlo o borrarlo.',
     },
     {
       sel: '#inv-body .counter',

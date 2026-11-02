@@ -75,26 +75,61 @@ function viewPlay(c) {
     return `<button class="skill" data-act="gloss" data-k="skill:${s[0]}"><span class="dot ${pv ? 'p' : ''}">${pv === 2 ? '◆' : pv ? '●' : '○'}</span><span>${s[1]}</span><span class="ak">${AB[s[2]][1]}</span><b>${sgn(skillB(c, s))}</b></button>`;
   }).join('')}
     <p class="hint" style="margin-top:.5rem">Toca una habilidad para ver para qué sirve y qué tirar. ${term('● competente · ◆ pericia', 'prof')} · ${term('Ventaja y desventaja', 'adv')}</p></section>`;
-  const atk = `<section class="card"><h2>Armas y ataques</h2>${
-    c.attacks.length
-      ? `<div class="list">${c.attacks
-          .map((a, i) => {
-            const am = a.ammo && c.equipment.find(e => e.id === a.ammo);
-            return `<div class="it"><div class="it-head"><span class="it-name">${esc(a.name)}</span><span class="badge">${sgn(+a.atk || 0)}</span>${a.dmg ? `<span class="badge">${esc(a.dmg)}</span>` : ''}
-        ${am ? `<button class="b sm" data-act="ammo" data-i="${i}" ${am.qty > 0 ? '' : 'disabled'}>Disparar (quedan ${am.qty})</button>` : ''}</div>
-      <div class="meta">${esc([a.type, a.notes].filter(Boolean).join(' · '))}</div>
-      ${
-        weaponTerms(a.notes).length
-          ? `<div class="chips" style="margin-top:.3rem">${weaponTerms(a.notes)
-              .map(w => `<button class="chip" data-act="gloss" data-k="wp:${w[0]}">${esc(w[1])}</button>`)
-              .join('')}</div>`
-          : ''
-      }</div>`;
-          })
+  const atkBadges = a =>
+    `<span class="badge">${sgn(+a.atk || 0)}</span>${a.dmg ? `<span class="badge">${esc(a.dmg)}</span>` : ''}`;
+  const atkChips = notes =>
+    weaponTerms(notes).length
+      ? `<div class="chips" style="margin-top:.3rem">${weaponTerms(notes)
+          .map(w => `<button class="chip" data-act="gloss" data-k="wp:${w[0]}">${esc(w[1])}</button>`)
           .join('')}</div>`
-      : '<p class="empty">Sin armas. Añádelas en ⚙ Ajustes → Editar ficha.</p>'
-  }
-    <p class="hint" style="margin-top:.5rem">Al atacar tira 1d20 + el primer número contra la CA del enemigo; si impactas, tira el daño. ${term('¿Y si saco un 20?', 'crit')}</p></section>`;
+      : '';
+  const shoot = (a, i) => {
+    const am = a.ammo && c.equipment.find(e => e.id === a.ammo);
+    return am
+      ? `<button class="b sm" data-act="ammo" data-i="${i}" ${am.qty > 0 ? '' : 'disabled'}>Disparar (quedan ${am.qty})</button>`
+      : '';
+  };
+  const wpnRows = c.equipment
+    .map((e, ei) => [e, ei])
+    .filter(([e]) => e.cat === 'arma')
+    .map(([e, ei]) => {
+      const i = c.attacks.findIndex(a => a.item === e.id),
+        a =
+          i >= 0
+            ? c.attacks[i]
+            : e.weapon && WEAPONS[e.weapon]
+              ? wpnCalc(c, { wpn: e.weapon, magic: e.magic })
+              : null,
+        on = e.equipped !== false;
+      return `<div class="it${i >= 0 && !on ? ' off' : ''}"><div class="it-head"><button class="it-link" data-act="item-open" data-id="${e.id}">${esc(e.name)}</button>${a ? atkBadges(a) : ''}
+        ${i >= 0 ? `<button class="chip ${on ? 'on' : ''}" data-act="wpn-eq" data-id="${e.id}" aria-pressed="${on}">${on ? 'Equipada' : 'Sin equipar'}</button>${on ? shoot(c.attacks[i], i) : ''}` : e.weapon && WEAPONS[e.weapon] ? `<button class="b sm" data-act="wpn-atk" data-i="${ei}">Añadir a mis ataques</button>` : ''}</div>
+      ${a ? `<div class="meta">${esc([a.type, a.notes].filter(Boolean).join(' · '))}</div>${atkChips(a.notes)}` : e.notes ? `<div class="meta">${esc(e.notes)}</div>` : ''}</div>`;
+    });
+  const otherRows = c.attacks
+    .map((a, i) => [a, i])
+    .filter(([a]) => !atkItem(c, a))
+    .map(
+      ([a, i]) =>
+        `<div class="it"><div class="it-head"><button class="it-link" data-act="atk-open" data-i="${i}">${esc(a.name || 'Ataque')}</button>${atkBadges(a)}${shoot(a, i)}</div>
+      ${a.type || a.notes ? `<div class="meta">${esc([a.type, a.notes].filter(Boolean).join(' · '))}</div>` : ''}${atkChips(a.notes)}</div>`
+    );
+  const atk = `<section class="card"><div class="card-head"><h2>Armas y ataques</h2><button class="b sm" data-act="item-new" data-from="arma">Añadir arma</button></div>
+    ${wpnRows.length ? `<div class="list">${wpnRows.join('')}</div>` : '<p class="empty">Sin armas. Pulsa «Añadir arma» para elegirla del catálogo.</p>'}
+    ${otherRows.length ? `<h3>Otros ataques</h3><div class="list">${otherRows.join('')}</div>` : ''}
+    <div class="btns" style="margin-top:.4rem"><button class="b sm" data-act="atk-open" data-i="-1">Añadir otro ataque</button></div>
+    <p class="hint" style="margin-top:.5rem">Las armas equipadas salen en Combate para atacar. «Otros ataques» son los que no vienen de un arma de tu equipo, como un arma de pacto o un ataque sin armas. Al atacar tira 1d20 + el primer número contra la CA del enemigo; si impactas, tira el daño. ${term('¿Y si saco un 20?', 'crit')}</p></section>`;
+  const AC = armorAuto(c) ? acCalc(c) : null,
+    armRows = c.equipment
+      .map((e, i) => [e, i])
+      .filter(([e]) => e.cat === 'armadura')
+      .map(([e, i]) => {
+        const sub = itemSub(c, e).replace(/ · (puesta|embrazado)/, '');
+        return `<div class="it"><div class="it-head"><button class="it-link" data-act="item-open" data-id="${e.id}">${esc(e.name)}</button>${e.armor && ARMORS[e.armor] ? `<button class="chip ${e.equipped ? 'on' : ''}" data-act="eq" data-i="${i}" aria-pressed="${!!e.equipped}">${e.equipped ? (ARMORS[e.armor].t === 's' ? 'Embrazado' : 'Puesta') : ARMORS[e.armor].t === 's' ? 'Embrazar' : 'Ponérmela'}</button>` : ''}</div>
+      ${sub ? `<div class="meta">${sub}</div>` : ''}</div>`;
+      });
+  const arm = `<section class="card"><div class="card-head"><h2>Armaduras y escudos</h2><button class="b sm" data-act="item-new" data-from="armadura">Añadir armadura</button></div>
+    ${AC ? `<div class="acbox"><div><b>CA ${AC.ac}</b><small>${esc(AC.src)}</small></div>${AC.warn.map(w => `<p class="hint warn">${esc(w)}</p>`).join('')}</div>` : ''}
+    ${armRows.length ? `<div class="list">${armRows.join('')}</div>` : '<p class="empty">Sin armadura ni escudo.</p>'}</section>`;
   let mag = '';
   const scrolls = c.equipment.map((e, i) => [e, i]).filter(([e]) => e.scroll && SPBY[e.scroll] && e.qty > 0);
   if (
@@ -180,10 +215,12 @@ function viewPlay(c) {
       : '<p class="empty">Sin rasgos.</p>'
   }</section>`;
   const tl = toolsList(c);
-  const tools = tl.length
-    ? `<section class="card"><h2>Herramientas</h2><div class="list">${tl.map(x => toolDetail(c, x)).join('')}</div><p class="hint" style="margin-top:.5rem">Al usar una herramienta tiras 1d20 + ese bonificador contra la CD. Si además eres competente en una habilidad que encaje con la prueba (el máster decide cuál), tiras con ventaja.</p></section>`
-    : '';
-  return `<div class="cols play"><div class="col">${abil}${sk}</div><div class="col">${atk}${tools}</div><div class="col">${mag}${feats}</div></div>`;
+  const tools = `<section class="card"><div class="card-head"><h2>Herramientas</h2><button class="b sm" data-act="item-new" data-from="herramienta">Añadir herramienta</button></div>${
+    tl.length
+      ? `<div class="list">${tl.map(x => toolDetail(c, x)).join('')}</div><p class="hint" style="margin-top:.5rem">Al usar una herramienta tiras 1d20 + ese bonificador contra la CD. Si además eres competente en una habilidad que encaje con la prueba (el máster decide cuál), tiras con ventaja.</p>`
+      : '<p class="empty">Sin herramientas.</p>'
+  }</section>`;
+  return `<div class="cols play"><div class="col">${abil}${sk}</div><div class="col">${atk}${arm}${tools}</div><div class="col">${mag}${feats}</div></div>`;
 }
 function slotOptions(c, L) {
   const o = [];
@@ -248,4 +285,40 @@ function afterCast(sp, how) {
     `<div class="t-label">Lanzas</div><div class="t-big">${esc(sp.name)}</div><div class="t-parts">${esc(how)}${sp.conc ? ' · requiere concentración' : ''}</div>${extra}${note}${cbtn ? `<div class="t-actions">${cbtn}</div>` : ''}`,
     !!cbtn
   );
+}
+
+/* Ventana de un ataque que no viene de un arma del equipo (arma de pacto, ataque sin armas…). i = -1 para uno nuevo */
+function atkSheet(i) {
+  const c = C(),
+    a = i >= 0 ? c.attacks[i] : NEW.attacks(),
+    auto = a.wpn && WEAPONS[a.wpn],
+    ammo = c.equipment.filter(e => e.cat === 'municion'),
+    f = (l, h, w) => `<label class="f ${w || ''}"><span>${l}</span>${h}</label>`;
+  if (!a) return;
+  openModal(`<div class="wz-head"><h2>${i >= 0 ? esc(a.name || 'Ataque') : 'Nuevo ataque'}</h2><button class="b sm" data-act="close-modal">Volver</button></div>
+    <div class="grid">
+      ${f('Nombre', `<input id="at-name" value="${esc(a.name)}" placeholder="Arma de pacto, ataque sin armas…" autocomplete="off">`, 'wide')}
+      ${
+        auto
+          ? `<p class="hint wide">Ataque <b>${sgn(+a.atk || 0)}</b> · daño <b>${esc(a.dmg)}</b> ${esc(a.type || '')}. Se calcula solo con tus características.</p>`
+          : f(
+              'Bonificador de ataque',
+              `<input id="at-atk" type="number" inputmode="numeric" value="${esc(+a.atk || 0)}">`
+            ) +
+            f('Daño', `<input id="at-dmg" value="${esc(a.dmg)}" placeholder="1d8+3" autocomplete="off">`) +
+            f(
+              'Tipo de daño',
+              `<input id="at-type" value="${esc(a.type || '')}" placeholder="cortante, necrótico…" autocomplete="off">`,
+              'wide'
+            ) +
+            f(
+              'Notas',
+              `<textarea id="at-notes" rows="2" placeholder="Opcional">${esc(a.notes || '')}</textarea>`,
+              'wide'
+            )
+      }
+      ${ammo.length ? f('Munición', `<select id="at-ammo"><option value="">Ninguna</option>${ammo.map(e => `<option value="${e.id}" ${a.ammo === e.id ? 'selected' : ''}>${esc(e.name)}</option>`).join('')}</select>`, 'wide') : ''}
+    </div>
+    <div class="btns"><button class="b pri" data-act="atk-save" data-i="${i}">Guardar</button><button class="b" data-act="close-modal">Cancelar</button>${i >= 0 ? `<button class="b bad" data-act="atk-delask" data-i="${i}" style="margin-left:auto">Borrar</button>` : ''}</div>`);
+  if (i < 0) $('#at-name').focus();
 }

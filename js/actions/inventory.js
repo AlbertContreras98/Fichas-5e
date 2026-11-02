@@ -21,6 +21,7 @@ Object.assign(A, {
       id = el.dataset.id,
       e = c.equipment.find(x => x.id === id);
     c.equipment = c.equipment.filter(x => x.id !== id);
+    if (e && e.cat === 'arma') c.attacks = c.attacks.filter(a => a.item !== id);
     c.attacks.forEach(a => {
       if (a.ammo === id) a.ammo = '';
       if (a.item === id) a.item = '';
@@ -28,9 +29,9 @@ Object.assign(A, {
     closeModal();
     save();
     render();
-    openInv();
+    if (!e || !inCard(e)) openInv();
     toast(
-      `<div class="t-label">Quitado</div><div class="t-parts">${esc(e ? e.name : 'Objeto')} ya no está en la mochila.</div>`
+      `<div class="t-label">Quitado</div><div class="t-parts">${esc(e ? e.name : 'Objeto')} ya no está ${e && inCard(e) ? 'en tu equipo' : 'en la mochila'}.</div>`
     );
   },
   'item-zero': el => {
@@ -95,11 +96,13 @@ Object.assign(A, {
     refreshMoney();
     toast(`<div class="t-label">Cobrado</div><div class="t-big good">+${n} ${COINN[k]}</div>`);
   },
-  'item-new': () => {
+  'item-new': el => {
+    const from = (el && el.dataset && el.dataset.from) || '';
     NI = {
+      from,
       name: '',
       qty: 1,
-      cat: 'otro',
+      cat: from || 'otro',
       notes: '',
       pot: 'healing',
       arm: '',
@@ -121,11 +124,20 @@ Object.assign(A, {
     $('#ni-name').focus();
   },
   'item-cancel': () => {
+    const from = NI && NI.from;
     closeModal();
-    openInv();
+    if (!from) openInv();
   },
   inv: () => openInv(),
   'item-open': el => itemSheet(el.dataset.id),
+  'wpn-eq': el => {
+    const e = C().equipment.find(x => x.id === el.dataset.id);
+    if (!e) return;
+    e.equipped = e.equipped === false;
+    save();
+    render();
+    refreshInv();
+  },
   belt: el => beltOpen(el.dataset.k),
   'cat-tog': el => {
     invShutToggle(el.dataset.k);
@@ -153,18 +165,21 @@ Object.assign(A, {
       $('#it-name').focus();
       return;
     }
+    const wasCard = inCard(e);
     e.name = n;
     e.qty = Math.max(0, parseInt($('#it-qty').value) || 0);
     e.cat = $('#it-cat').value;
     e.notes = $('#it-notes').value.trim();
+    if (e.cat === 'arma' && e.equipped === undefined) e.equipped = true;
     save();
     render();
-    openInv();
+    if (wasCard) closeModal();
+    else openInv();
   },
   'item-delask': el => {
     const e = C().equipment.find(x => x.id === el.dataset.id);
     if (!e) return openInv();
-    openModal(`<h2>¿Borrar ${esc(e.name)}?</h2><p>Se quitará de la mochila.${C().attacks.some(a => a.item === e.id) ? ' El ataque que tenías con él se queda en tu lista de ataques.' : ''}</p>
+    openModal(`<h2>¿Borrar ${esc(e.name)}?</h2><p>${inCard(e) ? 'Se quitará de tu equipo' : 'Se quitará de la mochila'}${e.cat === 'arma' && C().attacks.some(a => a.item === e.id) ? ', y también su ataque de Combate' : ''}.</p>
       <div class="btns"><button class="b bad" data-act="item-del" data-id="${e.id}">Borrar</button><button class="b" data-act="item-open" data-id="${e.id}">Cancelar</button></div>`);
   },
   'item-add': () => {
@@ -271,7 +286,7 @@ Object.assign(A, {
       const W = WEAPONS[NI.wpn];
       it.weapon = NI.wpn;
       it.magic = +NI.mag || 0;
-      if (NI.atk) {
+      {
         const a = Object.assign(NEW.attacks(), {
           name: n,
           wpn: NI.wpn,
@@ -297,6 +312,7 @@ Object.assign(A, {
         c.attacks.push(a);
       }
     }
+    if (NI.cat === 'arma') it.equipped = NI.wpn ? !!NI.atk : true;
     if (NI.cat === 'armadura' && NI.arm) {
       it.armor = NI.arm;
       it.magic = +NI.mag || 0;
@@ -312,10 +328,18 @@ Object.assign(A, {
       if (NI.mip && MAGIC[NI.mip] && MAGIC[NI.mip].noarm) it.mi.noarm = 1;
     }
     c.equipment.push(it);
+    const from = NI.from;
     NI = null;
     closeModal();
     save();
     render();
+    if (inCard(it)) {
+      toast(
+        `<div class="t-label">${esc(it.name)}</div><div class="t-parts">Añadido a ${it.cat === 'arma' ? 'Armas y ataques' : it.cat === 'armadura' ? 'Armaduras y escudos' : 'Herramientas'}, en la pestaña Partida.</div>`
+      );
+      if (!from) openInv();
+      return;
+    }
     openInv();
     if (inBelt(it))
       toast(

@@ -403,7 +403,7 @@ function wizBody(step) {
       ${newFeatures()
         .map(f => `<div class="feat"><b>${esc(f[0])}</b><p>${esc(f[1])}</p></div>`)
         .join('')}
-      <p class="hint">Después podrás completar CA y armas en ⚙ Ajustes → Editar ficha, y los objetos y el dinero con los botones de la mochila y de las monedas.</p>`;
+      <p class="hint">Después podrás añadir armas, armaduras y herramientas desde la pestaña Partida, y los demás objetos y el dinero con los botones de la mochila y de las monedas.</p>`;
       }
       const warn = [];
       const l = wizSpellLimits();
@@ -645,7 +645,7 @@ function applyWizard() {
   scrollTo(0, 0);
   toast(
     mode === 'create'
-      ? `<div class="t-label">Personaje creado</div><div class="t-big">${esc(name)}</div><div class="t-parts">Completa CA y armas en ⚙ Ajustes → Editar ficha, y los objetos con el botón de la mochila.</div>`
+      ? `<div class="t-label">Personaje creado</div><div class="t-big">${esc(name)}</div><div class="t-parts">Añade armas, armaduras y herramientas desde la pestaña Partida, y los demás objetos con el botón de la mochila.</div>`
       : `<div class="t-label">¡Subida de nivel!</div><div class="t-big">${esc(def.n)} ${L}</div><div class="t-parts">Rasgos, recursos y espacios actualizados.</div>`
   );
 }

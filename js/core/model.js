@@ -162,6 +162,7 @@ function normalize(src) {
     const e = Object.assign(NEW.equipment(), x);
     if (!x.cat) e.cat = guessCat(e.name);
     if (!x.id) e.id = uid();
+    if (e.cat === 'arma' && x.equipped === undefined) e.equipped = true;
     return e;
   });
   c.features = c.features.map(x => {
@@ -216,6 +217,7 @@ function load() {
   S.chars.forEach(linkWeapons);
   S.chars.forEach(linkGear);
   S.chars.forEach(linkItemWeapons);
+  S.chars.forEach(linkAttackItems);
   S.chars.forEach(syncEffects);
   S.chars.forEach(linkArmor);
   if (!S.chars.find(c => c.id === S.active)) S.active = S.chars.length ? S.chars[0].id : null;

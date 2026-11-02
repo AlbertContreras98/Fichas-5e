@@ -2984,3 +2984,27 @@ button.eff.cond-pill {
 .cat-tog[aria-expanded='false'] .cat-arr {
   transform: rotate(-90deg);
 }
+
+/* Tarjetas de armas, armaduras y herramientas: el nombre abre su ventana */
+.it-link {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.1rem 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+.it-link:hover,
+.it-link:focus-visible {
+  color: var(--accent);
+}
+.it.off .it-link,
+.it.off .badge,
+.it.off .meta {
+  opacity: 0.55;
+}
