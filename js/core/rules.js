@@ -115,6 +115,51 @@ function addFeature(c, n, t, src) {
     if (t && !ex.text.includes(t)) ex.text = (ex.text ? ex.text + '\n\n' : '') + t;
   } else c.features.push({ name: n, source: src, text: t || '', uses: { max: 0, used: 0, recover: '' } });
 }
+/* Conjuros que gastan su componente material: palabras con las que se busca ese objeto en el inventario */
+const SP_CONSUME = {
+  'find-familiar': ['incienso'],
+  'illusory-script': ['tinta'],
+  'protection-from-evil-and-good': ['agua bendita'],
+  'magic-mouth': ['jade'],
+  'arcane-lock': ['polvo de oro', 'oro en polvo'],
+  'gentle-repose': 'cp',
+  'continual-flame': ['rubi'],
+  'magic-circle': ['plata'],
+  'glyph-of-warding': ['polvo de diamante', 'diamante en polvo'],
+  nondetection: ['polvo de diamante', 'diamante en polvo'],
+  revivify: ['diamante'],
+  divination: ['incienso'],
+  stoneskin: ['polvo de diamante', 'diamante en polvo'],
+  'legend-lore': ['incienso'],
+  'teleportation-circle': ['tinta'],
+  awaken: ['agata'],
+  reincarnate: ['aceite'],
+  'greater-restoration': ['polvo de diamante', 'diamante en polvo'],
+  'raise-dead': ['diamante'],
+  hallow: ['incienso'],
+  'planar-binding': ['joya', 'gema'],
+  'heroes-feast': ['cuenco'],
+  'true-seeing': ['seta', 'hongo'],
+  forcecage: ['rubi'],
+  sequester: ['gema'],
+  resurrection: ['diamante'],
+  simulacrum: ['rubi'],
+  symbol: ['polvo de diamante', 'diamante en polvo'],
+  clone: ['diamante'],
+  'astral-projection': ['jacinto'],
+  'true-resurrection': ['diamante'],
+};
+/* Objeto que gasta el conjuro y si lo tienes: null si no gasta nada */
+function spConsume(c, sp) {
+  const kw = sp.ref && SP_CONSUME[sp.ref];
+  if (!kw) return null;
+  const what = (sp.material || (SPBY[sp.ref] || {}).m || '').replace(/,? ?que el conjuro consume.*$/, '');
+  const has =
+    kw === 'cp'
+      ? (+(c.coins || {}).cp || 0) >= 2
+      : c.equipment.some(e => (+e.qty || 0) > 0 && kw.some(k => norm(e.name).includes(k)));
+  return { what, has };
+}
 const spMod = c => (c.spellcasting.ability ? M(c, c.spellcasting.ability) : null);
 const spDC = c => 8 + pb(c) + spMod(c);
 const spAtk = c => pb(c) + spMod(c);

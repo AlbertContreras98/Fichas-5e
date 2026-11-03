@@ -37,6 +37,14 @@ Object.assign(A, {
     const c = C(),
       sp = c.spells[+el.dataset.i],
       L = +sp.level || 0;
+    const need = !el.dataset.force && spConsume(c, sp);
+    if (need && !need.has) {
+      openModal(`<h2>Lanzar ${esc(sp.name)}</h2><p>Estás intentando lanzar un conjuro sin el objeto necesario.</p>
+        <p class="hint">Este conjuro gasta: ${esc(need.what)}. No lo encuentro en tu inventario.</p>
+        <button class="b opt" data-act="cast-force" data-i="${el.dataset.i}"><span>Lanzar conjuro sin necesidad de consumir el objeto necesario</span></button>
+        <button class="b" data-act="close-modal">Cancelar</button>`);
+      return;
+    }
     if (L === 0) return afterCast(sp, 'Truco: no gasta espacio');
     const opts = slotOptions(c, L),
       usable = opts.filter(o => o.avail > 0);
@@ -52,6 +60,12 @@ Object.assign(A, {
       ${fr ? `<button class="b opt" data-act="cast-with" data-i="${el.dataset.i}" data-kind="free"><span>Gratis (${esc(sp.src || 'rasgo')})</span><small>${fr.atwill ? 'sin límite' : `quedan ${fr.uses.max - fr.uses.used}`}</small></button>` : ''}
       ${sp.ritual ? `<button class="b opt" data-act="cast-with" data-i="${el.dataset.i}" data-kind="ritual"><span>Como ritual</span><small>+10 min, sin espacio</small></button>` : ''}
       <button class="b" data-act="close-modal">Cancelar</button>`);
+  },
+  'cast-force': el => {
+    const pe = pendingEco;
+    closeModal();
+    pendingEco = pe;
+    A.cast({ dataset: { i: el.dataset.i, force: '1' } });
   },
   'cast-with': el => {
     const c = C(),
