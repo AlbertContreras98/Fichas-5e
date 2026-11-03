@@ -326,20 +326,18 @@ function viewTurn(c) {
     );
   });
   // Acciones de cualquiera
-  // Agarrar y Empujar sustituyen un ataque de la acción de Atacar (no gastan la acción entera)
-  const generic = `<div class="chips">${GENERIC.map(([k, n]) => `<button class="chip" data-act="t-gen" data-k="${k}" ${dis(!aFree)}>${n}</button>`).join('')}${
-    fm
-      ? ''
-      : [
-          ['grapple', 'Agarrar'],
-          ['shove', 'Empujar'],
-        ]
-          .map(
-            ([k, n]) =>
-              `<button class="chip" data-act="t-shove" data-k="${k}" ${dis(!atkOn)} title="Sustituye un ataque">${n}</button>`
-          )
-          .join('')
-  }</div>${fm ? '' : `<p class="hint">Agarrar y Empujar sustituyen uno de tus ataques (CD ${8 + M(c, 'str') + pb(c)}).</p>`}`;
+  // Agarrar y Empujar sustituyen un ataque de la acción de Atacar (no gastan la acción entera): van antes de «Usar un objeto»
+  const chip = ([k, n]) =>
+    k === 'grapple' || k === 'shove'
+      ? fm
+        ? ''
+        : `<button class="chip" data-act="t-shove" data-k="${k}" ${dis(!atkOn)} title="Sustituye uno de tus ataques">${n}</button>`
+      : `<button class="chip" data-act="t-gen" data-k="${k}" ${dis(!aFree)}>${n}</button>`;
+  const generic = `<div class="chips">${GENERIC.flatMap(g =>
+    g[0] === 'a_utilize' ? [['grapple', 'Agarrar'], ['shove', 'Empujar'], g] : [g]
+  )
+    .map(chip)
+    .join('')}</div>`;
   cols.R.push(
     row(
       term('Ataque de oportunidad', 'a_opp'),
@@ -353,13 +351,18 @@ function viewTurn(c) {
       cols[k].push(
         `<details class="tmag" ${TMAG[k] ? 'open' : ''}><summary data-act="t-mag" data-k="${k}">Magia <small>${mag[k].length} ${mag[k].length === 1 ? 'conjuro' : 'conjuros'}</small></summary>${mag[k].join('')}</details>`
       );
-  const pill = (lbl, k, used, extra) =>
-    `<span class="pill ${used ? 'used' : ''}">${term(lbl, k)}<b>${extra || (used ? 'Gastada' : 'Disponible')}</b></span>`;
+  /* Si está gastada, la etiqueta es un botón para volver a tenerla disponible (si el máster lo permite) */
+  const pill = (lbl, k, used, extra, slot) =>
+    `<span class="pill ${used ? 'used' : ''}">${term(lbl, k)}${
+      used && !incap
+        ? `<button class="pill-b" data-act="t-reset" data-k="${slot}" title="Pulsa para volver a tenerla disponible" aria-label="${esc(lbl)} gastada: pulsa para volver a tenerla disponible">${extra || 'Gastada'} ↺</button>`
+        : `<b>${extra || (used ? 'Gastada' : 'Disponible')}</b>`
+    }</span>`;
   const aState = T.a ? (T.atk > 0 ? `Atacando · ${T.atk} más` : 'Gastada') : '';
   const col = (k, title, gk, body) =>
     `<div class="tcol ${k === 'A' ? (aFree || T.atk > 0 ? '' : 'off') : k === 'AA' ? (T.aa ? 'off' : '') : k === 'R' ? (T.r ? 'off' : '') : ''}"><h3>${term(title, gk)}</h3>${body || '<p class="empty">Nada por ahora.</p>'}</div>`;
   return `<section class="card turn"><div class="card-head"><h2>Tu turno${c.combat ? ` <span class="round">Ronda ${c.combat.round}</span>` : ''}</h2><div class="btns"><button class="b" data-act="t-end">Terminar turno</button>${c.combat ? '<button class="b bad" data-act="cb-end">Terminar combate</button>' : ''}</div></div>
-    <div class="pills">${pill('Acción', 'action', T.a, incap ? 'Bloqueada' : aState)}${pill('Acción adicional', 'bonus', T.aa, incap ? 'Bloqueada' : '')}${pill('Reacción', 'reaction', T.r, incap ? 'Bloqueada' : '')}</div>
+    <div class="pills">${pill('Acción', 'action', T.a, incap ? 'Bloqueada' : aState, 'a')}${pill('Acción adicional', 'bonus', T.aa, incap ? 'Bloqueada' : '', 'aa')}${pill('Reacción', 'reaction', T.r, incap ? 'Bloqueada' : '', 'r')}</div>
     ${condNotes.length ? `<div class="condnotes">${condNotes.map(n => `<p>${n}</p>`).join('')}</div>` : ''}
     <div class="tgrid">
       ${col('A', 'Acción', 'action', `${nAtk > 1 ? `<p class="hint">Con la acción de Atacar haces ${nAtk} ataques.</p>` : ''}${cols.A.join('')}<h3 class="sub3">Otras acciones</h3>${generic}`)}

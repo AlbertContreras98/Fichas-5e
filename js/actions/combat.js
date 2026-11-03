@@ -94,6 +94,17 @@ Object.assign(A, {
       `<div class="t-label">Ataque con ${esc(a.name)}</div><div class="t-big">1d20 ${sgn(+a.atk || 0)}</div><div class="t-parts">Si impactas, daño: ${esc(a.dmg || '—')} ${esc(a.type || '')}${am ? ` · quedan ${am.qty} ${esc(am.name)}` : ''}${T.atk > 0 ? ` · te quedan ${T.atk} ataques` : ''}</div>${a.wpn && a.mastery && WEAPONS[a.wpn] ? `<div class="t-parts"><b>${MASTERY[WEAPONS[a.wpn].ms][0]}:</b> ${esc(MASTERY[WEAPONS[a.wpn].ms][1])}</div>` : ''}`
     );
   },
+  't-reset': el => {
+    const c = C(),
+      T = c.turn,
+      k = el.dataset.k;
+    if (k === 'a') {
+      T.a = false;
+      T.atk = 0;
+    } else T[k] = false;
+    save();
+    render();
+  },
   't-mag': el => {
     const k = el.dataset.k;
     TMAG[k] = !TMAG[k];

@@ -1481,6 +1481,22 @@ button.tag {
   background: var(--line);
   color: var(--muted);
 }
+.pill-b {
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border: 1px dashed var(--muted);
+  border-radius: 999px;
+  padding: 0.05rem 0.5rem;
+  background: var(--line);
+  color: var(--muted);
+  cursor: pointer;
+}
+.pill-b:hover,
+.pill-b:focus-visible {
+  border-style: solid;
+  color: var(--ink);
+}
 .tgrid {
   display: grid;
   grid-template-columns: 1fr;
