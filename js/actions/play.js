@@ -49,7 +49,7 @@ Object.assign(A, {
     }
     openModal(`<h2>Lanzar ${esc(sp.name)}</h2><p class="hint">Elige con qué espacio. Con uno de nivel superior algunos conjuros son más potentes.</p>
       ${opts.map(o => `<button class="b opt" data-act="cast-with" data-i="${el.dataset.i}" data-kind="${o.kind}" data-level="${o.level}" ${o.avail > 0 ? '' : 'disabled'}><span>${slotLabel(o)}</span><small>quedan ${o.avail}</small></button>`).join('')}
-      ${fr ? `<button class="b opt" data-act="cast-with" data-i="${el.dataset.i}" data-kind="free"><span>Gratis (${esc(sp.src || 'rasgo')})</span><small>quedan ${fr.uses.max - fr.uses.used}</small></button>` : ''}
+      ${fr ? `<button class="b opt" data-act="cast-with" data-i="${el.dataset.i}" data-kind="free"><span>Gratis (${esc(sp.src || 'rasgo')})</span><small>${fr.atwill ? 'sin límite' : `quedan ${fr.uses.max - fr.uses.used}`}</small></button>` : ''}
       ${sp.ritual ? `<button class="b opt" data-act="cast-with" data-i="${el.dataset.i}" data-kind="ritual"><span>Como ritual</span><small>+10 min, sin espacio</small></button>` : ''}
       <button class="b" data-act="close-modal">Cancelar</button>`);
   },
@@ -63,7 +63,7 @@ Object.assign(A, {
     if (el.dataset.kind === 'ritual') return afterCast(sp, 'Como ritual: sin espacio');
     if (el.dataset.kind === 'free') {
       const f = freeUse(c, sp);
-      if (f) f.uses.used = Math.min(f.uses.max, f.uses.used + 1);
+      if (f && f.uses) f.uses.used = Math.min(f.uses.max, f.uses.used + 1);
       return afterCast(sp, `Uso gratuito de ${sp.src || 'rasgo'}`);
     }
     lastCastL = +el.dataset.level || +sp.level;

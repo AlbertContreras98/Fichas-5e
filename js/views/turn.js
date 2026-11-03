@@ -84,7 +84,7 @@ const DERIVED = [
   },
   { need: 'Acción astuta', n: 'Correr, Destrabarse o Esconderse', t: 'AA', d: 'Acción astuta del pícaro.' },
   {
-    need: 'Pacto de la Espada',
+    need: ['Pacto del Filo', 'Pacto de la Espada'],
     n: 'Invocar arma de pacto',
     t: 'AA',
     d: 'Haces aparecer tu arma de pacto en la mano.',
@@ -108,9 +108,11 @@ function attacksPerAction(c) {
     ? 4
     : has('Dos ataques adicionales')
       ? 3
-      : has('Ataque adicional') || has('Hoja sedienta')
-        ? 2
-        : 1;
+      : has('Hoja devoradora')
+        ? 3
+        : has('Ataque adicional') || has('Hoja sedienta')
+          ? 2
+          : 1;
 }
 function spendEco(c, k) {
   if (k === 'A') {
@@ -256,7 +258,7 @@ function viewTurn(c) {
   });
   // Derivadas
   DERIVED.forEach((o, j) => {
-    if (!c.features.some(f => norm(f.name).includes(norm(o.need)))) return;
+    if (![].concat(o.need).some(n => c.features.some(f => norm(f.name).includes(norm(n))))) return;
     const src = o.cost && c.features.find(f => f.name === o.cost && f.uses.max > 0);
     if (o.cost && !src) return;
     const busy = o.t === 'A' ? !aFree : o.t === 'AA' ? T.aa : o.t === 'R' ? T.r : false;

@@ -187,7 +187,7 @@ function viewPlay(c) {
   }
   const cinfo = infoFor(def, sub, c.level),
     cnt = pre => c.features.filter(f => norm(f.name).startsWith(norm(pre))).length;
-  const feats = `<section class="card"><h2>Rasgos y dotes</h2>${
+  const feats = `<section class="card">${c.classKey === 'warlock' ? '<div class="card-head"><h2>Rasgos y dotes</h2><button class="b sm" data-act="iv-open">Elegir invocaciones</button></div>' : '<h2>Rasgos y dotes</h2>'}${
     Object.keys(cinfo).length
       ? `<div class="classinfo">${Object.entries(cinfo)
           .map(([k, v]) =>
@@ -236,6 +236,7 @@ function slotOptions(c, L) {
 const freeUse = (c, sp) => {
   if (!sp.free) return null;
   const f = c.features.find(x => x.name === sp.free);
+  if (f && sp.atwill) return { atwill: true };
   return f && f.uses.max - f.uses.used > 0 ? f : null;
 };
 const canCast = (c, sp) => {

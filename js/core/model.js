@@ -67,6 +67,7 @@ const NEW = {
     ref: '',
     src: '',
     free: '',
+    atwill: false,
   }),
   features: () => ({ name: '', source: '', text: '', when: '', uses: { max: 0, used: 0, recover: '' } }),
   equipment: () => ({ id: uid(), name: '', qty: 1, cat: 'otro', notes: '' }),

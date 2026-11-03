@@ -93,6 +93,7 @@ function closeModal() {
   pendingEco = null;
   CX = null;
   NI = null;
+  IVS = null;
 }
 let pendingEco = null,
   restOpen = false;

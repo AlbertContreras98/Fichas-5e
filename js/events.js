@@ -267,6 +267,11 @@ document.addEventListener('change', e => {
     render();
     return;
   }
+  if (el.dataset && el.dataset.ivPick !== undefined && ivState()) {
+    ivState().list[+el.dataset.ivPick].pick = el.value;
+    ivRefresh();
+    return;
+  }
   if (W) {
     if (el.id === 'wz-class') {
       W.classKey = el.value;

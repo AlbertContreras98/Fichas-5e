@@ -54,6 +54,27 @@ Object.assign(A, {
     W._keepScroll = true;
     renderWizard();
   },
+  'iv-open': openInvocations,
+  'iv-add': el => {
+    const st = ivState();
+    st.list.push({ id: el.dataset.id, pick: '' });
+    ivRefresh();
+  },
+  'iv-del': el => {
+    ivState().list.splice(+el.dataset.i, 1);
+    ivRefresh();
+  },
+  'iv-save': () => {
+    const c = C();
+    if (!IVS || ivProblems(IVS).length) return;
+    ivApply(c, IVS);
+    closeModal();
+    save();
+    render();
+    toast(
+      `<div class="t-label">Invocaciones guardadas</div><div class="t-parts">Las tienes en «Rasgos y dotes»; las que dan un conjuro gratis salen en tu Magia.</div>`
+    );
+  },
   'sp-open': openSpellModal,
   'prep-open': el => {
     const t = el.closest('.toast');

@@ -28,6 +28,7 @@ function wizSteps() {
     const ca = casterOf(def, W.subKey ? def.subs[W.subKey] : null);
     if (ca && ((ca.cantrips && ca.cantrips[W.L - 1]) || (ca.prepared && ca.prepared[W.L - 1])))
       st.push(['spells', 'Conjuros']);
+    if (W.classKey === 'warlock') st.push(['invoc', 'Invocaciones']);
   }
   st.push(['confirm', 'Confirmar']);
   return st;
@@ -379,6 +380,8 @@ function wizBody(step) {
       <p class="hint">${l.ca.type === 'pact' ? 'Los brujos pueden cambiar un conjuro preparado al subir de nivel.' : 'Puedes cambiar conjuros preparados según las reglas de tu clase.'} Los conjuros que siempre tienes preparados (de clase, subclase o especie) se añaden solos al confirmar y no cuentan en el límite.</p>
       <h3>Tus conjuros</h3><div id="wz-mine">${mine}</div><h3>Añadir</h3>${spPickerHTML()}`;
     }
+    case 'invoc':
+      return ivHTML(wizIv());
     case 'confirm': {
       if (W.mode === 'create') {
         const d = def,
@@ -399,7 +402,7 @@ function wizBody(step) {
               .map(k => FEATS[k].n)
               .join(', ')}</b>`
           : ''
-      }<span>Salvaciones</span><b>${d ? d.saves.map(s => AB[s][1]).join(', ') : '—'}</b><span>Habilidades</span><b>${W.skills.length}</b><span>Conjuros</span><b>${W.spells.length}</b></div>
+      }<span>Salvaciones</span><b>${d ? d.saves.map(s => AB[s][1]).join(', ') : '—'}</b><span>Habilidades</span><b>${W.skills.length}</b><span>Conjuros</span><b>${W.spells.length}</b>${W.iv ? `<span>Invocaciones</span><b>${esc(W.iv.list.map(ivLabel).join(', ') || '—')}</b>` : ''}</div>
       ${newFeatures()
         .map(f => `<div class="feat"><b>${esc(f[0])}</b><p>${esc(f[1])}</p></div>`)
         .join('')}
@@ -415,7 +418,7 @@ function wizBody(step) {
           );
       }
       return `<p>Todo listo para subir a <b>${esc(c.name)}</b> a ${def.n} ${L}${sub ? ` (${sub.n})` : ''}.</p>
-      <div class="diff"><span>PG máximos</span><b>${c.hp.max} → <span class="up">${c.hp.max + hpGain()}</span></b><span>Rasgos nuevos</span><b>${newFeatures().length}</b>${
+      <div class="diff"><span>PG máximos</span><b>${c.hp.max} → <span class="up">${c.hp.max + hpGain()}</span></b><span>Rasgos nuevos</span><b>${newFeatures().length}</b>${W.iv ? `<span>Invocaciones</span><b>${W.iv.list.length}</b>` : ''}${
         W.asi && def.asi.includes(L)
           ? `<span>${L === 19 ? 'Don épico' : 'Mejora'}</span><b>${esc(
               W.asi.mode === 'feat'
@@ -456,6 +459,10 @@ function wizValid(step) {
     return W.bgMode === '111' || (!!W.bg2 && !!W.bg1 && W.bg1 !== W.bg2);
   }
   if (step === 'lineage') return !!W.lineageKey;
+  if (step === 'invoc') {
+    const st = wizIv();
+    return !ivProblems(st).length && st.list.length === ivMax(st.L);
+  }
   if (step === 'hp') return W.hpMode === 'avg' || (+W.hpRoll >= 1 && +W.hpRoll <= def.hd);
   if (step === 'sub') return !!W.subKey;
   if (step === 'asi') {
@@ -476,7 +483,18 @@ const STEP_HELP = {
   hp: 'Escribe un resultado válido del dado.',
   sub: 'Elige una subclase.',
   asi: 'Completa la mejora (máximo 20 por característica) o el nombre de la dote.',
+  invoc: 'Elige tantas invocaciones como indica el contador y completa sus opciones.',
 };
+/* Estado de las invocaciones dentro del asistente (se crea la primera vez que hace falta) */
+function wizIv() {
+  if (!W.iv) {
+    const list = W.mode === 'level' ? ivFromChar(C()) : [];
+    W.iv = { mode: W.mode, list, orig: [...list] };
+  }
+  W.iv.L = W.L;
+  W.iv.spells = W.spells;
+  return W.iv;
+}
 function renderWizard() {
   const st = wizSteps();
   W.step = clamp(W.step, 0, st.length - 1);
@@ -612,6 +630,8 @@ function applyWizard() {
     c.pact.used = Math.min(c.pact.used, c.pact.total);
     c.spells = W.spells.map(s => Object.assign(NEW.spells(), s));
   }
+  // invocaciones del brujo
+  if (W.classKey === 'warlock') ivApply(c, wizIv());
   // conjuros siempre preparados de clase y subclase
   addAlways(c, [
     ...alwaysIds(c.classKey, '', W.mode === 'create' ? 1 : L, L),

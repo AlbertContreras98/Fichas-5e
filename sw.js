@@ -1,5 +1,5 @@
 // Sube VERSION cada vez que cambies la app para que los dispositivos descarguen la nueva.
-const VERSION = 'fichas-v62';
+const VERSION = 'fichas-v63';
 const SHELL = [
   './',
   'index.html',
@@ -8,6 +8,7 @@ const SHELL = [
   'css/themes.css',
   'data/classes.js',
   'data/spells.js',
+  'data/invocations.js',
   'data/origins.js',
   'data/glossary.js',
   'data/creatures.js',
@@ -31,6 +32,7 @@ const SHELL = [
   'js/features/tour.js',
   'js/features/spell-search.js',
   'js/features/wizard.js',
+  'js/features/invocations.js',
   'js/features/diary.js',
   'js/features/rest.js',
   'js/features/maps.js',
