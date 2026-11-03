@@ -94,6 +94,24 @@ Object.assign(A, {
       `<div class="t-label">Ataque con ${esc(a.name)}</div><div class="t-big">1d20 ${sgn(+a.atk || 0)}</div><div class="t-parts">Si impactas, daño: ${esc(a.dmg || '—')} ${esc(a.type || '')}${am ? ` · quedan ${am.qty} ${esc(am.name)}` : ''}${T.atk > 0 ? ` · te quedan ${T.atk} ataques` : ''}</div>${a.wpn && a.mastery && WEAPONS[a.wpn] ? `<div class="t-parts"><b>${MASTERY[WEAPONS[a.wpn].ms][0]}:</b> ${esc(MASTERY[WEAPONS[a.wpn].ms][1])}</div>` : ''}`
     );
   },
+  't-mag': el => {
+    const k = el.dataset.k;
+    TMAG[k] = !TMAG[k];
+    el.parentElement.open = TMAG[k];
+  },
+  't-shove': () => {
+    const c = C(),
+      T = c.turn;
+    if (!T.a) {
+      T.a = true;
+      T.atk = attacksPerAction(c) - 1;
+    } else T.atk = Math.max(0, T.atk - 1);
+    save();
+    render();
+    toast(
+      `<div class="t-label">Empujar</div><div class="t-big">CD ${8 + M(c, 'str') + pb(c)}</div><div class="t-parts">Elige a una criatura a 5 pies que no sea más de un tamaño mayor que tú. Hace una salvación de FUE o DES (elige ella). Si falla, la empujas 5 pies o la derribas (eliges tú).${T.atk > 0 ? ` · te quedan ${T.atk} ataques` : ''}</div>`
+    );
+  },
   't-light': el => {
     const c = C(),
       a = c.attacks[+el.dataset.i];

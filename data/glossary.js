@@ -48,6 +48,7 @@ a_study:{t:'Estudiar',d:'Examinas algo con una prueba de Inteligencia: Conocimie
 a_search:{t:'Buscar',d:'Buscas algo con una prueba de Sabiduría: Perspicacia, Medicina, Percepción o Supervivencia.'},
 a_ready:{t:'Preparar',d:'Eliges una acción y un desencadenante («si se acerca, le ataco»). Cuando ocurra, la haces usando tu reacción.'},
 a_utilize:{t:'Usar un objeto',d:'Usas un objeto que requiere una acción, como abrir un cerrojo con herramientas o activar un mecanismo.'},
+a_shove:{t:'Empujar',d:'Al hacer la acción de Atacar, puedes cambiar uno de tus ataques por un empujón (es una opción del golpe desarmado). El objetivo debe estar a 5 pies y no ser más de un tamaño mayor que tú. Hace una salvación de FUE o DES (elige él) con CD 8 + tu modificador de FUE + tu bonificador de competencia. Si falla, lo empujas 5 pies o lo dejas derribado.'},
 a_opp:{t:'Ataque de oportunidad',d:'Si una criatura que ves sale de tu alcance, puedes usar tu reacción para hacerle un ataque cuerpo a cuerpo.'},
 a_light:{t:'Ataque con arma ligera',d:'Si atacas con un arma Ligera, puedes hacer un ataque extra como acción adicional con otra arma Ligera distinta. A ese ataque no le sumas tu modificador al daño (salvo que sea negativo).'}
 };

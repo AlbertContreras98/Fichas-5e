@@ -90,6 +90,8 @@ const DERIVED = [
     d: 'Haces aparecer tu arma de pacto en la mano.',
   },
 ];
+/* Desplegables «Magia» de cada columna que el jugador tiene abiertos (solo mientras la app está abierta) */
+const TMAG = {};
 const GENERIC = [
   ['a_dash', 'Correr'],
   ['a_disengage', 'Destrabarse'],
@@ -158,7 +160,8 @@ function viewTurn(c) {
     condNotes.push(`<b>Agotamiento ${c.exhaustion}:</b> −${2 * c.exhaustion} a tus tiradas d20.`);
   const row = (name, meta, btn) =>
     `<div class="trow"><div class="tname">${name}${meta ? `<small>${meta}</small>` : ''}</div>${btn}</div>`;
-  const cols = { A: [], AA: [], R: [], free: [] };
+  const cols = { A: [], AA: [], R: [], free: [] },
+    mag = { A: [], AA: [], R: [] };
   // Atacar
   const nAtk = attacksPerAction(c),
     fm = formOf(c),
@@ -210,7 +213,16 @@ function viewTurn(c) {
         )
       );
     });
-  // Conjuros por tiempo de lanzamiento
+  // Empujar: sustituye un ataque de la acción de Atacar
+  if (!fm)
+    cols.A.push(
+      row(
+        term('Empujar', 'a_shove'),
+        `sustituye un ataque · CD ${8 + M(c, 'str') + pb(c)}`,
+        `<button class="b sm" data-act="t-shove" ${dis(!atkOn)}>Usar</button>`
+      )
+    );
+  // Conjuros por tiempo de lanzamiento (van en el desplegable «Magia»)
   if (!noSpells)
     c.equipment.forEach((e, i) => {
       const d = e.scroll && SPBY[e.scroll];
@@ -218,7 +230,7 @@ function viewTurn(c) {
       const t = d.t === 'BA' ? 'AA' : d.t;
       if (!['A', 'AA', 'R'].includes(t)) return;
       const busy = t === 'A' ? !aFree : t === 'AA' ? T.aa : T.r;
-      cols[t].push(
+      mag[t].push(
         row(
           `${esc(d.n)} <span class="tag">pergamino</span>`,
           `${d.l ? 'Nivel ' + d.l : 'Truco'} · quedan ${e.qty}`,
@@ -232,7 +244,7 @@ function viewTurn(c) {
       if (!['A', 'AA', 'R'].includes(t)) return;
       const busy = t === 'A' ? !aFree : t === 'AA' ? T.aa : T.r;
       const ok = canCast(c, sp);
-      cols[t].push(
+      mag[t].push(
         row(
           `${esc(sp.name)}${sp.conc ? ' <span class="tag">C</span>' : ''}`,
           `${+sp.level ? 'Nivel ' + sp.level : 'Truco'}`,
@@ -331,6 +343,12 @@ function viewTurn(c) {
       `<button class="b sm" data-act="t-opp" ${dis(T.r)}>Usar</button>`
     )
   );
+  // Desplegable «Magia» al final de cada columna
+  for (const k of ['A', 'AA', 'R'])
+    if (mag[k].length)
+      cols[k].push(
+        `<details class="tmag" ${TMAG[k] ? 'open' : ''}><summary data-act="t-mag" data-k="${k}">Magia <small>${mag[k].length} ${mag[k].length === 1 ? 'conjuro' : 'conjuros'}</small></summary>${mag[k].join('')}</details>`
+      );
   const pill = (lbl, k, used, extra) =>
     `<span class="pill ${used ? 'used' : ''}">${term(lbl, k)}<b>${extra || (used ? 'Gastada' : 'Disponible')}</b></span>`;
   const aState = T.a ? (T.atk > 0 ? `Atacando · ${T.atk} más` : 'Gastada') : '';

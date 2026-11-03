@@ -1532,6 +1532,23 @@ button.tag {
   display: block;
   font-weight: 400;
 }
+.tmag {
+  margin-top: 0.5rem;
+  border-top: 1px solid var(--line);
+  padding-top: 0.3rem;
+}
+.tmag > summary {
+  cursor: pointer;
+  color: var(--ink);
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.3rem 0;
+}
+.tmag > summary small {
+  font-weight: 400;
+  color: var(--muted);
+  margin-left: 0.3rem;
+}
 .chip:disabled {
   opacity: 0.45;
   cursor: not-allowed;
