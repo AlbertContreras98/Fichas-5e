@@ -38,6 +38,7 @@ Object.assign(A, {
       sp = c.spells[+el.dataset.i],
       L = +sp.level || 0;
     const need = !el.dataset.force && spConsume(c, sp);
+    spPendingUse = need && need.has ? Object.assign({ sp }, need) : null;
     if (need && !need.has) {
       openModal(`<h2>Lanzar ${esc(sp.name)}</h2><p>Estás intentando lanzar un conjuro sin el objeto necesario.</p>
         <p class="hint">Este conjuro gasta: ${esc(need.what)}. No lo encuentro en tu inventario.</p>

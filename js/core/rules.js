@@ -149,16 +149,31 @@ const SP_CONSUME = {
   'astral-projection': ['jacinto'],
   'true-resurrection': ['diamante'],
 };
+/* Objeto a descontar al terminar de lanzar el conjuro (se fija en A.cast) */
+let spPendingUse = null;
+/* Descuenta el objeto que gasta el conjuro y devuelve el aviso para el mensaje ('' si no gasta nada) */
+function spUseItem(c, sp) {
+  const u = spPendingUse;
+  spPendingUse = null;
+  if (!u || u.sp !== sp) return '';
+  if (u.cp) {
+    c.coins.cp = Math.max(0, (+c.coins.cp || 0) - 2);
+    return `<div class="t-parts">Gastas 2 piezas de cobre · te quedan ${c.coins.cp} pc.</div>`;
+  }
+  const e = c.equipment.includes(u.item) && u.item;
+  if (!e || !(+e.qty > 0)) return '';
+  e.qty = +e.qty - 1;
+  return `<div class="t-parts">Gastas ${esc(e.name)} · te ${e.qty === 1 ? 'queda' : 'quedan'} ${e.qty}.</div>`;
+}
 /* Objeto que gasta el conjuro y si lo tienes: null si no gasta nada */
 function spConsume(c, sp) {
   const kw = sp.ref && SP_CONSUME[sp.ref];
   if (!kw) return null;
   const what = (sp.material || (SPBY[sp.ref] || {}).m || '').replace(/,? ?que el conjuro consume.*$/, '');
-  const has =
-    kw === 'cp'
-      ? (+(c.coins || {}).cp || 0) >= 2
-      : c.equipment.some(e => (+e.qty || 0) > 0 && kw.some(k => norm(e.name).includes(k)));
-  return { what, has };
+  const item =
+    kw === 'cp' ? null : c.equipment.find(e => (+e.qty || 0) > 0 && kw.some(k => norm(e.name).includes(k)));
+  const has = kw === 'cp' ? (+(c.coins || {}).cp || 0) >= 2 : !!item;
+  return { what, has, item, cp: kw === 'cp' };
 }
 const spMod = c => (c.spellcasting.ability ? M(c, c.spellcasting.ability) : null);
 const spDC = c => 8 + pb(c) + spMod(c);

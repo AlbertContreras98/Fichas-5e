@@ -265,6 +265,7 @@ function afterCast(sp, how) {
     c.concentration = sp.name;
   }
   addEffect(c, sp.name, parseDur(sp.dur), sp.conc);
+  const used = spUseItem(c, sp);
   save();
   render();
   const extra =
@@ -284,7 +285,7 @@ function afterCast(sp, how) {
   else if (['polymorph', 'true-polymorph', 'shapechange'].includes(r))
     cbtn = `<button class="b sm pri" data-act="form-cast" data-spell="${esc(sp.name)}">Elegir forma</button>`;
   toast(
-    `<div class="t-label">Lanzas</div><div class="t-big">${esc(sp.name)}</div><div class="t-parts">${esc(how)}${sp.conc ? ' · requiere concentración' : ''}</div>${extra}${note}${cbtn ? `<div class="t-actions">${cbtn}</div>` : ''}`,
+    `<div class="t-label">Lanzas</div><div class="t-big">${esc(sp.name)}</div><div class="t-parts">${esc(how)}${sp.conc ? ' · requiere concentración' : ''}</div>${used}${extra}${note}${cbtn ? `<div class="t-actions">${cbtn}</div>` : ''}`,
     !!cbtn
   );
 }
