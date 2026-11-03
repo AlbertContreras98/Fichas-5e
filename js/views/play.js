@@ -187,7 +187,7 @@ function viewPlay(c) {
   }
   const cinfo = infoFor(def, sub, c.level),
     cnt = pre => c.features.filter(f => norm(f.name).startsWith(norm(pre))).length;
-  const feats = `<section class="card">${c.classKey === 'warlock' ? '<div class="card-head"><h2>Rasgos y dotes</h2><button class="b sm" data-act="iv-open">Elegir invocaciones</button></div>' : '<h2>Rasgos y dotes</h2>'}${
+  const feats = `<section class="card"><div class="card-head"><h2>Rasgos y dotes</h2><div class="btns">${c.classKey === 'warlock' ? '<button class="b sm" data-act="iv-open">Invocaciones</button>' : ''}<button class="b sm" data-act="ft-open">Dotes</button></div></div>${
     Object.keys(cinfo).length
       ? `<div class="classinfo">${Object.entries(cinfo)
           .map(([k, v]) =>

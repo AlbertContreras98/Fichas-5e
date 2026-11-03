@@ -76,7 +76,9 @@ function ivPickOpts(st, i) {
     used = st.list.filter((x, j) => j !== i && x.id === e.id).map(x => x.pick);
   const all =
     d.pick === 'feat'
-      ? Object.entries(FEATS).map(([k, f]) => [k, f.n])
+      ? Object.entries(FEATS)
+          .filter(([, f]) => f.cat === 'origin')
+          .map(([k, f]) => [k, f.n])
       : ivCantrips(st.spells, d.need).map(n => [n, n]);
   return all.filter(([k]) => !used.includes(k) || k === e.pick);
 }
@@ -148,6 +150,7 @@ function ivRefresh() {
   if (!b) return;
   const sc = b.scrollTop;
   b.innerHTML = ivHTML(IVS);
+  enhanceSelects(b);
   b.scrollTop = sc;
   const ok = $('[data-act="iv-save"]');
   if (ok) ok.disabled = !!ivProblems(IVS).length;

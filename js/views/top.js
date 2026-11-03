@@ -106,7 +106,7 @@ function renderTop() {
       <button class="hpbox" data-act="vida" aria-label="Vida y estado: daño, curación y estados"><div class="hpnum"><b>${c.hp.current}</b> / ${c.hp.max}${c.hp.temp ? `<em>+${c.hp.temp}</em>` : ''}</div><div class="bar"><i class="${pct <= 25 ? 'low' : pct < 40 ? 'mid' : ''}" style="width:${pct}%"></i></div><small>Puntos de golpe</small></button>
       <button class="stat" data-act="gloss" data-k="ca"><b>${fm ? formAC(c, fm) : acOf(c)}</b><small>CA</small></button>
       <button class="stat" data-act="gloss" data-k="init"><b>${sgn(init(c))}</b><small>Inic.</small></button>
-      <button class="stat" data-act="gloss" data-k="speed"><b>${Math.max(0, (fm && parseInt(fm.speed) >= 0 ? parseInt(fm.speed) : c.speedFt - (armorAuto(c) && acCalc(c).slow ? 10 : 0)) - 5 * (+c.exhaustion || 0))}</b><small>pies</small></button>
+      <button class="stat" data-act="gloss" data-k="speed"><b>${Math.max(0, (fm && parseInt(fm.speed) >= 0 ? parseInt(fm.speed) : c.speedFt + featSpeed(c) - (armorAuto(c) && acCalc(c).slow ? 10 : 0)) - 5 * (+c.exhaustion || 0))}</b><small>pies</small></button>
     </div>
     ${slotLine(c)}
     <div class="ctl quick">

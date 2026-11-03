@@ -48,6 +48,7 @@ function enhanceSelects(root) {
         b.setAttribute('role', 'option');
         b.textContent = o.textContent;
         b.dataset.v = o.value;
+        b.disabled = o.disabled;
         list.appendChild(b);
       };
       if (ch.tagName === 'OPTGROUP') {
@@ -94,6 +95,7 @@ function closeModal() {
   CX = null;
   NI = null;
   IVS = null;
+  FTS = null;
 }
 let pendingEco = null,
   restOpen = false;

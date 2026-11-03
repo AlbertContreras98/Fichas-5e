@@ -97,6 +97,15 @@ document.addEventListener('input', e => {
     refreshPicker();
     return;
   }
+  if (el.id === 'fs-opt' && ftState()) {
+    ftState().opt = el.value;
+    if (W) refreshWizFoot();
+    else {
+      const b = $('[data-act="ft-add"]');
+      if (b) b.disabled = !!ftMissing(FTS, ftCtx(C()));
+    }
+    return;
+  }
   if (W) {
     if (el.id === 'wz-name') W.name = el.value;
     else if (el.id === 'wz-species') W.species = el.value;
@@ -265,6 +274,10 @@ document.addEventListener('change', e => {
   }
   if (el.dataset && el.dataset.actInput === 'res-set') {
     render();
+    return;
+  }
+  if (el.dataset && el.dataset.fs && ftState()) {
+    ftSet(el);
     return;
   }
   if (el.dataset && el.dataset.ivPick !== undefined && ivState()) {

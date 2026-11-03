@@ -1,4 +1,4 @@
-/* Especies, trasfondos y dotes de origen de D&D 5e (reglas de 2024). Resúmenes breves escritos para esta app.
+/* Especies y trasfondos de D&D 5e (reglas de 2024). Resúmenes breves escritos para esta app.
    Especies: size, speed (pies), dv (visión en la oscuridad, pies), traits [nombre, resumen],
    spells {nivel de personaje: [id de conjuro]}, res (recursos con usos: by 'pb' = bonificador de competencia, o número),
    lin (linajes/legados/ascendencias a elegir), extraSkill (habilidades extra a elegir), hpPerLevel (PG extra por nivel). */
@@ -51,21 +51,7 @@ tiefling:{n:'Tiefling',size:'M o P',speed:30,dv:60,linLabel:'Legado infernal',
        infernal:{n:'Infernal',traits:[['Legado infernal','Resistencia al daño de fuego. Conoces Descarga de fuego; a nivel 3 Represión infernal y a nivel 5 Oscuridad (1 vez cada uno por descanso largo sin espacio). Aptitud: INT, SAB o CAR.']],spells:{1:['fire-bolt'],3:['hellish-rebuke'],5:['darkness']},res:[{n:'Represión infernal (gratis)',by:1,rec:'largo',from:3},{n:'Oscuridad (gratis)',by:1,rec:'largo',from:5}]}}}
 };
 
-/* Dotes de origen: efectos que la app aplica sola (hpPerLevel, initPB, res, skills extra) */
-window.FEATS={
-alert:{n:'Alerta',text:'Sumas tu bonificador de competencia a la iniciativa (la app lo suma sola) y puedes intercambiar tu iniciativa con un aliado dispuesto.',initPB:true},
-crafter:{n:'Artesano',text:'Competencia con tres herramientas de artesano, 20 % de descuento en objetos no mágicos y fabricas objetos sencillos en un descanso largo.'},
-healer:{n:'Sanador',text:'Con un kit de sanador estabilizas y curas (1 dado de golpe + competencia) como acción; repites los 1 en tiradas de curación.'},
-lucky:{n:'Afortunado',text:'Tienes puntos de suerte (tu bonificador de competencia por descanso largo): gasta uno para tener ventaja en una prueba d20 o imponer desventaja a un ataque contra ti.',res:[{n:'Puntos de suerte',by:'pb',rec:'largo'}]},
-'magic-cleric':{n:'Iniciado en la magia (clérigo)',text:'Aprendes dos trucos y un conjuro de nivel 1 de la lista de clérigo (búscalos con «Buscar conjuros»). Lanzas el de nivel 1 sin espacio 1 vez por descanso largo. Aptitud: INT, SAB o CAR.',res:[{n:'Conjuro de iniciado (gratis)',by:1,rec:'largo'}],magic:'cleric'},
-'magic-druid':{n:'Iniciado en la magia (druida)',text:'Aprendes dos trucos y un conjuro de nivel 1 de la lista de druida (búscalos con «Buscar conjuros»). Lanzas el de nivel 1 sin espacio 1 vez por descanso largo. Aptitud: INT, SAB o CAR.',res:[{n:'Conjuro de iniciado (gratis)',by:1,rec:'largo'}],magic:'druid'},
-'magic-wizard':{n:'Iniciado en la magia (mago)',text:'Aprendes dos trucos y un conjuro de nivel 1 de la lista de mago (búscalos con «Buscar conjuros»). Lanzas el de nivel 1 sin espacio 1 vez por descanso largo. Aptitud: INT, SAB o CAR.',res:[{n:'Conjuro de iniciado (gratis)',by:1,rec:'largo'}],magic:'wizard'},
-musician:{n:'Músico',text:'Competencia con tres instrumentos. Tras un descanso corto o largo, puedes dar Inspiración heroica a tantos aliados como tu bonificador de competencia.'},
-'savage-attacker':{n:'Atacante salvaje',text:'Una vez por turno, al impactar con un arma, tiras los dados de daño dos veces y eliges el resultado.'},
-skilled:{n:'Hábil',text:'Competencia en tres habilidades o herramientas a tu elección.',skills:3},
-'tavern-brawler':{n:'Camorrista',text:'Golpe desarmado de 1d4 + FUE, repites los 1 de daño de armas improvisadas y puedes empujar 5 pies al impactar con un golpe desarmado.'},
-tough:{n:'Duro',text:'Tus PG máximos aumentan en 2 por cada nivel (la app lo suma sola).',hpPerLevel:2}
-};
+/* Las dotes (también las de origen) están en data/feats.js */
 
 /* Trasfondos: características que puedes aumentar, habilidades, herramienta y dote de origen */
 window.BACKGROUNDS={

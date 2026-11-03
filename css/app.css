@@ -2460,6 +2460,11 @@ button.eff.cond-pill {
 .xsel-opt:focus-visible {
   background: var(--accent-soft);
 }
+.xsel-opt:disabled {
+  opacity: 0.5;
+  cursor: default;
+  background: none;
+}
 .xsel-opt.on {
   font-weight: 700;
   color: var(--accent);

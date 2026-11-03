@@ -1,4 +1,4 @@
-/* Acciones — Asistente y buscador de conjuros. */
+/* Acciones — Asistente, buscador de conjuros, invocaciones y dotes. */
 'use strict';
 
 Object.assign(A, {
@@ -53,6 +53,30 @@ Object.assign(A, {
     W.spells.splice(+el.dataset.i, 1);
     W._keepScroll = true;
     renderWizard();
+  },
+  'ft-open': openFeats,
+  'ft-close': () => {
+    closeModal();
+    save();
+    render();
+  },
+  'ft-add': () => {
+    const c = C();
+    if (!FTS || ftMissing(FTS, ftCtx(c))) return;
+    const n = FEATS[FTS.k].n;
+    featApply(c, FTS, FEATS[FTS.k].cat === 'style' ? 'Estilo de combate' : 'Dote');
+    FTS = ftNew(null);
+    save();
+    ftRefresh();
+    toast(`<div class="t-label">Dote añadida</div><div class="t-big">${esc(n)}</div>`);
+  },
+  'ft-del': el => {
+    const c = C(),
+      o = ftOwned(c)[+el.dataset.i];
+    if (!o) return;
+    featRemove(c, o.k, o.rec);
+    save();
+    ftRefresh();
   },
   'iv-open': openInvocations,
   'iv-add': el => {

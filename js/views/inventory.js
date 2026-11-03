@@ -185,8 +185,10 @@ function wpnCalc(c, a) {
     mg = +a.magic || 0;
   const mod = W.p.includes('sutil') ? Math.max(str, dex) : W.r ? dex : str,
     prof = wpnProf(c, W);
+  const arch = W.r && featHas(c, 'rangedAtk'),
+    gwm = W.p.includes('pesada') && featHas(c, 'heavyPB');
   const dm = x => {
-    const b = mod + mg;
+    const b = mod + mg + (gwm ? pb(c) : 0);
     return W.d === '1' ? `${Math.max(1, 1 + b)}` : `${x}${b ? ` ${b > 0 ? '+' : '−'} ${Math.abs(b)}` : ''}`;
   };
   const props = W.p
@@ -198,11 +200,19 @@ function wpnCalc(c, a) {
     props.join(', ').replace(/^./, m => m.toUpperCase()),
     a.mastery ? `Maestría: ${MASTERY[W.ms][0].toLowerCase()}` : '',
     prof ? '' : 'sin competencia',
+    arch ? `${arch.n}: +${arch.rangedAtk} al ataque` : '',
+    gwm ? `${gwm.n}: +${pb(c)} al daño` : '',
+    !W.r && !W.p.includes('a dos manos') && featHas(c, 'duel') ? 'Duelo: +2 al daño si es tu única arma' : '',
+    W.th && featHas(c, 'thrown') ? '+2 al daño si la lanzas' : '',
+    W.p.includes('ligera') && featHas(c, 'twf') ? 'ataque extra (Ligera): suma tu modificador al daño' : '',
+    !W.r && (W.p.includes('a dos manos') || W.v) && featHas(c, 'gwf')
+      ? 'a dos manos: los 1 y 2 de daño cuentan como 3'
+      : '',
   ]
     .filter(Boolean)
     .join(' · ');
   return {
-    atk: mod + (prof ? pb(c) : 0) + mg,
+    atk: mod + (prof ? pb(c) : 0) + mg + (arch ? arch.rangedAtk : 0),
     dmg: dm(W.d) + (W.v ? ` (${dm(W.v)} a dos manos)` : ''),
     type: W.t,
     notes,
@@ -267,9 +277,10 @@ function acCalc(c) {
   let base, src;
   if (body) {
     const A = ARMORS[body.armor],
-      mg = +body.magic || 0;
-    base = A.ac + (A.t === 'l' ? dex : A.t === 'm' ? Math.min(dex, 2) : 0) + mg;
-    src = `${body.name} ${A.ac}${A.t === 'l' ? ` + DES (${sgn(dex)})` : A.t === 'm' ? ` + DES (${sgn(Math.min(dex, 2))}, máx. +2)` : ''}${mg ? ` + ${mg} mágica` : ''}`;
+      mg = +body.magic || 0,
+      cap = featHas(c, 'mam') && c.abilities.dex >= 16 ? 3 : 2;
+    base = A.ac + (A.t === 'l' ? dex : A.t === 'm' ? Math.min(dex, cap) : 0) + mg;
+    src = `${body.name} ${A.ac}${A.t === 'l' ? ` + DES (${sgn(dex)})` : A.t === 'm' ? ` + DES (${sgn(Math.min(dex, cap))}, máx. +${cap})` : ''}${mg ? ` + ${mg} mágica` : ''}`;
   } else {
     const o = [[10 + dex, `Sin armadura: 10 + DES (${sgn(dex)})`]];
     if (c.classKey === 'barbarian') o.push([10 + dex + M(c, 'con'), 'Defensa sin armadura: 10 + DES + CON']);
@@ -287,6 +298,11 @@ function acCalc(c) {
     const mg = +shield.magic || 0;
     ac += 2 + mg;
     src += ` + escudo ${2 + mg}`;
+  }
+  const fd = body && featHas(c, 'acArmor');
+  if (fd) {
+    ac += fd.acArmor;
+    src += ` + ${fd.n} ${fd.acArmor}`;
   }
   if (+c.acBonus) {
     ac += +c.acBonus;

@@ -12,6 +12,7 @@ function blank() {
     background: '',
     backgroundKey: '',
     featKeys: [],
+    featData: [],
     class: '',
     classKey: '',
     subclass: '',
@@ -176,6 +177,7 @@ function normalize(src) {
   if (!c.speciesKey) c.speciesKey = keyFrom(SPEC, c.species);
   if (!c.backgroundKey) c.backgroundKey = keyFrom(BG, c.background);
   if (!Array.isArray(c.featKeys)) c.featKeys = [];
+  if (!Array.isArray(c.featData)) c.featData = [];
   if (c.speciesKey && !SPEC[c.speciesKey]) c.speciesKey = '';
   if (c.lineageKey && !(c.speciesKey && SPEC[c.speciesKey].lin && SPEC[c.speciesKey].lin[c.lineageKey]))
     c.lineageKey = '';

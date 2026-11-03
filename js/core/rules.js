@@ -16,6 +16,8 @@ const skillB = (c, s) => {
   return M(c, s[2]) + (p === 2 ? 2 * pb(c) : p === 1 ? pb(c) : 0);
 };
 const featsOf = c => (c.featKeys || []).map(k => FEATS[k]).filter(Boolean);
+const featHas = (c, p) => featsOf(c).find(f => f[p]) || null;
+const featSpeed = c => featsOf(c).reduce((t, f) => t + (f.speed || 0), 0);
 const init = c => M(c, 'dex') + (+c.initiativeBonus || 0) + (featsOf(c).some(f => f.initPB) ? pb(c) : 0);
 const specOf = k => SPEC[k] || null;
 const linOf = (sk, lk) => {

@@ -25,6 +25,8 @@ function wizSteps() {
         st.push(['lineage', sp.linLabel || 'Linaje']);
     }
     if (W.mode === 'level' && def.asi.includes(W.L)) st.push(['asi', W.L === 19 ? 'Don épico' : 'Mejora']);
+    if (newFeatures().some(f => norm(f[0]).startsWith(norm('Estilo de combate'))))
+      st.push(['style', 'Estilo de combate']);
     const ca = casterOf(def, W.subKey ? def.subs[W.subKey] : null);
     if (ca && ((ca.cantrips && ca.cantrips[W.L - 1]) || (ca.prepared && ca.prepared[W.L - 1])))
       st.push(['spells', 'Conjuros']);
@@ -75,7 +77,7 @@ function startWizard(mode) {
       step: 0,
       hpMode: 'avg',
       hpRoll: '',
-      asi: { mode: '2', a: '', b: '', feat: '', featText: '' },
+      asi: { mode: '2', a: '', b: '', feat: '', featText: '', fs: ftNew(null) },
     };
   }
   renderWizard();
@@ -169,7 +171,16 @@ function wizBody(step) {
     def = wizDef(),
     sub = wizSub(),
     L = W.L;
+  W.ft = null;
   switch (step) {
+    case 'style': {
+      W.style = W.style || ftNew(['style']);
+      W.ft = W.style;
+      const alt = ['paladin', 'ranger'].includes(W.classKey);
+      return `<p>Tu rasgo <b>Estilo de combate</b> te da una dote de estilo de combate. Elige una: lo que se pueda calcular (CA, ataques…) lo hace la app sola.</p>
+      ${ftPickerHTML(W.style, wizFtCtx(), alt ? [['_none', 'Ninguno: elijo la otra opción del rasgo (trucos)']] : [])}
+      ${alt && W.style.k === '_none' ? '<p class="hint">Añade esos trucos en el paso de conjuros o con «Buscar conjuros».</p>' : ''}`;
+    }
     case 'pickclass':
       return `<p>Esta ficha no tiene una clase reconocida. Elige la clase para que el asistente sepa qué ganas al subir.</p>
     <div class="f"><span>Clase</span><select id="wz-class">${[['', '—'], ...Object.entries(CL).map(([k, d]) => [k, d.n])].map(([k, n]) => `<option value="${k}" ${W.classKey === k ? 'selected' : ''}>${n}</option>`).join('')}</select></div>`;
@@ -229,7 +240,18 @@ function wizBody(step) {
         <label><input type="radio" name="wz-bgmode" value="111" ${W.bgMode === '111' ? 'checked' : ''}><span><b>+1 a las tres</b></span></label></div>`
         : `<label class="f"><span>Nombre del trasfondo</span><input id="wz-background" value="${esc(W.background)}"></label><p class="hint">Con un trasfondo propio, aplica tú los aumentos en el paso siguiente.</p>`
     }
-    ${W.speciesKey === 'human' ? `<h3>Versátil (humano)</h3><div class="f"><span>Dote de origen extra</span><select id="wz-hfeat">${[['', '—'], ...Object.entries(FEATS).map(([k, f]) => [k, f.n])].map(([k, n]) => `<option value="${k}" ${W.humanFeat === k ? 'selected' : ''}>${n}</option>`).join('')}</select></div>` : ''}`;
+    ${
+      W.speciesKey === 'human'
+        ? `<h3>Versátil (humano)</h3><div class="f"><span>Dote de origen extra</span><select id="wz-hfeat">${[
+            ['', '—'],
+            ...Object.entries(FEATS)
+              .filter(([, f]) => f.cat === 'origin')
+              .map(([k, f]) => [k, f.n]),
+          ]
+            .map(([k, n]) => `<option value="${k}" ${W.humanFeat === k ? 'selected' : ''}>${n}</option>`)
+            .join('')}</select></div>`
+        : ''
+    }`;
     }
     case 'abil': {
       const b = bgBonus();
@@ -356,10 +378,14 @@ function wizBody(step) {
     <div class="choice">
       <label><input type="radio" name="wz-asi" value="2" ${a.mode === '2' ? 'checked' : ''}><span><b>+2 a una característica</b></span></label>
       <label><input type="radio" name="wz-asi" value="11" ${a.mode === '11' ? 'checked' : ''}><span><b>+1 a dos características</b></span></label>
-      <label><input type="radio" name="wz-asi" value="feat" ${a.mode === 'feat' ? 'checked' : ''}><span><b>Una dote</b><br><small>Escribe su nombre y, si quieres, un resumen.</small></span></label></div>
+      <label><input type="radio" name="wz-asi" value="feat" ${a.mode === 'feat' ? 'checked' : ''}><span><b>Una dote</b><br><small>Elígela del catálogo; si es casera, escríbela a mano.</small></span></label></div>
     ${
       a.mode === 'feat'
-        ? `<div class="grid"><label class="f"><span>Dote</span><input id="wz-feat" value="${esc(a.feat)}" placeholder="Alerta, Afortunado…"></label><label class="f wide"><span>Qué hace</span><textarea id="wz-feattext">${esc(a.featText)}</textarea></label></div><p class="hint">Si la dote sube una característica, cámbiala luego en ⚙ Ajustes → Editar ficha.</p>`
+        ? ((W.ft = a.fs),
+          ftPickerHTML(a.fs, wizFtCtx(), [['_custom', 'Otra (la escribo a mano)']]) +
+            (a.fs.k === '_custom'
+              ? `<div class="grid"><label class="f"><span>Dote</span><input id="wz-feat" value="${esc(a.feat)}" placeholder="Nombre de la dote"></label><label class="f wide"><span>Qué hace</span><textarea id="wz-feattext">${esc(a.featText)}</textarea></label></div><p class="hint">Si la dote sube una característica, cámbiala luego en ⚙ Ajustes → Editar ficha.</p>`
+              : ''))
         : `<div class="grid"><label class="f"><span>${a.mode === '2' ? 'Característica (+2)' : 'Primera (+1)'}</span><select id="wz-asi-a">${[['', '—'], ...ABIL.map(x => [x[0], `${x[2]} (${W.ab[x[0]]})`])].map(([k, n]) => `<option value="${k}" ${a.a === k ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
         ${a.mode === '11' ? `<label class="f"><span>Segunda (+1)</span><select id="wz-asi-b">${[['', '—'], ...ABIL.map(x => [x[0], `${x[2]} (${W.ab[x[0]]})`])].map(([k, n]) => `<option value="${k}" ${a.b === k ? 'selected' : ''}>${n}</option>`).join('')}</select></label>` : ''}</div>
         <p class="hint">Máximo 20 en cada característica.</p>`
@@ -402,7 +428,7 @@ function wizBody(step) {
               .map(k => FEATS[k].n)
               .join(', ')}</b>`
           : ''
-      }<span>Salvaciones</span><b>${d ? d.saves.map(s => AB[s][1]).join(', ') : '—'}</b><span>Habilidades</span><b>${W.skills.length}</b><span>Conjuros</span><b>${W.spells.length}</b>${W.iv ? `<span>Invocaciones</span><b>${esc(W.iv.list.map(ivLabel).join(', ') || '—')}</b>` : ''}</div>
+      }<span>Salvaciones</span><b>${d ? d.saves.map(s => AB[s][1]).join(', ') : '—'}</b><span>Habilidades</span><b>${W.skills.length}</b><span>Conjuros</span><b>${W.spells.length}</b>${W.iv ? `<span>Invocaciones</span><b>${esc(W.iv.list.map(ivLabel).join(', ') || '—')}</b>` : ''}${W.style && FEATS[W.style.k] ? `<span>Estilo de combate</span><b>${esc(FEATS[W.style.k].n)}</b>` : ''}</div>
       ${newFeatures()
         .map(f => `<div class="feat"><b>${esc(f[0])}</b><p>${esc(f[1])}</p></div>`)
         .join('')}
@@ -418,11 +444,13 @@ function wizBody(step) {
           );
       }
       return `<p>Todo listo para subir a <b>${esc(c.name)}</b> a ${def.n} ${L}${sub ? ` (${sub.n})` : ''}.</p>
-      <div class="diff"><span>PG máximos</span><b>${c.hp.max} → <span class="up">${c.hp.max + hpGain()}</span></b><span>Rasgos nuevos</span><b>${newFeatures().length}</b>${W.iv ? `<span>Invocaciones</span><b>${W.iv.list.length}</b>` : ''}${
+      <div class="diff"><span>PG máximos</span><b>${c.hp.max} → <span class="up">${c.hp.max + hpGain()}</span></b><span>Rasgos nuevos</span><b>${newFeatures().length}</b>${W.iv ? `<span>Invocaciones</span><b>${W.iv.list.length}</b>` : ''}${W.style && FEATS[W.style.k] ? `<span>Estilo de combate</span><b>${esc(FEATS[W.style.k].n)}</b>` : ''}${
         W.asi && def.asi.includes(L)
           ? `<span>${L === 19 ? 'Don épico' : 'Mejora'}</span><b>${esc(
               W.asi.mode === 'feat'
-                ? W.asi.feat || '(sin nombre)'
+                ? FEATS[W.asi.fs.k]
+                  ? FEATS[W.asi.fs.k].n
+                  : W.asi.feat || '(sin nombre)'
                 : W.asi.mode === '2'
                   ? W.asi.a
                     ? AB[W.asi.a][2] + ' +2'
@@ -465,9 +493,10 @@ function wizValid(step) {
   }
   if (step === 'hp') return W.hpMode === 'avg' || (+W.hpRoll >= 1 && +W.hpRoll <= def.hd);
   if (step === 'sub') return !!W.subKey;
+  if (step === 'style') return !!W.style && (W.style.k === '_none' || !ftMissing(W.style, wizFtCtx()));
   if (step === 'asi') {
     const a = W.asi;
-    if (a.mode === 'feat') return !!a.feat.trim();
+    if (a.mode === 'feat') return a.fs.k === '_custom' ? !!a.feat.trim() : !ftMissing(a.fs, wizFtCtx());
     if (a.mode === '2') return !!a.a && W.ab[a.a] + 2 <= 20;
     return !!a.a && !!a.b && a.a !== a.b && W.ab[a.a] < 20 && W.ab[a.b] < 20;
   }
@@ -482,9 +511,37 @@ const STEP_HELP = {
   skills: 'Elige las habilidades que faltan.',
   hp: 'Escribe un resultado válido del dado.',
   sub: 'Elige una subclase.',
-  asi: 'Completa la mejora (máximo 20 por característica) o el nombre de la dote.',
+  asi: 'Completa la mejora (máximo 20 por característica) o elige la dote y sus opciones.',
+  style: 'Elige un estilo de combate.',
   invoc: 'Elige tantas invocaciones como indica el contador y completa sus opciones.',
 };
+/* Datos que miran los requisitos de las dotes dentro del asistente */
+function wizFtCtx() {
+  const def = wizDef(),
+    caster = !!casterOf(def, wizSub());
+  if (W.mode === 'create') {
+    const skills = {};
+    [...bgSkills(), ...W.skills].forEach(k => (skills[k] = 1));
+    return {
+      L: 1,
+      abil: W.ab,
+      prof: def ? def.armor : '',
+      caster,
+      style: true,
+      keys: wizFeats(),
+      skills,
+      spells: W.spells,
+    };
+  }
+  const ctx = ftCtx(C());
+  return Object.assign(ctx, {
+    L: W.L,
+    abil: W.ab,
+    caster: caster || ctx.caster,
+    style: ctx.style || newFeatures().some(f => norm(f[0]).startsWith(norm('Estilo de combate'))),
+    spells: W.spells,
+  });
+}
 /* Estado de las invocaciones dentro del asistente (se crea la primera vez que hace falta) */
 function wizIv() {
   if (!W.iv) {
@@ -513,6 +570,7 @@ function renderWizard() {
     const sh = m.querySelector('.sheet');
     const sc = $('#wz-body') ? $('#wz-body').scrollTop : 0;
     sh.innerHTML = html;
+    enhanceSelects(sh);
     if (W._keepScroll) $('#wz-body').scrollTop = sc;
   }
   W._keepScroll = false;
@@ -575,14 +633,16 @@ function applyWizard() {
     c.hp.current += g;
     if (W.asi && def.asi.includes(L)) {
       const a = W.asi;
-      if (a.mode === 'feat')
+      if (a.mode === 'feat' && a.fs.k === '_custom')
         c.features.push({
           name: a.feat.trim(),
           source: L === 19 ? 'Don épico (nivel 19)' : `Dote (nivel ${L})`,
           text: a.featText,
           uses: { max: 0, used: 0, recover: '' },
         });
-      else if (a.mode === '2') c.abilities[a.a] = Math.min(20, c.abilities[a.a] + 2);
+      else if (a.mode === 'feat') {
+        /* la dote del catálogo se aplica más abajo, con el nivel y los conjuros ya puestos */
+      } else if (a.mode === '2') c.abilities[a.a] = Math.min(20, c.abilities[a.a] + 2);
       else {
         c.abilities[a.a] = Math.min(20, c.abilities[a.a] + 1);
         c.abilities[a.b] = Math.min(20, c.abilities[a.b] + 1);
@@ -632,6 +692,10 @@ function applyWizard() {
   }
   // invocaciones del brujo
   if (W.classKey === 'warlock') ivApply(c, wizIv());
+  // dotes del catálogo (mejora de nivel y estilo de combate)
+  if (W.asi && def.asi.includes(L) && W.asi.mode === 'feat' && FEATS[W.asi.fs.k])
+    featApply(c, W.asi.fs, L === 19 ? 'Don épico (nivel 19)' : `Dote (nivel ${L})`);
+  if (W.style && FEATS[W.style.k]) featApply(c, W.style, 'Estilo de combate');
   // conjuros siempre preparados de clase y subclase
   addAlways(c, [
     ...alwaysIds(c.classKey, '', W.mode === 'create' ? 1 : L, L),
