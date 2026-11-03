@@ -6,11 +6,6 @@ Object.assign(A, {
     const c = C(),
       i = +el.dataset.i,
       e = c.equipment[i];
-    if (+el.dataset.d < 0 && (+e.qty || 0) <= 1 && el.closest('#inv-body')) {
-      openModal(`<h2>¿Quitar ${esc(e.name)}?</h2><p>Se ha quedado a 0. ¿Lo quitas de la mochila?</p><p class="hint">Si piensas reponerlo (munición, raciones…), puedes dejarlo a 0.</p>
-      <div class="btns"><button class="b bad" data-act="item-del" data-id="${e.id}">Quitar</button><button class="b" data-act="item-zero" data-id="${e.id}">Dejar a 0</button><button class="b" data-act="item-cancel">Cancelar</button></div>`);
-      return;
-    }
     e.qty = Math.max(0, (+e.qty || 0) + +el.dataset.d);
     save();
     render();
@@ -33,14 +28,6 @@ Object.assign(A, {
     toast(
       `<div class="t-label">Quitado</div><div class="t-parts">${esc(e ? e.name : 'Objeto')} ya no está ${e && inCard(e) ? 'en tu equipo' : 'en la mochila'}.</div>`
     );
-  },
-  'item-zero': el => {
-    const e = C().equipment.find(x => x.id === el.dataset.id);
-    if (e) e.qty = 0;
-    closeModal();
-    save();
-    render();
-    openInv();
   },
   ammo: el => {
     const c = C(),

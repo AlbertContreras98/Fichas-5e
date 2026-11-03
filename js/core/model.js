@@ -251,6 +251,7 @@ function syncEffects(c) {
   c.companions = c.companions.filter(x => !x.conc || x.spell === c.concentration);
 }
 function save() {
+  pruneEmpty(C());
   syncEffects(C());
   saveOk();
 }

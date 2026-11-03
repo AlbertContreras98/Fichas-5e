@@ -82,6 +82,24 @@ function gearUse(i, eco) {
     `<div class="t-label">${G.act === 'lit' ? 'Enciendes' : 'Usas'}</div><div class="t-big">${esc(e.name)}</div><div class="t-parts">${esc(G.d)}${extra ? ' ' + extra : ''}${G.keep ? '' : ` Te quedan ${e.qty}${G.unit ? ' ' + G.unit : ''}.`}</div>`
   );
 }
+/* Quita de la ficha los objetos que se han quedado a 0 (salvo munición, mapas, armas, armaduras y herramientas) */
+function pruneEmpty(c) {
+  if (!c || !Array.isArray(c.equipment)) return;
+  const gone = c.equipment.filter(
+    e =>
+      e.qty !== '' && e.qty != null && +e.qty <= 0 && e.cat !== 'municion' && e.cat !== 'mapa' && !inCard(e)
+  );
+  if (!gone.length) return;
+  const ids = gone.map(e => e.id);
+  c.equipment = c.equipment.filter(e => !ids.includes(e.id));
+  c.attacks.forEach(a => {
+    if (ids.includes(a.ammo)) a.ammo = '';
+    if (ids.includes(a.item)) a.item = '';
+  });
+  toast(
+    `<div class="t-label">Se ha acabado</div><div class="t-parts">${esc(gone.map(e => e.name).join(', '))}: ${gone.length > 1 ? 'los quito' : 'lo quito'} de la mochila.</div>`
+  );
+}
 /* Armas, armaduras y herramientas se gestionan en sus tarjetas de Partida, no en la mochila */
 const inCard = e => e.cat === 'arma' || e.cat === 'armadura' || e.cat === 'herramienta';
 const atkItem = (c, a) => (a.item ? c.equipment.find(e => e.id === a.item) : null);
@@ -824,12 +842,11 @@ function refreshInv() {
   if (t) {
     const c = C(),
       i = c.equipment.findIndex(x => x.id === t.dataset.id);
-    if (i >= 0) {
-      t.innerHTML = itemInfo(c, c.equipment[i], i);
-      t.hidden = !t.innerHTML.trim();
-      const q = $('#it-qty');
-      if (q) q.value = c.equipment[i].qty;
-    }
+    if (i < 0) return openInv();
+    t.innerHTML = itemInfo(c, c.equipment[i], i);
+    t.hidden = !t.innerHTML.trim();
+    const q = $('#it-qty');
+    if (q) q.value = c.equipment[i].qty;
   }
 }
 function openInv() {
