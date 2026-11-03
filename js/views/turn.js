@@ -213,13 +213,18 @@ function viewTurn(c) {
         )
       );
     });
-  // Empujar: sustituye un ataque de la acción de Atacar
+  // Agarrar y Empujar: sustituyen un ataque de la acción de Atacar
   if (!fm)
-    cols.A.push(
-      row(
-        term('Empujar', 'a_shove'),
-        `sustituye un ataque · CD ${8 + M(c, 'str') + pb(c)}`,
-        `<button class="b sm" data-act="t-shove" ${dis(!atkOn)}>Usar</button>`
+    [
+      ['grapple', 'Agarrar', 'a_grapple'],
+      ['shove', 'Empujar', 'a_shove'],
+    ].forEach(([k, n, g]) =>
+      cols.A.push(
+        row(
+          term(n, g),
+          `sustituye un ataque · CD ${8 + M(c, 'str') + pb(c)}`,
+          `<button class="b sm" data-act="t-shove" data-k="${k}" ${dis(!atkOn)}>Usar</button>`
+        )
       )
     );
   // Conjuros por tiempo de lanzamiento (van en el desplegable «Magia»)

@@ -99,9 +99,10 @@ Object.assign(A, {
     TMAG[k] = !TMAG[k];
     el.parentElement.open = TMAG[k];
   },
-  't-shove': () => {
+  't-shove': el => {
     const c = C(),
-      T = c.turn;
+      T = c.turn,
+      grab = el.dataset.k === 'grapple';
     if (!T.a) {
       T.a = true;
       T.atk = attacksPerAction(c) - 1;
@@ -109,7 +110,7 @@ Object.assign(A, {
     save();
     render();
     toast(
-      `<div class="t-label">Empujar</div><div class="t-big">CD ${8 + M(c, 'str') + pb(c)}</div><div class="t-parts">Elige a una criatura a 5 pies que no sea más de un tamaño mayor que tú. Hace una salvación de FUE o DES (elige ella). Si falla, la empujas 5 pies o la derribas (eliges tú).${T.atk > 0 ? ` · te quedan ${T.atk} ataques` : ''}</div>`
+      `<div class="t-label">${grab ? 'Agarrar' : 'Empujar'}</div><div class="t-big">CD ${8 + M(c, 'str') + pb(c)}</div><div class="t-parts">Elige a una criatura a 5 pies que no sea más de un tamaño mayor que tú${grab ? ' (necesitas una mano libre)' : ''}. Hace una salvación de FUE o DES (elige ella). ${grab ? 'Si falla, queda agarrada: su velocidad es 0 y tiene desventaja al atacar a cualquiera que no seas tú. Para soltarse usa su acción en una prueba de FUE (Atletismo) o DES (Acrobacias) contra la misma CD.' : 'Si falla, la empujas 5 pies o la derribas (eliges tú).'}${T.atk > 0 ? ` · te quedan ${T.atk} ataques` : ''}</div>`
     );
   },
   't-light': el => {
