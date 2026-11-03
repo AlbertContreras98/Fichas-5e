@@ -213,20 +213,6 @@ function viewTurn(c) {
         )
       );
     });
-  // Agarrar y Empujar: sustituyen un ataque de la acción de Atacar
-  if (!fm)
-    [
-      ['grapple', 'Agarrar', 'a_grapple'],
-      ['shove', 'Empujar', 'a_shove'],
-    ].forEach(([k, n, g]) =>
-      cols.A.push(
-        row(
-          term(n, g),
-          `sustituye un ataque · CD ${8 + M(c, 'str') + pb(c)}`,
-          `<button class="b sm" data-act="t-shove" data-k="${k}" ${dis(!atkOn)}>Usar</button>`
-        )
-      )
-    );
   // Conjuros por tiempo de lanzamiento (van en el desplegable «Magia»)
   if (!noSpells)
     c.equipment.forEach((e, i) => {
@@ -340,7 +326,20 @@ function viewTurn(c) {
     );
   });
   // Acciones de cualquiera
-  const generic = `<div class="chips">${GENERIC.map(([k, n]) => `<button class="chip" data-act="t-gen" data-k="${k}" ${dis(!aFree)}>${n}</button>`).join('')}</div>`;
+  // Agarrar y Empujar sustituyen un ataque de la acción de Atacar (no gastan la acción entera)
+  const generic = `<div class="chips">${GENERIC.map(([k, n]) => `<button class="chip" data-act="t-gen" data-k="${k}" ${dis(!aFree)}>${n}</button>`).join('')}${
+    fm
+      ? ''
+      : [
+          ['grapple', 'Agarrar'],
+          ['shove', 'Empujar'],
+        ]
+          .map(
+            ([k, n]) =>
+              `<button class="chip" data-act="t-shove" data-k="${k}" ${dis(!atkOn)} title="Sustituye un ataque">${n}</button>`
+          )
+          .join('')
+  }</div>${fm ? '' : `<p class="hint">Agarrar y Empujar sustituyen uno de tus ataques (CD ${8 + M(c, 'str') + pb(c)}).</p>`}`;
   cols.R.push(
     row(
       term('Ataque de oportunidad', 'a_opp'),
