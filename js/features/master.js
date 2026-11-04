@@ -3,7 +3,7 @@
 
 const MKEY = 'fichas-master';
 /* Estado del modo máster (por dispositivo): on, pestaña, jugadores y combate */
-let MST = { on: false, tab: 'combat', players: [], fight: { round: 1, cur: '', list: [] } };
+let MST = { on: false, tab: 'combat', players: [], shops: [], fight: { round: 1, cur: '', list: [] } };
 let SCAN = null; // cámara abierta para leer un QR
 let MHASH = null; // ficha llegada por enlace, pendiente de confirmar
 
@@ -11,7 +11,10 @@ function masterLoad() {
   try {
     const x = JSON.parse(localStorage.getItem(MKEY) || 'null');
     if (x)
-      MST = Object.assign(MST, x, { fight: Object.assign({ round: 1, cur: '', list: [] }, x.fight || {}) });
+      MST = Object.assign(MST, x, {
+        fight: Object.assign({ round: 1, cur: '', list: [] }, x.fight || {}),
+        shops: Array.isArray(x.shops) ? x.shops : [],
+      });
   } catch (e) {}
 }
 function masterSave() {
@@ -120,7 +123,7 @@ function openShare() {
 
 /* ── Vista del modo máster ── */
 function renderMaster() {
-  const tabs = [['combat', 'Combate'], ...MST.players.map(p => [p.id, p.n])];
+  const tabs = [['combat', 'Combate'], ['shops', 'Tiendas'], ...MST.players.map(p => [p.id, p.n])];
   if (!tabs.some(t => t[0] === MST.tab)) MST.tab = 'combat';
   $('#top').innerHTML =
     `<div class="wrap"><div class="top-in mtop"><div><h1>Modo máster</h1><small>${MST.players.length ? `${MST.players.length} ${MST.players.length === 1 ? 'jugador' : 'jugadores'}` : 'Añade a tus jugadores con su QR'}</small></div><button class="b pri" data-act="m-add">+ Jugador</button></div>
@@ -136,7 +139,9 @@ function renderMaster() {
         p,
         `<p class="hint" style="margin-top:.6rem">Recibido el ${new Date(p.t).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}. Para actualizarlo, vuelve a escanear su QR.</p><div class="btns"><button class="b bad sm" data-act="m-del" data-id="${esc(p.id)}">Quitar jugador</button></div>`
       )}</div>`
-    : masterFight();
+    : MST.tab === 'shops'
+      ? masterShops()
+      : masterFight();
 }
 /* Lista de combate ordenada por iniciativa (las vacías al final) */
 const fightSorted = () =>
@@ -202,10 +207,52 @@ function loadJsQR() {
     document.head.appendChild(s);
   });
 }
+/* Qué es un QR o código leído: {k:'pj'|'tienda'|'recibo', code} o null */
+function qrKind(txt) {
+  const t = String(txt || '').trim(),
+    m = t.match(/#(pj|tienda|recibo)=([A-Za-z0-9_-]+)/);
+  if (m) return { k: m[1], code: m[2] };
+  if (!/^[A-Za-z0-9_-]+$/.test(t)) return null;
+  if (sheetParse(t)) return { k: 'pj', code: t };
+  if (shopParse(t)) return { k: 'tienda', code: t };
+  if (rcptParse(t)) return { k: 'recibo', code: t };
+  return null;
+}
+/* Hace lo que toca con lo leído, según el modo (máster o jugador) */
+function qrRun(h) {
+  if (!h) {
+    toast('<div class="t-parts">Ese código no es de Fichas 5e.</div>');
+    return;
+  }
+  if (MST.on) {
+    if (h.k === 'pj') {
+      const x = sheetParse(h.code);
+      if (!x) return qrRun(null);
+      const nw = masterAddPlayer(x);
+      MST.tab = x.id;
+      masterSave();
+      render();
+      toast(
+        `<div class="t-label">${nw ? 'Jugador añadido' : 'Jugador actualizado'}</div><div class="t-big">${esc(x.n)}</div>`
+      );
+    } else if (h.k === 'recibo') {
+      const rc = rcptParse(h.code);
+      if (!rc) return qrRun(null);
+      rcptApply(rc);
+    } else toast('<div class="t-parts">Ese QR es de una tienda: lo tiene que escanear un jugador.</div>');
+    return;
+  }
+  if (h.k === 'tienda') {
+    const x = shopParse(h.code);
+    if (!x) return qrRun(null);
+    shopEnter(x);
+  } else toast('<div class="t-parts">Ese QR es para el máster: escanéalo desde el modo máster.</div>');
+}
 async function openScan() {
   openModal(`<h2>Escanear QR</h2><div class="scanbox"><video id="scan-v" playsinline muted></video></div>
-    <p class="hint" id="scan-msg">Apunta la cámara al QR del jugador.</p>
-    <div class="btns"><button class="b" data-act="m-add">Volver</button></div>`);
+    <p class="hint" id="scan-msg">${MST.on ? 'Apunta la cámara al QR del jugador (sus características o su recibo).' : 'Apunta la cámara al QR del máster.'}</p>
+    <details><summary>¿No se lee? Pega el código</summary><textarea id="scan-code" class="code" style="min-height:4rem"></textarea><div class="btns"><button class="b" data-act="scan-paste">Usar el código</button></div></details>
+    <div class="btns"><button class="b" data-act="${MST.on ? 'm-add' : 'close-modal'}">${MST.on ? 'Volver' : 'Cerrar'}</button></div>`);
   const msg = t => $('#scan-msg') && ($('#scan-msg').textContent = t);
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
     msg('Este navegador no deja usar la cámara. Escanéalo con la cámara del móvil o pega el código.');
@@ -254,43 +301,28 @@ async function openScan() {
       txt = await detect();
     } catch (e) {}
     if (txt) {
-      const x = sheetParse(txt);
-      if (x) {
+      const h = qrKind(txt);
+      if (h) {
         scanStop();
         closeModal();
-        const nw = masterAddPlayer(x);
-        MST.tab = x.id;
-        masterSave();
-        render();
-        toast(
-          `<div class="t-label">${nw ? 'Jugador añadido' : 'Jugador actualizado'}</div><div class="t-big">${esc(x.n)}</div>`
-        );
+        qrRun(h);
         return;
       }
-      msg('Ese QR no es de Fichas 5e. Prueba con el de «Compartir con el máster».');
+      msg('Ese QR no es de Fichas 5e.');
     }
     setTimeout(tick, 250);
   };
   tick();
 }
 
-/* Al abrir la app con un enlace #pj=… (el QR escaneado con la cámara del móvil) */
+/* Al abrir la app con un enlace #pj=…, #tienda=… o #recibo=… (un QR escaneado con la cámara del móvil) */
 function masterHash() {
-  const m = location.hash.match(/^#pj=([A-Za-z0-9_-]+)/);
+  const m = location.hash.match(/^#(pj|tienda|recibo)=([A-Za-z0-9_-]+)/);
   if (!m) return;
   history.replaceState(null, '', location.pathname + location.search);
-  const x = sheetParse(m[1]);
+  if (m[1] !== 'pj' || MST.on) return qrRun({ k: m[1], code: m[2] });
+  const x = sheetParse(m[2]);
   if (!x) return;
-  if (MST.on) {
-    const nw = masterAddPlayer(x);
-    MST.tab = x.id;
-    masterSave();
-    render();
-    toast(
-      `<div class="t-label">${nw ? 'Jugador añadido' : 'Jugador actualizado'}</div><div class="t-big">${esc(x.n)}</div>`
-    );
-    return;
-  }
   MHASH = x;
   openModal(`<h2>Ha llegado una ficha</h2><p>Son las características de <b>${esc(x.n)}</b>${x.c ? ` (${esc(x.c)})` : ''}, compartidas para el máster.</p>
     <p class="hint">Si eres el máster, se añade a tu mesa y la app pasa al modo máster (puedes volver al modo jugador desde ⚙ Ajustes).</p>

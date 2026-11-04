@@ -97,6 +97,8 @@ function closeModal() {
   NI = null;
   IVS = null;
   FTS = null;
+  SHE = null;
+  SHX = null;
 }
 let pendingEco = null,
   restOpen = false;

@@ -24,6 +24,7 @@ Object.assign(A, {
     openModal(`<div class="wz-head"><h2>Ajustes</h2><button class="b sm" data-act="close-modal">Cerrar</button></div>
     <button class="b opt" data-act="levelup" ${C().level >= 20 ? 'disabled' : ''}><span><b>Subir de nivel</b><br><small>${C().level >= 20 ? 'Ya estás en el nivel máximo' : `Asistente para pasar a nivel ${C().level + 1}`}</small></span><span aria-hidden="true">›</span></button>
     <button class="b opt" data-act="open-edit"><span><b>Editar ficha</b><br><small>Características, habilidades, armas, conjuros, rasgos y objetos</small></span><span aria-hidden="true">›</span></button>
+    <button class="b opt" data-act="p-scan"><span><b>Escanear QR del máster</b><br><small>Para entrar en una tienda que te pase el máster</small></span><span aria-hidden="true">›</span></button>
     <button class="b opt" data-act="share-open"><span><b>Compartir con el máster</b><br><small>QR y código con tus características, CA y percepción pasiva</small></span><span aria-hidden="true">›</span></button>
     ${themeRow}
     <button class="b opt" data-act="open-data"><span><b>Copia de seguridad</b><br><small>Importar y exportar fichas</small></span><span aria-hidden="true">›</span></button>

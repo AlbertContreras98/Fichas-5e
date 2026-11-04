@@ -3178,3 +3178,38 @@ button.eff.cond-pill {
   height: 100%;
   object-fit: cover;
 }
+.shrow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px dashed var(--line);
+}
+.shname {
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.2rem 0.6rem;
+  overflow-wrap: anywhere;
+}
+.shname .mf {
+  flex-direction: row;
+  gap: 0.3rem;
+}
+@media (max-width: 480px) {
+  .shrow {
+    grid-template-columns: auto auto minmax(2.4rem, 1fr);
+  }
+  .shrow .shname {
+    grid-column: 1 / -1;
+  }
+  .shrow > .b {
+    justify-self: end;
+  }
+}
+.shrow .inline-num,
+.shop-q {
+  width: 4.6rem;
+}

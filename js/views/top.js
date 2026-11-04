@@ -125,6 +125,7 @@ function renderTop() {
       ['play', 'Partida'],
       ['combat', 'Combate'],
       ['crea', 'Criaturas'],
+      ...(c.shop ? [['shop', 'Tienda']] : []),
     ]
       .map(
         ([t, n]) =>

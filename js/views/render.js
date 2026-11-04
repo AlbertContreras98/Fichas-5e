@@ -14,7 +14,9 @@ function renderView() {
             ? viewCrea(c)
             : S.tab === 'combat'
               ? viewCombat(c)
-              : viewPlay(c);
+              : S.tab === 'shop' && c.shop
+                ? viewShop(c)
+                : viewPlay(c);
 }
 function applyTheme() {
   const k = MST.on ? '' : (C() || {}).classKey || '',

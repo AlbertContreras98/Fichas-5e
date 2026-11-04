@@ -276,6 +276,20 @@ document.addEventListener('change', e => {
     render();
     return;
   }
+  if (el.id === 'she-k' && SHE) {
+    $('#she-sp-w').hidden = el.value !== 's:';
+    $('#she-x').hidden = el.value !== 'x';
+    return;
+  }
+  if (el.dataset && el.dataset.she && SHE) {
+    const it = SHE.items[+el.dataset.i],
+      v = el.value.trim();
+    if (!it) return;
+    if (el.dataset.she === 'p') it.p = Math.max(0, Math.round((parseFloat(v.replace(',', '.')) || 0) * 100));
+    if (el.dataset.she === 'q') it.q = v === '' ? -1 : Math.max(0, parseInt(v) || 0);
+    if (el.dataset.she === 'u') it.u = Math.max(1, parseInt(v) || 1);
+    return;
+  }
   if (el.dataset && el.dataset.mf && MST.on) {
     const f = MST.fight.list.find(x => x.id === el.dataset.id);
     if (f) {
@@ -432,6 +446,14 @@ masterLoad();
 tipsInit();
 render();
 masterHash();
+addEventListener('hashchange', masterHash);
+/* Si la app está abierta en otra pestaña o ventana (por ejemplo, al abrir un QR con la cámara), se recargan los datos */
+addEventListener('storage', e => {
+  if (e.key !== KEY && e.key !== MKEY) return;
+  load();
+  masterLoad();
+  if ($('#modal').hidden) render();
+});
 addEventListener('resize', tourPlace);
 addEventListener('scroll', tourPlace, true);
 document.addEventListener(
