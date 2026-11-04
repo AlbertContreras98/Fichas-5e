@@ -4,10 +4,7 @@
 Object.assign(A, {
   settings: () => {
     const t = getTheme();
-    openModal(`<div class="wz-head"><h2>Ajustes</h2><button class="b sm" data-act="close-modal">Cerrar</button></div>
-    <button class="b opt" data-act="levelup" ${C().level >= 20 ? 'disabled' : ''}><span><b>Subir de nivel</b><br><small>${C().level >= 20 ? 'Ya estás en el nivel máximo' : `Asistente para pasar a nivel ${C().level + 1}`}</small></span><span aria-hidden="true">›</span></button>
-    <button class="b opt" data-act="open-edit"><span><b>Editar ficha</b><br><small>Características, habilidades, armas, conjuros, rasgos y objetos</small></span><span aria-hidden="true">›</span></button>
-    <div class="setting"><b>Tema</b><div class="seg" role="group" aria-label="Tema">${[
+    const themeRow = `<div class="setting"><b>Tema</b><div class="seg" role="group" aria-label="Tema">${[
       ['', 'Sistema'],
       ['light', 'Claro'],
       ['dark', 'Oscuro'],
@@ -16,10 +13,23 @@ Object.assign(A, {
         ([k, n]) =>
           `<button class="${t === k ? 'on' : ''}" data-act="theme" data-v="${k}" aria-pressed="${t === k}">${n}</button>`
       )
-      .join('')}</div></div>
+      .join('')}</div></div>`;
+    if (MST.on || !C()) {
+      openModal(`<div class="wz-head"><h2>Ajustes</h2><button class="b sm" data-act="close-modal">Cerrar</button></div>
+      ${MST.on ? '<button class="b opt" data-act="master-off"><span><b>Modo jugador</b><br><small>Vuelve a tus fichas de personaje</small></span><span aria-hidden="true">›</span></button>' : '<button class="b opt" data-act="master-on"><span><b>Modo máster</b><br><small>Seguimiento de turnos y características de tus jugadores</small></span><span aria-hidden="true">›</span></button>'}
+      ${themeRow}
+      <button class="b opt" data-act="open-credits"><span><b>Créditos y aviso legal</b><br><small>Aviso de contenido de fans y licencias</small></span><span aria-hidden="true">›</span></button>`);
+      return;
+    }
+    openModal(`<div class="wz-head"><h2>Ajustes</h2><button class="b sm" data-act="close-modal">Cerrar</button></div>
+    <button class="b opt" data-act="levelup" ${C().level >= 20 ? 'disabled' : ''}><span><b>Subir de nivel</b><br><small>${C().level >= 20 ? 'Ya estás en el nivel máximo' : `Asistente para pasar a nivel ${C().level + 1}`}</small></span><span aria-hidden="true">›</span></button>
+    <button class="b opt" data-act="open-edit"><span><b>Editar ficha</b><br><small>Características, habilidades, armas, conjuros, rasgos y objetos</small></span><span aria-hidden="true">›</span></button>
+    <button class="b opt" data-act="share-open"><span><b>Compartir con el máster</b><br><small>QR y código con tus características, CA y percepción pasiva</small></span><span aria-hidden="true">›</span></button>
+    ${themeRow}
     <button class="b opt" data-act="open-data"><span><b>Copia de seguridad</b><br><small>Importar y exportar fichas</small></span><span aria-hidden="true">›</span></button>
     <button class="b opt" data-act="tour-replay"><span><b>Ver tutorial</b><br><small>Repite la visita guiada y vuelve a activar las pistas</small></span><span aria-hidden="true">›</span></button>
-    <button class="b opt" data-act="open-credits"><span><b>Créditos y aviso legal</b><br><small>Aviso de contenido de fans y licencia del SRD</small></span><span aria-hidden="true">›</span></button>`);
+    <button class="b opt" data-act="master-on"><span><b>Modo máster</b><br><small>Seguimiento de turnos y características de tus jugadores</small></span><span aria-hidden="true">›</span></button>
+    <button class="b opt" data-act="open-credits"><span><b>Créditos y aviso legal</b><br><small>Aviso de contenido de fans y licencias</small></span><span aria-hidden="true">›</span></button>`);
   },
   theme: el => {
     setTheme(el.dataset.v);

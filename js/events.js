@@ -276,6 +276,16 @@ document.addEventListener('change', e => {
     render();
     return;
   }
+  if (el.dataset && el.dataset.mf && MST.on) {
+    const f = MST.fight.list.find(x => x.id === el.dataset.id);
+    if (f) {
+      const v = el.value.trim();
+      f[el.dataset.mf] = v === '' ? '' : +v;
+      masterSave();
+      render();
+    }
+    return;
+  }
   if (el.dataset && el.dataset.fs && ftState()) {
     ftSet(el);
     return;
@@ -418,8 +428,10 @@ document.addEventListener('keydown', e => {
 });
 
 load();
+masterLoad();
 tipsInit();
 render();
+masterHash();
 addEventListener('resize', tourPlace);
 addEventListener('scroll', tourPlace, true);
 document.addEventListener(

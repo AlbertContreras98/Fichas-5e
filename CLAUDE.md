@@ -37,6 +37,7 @@ Piezas clave:
 - **Modales:** `openModal(html, big)` / `closeModal()`. Al cerrar se reinician los estados temporales `W` (asistente), `P` (buscador de conjuros), `CX` (criatura en edición), `NI` (objeto nuevo) y `pendingEco`. Capas (z-index): modal 20, toasts 25, tutorial 40.
 - **Efectos:** duración `{r}` en rondas, `{m}` en minutos o `{inf}`. `endEffects(c, pred)` también quita la concentración y la forma. `syncEffects` elimina las invocaciones ligadas a una concentración perdida.
 - **Combate:** `c.combat = {round}` o `null`. `t-end` avanza la ronda.
+- **Modo máster:** estado aparte `MST`, guardado en `localStorage['fichas-master']` (por dispositivo): `{on, tab, players, fight}`. Si `MST.on`, `render()` pinta `renderMaster()` en vez de la ficha. Los jugadores comparten sus características con `#pj=<código>` (QR o código), que lee `sheetParse()`. Las librerías del QR están en `vendor/` (crear: qrcode.js, se carga siempre; leer: jsQR.js, se carga solo al escanear si no hay `BarcodeDetector`).
 - **Tutorial:** clave aparte, `localStorage['fichas-tips']`, por dispositivo y no por ficha: `{tour, seen:{...}, off}`.
 - **Ojo con los nombres globales cortos:** `W`, `P`, `D`, `A`, `G`, `S`, `C`, `M`... Al añadir funciones, no los reutilices como globales. Dentro de funciones, usa nombres que no tapen otros que necesites (por eso `tourPlace` usa `VW`/`VH`).
 

@@ -86,6 +86,7 @@ function enhanceSelects(root) {
   });
 }
 function closeModal() {
+  scanStop();
   const m = $('#modal');
   m.hidden = true;
   m.innerHTML = '';

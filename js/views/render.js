@@ -17,7 +17,7 @@ function renderView() {
               : viewPlay(c);
 }
 function applyTheme() {
-  const k = (C() || {}).classKey || '',
+  const k = MST.on ? '' : (C() || {}).classKey || '',
     r = document.documentElement;
   if (k) r.dataset.class = k;
   else delete r.dataset.class;
@@ -28,6 +28,10 @@ function applyTheme() {
 }
 function render() {
   applyTheme();
+  if (MST.on) {
+    renderMaster();
+    return;
+  }
   if (!C()) {
     renderWelcome();
     return;
@@ -47,5 +51,6 @@ function renderWelcome() {
     <p>Tu ficha de personaje interactiva para partidas de 5.ª edición (reglas de 2024). Lleva la cuenta de vida, conjuros, recursos, dinero y objetos mientras juegas con tus dados de siempre.</p>
     <p class="hint">Las fichas se guardan solo en este dispositivo.</p>
     <div class="btns"><button class="b pri" data-act="create">Crear personaje</button><button class="b" data-act="tab" data-t="data">Importar ficha</button></div>
-    <p class="hint">¿Tienes una copia de seguridad o una ficha exportada desde otro dispositivo? Usa «Importar ficha».</p></section>`;
+    <p class="hint">¿Tienes una copia de seguridad o una ficha exportada desde otro dispositivo? Usa «Importar ficha».</p>
+    <p class="hint">¿Eres el máster? <button class="term" data-act="master-on">Pasar al modo máster</button></p></section>`;
 }
