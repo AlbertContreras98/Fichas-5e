@@ -19,6 +19,63 @@ Object.assign(A, {
     render();
     scrollTo(0, 0);
   },
+  'camp-open': openCamps,
+  'camp-use': el => {
+    campSync();
+    campUse(el.dataset.id);
+    masterSave();
+    closeModal();
+    render();
+    scrollTo(0, 0);
+    toast(`<div class="t-label">Campaña</div><div class="t-big">${esc(campOf(MST.cur).n)}</div>`);
+  },
+  'camp-add': () => {
+    const n = $('#camp-n').value.trim();
+    if (!n) return $('#camp-n').focus();
+    campSync();
+    const k = campNew(n);
+    MST.camps.push(k);
+    campUse(k.id);
+    masterSave();
+    closeModal();
+    render();
+    scrollTo(0, 0);
+    toast(
+      `<div class="t-label">Campaña creada</div><div class="t-big">${esc(n)}</div><div class="t-parts">Añade a sus jugadores con «+ Jugador».</div>`
+    );
+  },
+  'camp-ren': el => {
+    const k = campOf(el.dataset.id);
+    if (!k) return;
+    openModal(`<h2>Renombrar campaña</h2><label class="f"><span>Nombre</span><input id="camp-rn" value="${esc(k.n)}" autocomplete="off"></label>
+      <div class="btns"><button class="b pri" data-act="camp-ren-ok" data-id="${k.id}">Guardar</button><button class="b" data-act="camp-open">Volver</button></div>`);
+    setTimeout(() => $('#camp-rn') && $('#camp-rn').select(), 0);
+  },
+  'camp-ren-ok': el => {
+    const k = campOf(el.dataset.id),
+      n = $('#camp-rn').value.trim();
+    if (!k || !n) return $('#camp-rn').focus();
+    k.n = n;
+    masterSave();
+    render();
+    openCamps();
+  },
+  'camp-del': el => {
+    const k = campOf(el.dataset.id);
+    if (!k) return;
+    openModal(`<h2>¿Borrar «${esc(k.n)}»?</h2><p class="hint">Se borran de este dispositivo sus jugadores, sus tiendas y su combate. No se puede deshacer.</p>
+      <div class="btns"><button class="b bad" data-act="camp-del-ok" data-id="${k.id}">Borrar</button><button class="b" data-act="camp-open">Cancelar</button></div>`);
+  },
+  'camp-del-ok': el => {
+    const id = el.dataset.id;
+    if (MST.camps.length < 2) return;
+    campSync();
+    MST.camps = MST.camps.filter(x => x.id !== id);
+    if (MST.cur === id) campUse(MST.camps[0].id);
+    masterSave();
+    render();
+    openCamps();
+  },
   'm-tab': el => {
     MST.tab = el.dataset.t;
     masterSave();

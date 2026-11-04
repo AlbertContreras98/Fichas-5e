@@ -3213,3 +3213,37 @@ button.eff.cond-pill {
 .shop-q {
   width: 4.6rem;
 }
+.setgrp > summary {
+  list-style: none;
+  cursor: pointer;
+  color: inherit;
+  font-size: inherit;
+  margin: 0;
+}
+.setgrp > summary::-webkit-details-marker {
+  display: none;
+}
+.setgrp > summary .chev {
+  transition: transform 0.15s;
+}
+.setgrp[open] > summary .chev {
+  transform: rotate(90deg);
+}
+.setgrp-in {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0.4rem 0 0 0.9rem;
+  padding-left: 0.6rem;
+  border-left: 2px solid var(--line);
+}
+@media (prefers-reduced-motion: reduce) {
+  .setgrp > summary .chev {
+    transition: none;
+  }
+}
+.it.camp-on {
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
+  border-radius: 8px;
+  padding-inline: 0.6rem;
+}

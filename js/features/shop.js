@@ -476,7 +476,13 @@ function shEditRefresh() {
 function rcptApply(rc) {
   const sh = MST.shops.find(x => x.id === rc.sh);
   if (!sh) {
-    toast('<div class="t-parts">Ese recibo es de una tienda que no está en este dispositivo.</div>');
+    const k = MST.camps.find(x => x.id !== MST.cur && (x.shops || []).some(s => s.id === rc.sh)),
+      other = k && k.shops.find(s => s.id === rc.sh);
+    toast(
+      k
+        ? `<div class="t-parts">Ese recibo es de ${esc(other.n)}, de la campaña «${esc(k.n)}». Cámbiate a esa campaña en «Campañas» y vuelve a escanearlo.</div>`
+        : '<div class="t-parts">Ese recibo es de una tienda que no está en este dispositivo.</div>'
+    );
     return;
   }
   sh.applied = sh.applied || {};

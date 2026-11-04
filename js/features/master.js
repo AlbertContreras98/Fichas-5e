@@ -2,24 +2,65 @@
 'use strict';
 
 const MKEY = 'fichas-master';
-/* Estado del modo máster (por dispositivo): on, pestaña, jugadores y combate */
-let MST = { on: false, tab: 'combat', players: [], shops: [], fight: { round: 1, cur: '', list: [] } };
+/* Estado del modo máster (por dispositivo). players, shops, fight y tab son los de la campaña activa (MST.cur);
+   cada campaña de MST.camps guarda los suyos, y masterSave() los vuelca en ella */
+let MST = {
+  on: false,
+  tab: 'combat',
+  players: [],
+  shops: [],
+  fight: { round: 1, cur: '', list: [] },
+  cur: '',
+  camps: [],
+};
+const CAMP_KEYS = ['players', 'shops', 'fight', 'tab'];
+const campNew = n => ({
+  id: uid(),
+  n,
+  players: [],
+  shops: [],
+  fight: { round: 1, cur: '', list: [] },
+  tab: 'combat',
+});
+const campOf = id => MST.camps.find(x => x.id === id) || null;
+/* Copia los datos de la campaña activa en su sitio de MST.camps */
+function campSync() {
+  const k = campOf(MST.cur);
+  if (k) CAMP_KEYS.forEach(f => (k[f] = MST[f]));
+}
+/* Pone como activa otra campaña */
+function campUse(id) {
+  const k = campOf(id) || MST.camps[0];
+  MST.cur = k.id;
+  MST.players = Array.isArray(k.players) ? k.players : (k.players = []);
+  MST.shops = Array.isArray(k.shops) ? k.shops : (k.shops = []);
+  MST.fight = k.fight = Object.assign({ round: 1, cur: '', list: [] }, k.fight || {});
+  MST.tab = k.tab || 'combat';
+}
 let SCAN = null; // cámara abierta para leer un QR
 let MHASH = null; // ficha llegada por enlace, pendiente de confirmar
 
 function masterLoad() {
   try {
-    const x = JSON.parse(localStorage.getItem(MKEY) || 'null');
-    if (x)
-      MST = Object.assign(MST, x, {
-        fight: Object.assign({ round: 1, cur: '', list: [] }, x.fight || {}),
-        shops: Array.isArray(x.shops) ? x.shops : [],
-      });
+    const x = JSON.parse(localStorage.getItem(MKEY) || 'null') || {};
+    MST.on = !!x.on;
+    MST.camps = Array.isArray(x.camps) ? x.camps.filter(k => k && k.id) : [];
+    if (!MST.camps.length) {
+      /* Datos de antes de las campañas: pasan a «Campaña 1» */
+      const k = campNew('Campaña 1');
+      if (Array.isArray(x.players)) k.players = x.players;
+      if (Array.isArray(x.shops)) k.shops = x.shops;
+      if (x.fight) k.fight = x.fight;
+      if (x.tab) k.tab = x.tab;
+      MST.camps.push(k);
+    }
+    campUse(x.cur);
   } catch (e) {}
 }
 function masterSave() {
+  campSync();
   try {
-    localStorage.setItem(MKEY, JSON.stringify(MST));
+    localStorage.setItem(MKEY, JSON.stringify({ on: MST.on, cur: MST.cur, camps: MST.camps }));
   } catch (e) {}
 }
 
@@ -126,7 +167,7 @@ function renderMaster() {
   const tabs = [['combat', 'Combate'], ['shops', 'Tiendas'], ...MST.players.map(p => [p.id, p.n])];
   if (!tabs.some(t => t[0] === MST.tab)) MST.tab = 'combat';
   $('#top').innerHTML =
-    `<div class="wrap"><div class="top-in mtop"><div><h1>Modo máster</h1><small>${MST.players.length ? `${MST.players.length} ${MST.players.length === 1 ? 'jugador' : 'jugadores'}` : 'Añade a tus jugadores con su QR'}</small></div><button class="b pri" data-act="m-add">+ Jugador</button></div>
+    `<div class="wrap"><div class="top-in mtop"><div><h1>Modo máster</h1><small>${esc((campOf(MST.cur) || {}).n || '')} · ${MST.players.length ? `${MST.players.length} ${MST.players.length === 1 ? 'jugador' : 'jugadores'}` : 'añade a tus jugadores con su QR'}</small></div><div class="btns"><button class="b" data-act="camp-open">Campañas</button><button class="b pri" data-act="m-add">+ Jugador</button></div></div>
     <div class="tabrow"><nav class="tabs">${tabs
       .map(
         ([t, n]) =>
@@ -191,6 +232,21 @@ function openAddFoe() {
   setTimeout(() => $('#mf-name') && $('#mf-name').focus(), 0);
 }
 
+/* ── Campañas: cada una con sus jugadores, tiendas y combate ── */
+function openCamps() {
+  campSync();
+  const cnt = (n, a, b) => `${n} ${n === 1 ? a : b}`;
+  openModal(`<div class="wz-head"><h2>Campañas</h2><button class="b sm" data-act="close-modal">Cerrar</button></div>
+    <p class="hint">Cada campaña tiene sus propios jugadores, tiendas y combate. Elige con cuál quieres jugar.</p>
+    <div class="list">${MST.camps
+      .map(
+        k => `<div class="it ${k.id === MST.cur ? 'camp-on' : ''}"><div class="it-head"><span class="it-name">${esc(k.n)}${k.id === MST.cur ? ' <span class="tag">activa</span>' : ''}</span>${k.id === MST.cur ? '' : `<button class="b sm pri" data-act="camp-use" data-id="${k.id}">Jugar esta</button>`}</div>
+        <div class="meta">${cnt(k.players.length, 'jugador', 'jugadores')} · ${cnt(k.shops.length, 'tienda', 'tiendas')}${k.fight && k.fight.list && k.fight.list.length ? ' · combate en curso' : ''}</div>
+        <div class="btns"><button class="b sm" data-act="camp-ren" data-id="${k.id}">Renombrar</button>${MST.camps.length > 1 ? `<button class="b sm bad" data-act="camp-del" data-id="${k.id}">Borrar</button>` : ''}</div></div>`
+      )
+      .join('')}</div>
+    <h3>Nueva campaña</h3><div class="pay"><input id="camp-n" style="flex:1;min-width:0" placeholder="Nombre de la campaña" autocomplete="off" aria-label="Nombre de la nueva campaña"><button class="b pri" data-act="camp-add">Crear</button></div>`);
+}
 /* ── Leer un QR con la cámara (BarcodeDetector si existe; si no, jsQR) ── */
 function scanStop() {
   if (!SCAN) return;
