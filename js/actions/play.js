@@ -38,6 +38,14 @@ Object.assign(A, {
       sp = c.spells[+el.dataset.i],
       L = +sp.level || 0;
     castFree = false;
+    const hdNeed = csHdCost(sp, L),
+      hdLeft = c.hitDice.total - c.hitDice.spent;
+    if (hdNeed > hdLeft) {
+      openModal(
+        `<h2>No te quedan dados de golpe</h2><p>${esc(sp.name)} gasta ${hdNeed} ${hdNeed === 1 ? 'dado' : 'dados'} de golpe al lanzarlo y te ${hdLeft === 1 ? 'queda' : 'quedan'} ${hdLeft}. Sin ellos, el conjuro falla.</p><p class="hint">Los recuperas con un descanso largo.</p><div class="btns"><button class="b" data-act="close-modal">Vale</button></div>`
+      );
+      return;
+    }
     const need = !el.dataset.force && spConsume(c, sp);
     spPendingUse = need && need.has ? Object.assign({ sp }, need) : null;
     if (need && !need.has) {

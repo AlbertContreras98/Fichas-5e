@@ -69,6 +69,8 @@ const NEW = {
     src: '',
     free: '',
     atwill: false,
+    hd: '',
+    wpn: null,
   }),
   features: () => ({ name: '', source: '', text: '', when: '', uses: { max: 0, used: 0, recover: '' } }),
   equipment: () => ({ id: uid(), name: '', qty: 1, cat: 'otro', notes: '' }),
@@ -247,6 +249,8 @@ function syncEffects(c) {
   if (!Array.isArray(c.effects)) c.effects = [];
   if (!Array.isArray(c.companions)) c.companions = [];
   c.effects = c.effects.filter(e => !e.conc || e.name === c.concentration);
+  if (Array.isArray(c.attacks))
+    c.attacks = c.attacks.filter(a => !a.fxSpell || c.effects.some(e => e.name === a.fxSpell));
   if (c.form && !c.effects.some(e => e.form)) c.form = null;
   c.companions = c.companions.filter(x => !x.conc || x.spell === c.concentration);
 }

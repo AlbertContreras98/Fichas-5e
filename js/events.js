@@ -181,6 +181,14 @@ document.addEventListener('input', e => {
 });
 document.addEventListener('change', e => {
   const el = e.target;
+  if (el.id === 'cs-wpn') {
+    $('#cs-wpn-f').hidden = !el.checked;
+    return;
+  }
+  if (el.id === 'cs-wdie') {
+    $('#cs-wdx-w').hidden = el.value === 'hd';
+    return;
+  }
   if (el.id === 'cs-file' && el.files && el.files[0]) {
     const r = new FileReader();
     r.onload = () => csImport(r.result);

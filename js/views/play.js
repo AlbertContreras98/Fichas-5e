@@ -181,7 +181,7 @@ function viewPlay(c) {
               const desc = sp.desc || (d ? d.de + (d.hl ? '\n\nA niveles superiores: ' + d.hl : '') : '');
               return `<div class="it"><div class="it-head"><span class="it-name">${esc(sp.name)}${tags}</span>
           <button class="b sm ${ok ? 'pri' : ''}" data-act="cast" data-i="${i}" ${ok ? '' : 'disabled'}>${+sp.level === 0 ? 'Usar' : ok ? 'Lanzar' : 'Sin espacios'}</button></div>
-          <div class="meta">${esc([TIME[sp.time] || sp.time, sp.range, sp.dur, sp.material && `M: ${sp.material}`].filter(Boolean).join(' · '))}</div>
+          <div class="meta">${esc([TIME[sp.time] || sp.time, sp.range, sp.dur, sp.material && `M: ${sp.material}`, sp.hd && (sp.hd === 'lvl' ? 'gasta dados de golpe según el nivel' : `gasta ${sp.hd} ${+sp.hd === 1 ? 'dado' : 'dados'} de golpe`), sp.wpn && `crea: ${sp.wpn.n}`].filter(Boolean).join(' · '))}</div>
           ${desc || csOwn(sp) ? `<details><summary>Qué hace</summary>${desc ? `<p>${esc(desc)}</p>` : ''}${csOwn(sp) ? `<div class="btns"><button class="b sm" data-act="cs-edit" data-i="${i}">Editar conjuro</button></div>` : ''}</details>` : ''}</div>`;
             }).join('')}</div>`
         )
@@ -266,6 +266,40 @@ function consume(c, kind, level) {
     s.used = Math.min(s.total, s.used + 1);
   }
 }
+/* Lo que hace un conjuro propio al lanzarlo: gastar dados de golpe y crear su arma. Devuelve el aviso para el mensaje */
+function csOnCast(c, sp) {
+  const out = [];
+  if (sp.hd) {
+    const n = Math.min(csHdCost(sp, lastCastL || +sp.level), c.hitDice.total - c.hitDice.spent);
+    c.hitDice.spent += n;
+    if (n)
+      out.push(
+        `Gastas ${n} ${n === 1 ? 'dado' : 'dados'} de golpe (${esc(c.hitDice.die)}) · te quedan ${c.hitDice.total - c.hitDice.spent}.`
+      );
+  }
+  if (sp.wpn) {
+    const w = sp.wpn,
+      r = csWeaponAtk(c, w),
+      timed = c.effects.some(e => e.name === sp.name);
+    c.attacks = c.attacks.filter(a => a.fxSpell !== sp.name);
+    c.attacks.push(
+      Object.assign(NEW.attacks(), {
+        name: w.n,
+        atk: r.atk,
+        dmg: r.dmg,
+        type: w.t,
+        notes: [w.p.join(', ').replace(/^./, m => m.toUpperCase()), w.fx, `Conjuro: ${sp.name}`]
+          .filter(Boolean)
+          .join(' · '),
+        fxSpell: timed ? sp.name : '',
+      })
+    );
+    out.push(
+      `${esc(w.n)} aparece en tus ataques: ${sgn(r.atk)} al ataque, ${esc(r.dmg)} ${esc(w.t)}.${timed ? ' Desaparece al acabar el conjuro.' : ''}`
+    );
+  }
+  return out.map(t => `<div class="t-parts">${t}</div>`).join('');
+}
 /* PG temporales de un conjuro: no se suman, te quedas con el valor más alto */
 function giveTemp(c, n, from) {
   const had = c.hp.temp;
@@ -305,7 +339,7 @@ function afterCast(sp, how) {
     c.concentration = sp.name;
   }
   addEffect(c, sp.name, parseDur(sp.dur), sp.conc);
-  const used = spUseItem(c, sp);
+  const used = spUseItem(c, sp) + csOnCast(c, sp);
   save();
   render();
   const extra =
