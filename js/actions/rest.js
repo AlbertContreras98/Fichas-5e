@@ -11,6 +11,51 @@ Object.assign(A, {
     renderTop();
     shortRestModal();
   },
+  'hd-pip': el => {
+    const c = C(),
+      left = c.hitDice.total - c.hitDice.spent;
+    if (+el.dataset.i >= left) {
+      c.hitDice.spent = Math.max(0, c.hitDice.spent - 1);
+      save();
+      render();
+      refreshVida();
+      return;
+    }
+    openModal(`<h2>Gastar un dado de golpe</h2><p>Tira un ${esc(c.hitDice.die)} físico y escribe el resultado: se suma tu CON (${sgn(M(c, 'con'))}).</p>
+      <div class="hpctl"><input id="hd-r" type="number" inputmode="numeric" min="1" placeholder="Dado" aria-label="Resultado del dado de golpe"><button class="b good" data-act="hd-heal">Curarme</button></div>
+      <p class="hint">Si el dado no es para curarte ahora (por ejemplo, ya lo has apuntado de otra forma), márcalo solo como gastado.</p>
+      <div class="btns"><button class="b" data-act="hd-mark">Solo marcarlo como gastado</button><button class="b" data-act="vida">Cancelar</button></div>`);
+    setTimeout(() => $('#hd-r') && $('#hd-r').focus(), 0);
+  },
+  'hd-heal': () => {
+    const c = C(),
+      r = parseInt($('#hd-r').value),
+      f = +String(c.hitDice.die).replace(/\D/g, '') || 8;
+    if (!(r >= 1 && r <= f)) {
+      $('#hd-r').focus();
+      toast(
+        `<div class="t-parts">Escribe lo que has sacado en el ${esc(c.hitDice.die)} (de 1 a ${f}).</div>`
+      );
+      return;
+    }
+    const cm = M(c, 'con'),
+      was = c.hp.current;
+    c.hitDice.spent = Math.min(c.hitDice.total, c.hitDice.spent + 1);
+    c.hp.current = Math.min(c.hp.max, c.hp.current + Math.max(0, r + cm));
+    save();
+    render();
+    openVida();
+    toast(
+      `<div class="t-label">Dado de golpe</div><div class="t-big good">+${c.hp.current - was}</div><div class="t-parts">${r} ${sgn(cm)} CON · te quedan ${c.hitDice.total - c.hitDice.spent} dados</div>`
+    );
+  },
+  'hd-mark': () => {
+    const c = C();
+    c.hitDice.spent = Math.min(c.hitDice.total, c.hitDice.spent + 1);
+    save();
+    render();
+    openVida();
+  },
   hd: () => {
     const c = C(),
       r = parseInt($('#hd-roll').value),

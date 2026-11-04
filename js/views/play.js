@@ -27,9 +27,21 @@ function deathHTML(c) {
     ${c.deathSaves.fail >= 3 ? '<p class="hint warn">Tres fallos: tu personaje muere.</p>' : c.deathSaves.success >= 3 ? '<p class="hint">Tres éxitos: estás estable, inconsciente pero sin tirar más.</p>' : ''}</div>`
     : '';
 }
+/* Dados de golpe como rombos: lleno = disponible (tócalo para gastarlo), vacío = gastado (tócalo para recuperarlo) */
+function hdHTML(c) {
+  const T = +c.hitDice.total || 0,
+    left = Math.max(0, T - (+c.hitDice.spent || 0));
+  let p = '';
+  for (let k = 0; k < T; k++)
+    p += `<button class="pip${k < left ? ' full' : ''}" data-act="hd-pip" data-i="${k}" aria-label="${k < left ? `Gastar un dado de golpe (quedan ${left})` : 'Recuperar un dado de golpe'}"></button>`;
+  return `<div class="vida-hd"><div class="hd-head"><span>Dados de golpe <small>(${esc(c.hitDice.die)})</small></span><b>${left} / ${T}</b></div>
+    ${T ? `<span class="pips">${p}</span>` : ''}
+    <details><summary>¿Para qué sirven?</summary><p class="hint">Sirven para curarte: tiras el dado y sumas tu CON (${sgn(M(c, 'con'))}). Se gastan sobre todo en el descanso corto, pero algunas dotes y rasgos también los usan. Toca un rombo lleno para gastar uno y uno vacío para recuperarlo. Tienes tantos como tu nivel y los recuperas en el descanso largo.</p></details></div>`;
+}
 function vidaHTML(c) {
   const active = CONDS.filter(x => c.conditions.includes(x[0]));
-  return `<div class="vida-top"><p class="vida-hp">PG <b>${c.hp.current}</b> / ${c.hp.max}${c.hp.temp ? ` · <span class="tmp">+${c.hp.temp} temporales</span>` : ''}</p><details class="vida-hd"><summary>Dados de golpe <b>${c.hitDice.total - c.hitDice.spent} / ${c.hitDice.total} ${esc(c.hitDice.die)}</b></summary><p class="hint">En un descanso corto gastas dados para curarte: tiras el dado y sumas tu CON (${sgn(M(c, 'con'))}). Tienes tantos como tu nivel y se recuperan en el descanso largo.</p></details></div>
+  return `<div class="vida-top"><p class="vida-hp">PG <b>${c.hp.current}</b> / ${c.hp.max}${c.hp.temp ? ` · <span class="tmp">+${c.hp.temp} temporales</span>` : ''}</p></div>
+    ${hdHTML(c)}
     <div class="hpctl"><input id="hpAmt" type="number" inputmode="numeric" min="0" placeholder="0" aria-label="Cantidad de PG">
       <button class="b bad" data-act="hp" data-m="dmg">Daño</button><button class="b good" data-act="hp" data-m="heal">Curar</button><button class="b" data-act="hp" data-m="temp">PG temporales</button><button class="b sm help" data-act="gloss" data-k="temp" aria-label="Qué son los PG temporales">?</button></div>
     <div class="hpctl2"><small>Daño con</small><button class="b sm bad" data-act="hp" data-m="half">Resistencia (½)</button><button class="b sm bad" data-act="hp" data-m="double">Vulnerabilidad (×2)</button></div>
