@@ -4,6 +4,7 @@
 Object.assign(A, {
   /* ── Jugador ── */
   'p-scan': openScan,
+  'qr-dl': qrFileSave,
   'scan-paste': () => {
     const h = qrKind($('#scan-code').value);
     if (!h) {

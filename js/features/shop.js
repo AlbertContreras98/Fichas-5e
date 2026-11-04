@@ -369,9 +369,9 @@ function shRcptOpen(c) {
   SHX = { link };
   openModal(
     `<div class="wz-head"><h2>Recibo</h2><button class="b sm" data-act="close-modal">Cerrar</button></div>
-    <p class="hint">Enséñale este QR al máster para que su tienda se actualice. Después te pasará el QR nuevo de la tienda para el siguiente.</p>
+    <p class="hint">Enséñale este QR al máster para que su tienda se actualice (o exporta el archivo .json y pásaselo). Después te pasará la tienda actualizada para el siguiente.</p>
     ${svg ? `<div class="qrbox">${svg}</div>` : ''}${link.length > QR_BIG ? '<p class="hint warn">El recibo es largo y el QR es muy denso: si no se lee, copia el código.</p>' : ''}
-    <div class="btns" style="justify-content:center"><button class="b" data-act="sh-copy">Copiar código</button></div>
+    <div class="btns" style="justify-content:center"><button class="b" data-act="sh-copy">Copiar código</button>${qrFileBtn('recibo', link.split('#recibo=')[1], `${sh.n} ${c.name || ''}`)}</div>
     <div class="diff">${sh.log.map(l => `<span>${l.t === 'b' ? 'Compras' : 'Vendes'} ${esc(l.name)}${l.q > 1 ? ` ×${l.q}` : ''}</span><b>${fmtCp(l.cp)}</b>`).join('')}</div>`,
     true
   );
@@ -387,19 +387,19 @@ function masterShops() {
     )
     .join('');
   return `<section class="card"><div class="card-head"><h2>Tiendas</h2><div class="btns"><button class="b pri" data-act="msh-new">Nueva tienda</button></div></div>
-    <p class="hint">Enseña el QR de la tienda a un jugador. Cuando termine, escanea su recibo: la tienda se actualiza y le pasas el QR nuevo al siguiente.</p>
+    <p class="hint">Enseña el QR de la tienda a un jugador (o pásale su archivo .json). Cuando termine, escanea o importa su recibo: la tienda se actualiza y le pasas la versión nueva al siguiente.</p>
     ${list ? `<div class="list">${list}</div>` : '<p class="empty">Ninguna tienda todavía.</p>'}
-    <div class="btns" style="margin-top:.8rem"><button class="b" data-act="m-scan">Escanear recibo</button></div></section>`;
+    <div class="btns" style="margin-top:.8rem"><button class="b" data-act="m-scan">Escanear o importar recibo</button></div></section>`;
 }
 function shopQrOpen(sh) {
   const link = shopLink(sh),
     svg = qrSvg(link);
   openModal(
     `<div class="wz-head"><h2>${esc(sh.n)}</h2><button class="b sm" data-act="close-modal">Cerrar</button></div>
-    <p class="hint">El jugador lo escanea con la cámara del móvil o desde su app (⚙ Ajustes → Escanear QR del máster).</p>
+    <p class="hint">El jugador lo escanea con la cámara del móvil o desde su app (⚙ Ajustes → Recibir del máster). Si usa portátil, exporta el archivo .json y pásaselo: lo importa en ese mismo sitio.</p>
     ${svg ? `<div class="qrbox">${svg}</div>` : '<p class="hint warn">La tienda es demasiado grande para un QR. Quita objetos o acorta las descripciones.</p>'}
     ${svg && link.length > QR_BIG ? '<p class="hint warn">La tienda es grande y el QR es muy denso: puede costar leerlo. Quita objetos o acorta las descripciones.</p>' : ''}
-    <div class="btns" style="justify-content:center"><button class="b" data-act="m-scan">Escanear recibo</button></div>`,
+    <div class="btns" style="justify-content:center">${qrFileBtn('tienda', link.split('#tienda=')[1], sh.n)}<button class="b" data-act="m-scan">Escanear o importar recibo</button></div>`,
     true
   );
 }

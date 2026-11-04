@@ -113,9 +113,9 @@ function openShare() {
   } catch (e) {}
   openModal(
     `<div class="wz-head"><h2>Compartir con el máster</h2><button class="b sm" data-act="close-modal">Cerrar</button></div>
-    <p class="hint">Enséñale este QR al máster: lo escanea desde su modo máster (o con la cámara del móvil) y le llegan tus características. Si cambian (subes de nivel, otra armadura…), vuelve a enseñárselo.</p>
+    <p class="hint">Enséñale este QR al máster: lo escanea desde su modo máster (o con la cámara del móvil) y le llegan tus características. Si alguno usa portátil, exporta el archivo .json y pásaselo: lo importa en «+ Jugador». Si cambian (subes de nivel, otra armadura…), vuelve a enseñárselo.</p>
     ${svg ? `<div class="qrbox">${svg}</div>` : '<p class="hint warn">No se ha podido crear el QR. Usa el código.</p>'}
-    <div class="btns" style="justify-content:center"><button class="b pri" data-act="share-copy">Copiar código</button>${navigator.share ? '<button class="b" data-act="share-send">Enviar…</button>' : ''}</div>
+    <div class="btns" style="justify-content:center"><button class="b pri" data-act="share-copy">Copiar código</button>${qrFileBtn('pj', sheetCode(c), c.name || 'personaje')}${navigator.share ? '<button class="b" data-act="share-send">Enviar…</button>' : ''}</div>
     <h3>Lo que verá el máster</h3>${sheetCard(sheetOf(c))}`,
     true
   );
@@ -173,8 +173,9 @@ function masterFight() {
 }
 function openAddPlayer() {
   openModal(`<div class="wz-head"><h2>Añadir jugador</h2><button class="b sm" data-act="close-modal">Cerrar</button></div>
-    <p class="hint">En la app del jugador: ⚙ Ajustes → Compartir con el máster. Escanea el QR que le aparece.</p>
+    <p class="hint">En la app del jugador: ⚙ Ajustes → Compartir con el máster. Escanea el QR que le aparece o importa el archivo .json que te pase.</p>
     <button class="b pri opt" data-act="m-scan"><span><b>Escanear QR</b><br><small>Con la cámara de este dispositivo</small></span><span aria-hidden="true">›</span></button>
+    <div class="btns">${qrFileInput()}</div>
     <h3>O pega su código</h3><textarea id="m-code" class="code" style="min-height:5rem" placeholder="Código o enlace que te ha pasado el jugador"></textarea>
     <div class="btns"><button class="b" data-act="m-paste">Añadir</button></div>`);
 }
@@ -206,6 +207,35 @@ function loadJsQR() {
     s.onerror = ko;
     document.head.appendChild(s);
   });
+}
+/* ── Pasar lo mismo que un QR con un archivo .json (para quien no tenga cámara, como en un portátil) ── */
+const QR_FILE = { pj: 'caracteristicas', tienda: 'tienda', recibo: 'recibo' };
+const fileSlug = s =>
+  norm(s)
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '') || 'fichas';
+/* Botón para exportar: guarda en QRDL lo que se descargará */
+let QRDL = null;
+function qrFileBtn(k, code, name) {
+  QRDL = { k, code, name };
+  return '<button class="b" data-act="qr-dl">Exportar archivo .json</button>';
+}
+const qrFileInput = () =>
+  '<label class="b">Importar archivo .json<input type="file" id="qr-file" accept=".json,application/json,text/plain" hidden></label>';
+function qrFileSave() {
+  if (!QRDL) return;
+  download(
+    `${QR_FILE[QRDL.k]}-${fileSlug(QRDL.name)}.json`,
+    JSON.stringify({ fichas5e: QRDL.k, datos: JSON.parse(unb64u(QRDL.code)) }, null, 2)
+  );
+}
+/* Lee un archivo exportado (o un archivo con un código o enlace dentro) */
+function qrFileRead(text) {
+  try {
+    const o = JSON.parse(text);
+    if (o && QR_FILE[o.fichas5e] && o.datos) return { k: o.fichas5e, code: b64u(JSON.stringify(o.datos)) };
+  } catch (e) {}
+  return qrKind(text);
 }
 /* Qué es un QR o código leído: {k:'pj'|'tienda'|'recibo', code} o null */
 function qrKind(txt) {
@@ -249,20 +279,28 @@ function qrRun(h) {
   } else toast('<div class="t-parts">Ese QR es para el máster: escanéalo desde el modo máster.</div>');
 }
 async function openScan() {
-  openModal(`<h2>Escanear QR</h2><div class="scanbox"><video id="scan-v" playsinline muted></video></div>
+  openModal(`<h2>${MST.on ? 'Escanear o importar' : 'Recibir del máster'}</h2><div class="scanbox"><video id="scan-v" playsinline muted></video></div>
     <p class="hint" id="scan-msg">${MST.on ? 'Apunta la cámara al QR del jugador (sus características o su recibo).' : 'Apunta la cámara al QR del máster.'}</p>
+    <div class="btns">${qrFileInput()}</div><p class="hint">Sin cámara (por ejemplo, en un portátil), importa el archivo .json que te hayan pasado.</p>
     <details><summary>¿No se lee? Pega el código</summary><textarea id="scan-code" class="code" style="min-height:4rem"></textarea><div class="btns"><button class="b" data-act="scan-paste">Usar el código</button></div></details>
     <div class="btns"><button class="b" data-act="${MST.on ? 'm-add' : 'close-modal'}">${MST.on ? 'Volver' : 'Cerrar'}</button></div>`);
   const msg = t => $('#scan-msg') && ($('#scan-msg').textContent = t);
+  const noCam = t => {
+    msg(t);
+    const box = $('.scanbox');
+    if (box) box.hidden = true;
+  };
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    msg('Este navegador no deja usar la cámara. Escanéalo con la cámara del móvil o pega el código.');
+    noCam(
+      'Este navegador no deja usar la cámara. Importa el archivo .json, pega el código o escanéalo con la cámara del móvil.'
+    );
     return;
   }
   const me = (SCAN = { stop: false, stream: null });
   try {
     me.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
   } catch (e) {
-    msg('No hay permiso para usar la cámara. Actívalo en el navegador o pega el código.');
+    noCam('No hay cámara o no hay permiso para usarla. Importa el archivo .json o pega el código.');
     return;
   }
   if (me.stop) return me.stream.getTracks().forEach(t => t.stop());

@@ -181,6 +181,23 @@ document.addEventListener('input', e => {
 });
 document.addEventListener('change', e => {
   const el = e.target;
+  if (el.id === 'qr-file' && el.files && el.files[0]) {
+    const r = new FileReader();
+    r.onload = () => {
+      const h = qrFileRead(r.result);
+      if (!h) {
+        toast(
+          '<div class="t-parts">Ese archivo no es de Fichas 5e (características, tienda o recibo).</div>'
+        );
+        return;
+      }
+      closeModal();
+      qrRun(h);
+    };
+    r.readAsText(el.files[0]);
+    el.value = '';
+    return;
+  }
   if (el.id === 'imp-file' && el.files && el.files[0]) {
     const r = new FileReader();
     r.onload = () => {
