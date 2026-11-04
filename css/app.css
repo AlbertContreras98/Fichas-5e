@@ -3243,3 +3243,28 @@ button.eff.cond-pill {
   border-radius: 8px;
   padding-inline: 0.6rem;
 }
+.sp-own {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.8rem;
+  padding-top: 0.6rem;
+  border-top: 1px dashed var(--line);
+}
+.sp-own small {
+  color: var(--muted);
+  margin-right: 0.2rem;
+}
+.cs-chks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.4rem;
+}
+.cs-chks .chk {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.4rem;
+  width: auto;
+}

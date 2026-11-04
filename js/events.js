@@ -181,6 +181,13 @@ document.addEventListener('input', e => {
 });
 document.addEventListener('change', e => {
   const el = e.target;
+  if (el.id === 'cs-file' && el.files && el.files[0]) {
+    const r = new FileReader();
+    r.onload = () => csImport(r.result);
+    r.readAsText(el.files[0]);
+    el.value = '';
+    return;
+  }
   if (el.id === 'qr-file' && el.files && el.files[0]) {
     const r = new FileReader();
     r.onload = () => {

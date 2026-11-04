@@ -160,7 +160,7 @@ function viewPlay(c) {
       spMod(c) !== null
         ? `<div class="spellhead"><span>Aptitud: <b>${AB[c.spellcasting.ability][2]}</b></span><span>${term('CD de salvación', 'dc')}: <b>${spDC(c)}</b></span><span>${term('Ataque de conjuro', 'spatk')}: <b>${sgn(spAtk(c))}</b></span></div>`
         : '';
-    mag = `<section class="card"><div class="card-head"><h2>Magia</h2><button class="b sm" data-act="sp-open">Buscar conjuros</button></div>${head}
+    mag = `<section class="card"><div class="card-head"><h2>Magia</h2><div class="btns"><button class="b sm" data-act="cs-new">Crear conjuro</button><button class="b sm" data-act="sp-open">Buscar conjuros</button></div></div>${head}
       ${Object.keys(groups)
         .sort((a, b) => a - b)
         .map(
@@ -170,6 +170,7 @@ function viewPlay(c) {
             ].map(([sp, i]) => {
               const ok = canCast(c, sp);
               const tags =
+                (csOwn(sp) ? '<span class="tag" title="Conjuro creado por ti">propio</span>' : '') +
                 (sp.src
                   ? `<span class="tag" title="No cuenta en tu límite de conjuros">${esc(sp.src)}</span>`
                   : '') +
@@ -181,7 +182,7 @@ function viewPlay(c) {
               return `<div class="it"><div class="it-head"><span class="it-name">${esc(sp.name)}${tags}</span>
           <button class="b sm ${ok ? 'pri' : ''}" data-act="cast" data-i="${i}" ${ok ? '' : 'disabled'}>${+sp.level === 0 ? 'Usar' : ok ? 'Lanzar' : 'Sin espacios'}</button></div>
           <div class="meta">${esc([TIME[sp.time] || sp.time, sp.range, sp.dur, sp.material && `M: ${sp.material}`].filter(Boolean).join(' · '))}</div>
-          ${desc ? `<details><summary>Qué hace</summary><p>${esc(desc)}</p></details>` : ''}</div>`;
+          ${desc || csOwn(sp) ? `<details><summary>Qué hace</summary>${desc ? `<p>${esc(desc)}</p>` : ''}${csOwn(sp) ? `<div class="btns"><button class="b sm" data-act="cs-edit" data-i="${i}">Editar conjuro</button></div>` : ''}</details>` : ''}</div>`;
             }).join('')}</div>`
         )
         .join('')}
@@ -195,7 +196,8 @@ function viewPlay(c) {
               .join('')}</div>`
           : ''
       }
-      ${!c.spells.length && !scrolls.length ? '<p class="empty">Sin conjuros. Pulsa «Buscar conjuros» para añadirlos.</p>' : ''}</section>`;
+      ${!c.spells.length && !scrolls.length ? '<p class="empty">Sin conjuros. Pulsa «Buscar conjuros» para añadirlos o «Crear conjuro» para inventar uno.</p>' : ''}
+      <div class="sp-own"><small>Conjuros propios:</small><button class="b sm" data-act="cs-exp">Exportar mis conjuros</button><label class="b sm">Importar conjuros<input type="file" id="cs-file" accept=".json,application/json,text/plain" hidden></label></div></section>`;
   }
   const cinfo = infoFor(def, sub, c.level),
     cnt = pre => c.features.filter(f => norm(f.name).startsWith(norm(pre))).length;

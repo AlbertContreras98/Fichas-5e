@@ -1,4 +1,4 @@
-/* Acciones — Asistente, buscador de conjuros, invocaciones y dotes. */
+/* Acciones — Asistente, buscador de conjuros, conjuros propios, invocaciones y dotes. */
 'use strict';
 
 Object.assign(A, {
@@ -99,6 +99,46 @@ Object.assign(A, {
       `<div class="t-label">Invocaciones guardadas</div><div class="t-parts">Las tienes en «Rasgos y dotes»; las que dan un conjuro gratis salen en tu Magia.</div>`
     );
   },
+  'cs-new': () => csOpen(-1),
+  'cs-edit': el => csOpen(+el.dataset.i),
+  'cs-save': el => {
+    const c = C(),
+      i = +el.dataset.i,
+      x = csRead();
+    if (!x.name) {
+      $('#cs-name').focus();
+      toast('<div class="t-parts">Ponle un nombre al conjuro.</div>');
+      return;
+    }
+    const sp = i >= 0 ? c.spells[i] : NEW.spells();
+    Object.assign(sp, x);
+    if (i < 0) c.spells.push(sp);
+    c.spells.sort((a, b) => a.level - b.level || a.name.localeCompare(b.name, 'es'));
+    if (!c.spellcasting.ability)
+      c.spellcasting.ability = ['int', 'wis', 'cha'].sort((a, b) => c.abilities[b] - c.abilities[a])[0];
+    closeModal();
+    save();
+    render();
+    toast(
+      `<div class="t-label">${i >= 0 ? 'Conjuro guardado' : 'Conjuro creado'}</div><div class="t-big">${esc(x.name)}</div>`
+    );
+  },
+  'cs-del': el => {
+    const c = C(),
+      sp = c.spells[+el.dataset.i];
+    if (!sp) return;
+    openModal(`<h2>¿Borrar ${esc(sp.name)}?</h2><p class="hint">Se quita de esta ficha. Si lo exportaste antes, el archivo sigue sirviendo para recuperarlo.</p>
+      <div class="btns"><button class="b bad" data-act="cs-del-ok" data-i="${el.dataset.i}">Borrar</button><button class="b" data-act="cs-edit" data-i="${el.dataset.i}">Cancelar</button></div>`);
+  },
+  'cs-del-ok': el => {
+    const c = C();
+    c.spells.splice(+el.dataset.i, 1);
+    closeModal();
+    save();
+    render();
+  },
+  'cs-exp': csExportOpen,
+  'cs-exp-ok': csExport,
   'sp-open': openSpellModal,
   'prep-open': el => {
     const t = el.closest('.toast');
