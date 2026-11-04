@@ -105,4 +105,5 @@ let pendingEco = null,
 const INCAP = ['Incapacitado', 'Aturdido', 'Paralizado', 'Petrificado', 'Inconsciente'];
 let CX = null,
   lastCastL = 0,
+  castFree = false,
   effBack = false;

@@ -37,6 +37,7 @@ Object.assign(A, {
     const c = C(),
       sp = c.spells[+el.dataset.i],
       L = +sp.level || 0;
+    castFree = false;
     const need = !el.dataset.force && spConsume(c, sp);
     spPendingUse = need && need.has ? Object.assign({ sp }, need) : null;
     if (need && !need.has) {
@@ -68,6 +69,17 @@ Object.assign(A, {
     pendingEco = pe;
     A.cast({ dataset: { i: el.dataset.i, force: '1' } });
   },
+  'fl-ok': el => {
+    const c = C(),
+      r = parseInt($('#fl-r').value);
+    if (!(r >= 2 && r <= 8)) {
+      $('#fl-r').focus();
+      toast('<div class="t-parts">Escribe lo que suman los dos d4 (de 2 a 8).</div>');
+      return;
+    }
+    closeModal();
+    giveTemp(c, r + +el.dataset.x, 'Falsa vida');
+  },
   'cast-with': el => {
     const c = C(),
       sp = c.spells[+el.dataset.i],
@@ -79,6 +91,7 @@ Object.assign(A, {
     if (el.dataset.kind === 'free') {
       const f = freeUse(c, sp);
       if (f && f.uses) f.uses.used = Math.min(f.uses.max, f.uses.used + 1);
+      castFree = true;
       return afterCast(sp, `Uso gratuito de ${sp.src || 'rasgo'}`);
     }
     lastCastL = +el.dataset.level || +sp.level;

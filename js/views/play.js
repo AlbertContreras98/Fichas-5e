@@ -266,6 +266,32 @@ function consume(c, kind, level) {
     s.used = Math.min(s.total, s.used + 1);
   }
 }
+/* PG temporales de un conjuro: no se suman, te quedas con el valor más alto */
+function giveTemp(c, n, from) {
+  const had = c.hp.temp;
+  if (n > had) c.hp.temp = n;
+  save();
+  render();
+  refreshVida();
+  toast(
+    n > had
+      ? `<div class="t-label">${esc(from)}</div><div class="t-big good">${n} PG temporales</div>${had ? `<div class="t-parts">Sustituyen a los ${had} que tenías (no se suman).</div>` : ''}`
+      : `<div class="t-label">${esc(from)}</div><div class="t-parts">Sacas ${n}, pero ya tienes ${had} PG temporales: no se suman y te quedas con los ${had}.</div>`
+  );
+}
+/* Falsa vida: suma sola los PG temporales (con Vigor infernal, el máximo del dado sin tirar) */
+function falseLife(c, sp) {
+  const L = Math.max(1, lastCastL || 1),
+    bonus = 4 + 5 * (L - 1),
+    vigor = castFree && sp.src === 'Invocación' && /vigor infernal/i.test(sp.free || '');
+  castFree = false;
+  if (vigor) return giveTemp(c, 8 + bonus, 'Falsa vida (Vigor infernal)');
+  openModal(`<h2>Falsa vida</h2><p>Tira <b>2d4</b> y escribe lo que suman. La app añade ${bonus}${L > 1 ? ` (4 + 5 por cada nivel de espacio por encima de 1)` : ''}.</p>
+    <div class="hpctl"><input id="fl-r" type="number" inputmode="numeric" min="2" max="8" placeholder="2d4" aria-label="Resultado de 2d4"><button class="b good" data-act="fl-ok" data-x="${bonus}">Ganar PG temporales</button></div>
+    <p class="hint">Los PG temporales no se suman a los que ya tengas: te quedas con el valor más alto.</p>
+    <div class="btns"><button class="b" data-act="close-modal">Ahora no</button></div>`);
+  setTimeout(() => $('#fl-r') && $('#fl-r').focus(), 0);
+}
 function afterCast(sp, how) {
   const c = C();
   let note = '';
@@ -302,6 +328,8 @@ function afterCast(sp, how) {
     `<div class="t-label">Lanzas</div><div class="t-big">${esc(sp.name)}</div><div class="t-parts">${esc(how)}${sp.conc ? ' · requiere concentración' : ''}</div>${used}${extra}${note}${cbtn ? `<div class="t-actions">${cbtn}</div>` : ''}`,
     !!cbtn
   );
+  if (r === 'false-life') falseLife(c, sp);
+  castFree = false;
 }
 
 /* Ventana de un ataque que no viene de un arma del equipo (arma de pacto, ataque sin armas…). i = -1 para uno nuevo */
