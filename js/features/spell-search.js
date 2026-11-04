@@ -33,11 +33,54 @@ function spFiltered() {
       (!q || norm(s.n).includes(q) || norm(s.en).includes(q))
   );
 }
+/* Conjuros propios de todas las fichas de este dispositivo (sin repetir nombre y nivel) */
+const csKey = sp => `${norm(sp.name)}|${+sp.level || 0}`;
+function csLibrary() {
+  const seen = new Set(),
+    out = [];
+  for (const sp of [
+    ...(P ? P.list : []),
+    ...S.chars.flatMap(c => c.spells),
+    ...csStored().map(x => Object.assign(NEW.spells(), x)),
+  ])
+    if (csOwn(sp) && sp.name && !seen.has(csKey(sp))) {
+      seen.add(csKey(sp));
+      out.push(sp);
+    }
+  return out.sort((a, b) => a.level - b.level || a.name.localeCompare(b.name, 'es'));
+}
+function csFiltered() {
+  const q = norm(P.q);
+  return csLibrary().filter(
+    s =>
+      (P.lvl === '' || +s.level === +P.lvl) &&
+      (P.max == null || +s.level <= P.max) &&
+      (P.min == null || +s.level >= P.min) &&
+      (!q || norm(s.name).includes(q))
+  );
+}
+function csResultsHTML() {
+  const own = (P.own = csFiltered());
+  if (!own.length) return '';
+  const mine = new Set(P.list.filter(csOwn).map(csKey));
+  return `<h3 class="sp-own-h">Tus conjuros propios</h3>${own
+    .map((s, i) => {
+      const have = mine.has(csKey(s)),
+        open = P.open === 'own:' + i;
+      return `<div class="sp-row"><div class="it-head"><button class="b sm" data-act="sp-det" data-id="own:${i}" aria-expanded="${open}" style="border:0;padding:0;background:none;text-align:left;flex:1 1 auto;min-width:0;display:block">
+        <span class="it-name">${esc(s.name)}</span><span class="tag">propio</span>${s.conc ? '<span class="tag">C</span>' : ''}${s.ritual ? '<span class="tag">R</span>' : ''}
+        <span class="meta" style="display:block">${esc([+s.level ? 'Nivel ' + s.level : 'Truco', TIME[s.time] || s.time, s.range, s.dur].filter(Boolean).join(' · '))}</span></button>
+      <button class="b sm ${have ? 'bad' : 'pri'}" data-act="sp-tog" data-own="${i}">${have ? 'Quitar' : 'Añadir'}</button></div>
+      ${open ? `<div class="sp-det"><div class="lang">Conjuro propio</div>${esc(s.desc || 'Sin descripción.')}${s.material ? `\n\nMaterial: ${esc(s.material)}` : ''}</div>` : ''}</div>`;
+    })
+    .join('')}<h3 class="sp-own-h">Catálogo</h3>`;
+}
 function spResultsHTML() {
   const all = spFiltered(),
     list = all.slice(0, 80),
     mine = new Set(P.list.map(s => s.ref).filter(Boolean));
   return (
+    csResultsHTML() +
     `<p class="sp-count">${all.length} conjuro${all.length === 1 ? '' : 's'}${all.length > 80 ? ' · mostrando 80, afina la búsqueda' : ''}</p>` +
     list
       .map(s => {

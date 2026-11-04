@@ -111,7 +111,9 @@ Object.assign(A, {
       return;
     }
     const sp = i >= 0 ? c.spells[i] : NEW.spells();
+    if (i >= 0 && csKey(sp) !== csKey(x)) csForget(sp);
     Object.assign(sp, x);
+    csRemember(sp);
     if (i < 0) c.spells.push(sp);
     c.spells.sort((a, b) => a.level - b.level || a.name.localeCompare(b.name, 'es'));
     if (!c.spellcasting.ability)
@@ -127,11 +129,13 @@ Object.assign(A, {
     const c = C(),
       sp = c.spells[+el.dataset.i];
     if (!sp) return;
-    openModal(`<h2>¿Borrar ${esc(sp.name)}?</h2><p class="hint">Se quita de esta ficha. Si lo exportaste antes, el archivo sigue sirviendo para recuperarlo.</p>
+    openModal(`<h2>¿Borrar ${esc(sp.name)}?</h2><p class="hint">Se quita de esta ficha y deja de salir en «Buscar conjuros» (salvo que otra ficha lo tenga). Si lo exportaste antes, el archivo sigue sirviendo para recuperarlo.</p>
       <div class="btns"><button class="b bad" data-act="cs-del-ok" data-i="${el.dataset.i}">Borrar</button><button class="b" data-act="cs-edit" data-i="${el.dataset.i}">Cancelar</button></div>`);
   },
   'cs-del-ok': el => {
-    const c = C();
+    const c = C(),
+      sp = c.spells[+el.dataset.i];
+    if (sp) csForget(sp);
     c.spells.splice(+el.dataset.i, 1);
     closeModal();
     save();
@@ -155,13 +159,19 @@ Object.assign(A, {
     refreshPicker();
   },
   'sp-tog': el => {
-    const d = SPBY[el.dataset.id],
-      i = P.list.findIndex(s => s.ref === d.id);
-    if (i >= 0) P.list.splice(i, 1);
-    else {
-      P.list.push(spellObj(d));
-      P.list.sort((a, b) => a.level - b.level || a.name.localeCompare(b.name, 'es'));
+    if (el.dataset.own !== undefined) {
+      const s = P.own && P.own[+el.dataset.own];
+      if (!s) return;
+      const i = P.list.findIndex(x => csOwn(x) && csKey(x) === csKey(s));
+      if (i >= 0) P.list.splice(i, 1);
+      else P.list.push(Object.assign(NEW.spells(), csFields(s)));
+    } else {
+      const d = SPBY[el.dataset.id],
+        i = P.list.findIndex(s => s.ref === d.id);
+      if (i >= 0) P.list.splice(i, 1);
+      else P.list.push(spellObj(d));
     }
+    P.list.sort((a, b) => a.level - b.level || a.name.localeCompare(b.name, 'es'));
     if (P.target === 'wizard') {
       const mine = $('#wz-mine');
       if (mine) {

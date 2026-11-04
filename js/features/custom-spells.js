@@ -13,6 +13,32 @@ const CS_TIMES = [
 const CS_FIELDS = ['level', 'name', 'time', 'range', 'dur', 'conc', 'ritual', 'material', 'desc'];
 /* Un conjuro es propio si no viene del catálogo ni de un rasgo */
 const csOwn = sp => !sp.ref && !sp.src;
+/* Biblioteca de conjuros propios del dispositivo, para que sigan en «Buscar conjuros» aunque se quiten de una ficha */
+const CS_KEY = 'fichas-propios';
+function csStored() {
+  try {
+    const x = JSON.parse(localStorage.getItem(CS_KEY) || '[]');
+    return Array.isArray(x) ? x.filter(s => s && s.name) : [];
+  } catch (e) {
+    return [];
+  }
+}
+function csStore(list) {
+  try {
+    localStorage.setItem(CS_KEY, JSON.stringify(list));
+  } catch (e) {}
+}
+const csFields = sp => Object.fromEntries(CS_FIELDS.map(k => [k, sp[k]]));
+function csRemember(sp) {
+  const k = `${norm(sp.name)}|${+sp.level || 0}`,
+    list = csStored().filter(s => `${norm(s.name)}|${+s.level || 0}` !== k);
+  list.push(csFields(sp));
+  csStore(list);
+}
+function csForget(sp) {
+  const k = `${norm(sp.name)}|${+sp.level || 0}`;
+  csStore(csStored().filter(s => `${norm(s.name)}|${+s.level || 0}` !== k));
+}
 
 /* Ventana para crear (i = -1) o editar un conjuro propio */
 function csOpen(i) {
@@ -121,6 +147,7 @@ function csImport(text) {
       continue;
     }
     c.spells.push(sp);
+    csRemember(sp);
     added++;
   }
   c.spells.sort((a, b) => a.level - b.level || a.name.localeCompare(b.name, 'es'));
