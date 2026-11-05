@@ -1,6 +1,7 @@
 /* Acciones — Modo máster (jugadores, combate, QR) y compartir con el máster. */
 'use strict';
 
+let mStartForce = false; // «Empezar igualmente» aunque falten iniciativas
 Object.assign(A, {
   'master-on': () => {
     MST.on = true;
@@ -140,13 +141,26 @@ Object.assign(A, {
     masterSave();
     render();
   },
-  'm-foe': openAddFoe,
+  'm-foe': () => {
+    MFOE = mfoeNew();
+    openAddFoe();
+  },
+  'm-foe-back': openAddFoe,
+  'm-foe-pick': el => mfoePick(el.dataset.id),
+  'm-foe-see': el => {
+    mfoeCollect();
+    openBest(el.dataset.id, true);
+  },
+  'm-mon': el => openBest(el.dataset.id),
   'm-foe-add': () => {
-    const name = $('#mf-name').value.trim() || 'Enemigo',
-      n = clamp(parseInt($('#mf-n').value) || 1, 1, 20),
-      ini = $('#mf-init').value.trim(),
-      ac = $('#mf-ac').value.trim(),
-      hp = $('#mf-hp').value.trim();
+    mfoeCollect();
+    const x = MFOE || mfoeNew(),
+      b = x.id && bestGet(x.id),
+      name = x.name || (b ? b.n : 'Enemigo'),
+      n = clamp(parseInt(x.n) || 1, 1, 20),
+      ini = x.init,
+      ac = x.ac,
+      hp = x.hp;
     for (let i = 1; i <= n; i++)
       MST.fight.list.push({
         id: uid(),
@@ -156,7 +170,21 @@ Object.assign(A, {
         ac: ac === '' ? '' : +ac,
         hp: hp === '' ? '' : +hp,
         hpMax: hp === '' ? '' : +hp,
+        ...(b ? { mon: b.id, ib: bestIni(b) } : {}),
       });
+    MFOE = null;
+    masterSave();
+    closeModal();
+    render();
+  },
+  'm-st-ask': el => {
+    const f = MST.fight.list.find(x => x.id === el.dataset.id);
+    if (f) openFoeDown(f);
+  },
+  'm-st': el => {
+    const f = MST.fight.list.find(x => x.id === el.dataset.id);
+    if (!f) return;
+    f.st = el.dataset.st;
     masterSave();
     closeModal();
     render();
@@ -174,16 +202,48 @@ Object.assign(A, {
     masterSave();
     render();
   },
+  'm-start': () => {
+    const F = MST.fight,
+      L = fightSorted().filter(f => !fDown(f)),
+      sin = L.filter(f => f.init === '');
+    if (!L.length) return;
+    if (sin.length && !mStartForce) {
+      openModal(`<h2>¿Empezar el combate?</h2><p class="hint">Falta la iniciativa de: ${sin.map(f => `<b>${esc(f.name)}</b>`).join(', ')}. Si empiezas igualmente, irán al final.</p>
+        <div class="btns"><button class="b pri" data-act="m-start-ok">Empezar igualmente</button><button class="b" data-act="close-modal">Apuntarla antes</button></div>`);
+      return;
+    }
+    F.round = 1;
+    F.cur = L[0].id;
+    masterSave();
+    closeModal();
+    render();
+  },
+  'm-start-ok': () => {
+    mStartForce = true;
+    A['m-start']();
+    mStartForce = false;
+  },
   'm-next': () => {
     const F = MST.fight,
       L = fightSorted();
     if (!L.length) return;
-    const i = L.findIndex(f => f.id === F.cur);
-    if (i < 0) F.cur = L[0].id;
-    else if (i === L.length - 1) {
-      F.cur = L[0].id;
-      F.round++;
-    } else F.cur = L[i + 1].id;
+    /* Pasa al siguiente que siga en pie; si da la vuelta, sube la ronda */
+    let j = L.findIndex(f => f.id === F.cur),
+      wrap = false;
+    for (let k = 0; k < L.length; k++) {
+      j++;
+      if (j >= L.length) {
+        j = 0;
+        wrap = true;
+      }
+      if (!fDown(L[j])) break;
+    }
+    if (fDown(L[j])) {
+      toast('<div class="t-label">Combate</div><div class="t-parts">No queda nadie en pie.</div>');
+      return;
+    }
+    F.cur = L[j].id;
+    if (wrap) F.round++;
     masterSave();
     render();
   },

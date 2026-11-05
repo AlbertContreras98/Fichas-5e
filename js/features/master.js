@@ -190,27 +190,60 @@ const fightSorted = () =>
     (a, b) =>
       (b.init === '' ? -99 : +b.init) - (a.init === '' ? -99 : +a.init) || a.name.localeCompare(b.name, 'es')
   );
+/* Enemigo a 0 PG o menos */
+const fDown = f => f.kind !== 'pj' && f.hp !== '' && +f.hp <= 0;
+/* Cómo ha quedado un enemigo caído */
+const F_ST = { dead: 'Muerto', ko: 'Incapacitado' };
+const fStLabel = f => F_ST[f.st] || 'Derrotado';
+/* El combate ha empezado cuando a alguien le toca */
+const fightOn = () => !!MST.fight.cur && MST.fight.list.some(f => f.id === MST.fight.cur);
 function masterFight() {
   const F = MST.fight,
-    L = fightSorted();
+    L = fightSorted(),
+    on = fightOn();
   const num = (f, k, w) =>
     `<input class="inline-num" type="number" inputmode="numeric" value="${esc(f[k] ?? '')}" data-mf="${k}" data-id="${f.id}" style="width:${w || 3.6}rem" aria-label="${k === 'init' ? 'Iniciativa' : k === 'hp' ? 'PG' : k === 'hpMax' ? 'PG máximos' : 'CA'} de ${esc(f.name)}">`;
   const rows = L.map(f => {
     const pl = f.kind === 'pj' && MST.players.find(p => p.id === f.pid);
-    const down = f.kind !== 'pj' && f.hp !== '' && +f.hp <= 0;
-    return `<div class="mrow ${F.cur === f.id ? 'cur' : ''} ${down ? 'down' : ''}">
-      <div class="mname"><b>${F.cur === f.id ? '▶ ' : ''}${esc(f.name)}</b><small>${f.kind === 'pj' ? `Jugador${pl ? ` · inic. ${sgn(pl.i)}` : ''}` : down ? 'Derrotado' : 'Enemigo'}</small></div>
+    const down = fDown(f),
+      ib = f.kind === 'pj' ? (pl ? pl.i : null) : f.ib;
+    const who =
+      f.kind === 'pj'
+        ? 'Jugador'
+        : down
+          ? `<button class="mst ${f.st || ''}" data-act="m-st-ask" data-id="${f.id}" aria-label="Cambiar cómo ha quedado ${esc(f.name)}">${f.st === 'dead' ? '☠ ' : ''}${fStLabel(f)}</button>`
+          : 'Enemigo';
+    return `<div class="mrow ${F.cur === f.id ? 'cur' : ''} ${down ? 'down' : ''} ${down && f.st ? 'st-' + f.st : ''}">
+      <div class="mname"><b>${F.cur === f.id ? '▶ ' : ''}${esc(f.name)}</b><small>${who}${ib !== null && ib !== undefined && ib !== '' ? ` · inic. ${sgn(ib)}` : ''}${f.mon && bestGet(f.mon) ? ` · <button class="lnk" data-act="m-mon" data-id="${esc(f.mon)}">Ver ficha</button>` : ''}</small></div>
       <label class="mf"><span>Inic.</span>${num(f, 'init')}</label>
       <label class="mf"><span>CA</span>${f.kind === 'pj' ? `<b>${esc(f.ac)}</b>` : num(f, 'ac')}</label>
       ${f.kind === 'pj' ? '<span class="mf"></span>' : `<label class="mf"><span>PG</span><span class="mhp">${num(f, 'hp')}<small>/ ${esc(f.hpMax || '—')}</small></span></label>`}
       <button class="b sm" data-act="m-rm" data-id="${f.id}" aria-label="Quitar a ${esc(f.name)} del combate">×</button></div>`;
   }).join('');
   const missing = MST.players.filter(p => !F.list.some(f => f.pid === p.id)).length;
-  return `<section class="card mfight"><div class="card-head"><h2>Combate${F.list.length ? ` <span class="round">Ronda ${F.round}</span>` : ''}</h2><div class="btns">${F.list.length ? '<button class="b pri" data-act="m-next">Siguiente turno</button>' : ''}</div></div>
-    <p class="hint">Apunta la iniciativa que saque cada uno: la lista se ordena sola. «Siguiente turno» marca a quién le toca y al dar la vuelta pasa de ronda.</p>
+  const btn = !F.list.length
+    ? ''
+    : on
+      ? '<button class="b pri" data-act="m-next">Siguiente turno</button>'
+      : '<button class="b pri" data-act="m-start">Empezar combate</button>';
+  return `<section class="card mfight"><div class="card-head"><h2>Combate${on ? ` <span class="round">Ronda ${F.round}</span>` : ''}</h2><div class="btns">${btn}</div></div>
+    <p class="hint">${
+      on
+        ? '«Siguiente turno» marca a quién le toca y al dar la vuelta pasa de ronda. Los enemigos caídos se saltan.'
+        : 'Añade a todos y apunta la iniciativa que saque cada uno: la lista se ordena sola. Cuando estéis listos, pulsa «Empezar combate».'
+    }</p>
     ${rows ? `<div class="mlist">${rows}</div>` : '<p class="empty">Nadie en el combate todavía.</p>'}
     <div class="btns" style="margin-top:.8rem"><button class="b" data-act="m-pjs" ${missing ? '' : 'disabled'}>Añadir jugadores${missing ? ` (${missing})` : ''}</button><button class="b" data-act="m-foe">Añadir enemigo</button>${F.list.length ? '<button class="b bad" data-act="m-end">Terminar combate</button>' : ''}</div>
     ${MST.players.length ? '' : '<p class="hint">Para añadir jugadores, pulsa «+ Jugador» y escanea su QR (en su app: ⚙ Ajustes → Compartir con el máster).</p>'}</section>`;
+}
+/* Pregunta cómo queda un enemigo que ha caído a 0 PG */
+function openFoeDown(f) {
+  openModal(`<h2>${esc(f.name)} ha caído</h2>
+    <p class="hint">Ha llegado a 0 PG. ¿Cómo queda?</p>
+    <button class="b opt ${f.st === 'dead' ? 'on' : ''}" data-act="m-st" data-id="${f.id}" data-st="dead"><span><b>☠ Muerto</b><br><small>Fuera del combate para siempre.</small></span><span aria-hidden="true">›</span></button>
+    <button class="b opt ${f.st === 'ko' ? 'on' : ''}" data-act="m-st" data-id="${f.id}" data-st="ko"><span><b>Incapacitado</b><br><small>Inconsciente pero vivo: luego se le puede interrogar o estabilizar.</small></span><span aria-hidden="true">›</span></button>
+    <p class="hint">Regla: normalmente un monstruo a 0 PG muere. Pero si el golpe final es un ataque cuerpo a cuerpo, quien ataca puede decidir dejarlo inconsciente en vez de matarlo.</p>
+    <div class="btns"><button class="b" data-act="close-modal">Decidirlo luego</button></div>`);
 }
 function openAddPlayer() {
   openModal(`<div class="wz-head"><h2>Añadir jugador</h2><button class="b sm" data-act="close-modal">Cerrar</button></div>
@@ -220,16 +253,72 @@ function openAddPlayer() {
     <h3>O pega su código</h3><textarea id="m-code" class="code" style="min-height:5rem" placeholder="Código o enlace que te ha pasado el jugador"></textarea>
     <div class="btns"><button class="b" data-act="m-paste">Añadir</button></div>`);
 }
+/* Enemigo que se está añadiendo (la ventana se repinta al buscar o elegir del bestiario) */
+let MFOE = null;
+const mfoeNew = () => ({ q: '', id: '', name: '', n: 1, init: '', ac: '', hp: '' });
+/* Guarda en MFOE lo escrito en la ventana */
+function mfoeCollect() {
+  if (!MFOE) return;
+  const g = id => ($('#' + id) ? $('#' + id).value.trim() : null);
+  [
+    ['name', 'mf-name'],
+    ['n', 'mf-n'],
+    ['init', 'mf-init'],
+    ['ac', 'mf-ac'],
+    ['hp', 'mf-hp'],
+    ['q', 'mf-q'],
+  ].forEach(([k, id]) => {
+    const v = g(id);
+    if (v !== null) MFOE[k] = v;
+  });
+}
 function openAddFoe() {
-  openModal(`<h2>Añadir enemigo</h2>
-    <div class="grid"><label class="f wide"><span>Nombre</span><input id="mf-name" placeholder="Goblin, Bandido…" autocomplete="off"></label>
-    <label class="f"><span>Cuántos</span><input id="mf-n" type="number" inputmode="numeric" min="1" max="20" value="1"></label>
-    <label class="f"><span>Iniciativa</span><input id="mf-init" type="number" inputmode="numeric" placeholder="Opcional"></label>
-    <label class="f"><span>CA</span><input id="mf-ac" type="number" inputmode="numeric"></label>
-    <label class="f"><span>PG</span><input id="mf-hp" type="number" inputmode="numeric"></label></div>
-    <p class="hint">Si pones varios, se numeran solos (Goblin 1, Goblin 2…) y cada uno lleva sus PG.</p>
+  if (!MFOE) MFOE = mfoeNew();
+  const x = MFOE,
+    b = x.id && bestGet(x.id);
+  openModal(`<div class="wz-head"><h2>Añadir enemigo</h2><button class="b sm" data-act="close-modal">Cerrar</button></div>
+    <h3>Del bestiario</h3>
+    <p class="hint">Busca la criatura y tócala: se rellenan solos su CA y sus PG. Si no está, rellena los datos a mano.</p>
+    <input id="mf-q" type="search" class="bsearch" placeholder="Goblin, lobo, dragón rojo…" autocomplete="off" value="${esc(x.q)}" aria-label="Buscar en el bestiario">
+    <div id="mf-res" class="bresults">${bestResults(x.q, x.id)}</div>
+    ${b ? `<div class="bpick"><span>Elegido: <b>${esc(b.n)}</b> · VD ${esc(b.crs)}</span><span class="btns"><button class="b sm" data-act="m-foe-see" data-id="${b.id}">Ver ficha</button><button class="b sm" data-act="m-foe-pick" data-id="">Quitar</button></span></div>` : ''}
+    <h3>Datos</h3>
+    <div class="grid"><label class="f wide"><span>Nombre</span><input id="mf-name" placeholder="Goblin, Bandido…" autocomplete="off" value="${esc(x.name)}"></label>
+    <label class="f"><span>Cuántos</span><input id="mf-n" type="number" inputmode="numeric" min="1" max="20" value="${esc(x.n)}"></label>
+    <label class="f"><span>Iniciativa</span><input id="mf-init" type="number" inputmode="numeric" placeholder="Opcional" value="${esc(x.init)}"></label>
+    <label class="f"><span>CA</span><input id="mf-ac" type="number" inputmode="numeric" value="${esc(x.ac)}"></label>
+    <label class="f"><span>PG</span><input id="mf-hp" type="number" inputmode="numeric" value="${esc(x.hp)}"></label></div>
+    <p class="hint">${b ? `Iniciativa: tira 1d20 ${sgn(bestIni(b))}. ` : ''}Si pones varios, se numeran solos (Goblin 1, Goblin 2…) y cada uno lleva sus PG.</p>
     <div class="btns"><button class="b pri" data-act="m-foe-add">Añadir</button><button class="b" data-act="close-modal">Cancelar</button></div>`);
-  setTimeout(() => $('#mf-name') && $('#mf-name').focus(), 0);
+}
+/* Elige (o quita) una criatura del bestiario */
+function mfoePick(id) {
+  mfoeCollect();
+  const x = MFOE,
+    old = x.id && bestGet(x.id),
+    b = id && bestGet(id);
+  /* El nombre se cambia solo si no lo ha escrito el máster */
+  const auto = !x.name || (old && x.name === old.n);
+  x.id = b ? b.id : '';
+  if (b) {
+    if (auto) x.name = b.n;
+    x.ac = String(b.ac);
+    x.hp = String(b.hp);
+  } else if (old) {
+    if (auto) x.name = '';
+    x.ac = x.hp = '';
+  }
+  openAddFoe();
+}
+/* Al buscar, solo se repinta la lista (para no perder el foco) */
+function mfoeSearch(q) {
+  if (!MFOE) return;
+  MFOE.q = q;
+  const r = $('#mf-res');
+  if (r) {
+    r.innerHTML = bestResults(q, MFOE.id);
+    r.scrollTop = 0;
+  }
 }
 
 /* ── Campañas: cada una con sus jugadores, tiendas y combate ── */

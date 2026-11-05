@@ -3138,6 +3138,95 @@ button.eff.cond-pill {
   align-items: center;
   gap: 0.2rem;
 }
+.mrow.st-dead .mname b {
+  text-decoration: line-through;
+}
+.mrow.st-dead {
+  opacity: 0.4;
+}
+.mrow.st-ko {
+  opacity: 0.75;
+  border-style: dashed;
+}
+/* Estado de un enemigo caído: se toca para cambiarlo */
+.mst,
+.lnk {
+  font: inherit;
+  color: var(--accent);
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.mst.dead {
+  color: var(--bad);
+}
+/* Bestiario */
+.bsearch {
+  width: 100%;
+}
+.bresults {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 16rem;
+  overflow-y: auto;
+  margin: 0.5rem 0;
+  padding-right: 0.2rem;
+}
+.bres small {
+  color: var(--muted);
+}
+.bres.on {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+.bpick {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--accent);
+  border-radius: calc(var(--radius) - 2px);
+}
+.bstats,
+.babil {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.4rem;
+  margin: 0.6rem 0;
+}
+.babil {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+.bstats span,
+.babil span {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.35rem 0.2rem;
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) - 2px);
+  background: var(--sunk);
+}
+.bstats small,
+.babil small {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+.bstats b {
+  font-size: 1.2rem;
+}
+.bline {
+  margin: 0.35rem 0;
+}
+.bcard h3 {
+  margin-top: 0.9rem;
+}
 @media (max-width: 480px) {
   .mrow {
     grid-template-columns: 4.2rem 4.2rem 6.6rem minmax(2.4rem, 1fr);

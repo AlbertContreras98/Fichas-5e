@@ -42,6 +42,10 @@ document.addEventListener('click', e => {
 });
 document.addEventListener('input', e => {
   const el = e.target;
+  if (el.id === 'mf-q' && MFOE) {
+    mfoeSearch(el.value);
+    return;
+  }
   if (D && (el.id === 'd-text' || el.id === 'd-title')) {
     const n = dGet(D.note);
     if (n) {
@@ -325,10 +329,15 @@ document.addEventListener('change', e => {
   if (el.dataset && el.dataset.mf && MST.on) {
     const f = MST.fight.list.find(x => x.id === el.dataset.id);
     if (f) {
-      const v = el.value.trim();
+      const v = el.value.trim(),
+        was = fDown(f);
       f[el.dataset.mf] = v === '' ? '' : +v;
+      /* Si un enemigo cae a 0 PG, se pregunta si está muerto o incapacitado; si se levanta, deja de estarlo */
+      const now = fDown(f);
+      if (!now) delete f.st;
       masterSave();
       render();
+      if (now && !was) openFoeDown(f);
     }
     return;
   }
