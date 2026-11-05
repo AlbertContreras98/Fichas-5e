@@ -282,7 +282,9 @@ function viewTurn(c) {
       cols.AA.push(
         row(
           `${esc(a.name)} (arma ligera)`,
-          'Ataque extra sin modificador al daño',
+          featHas(c, 'twf')
+            ? 'Ataque extra: Combate con dos armas te deja sumar tu modificador al daño'
+            : 'Ataque extra: sin tu modificador al daño',
           `<button class="b sm" data-act="t-light" data-i="${i}" ${dis(T.aa)}>Atacar</button>`
         )
       )

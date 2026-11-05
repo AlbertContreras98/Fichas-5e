@@ -286,6 +286,15 @@ function scrollModal(i, eco) {
     <details><summary>Qué hace</summary><p>${esc(d.de)}</p></details>
     <div class="btns">${hard && onList ? `<button class="b pri" data-act="scr-cast">La supero: lanzar</button><button class="b bad" data-act="scr-fail">La fallo</button>` : `<button class="b pri" data-act="scr-cast">${onList ? 'Lanzar' : 'Lanzarlo igualmente'}</button>`}<button class="b" data-act="close-modal">Cancelar</button></div>`);
 }
+/* Daño del ataque extra con un arma ligera (acción adicional): sin el modificador de característica, salvo
+   que sea negativo o que tengas el estilo Combate con dos armas, que te deja sumarlo */
+function lightDmg(c, a) {
+  const W = a.wpn && WEAPONS[a.wpn];
+  if (!W || featHas(c, 'twf')) return a.dmg || '—';
+  const mod = W.p.includes('sutil') ? Math.max(M(c, 'str'), M(c, 'dex')) : W.r ? M(c, 'dex') : M(c, 'str'),
+    b = Math.min(mod, 0) + (+a.magic || 0);
+  return W.d === '1' ? `${Math.max(1, 1 + b)}` : `${W.d}${b ? ` ${b > 0 ? '+' : '−'} ${Math.abs(b)}` : ''}`;
+}
 const armorAuto = c => c.equipment.some(e => e.armor && ARMORS[e.armor]);
 function acCalc(c) {
   const dex = M(c, 'dex'),

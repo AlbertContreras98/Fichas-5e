@@ -106,7 +106,7 @@ function creaCard(c, x) {
     else formBtn = `<button class="b pri" data-act="crea-transform" data-id="${x.id}">Transformarte</button>`;
   }
   return `<div class="compc ${active ? 'active' : ''}">
-    <div class="comp-top"><span><b>${esc(x.name || 'Sin nombre')}</b> <small>${esc(st.sub || kindLbl)}${isForm && x.cr ? ` · VD ${esc(x.cr)}` : ''}</small></span><button class="b sm" data-act="crea-edit" data-id="${x.id}">Editar</button></div>
+    <div class="comp-top"><span><b>${esc(x.name || 'Sin nombre')}</b> <small>${esc(st.sub || kindLbl)}${isForm && x.cr ? ` · VD ${esc(x.cr)}` : ''}</small></span><span class="btns"><button class="b sm" data-act="crea-share" data-id="${x.id}">QR para el máster</button><button class="b sm" data-act="crea-edit" data-id="${x.id}">Editar</button></span></div>
     <div class="comp-stats"><span>CA <b>${esc(st.ac === '' || st.ac == null ? '—' : st.ac)}</b></span>${st.speed ? `<span>${esc(st.speed)}</span>` : ''}${isForm && st.hpMax ? `<span>PG de la bestia <b>${st.hpMax}</b></span>` : ''}${x.conc ? `<span>ligada a tu concentración</span>` : ''}</div>
     ${
       st.track

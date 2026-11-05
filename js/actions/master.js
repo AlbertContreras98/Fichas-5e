@@ -90,6 +90,12 @@ Object.assign(A, {
   'm-scan': openScan,
   'm-paste': () => {
     const x = sheetParse($('#m-code').value);
+    const h = !x && qrKind($('#m-code').value);
+    if (h && h.k === 'cr') {
+      closeModal();
+      qrRun(h);
+      return;
+    }
     if (!x) {
       toast(
         '<div class="t-parts">Ese código no es válido. Pídele al jugador que lo copie de nuevo (⚙ Ajustes → Compartir con el máster).</div>'
@@ -257,6 +263,26 @@ Object.assign(A, {
     render();
   },
   'share-open': openShare,
+  'crea-share': el => openCreaShare(el.dataset.id),
+  'cr-copy': async () => {
+    try {
+      await navigator.clipboard.writeText(CRSH);
+      toast(
+        '<div class="t-label">Código copiado</div><div class="t-parts">Pásaselo al máster: lo pega en «+ Jugador».</div>'
+      );
+    } catch (e) {
+      openModal(
+        `<h2>Código de la criatura</h2><p class="hint">Cópialo y pásaselo al máster: lo pega en «+ Jugador».</p><textarea class="code" readonly onclick="this.select()">${esc(CRSH)}</textarea><div class="btns"><button class="b" data-act="close-modal">Cerrar</button></div>`
+      );
+    }
+  },
+  'm-cr-del': el => {
+    const p = MST.players.find(x => x.id === el.dataset.p);
+    if (!p) return;
+    p.crs = (p.crs || []).filter(x => x.id !== el.dataset.id);
+    masterSave();
+    render();
+  },
   'share-copy': async () => {
     const t = sheetLink(C());
     try {

@@ -131,7 +131,7 @@ Object.assign(A, {
     save();
     render();
     toast(
-      `<div class="t-label">Ataque con ${esc(a.name)} (acción adicional)</div><div class="t-big">1d20 ${sgn(+a.atk || 0)}</div><div class="t-parts">Daño: ${esc(a.dmg || '—')} sin sumar tu modificador.</div>`
+      `<div class="t-label">Ataque con ${esc(a.name)} (acción adicional)</div><div class="t-big">1d20 ${sgn(+a.atk || 0)}</div><div class="t-parts">El ataque suma tu bonificador de competencia como siempre.</div><div class="t-parts">Daño: ${esc(lightDmg(c, a))}${featHas(c, 'twf') ? ' (con Combate con dos armas sumas tu modificador al daño)' : ' (sin tu modificador de característica, salvo que sea negativo)'}.</div>`
     );
   },
   't-cast': el => {

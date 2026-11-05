@@ -3419,3 +3419,7 @@ button.eff.cond-pill {
 .sp-own-h {
   margin: 0.6rem 0 0.2rem;
 }
+.comp-top .btns {
+  flex: none;
+  flex-wrap: nowrap;
+}

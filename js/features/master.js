@@ -115,13 +115,144 @@ function sheetParse(txt) {
     return null;
   }
 }
+/* ── Criaturas del jugador (familiar, invocación, forma…): la misma ventana, una a una ── */
+/* Características de las criaturas que la app calcula sola (reglas de 2024): [FUE…CAR], Percepción pasiva */
+const CR_AB = {
+  beast: [[18, 11, 16, 4, 14, 5], 12],
+  fey: [[13, 16, 14, 14, 11, 16], 10],
+  undead: [[12, 16, 15, 4, 10, 9], 10],
+  elemental: [[18, 15, 17, 4, 10, 16], 10],
+  construct: [[18, 10, 18, 14, 11, 5], 10],
+  aberration: [[16, 10, 15, 16, 10, 6], 10],
+  celestial: [[16, 14, 16, 10, 14, 16], 12],
+  fiend: [[13, 16, 15, 10, 10, 16], 10],
+  dragon: [[19, 14, 17, 10, 14, 14], 12],
+  steed: [[18, 12, 14, 6, 12, 8], 11],
+  land: [[14, 14, 15, 8, 14, 11], 12],
+  sea: [[14, 14, 15, 8, 14, 11], 12],
+  sky: [[6, 16, 13, 8, 14, 11], 12],
+};
+function creaSheetOf(c, x) {
+  const st = creaStats(c, x),
+    b = x.cat && BEASTS.find(z => z.id === x.cat);
+  let a = null,
+    pp = null,
+    s = null;
+  if (b) {
+    a = [...b.ab];
+    const m = /Percepción pasiva (\d+)/.exec(b.sen || '');
+    pp = m ? +m[1] : null;
+  } else {
+    const k =
+      x.kind === 'summon' ? x.s : x.kind === 'steed' ? 'steed' : x.kind === 'primal' ? x.v || 'land' : '';
+    if (CR_AB[k]) [a, pp] = [[...CR_AB[k][0]], CR_AB[k][1]];
+  }
+  if (a) {
+    s = a.map(v => mod(v));
+    /* Forma salvaje: conservas tu INT, SAB y CAR y tus competencias en salvaciones */
+    if (x.kind === 'form' && x.via === 'wild')
+      ABIL.forEach(([k], i) => {
+        if (i >= 3) a[i] = +c.abilities[k] || 10;
+        s[i] = mod(a[i]) + (c.saveProf.includes(k) ? pb(c) : 0);
+      });
+    /* Compañero primigenio: suma tu competencia a sus pruebas y salvaciones */
+    if (x.kind === 'primal') {
+      s = s.map(v => v + pb(c));
+      pp += pb(c);
+    }
+  }
+  const lbl =
+    x.kind === 'form'
+      ? { wild: 'Forma salvaje', poly: 'Polimorfar', other: 'Transformación' }[x.via || 'other']
+      : x.label || CREA_KINDS[x.kind].n;
+  return {
+    t: 'c',
+    v: 1,
+    id: x.id,
+    o: c.id,
+    on: c.name || 'Sin nombre',
+    n: x.name || 'Sin nombre',
+    k: [lbl, st.sub].filter(Boolean).join(' · '),
+    a,
+    s,
+    ac: x.kind === 'form' ? formAC(c, x) : +st.ac || 0,
+    pp,
+  };
+}
+const crCode = (c, x) => b64u(JSON.stringify(creaSheetOf(c, x)));
+const crLink = (c, x) => `${location.origin}${location.pathname}#cr=${crCode(c, x)}`;
+function crParse(code) {
+  try {
+    const x = JSON.parse(unb64u(code));
+    if (!x || x.t !== 'c' || !x.id || !x.o) return null;
+    const ok = Array.isArray(x.a) && x.a.length === 6 && Array.isArray(x.s) && x.s.length === 6;
+    return {
+      id: String(x.id).slice(0, 40),
+      o: String(x.o).slice(0, 40),
+      on: String(x.on || '').slice(0, 60),
+      n: String(x.n || 'Sin nombre').slice(0, 60),
+      k: String(x.k || '').slice(0, 100),
+      a: ok ? x.a.map(v => clamp(parseInt(v) || 10, 1, 30)) : null,
+      s: ok ? x.s.map(v => clamp(parseInt(v) || 0, -10, 30)) : null,
+      ac: clamp(parseInt(x.ac) || 0, 0, 40),
+      pp: x.pp === null || x.pp === undefined || x.pp === '' ? null : clamp(parseInt(x.pp) || 10, 0, 40),
+    };
+  } catch (e) {
+    return null;
+  }
+}
+/* Guarda la criatura con su jugador; devuelve el jugador o null si no está en la mesa */
+function masterAddCrea(x) {
+  const p = MST.players.find(q => q.id === x.o);
+  if (!p) return null;
+  x.t = Date.now();
+  p.crs = (p.crs || []).filter(q => q.id !== x.id).concat(x);
+  masterSave();
+  return p;
+}
+/* Ventana de una criatura: lo mismo que la del jugador (características, salvaciones, CA y Percepción pasiva) */
+function crCard(x, foot = '') {
+  const irow = (lbl, val, desc) =>
+    `<details class="inforow"><summary><span>${esc(lbl)}</span><b>${esc(val)}</b></summary><p class="hint">${esc(desc)}</p></details>`;
+  return `<section class="card msheet"><div class="card-head"><h2>${esc(x.n)}</h2><small>${esc(x.k)}</small></div>${
+    x.a
+      ? `<div class="abil">${ABIL.map(
+          ([k, l], i) => `<div class="ab"><span class="lbl">${l}</span>
+      <span class="mod">${sgn(mod(x.a[i]))}</span><span class="sc">${x.a[i]}</span>
+      <span class="sv">Salv. ${sgn(x.s[i])}</span></div>`
+        ).join('')}</div>`
+      : '<p class="hint">Sin características: es una criatura hecha a mano.</p>'
+  }
+    <div class="abil-extra">${irow('CA', String(x.ac), 'Clase de armadura: lo que tiene que igualar o superar un ataque para impactarle.')}${x.pp !== null ? irow('Percepción pasiva', String(x.pp), 'Lo que nota sin tirar dados.') : ''}</div>${foot}</section>`;
+}
+/* Ventana del jugador para pasar una criatura al máster */
+let CRSH = null;
+function openCreaShare(id) {
+  const c = C(),
+    x = c.companions.find(q => q.id === id);
+  if (!x) return;
+  const link = crLink(c, x),
+    svg = qrSvg(link);
+  CRSH = link;
+  openModal(
+    `<div class="wz-head"><h2>Pasar al máster</h2><button class="b sm" data-act="close-modal">Cerrar</button></div>
+    <p class="hint">Enséñale este QR al máster: verá las características de <b>${esc(x.name || 'esta criatura')}</b> debajo de las tuyas. Solo se pasa esta criatura; las demás, solo si se las enseñas. Para que le llegue, antes tiene que tenerte en su mesa.</p>
+    ${svg ? `<div class="qrbox">${svg}</div>` : '<p class="hint warn">No se ha podido crear el QR. Usa el código.</p>'}
+    <div class="btns" style="justify-content:center"><button class="b pri" data-act="cr-copy">Copiar código</button>${qrFileBtn('cr', crCode(c, x), x.name || 'criatura')}</div>
+    <h3>Lo que verá el máster</h3>${crCard(crParse(crCode(c, x)))}`,
+    true
+  );
+}
 /* Añade o actualiza un jugador en la mesa del máster */
 function masterAddPlayer(x) {
   const i = MST.players.findIndex(p => p.id === x.id),
     nw = i < 0;
   x.t = Date.now();
   if (nw) MST.players.push(x);
-  else MST.players[i] = x;
+  else {
+    if (MST.players[i].crs) x.crs = MST.players[i].crs;
+    MST.players[i] = x;
+  }
   MST.fight.list.forEach(f => {
     if (f.pid === x.id) Object.assign(f, { name: x.n, ac: x.ac });
   });
@@ -179,7 +310,14 @@ function renderMaster() {
     ? `<div class="mview">${sheetCard(
         p,
         `<p class="hint" style="margin-top:.6rem">Recibido el ${new Date(p.t).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}. Para actualizarlo, vuelve a escanear su QR.</p><div class="btns"><button class="b bad sm" data-act="m-del" data-id="${esc(p.id)}">Quitar jugador</button></div>`
-      )}</div>`
+      )}${(p.crs || [])
+        .map(x =>
+          crCard(
+            x,
+            `<p class="hint" style="margin-top:.6rem">Criatura de ${esc(p.n)} · recibida el ${new Date(x.t).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}.</p><div class="btns"><button class="b bad sm" data-act="m-cr-del" data-p="${esc(p.id)}" data-id="${esc(x.id)}">Quitar criatura</button></div>`
+          )
+        )
+        .join('')}</div>`
     : MST.tab === 'shops'
       ? masterShops()
       : masterFight();
@@ -354,7 +492,7 @@ function loadJsQR() {
   });
 }
 /* ── Pasar lo mismo que un QR con un archivo .json (para quien no tenga cámara, como en un portátil) ── */
-const QR_FILE = { pj: 'caracteristicas', tienda: 'tienda', recibo: 'recibo' };
+const QR_FILE = { pj: 'caracteristicas', cr: 'criatura', tienda: 'tienda', recibo: 'recibo' };
 const fileSlug = s =>
   norm(s)
     .replace(/[^a-z0-9]+/g, '-')
@@ -385,10 +523,11 @@ function qrFileRead(text) {
 /* Qué es un QR o código leído: {k:'pj'|'tienda'|'recibo', code} o null */
 function qrKind(txt) {
   const t = String(txt || '').trim(),
-    m = t.match(/#(pj|tienda|recibo)=([A-Za-z0-9_-]+)/);
+    m = t.match(/#(pj|cr|tienda|recibo)=([A-Za-z0-9_-]+)/);
   if (m) return { k: m[1], code: m[2] };
   if (!/^[A-Za-z0-9_-]+$/.test(t)) return null;
   if (sheetParse(t)) return { k: 'pj', code: t };
+  if (crParse(t)) return { k: 'cr', code: t };
   if (shopParse(t)) return { k: 'tienda', code: t };
   if (rcptParse(t)) return { k: 'recibo', code: t };
   return null;
@@ -410,6 +549,19 @@ function qrRun(h) {
       toast(
         `<div class="t-label">${nw ? 'Jugador añadido' : 'Jugador actualizado'}</div><div class="t-big">${esc(x.n)}</div>`
       );
+    } else if (h.k === 'cr') {
+      const x = crParse(h.code);
+      if (!x) return qrRun(null);
+      const p = masterAddCrea(x);
+      if (!p) {
+        toast(
+          `<div class="t-parts">${esc(x.n)} es de ${esc(x.on || 'un jugador')}, que no está en tu mesa${MST.camps.length > 1 ? ' de esta campaña' : ''}. Añade primero a su jugador con su QR y vuelve a escanear el de la criatura.</div>`
+        );
+        return;
+      }
+      MST.tab = p.id;
+      render();
+      toast(`<div class="t-label">Criatura de ${esc(p.n)}</div><div class="t-big">${esc(x.n)}</div>`);
     } else if (h.k === 'recibo') {
       const rc = rcptParse(h.code);
       if (!rc) return qrRun(null);
@@ -500,7 +652,7 @@ async function openScan() {
 
 /* Al abrir la app con un enlace #pj=…, #tienda=… o #recibo=… (un QR escaneado con la cámara del móvil) */
 function masterHash() {
-  const m = location.hash.match(/^#(pj|tienda|recibo)=([A-Za-z0-9_-]+)/);
+  const m = location.hash.match(/^#(pj|cr|tienda|recibo)=([A-Za-z0-9_-]+)/);
   if (!m) return;
   history.replaceState(null, '', location.pathname + location.search);
   if (m[1] !== 'pj' || MST.on) return qrRun({ k: m[1], code: m[2] });
