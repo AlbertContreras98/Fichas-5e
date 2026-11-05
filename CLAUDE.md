@@ -18,6 +18,7 @@ La app está pensada para jugar con dados físicos. No tira dados: dice qué tir
 - El botón de descanso (zZ) se queda donde está.
 - Munición: su máster **no** usa la regla de recuperar la mitad. La app solo descuenta munición al disparar; lo recuperado lo suma el jugador a mano.
 - Comunicación con él: en castellano y sin jerga innecesaria.
+- Cuando termines y pruebes un cambio que él ha pedido, **pásalo a `main` sin preguntarle** (además de subirlo a la rama de trabajo).
 
 ## Arquitectura
 
