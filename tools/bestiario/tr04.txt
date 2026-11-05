@@ -1,0 +1,139 @@
+@flesh-golem|Gólem de carne
+T|Aversión al fuego|Si recibe daño de fuego, desventaja en ataques y pruebas hasta el final de su siguiente turno.
+T|Furia|Si empieza su turno Ensangrentado, tira 1d6: con un 6 enloquece y ataca a la criatura más cercana que vea (o a un objeto) hasta que lo destruyan o deje de estar Ensangrentado. Su creador, a 60 pies, puede calmarlo hasta su siguiente turno con una acción y Carisma (Persuasión) CD 15.
+T|Forma inmutable|No puede cambiar de forma.
+T|Absorber relámpagos|El daño de relámpago le cura: recupera esos PG.
+T|Resistencia mágica|*MR
+X|Ataque múltiple|Dos ataques de Golpe.
+A|Golpe|+7|2d8 + 4 contundente + 1d8 de relámpago.
+@frost-giant|Gigante de escarcha
+X|Ataque múltiple|Dos ataques, con Hacha de escarcha o Gran arco en cualquier combinación.
+A|Hacha de escarcha|+9|Alcance 10 pies. 2d12 + 6 cortante + 2d8 de frío.
+A|Gran arco|+9|A distancia (150/600 pies). 2d10 + 6 perforante + 2d6 de frío, y su velocidad baja 10 pies hasta el final de su siguiente turno.
+B|Grito de guerra|Él o una criatura que elija que lo vea u oiga gana 2d10 + 5 PG temporales y ventaja en los ataques hasta el inicio del siguiente turno del gigante.
+@shrieker-fungus|Hongo chillón
+R|Chillido|Cuando una criatura o una luz brillante se acerca a 30 pies: chilla durante 1 minuto (o hasta morir) y se le oye a 300 pies.
+@violet-fungus|Hongo violeta
+X|Ataque múltiple|Dos ataques de Toque putrefacto.
+A|Toque putrefacto|+2|Alcance 10 pies. 1d8 necrótico.
+@gargoyle|Gárgola
+T|Vuelo rasante|No provoca ataques de oportunidad al salir volando del alcance de un enemigo.
+X|Ataque múltiple|Dos ataques de Garra.
+A|Garra|+4|2d4 + 2 cortante.
+@gelatinous-cube|Cubo gelatinoso
+T|Cubo de cieno|Llena su espacio y es transparente. Quien entre sufre Engullir con desventaja en la salvación. Dentro hay cobertura total; caben una criatura Grande o cuatro Medianas o Pequeñas. Con una acción, alguien a 5 pies puede sacar a una criatura u objeto con Fuerza (Atletismo) CD 12, y recibe 3d6 de ácido.
+T|Transparente|Si no lo han visto moverse, hace falta Sabiduría (Percepción) CD 15 para verlo.
+A|Pseudópodo|+4|3d6 + 2 de ácido.
+X|Engullir|Se mueve hasta su velocidad sin provocar ataques de oportunidad, entrando en el espacio de criaturas Grandes o menores si caben. Salvación de Destreza CD 12 para cada una. Falla: 3d6 de ácido y queda engullida: se asfixia, no puede lanzar conjuros verbales, está Apresada y recibe 3d6 de ácido al inicio de cada turno del cubo. Escapa con una acción y Fuerza (Atletismo) CD 12. Si supera: la mitad y se aparta a 5 pies.
+@ghast|Ghast
+T|Hedor|Salvación de Constitución CD 10 para quien empiece su turno a 5 pies. Falla: Envenenado hasta el inicio de su siguiente turno. Si supera, inmune 24 horas.
+A|Mordisco|+5|1d8 + 3 perforante + 2d8 necrótico.
+A|Garra|+5|2d6 + 3 cortante. Si no es un muerto viviente: salvación de Constitución CD 10 o queda Paralizado hasta el final de su siguiente turno.
+@ghost|Fantasma
+T|Vista etérea|Ve 60 pies dentro del Plano Etéreo desde el Plano Material.
+T|Movimiento incorpóreo|Atraviesa criaturas y objetos como si fueran terreno difícil. Si acaba su turno dentro de un objeto, recibe 1d10 de fuerza.
+X|Ataque múltiple|Dos ataques de Toque marchitador.
+A|Toque marchitador|+5|3d10 + 3 necrótico.
+X|Forma etérea|Lanza Excursión etérea sin componentes (Carisma). Se le ve desde el otro plano, pero no puede afectar ni ser afectado.
+X|Rostro horrible|Salvación de Sabiduría CD 13, cono de 60 pies, a quien lo vea y no sea muerto viviente. Falla: 2d6 + 3 psíquico y Asustado hasta el inicio del siguiente turno del fantasma. Si supera, inmune 24 horas.
+X|Posesión|Salvación de Carisma CD 13, un humanoide que vea a 5 pies. Falla: lo posee: el fantasma desaparece y controla el cuerpo (el objetivo queda Incapacitado pero consciente). Solo le afecta lo que apunta a muertos vivientes. Usa la velocidad y los modificadores de FUE, DES y CON del cuerpo. Acaba si el cuerpo cae a 0 PG o el fantasma sale (acción adicional). Tras salir o si supera, inmune 24 horas.
+@ghoul|Necrófago
+X|Ataque múltiple|Dos ataques de Mordisco.
+A|Mordisco|+4|1d6 + 2 perforante + 1d6 necrótico.
+A|Garra|+4|1d4 + 2 cortante. Si no es muerto viviente ni elfo: salvación de Constitución CD 10 o queda Paralizado hasta el final de su siguiente turno.
+@gibbering-mouther|Farfullador
+T|Suelo aberrante|El suelo a 10 pies a su alrededor es terreno difícil.
+T|Farfulla|Mientras no esté Incapacitado, quien empiece su turno a 20 pies: salvación de Sabiduría CD 10. Falla: tira 1d8. 1-4: no hace nada. 5-6: sin acción ni acción adicional, y usa todo su movimiento en una dirección al azar. 7-8: ataca cuerpo a cuerpo a una criatura al azar a su alcance (o nada).
+A|Mordisco|+2|2d6 perforante. Si es Mediana o menor, queda Derribada. Si cae a 0 PG por este ataque, muere y el farfullador absorbe su cuerpo.
+X|Escupitajo cegador (recarga 5-6)|Salvación de Destreza CD 10, esfera de 10 pies de radio en un punto a 30 pies. Falla: 2d6 radiante y Cegado hasta el final del siguiente turno del farfullador.
+@glabrezu|Glabrezu
+T|Restauración demoníaca|*AR
+T|Resistencia mágica|*MR
+X|Ataque múltiple|Dos ataques de Pinza y usa Aporrear o Lanzamiento de conjuros.
+A|Pinza|+9|Alcance 10 pies. 2d10 + 5 cortante. Si es Mediana o menor, queda Agarrada (escapar CD 15) por una de sus dos pinzas.
+X|Aporrear|Salvación de Destreza CD 17, una criatura que tenga Agarrada. Falla: 3d6 + 5 contundente (mitad si supera).
+X|Lanzamiento de conjuros|*SP
+@gladiator|Gladiador
+X|Ataque múltiple|Tres ataques de Lanza. Puede cambiar uno por Golpe de escudo.
+A|Lanza|+7|Cuerpo a cuerpo o a distancia (20/60 pies). 2d6 + 4 perforante.
+X|Golpe de escudo|Salvación de Fuerza CD 15, una criatura que vea a 5 pies. Falla: 2d4 + 4 contundente y, si es Mediana o menor, queda Derribada.
+R|Parada|Cuando le impacta un ataque cuerpo a cuerpo y empuña un arma: +3 a la CA contra ese ataque, que puede fallar.
+@gnoll-warrior|Gnoll guerrero
+A|Desgarrar|+4|1d6 + 2 perforante.
+A|Arco de hueso|+3|A distancia (150/600 pies). 1d10 + 1 perforante.
+B|Desenfreno|Justo después de hacer daño a una criatura ya Ensangrentada, se mueve hasta la mitad de su velocidad y hace un ataque de Desgarrar.
+@goblin-minion|Goblin esbirro
+A|Daga|+4|Cuerpo a cuerpo o a distancia (20/60 pies). 1d4 + 2 perforante.
+B|Huida ágil|Hace la acción de Destrabarse o de Esconderse.
+@goblin-warrior|Goblin guerrero
+A|Cimitarra|+4|1d6 + 2 cortante, +1d4 cortante si atacó con ventaja.
+A|Arco corto|+4|A distancia (80/320 pies). 1d6 + 2 perforante, +1d4 perforante si atacó con ventaja.
+B|Huida ágil|Hace la acción de Destrabarse o de Esconderse.
+@goblin-boss|Jefe goblin
+X|Ataque múltiple|Dos ataques, con Cimitarra o Arco corto en cualquier combinación.
+A|Cimitarra|+4|1d6 + 2 cortante, +1d4 cortante si atacó con ventaja.
+A|Arco corto|+4|A distancia (80/320 pies). 1d6 + 2 perforante, +1d4 perforante si atacó con ventaja.
+B|Huida ágil|Hace la acción de Destrabarse o de Esconderse.
+R|Desviar ataque|Cuando lo atacan: intercambia el sitio con un aliado Pequeño o Mediano a 5 pies, que pasa a ser el objetivo.
+@gold-dragon-wyrmling|Cría de dragón de oro
+T|Anfibio|*AMF
+X|Ataque múltiple|Dos ataques de Desgarrar.
+A|Desgarrar|+6|1d10 + 4 cortante.
+X|Aliento de fuego|Salvación de Destreza CD 13, cono de 15 pies. Falla: 4d10 de fuego (mitad si supera).
+X|Aliento debilitador|Salvación de Fuerza CD 13, cono de 15 pies (a quien no lo sufra ya). Falla: desventaja en las pruebas d20 de Fuerza y resta 1d4 a sus tiradas de daño. Repite al final de cada turno suyo; tras 1 minuto, la supera sola.
+@young-gold-dragon|Dragón de oro joven
+T|Anfibio|*AMF
+X|Ataque múltiple|Tres ataques de Desgarrar. Puede cambiar uno por Aliento debilitador.
+A|Desgarrar|+10|Alcance 10 pies. 2d10 + 6 cortante.
+X|Aliento de fuego|Salvación de Destreza CD 17, cono de 30 pies. Falla: 10d10 de fuego (mitad si supera).
+X|Aliento debilitador|Salvación de Fuerza CD 17, cono de 30 pies (a quien no lo sufra ya). Falla: desventaja en las pruebas d20 de Fuerza y resta 1d6 a sus tiradas de daño. Repite al final de cada turno suyo; tras 1 minuto, la supera sola.
+@adult-gold-dragon|Dragón de oro adulto
+T|Anfibio|*AMF
+T|Resistencia legendaria|*LR
+X|Ataque múltiple|Tres ataques de Desgarrar. Puede cambiar uno por lanzar Saeta guía (a nivel 2) o por Aliento debilitador.
+A|Desgarrar|+14|Alcance 10 pies. 2d8 + 8 cortante + 1d8 de fuego.
+X|Aliento de fuego|Salvación de Destreza CD 21, cono de 60 pies. Falla: 12d10 de fuego (mitad si supera).
+X|Lanzamiento de conjuros|*SP
+X|Aliento debilitador|Salvación de Fuerza CD 21, cono de 60 pies (a quien no lo sufra ya). Falla: desventaja en las pruebas d20 de Fuerza y resta 1d6 a sus tiradas de daño. Repite al final de cada turno suyo; tras 1 minuto, la supera sola.
+L|Desterrar|Salvación de Carisma CD 21, una criatura que vea a 120 pies. Falla: 3d6 de fuerza y queda Incapacitada en un semiplano inofensivo hasta el inicio del siguiente turno del dragón; reaparece donde él elija a 120 pies. No puede repetirla hasta el inicio de su turno.
+L|Luz guía|Lanza Saeta guía (a nivel 2).
+L|Abalanzarse|Se mueve hasta la mitad de su velocidad y hace un ataque de Desgarrar.
+@ancient-gold-dragon|Dragón de oro anciano
+T|Anfibio|*AMF
+T|Resistencia legendaria|*LR
+X|Ataque múltiple|Tres ataques de Desgarrar. Puede cambiar uno por lanzar Saeta guía (a nivel 4) o por Aliento debilitador.
+A|Desgarrar|+17|Alcance 15 pies. 2d8 + 10 cortante + 2d8 de fuego.
+X|Aliento de fuego|Salvación de Destreza CD 24, cono de 90 pies. Falla: 13d10 de fuego (mitad si supera).
+X|Lanzamiento de conjuros|*SP
+X|Aliento debilitador|Salvación de Fuerza CD 24, cono de 90 pies (a quien no lo sufra ya). Falla: desventaja en las pruebas d20 de Fuerza y resta 1d10 a sus tiradas de daño. Repite al final de cada turno suyo; tras 1 minuto, la supera sola.
+L|Desterrar|Salvación de Carisma CD 24, una criatura que vea a 120 pies. Falla: 7d6 de fuerza y queda Incapacitada en un semiplano inofensivo hasta el inicio del siguiente turno del dragón; reaparece donde él elija a 120 pies. No puede repetirla hasta el inicio de su turno.
+L|Luz guía|Lanza Saeta guía (a nivel 4).
+L|Abalanzarse|Se mueve hasta la mitad de su velocidad y hace un ataque de Desgarrar.
+@gorgon|Gorgona
+A|Cornada|+8|2d12 + 5 perforante. Si es Grande o menor y la gorgona se movió 20+ pies en línea recta hacia él justo antes, queda Derribado.
+X|Aliento petrificante|Salvación de Constitución CD 15, cono de 30 pies. 1.ª falla: Apresado; repite al final de su siguiente turno. 2.ª falla: Petrificado.
+B|Pisotear|Salvación de Destreza CD 16, una criatura Derribada a 5 pies. Falla: 2d10 + 5 contundente (mitad si supera).
+@gray-ooze|Cieno gris
+T|Amorfo|*AMO
+T|Forma corrosiva|La munición no mágica que le impacta se destruye. Cada arma no mágica que le hace daño sufre −1 acumulable a los ataques (se destruye a −5; Reparar lo quita). Disuelve 2 pulgadas de metal o madera no mágicos en 1 asalto.
+A|Pseudópodo|+3|2d8 + 1 de ácido. La armadura no mágica del objetivo pierde 1 de CA (se destruye si llega a 10; Reparar lo quita).
+@green-dragon-wyrmling|Cría de dragón verde
+T|Anfibio|*AMF
+X|Ataque múltiple|Dos ataques de Desgarrar.
+A|Desgarrar|+4|1d10 + 2 cortante + 1d6 de veneno.
+X|Aliento venenoso|Salvación de Constitución CD 11, cono de 15 pies. Falla: 6d6 de veneno (mitad si supera).
+@young-green-dragon|Dragón verde joven
+T|Anfibio|*AMF
+X|Ataque múltiple|Tres ataques de Desgarrar.
+A|Desgarrar|+7|Alcance 10 pies. 2d6 + 4 cortante + 2d6 de veneno.
+X|Aliento venenoso|Salvación de Constitución CD 14, cono de 30 pies. Falla: 12d6 de veneno (mitad si supera).
+@adult-green-dragon|Dragón verde adulto
+T|Anfibio|*AMF
+T|Resistencia legendaria|*LR
+X|Ataque múltiple|Tres ataques de Desgarrar. Puede cambiar uno por lanzar Punzada mental (a nivel 3).
+A|Desgarrar|+11|Alcance 10 pies. 2d8 + 6 cortante + 2d6 de veneno.
+X|Aliento venenoso|Salvación de Constitución CD 18, cono de 60 pies. Falla: 16d6 de veneno (mitad si supera).
+X|Lanzamiento de conjuros|*SP
+L|Invasión mental|Lanza Punzada mental (a nivel 3).
+L|Miasma nocivo|Salvación de Constitución CD 17, esfera de 20 pies de radio en un punto que vea a 90 pies. Falla: 2d6 de veneno y −2 a la CA hasta el final de su siguiente turno. No puede repetirla hasta el inicio de su turno.
+L|Abalanzarse|Se mueve hasta la mitad de su velocidad y hace un ataque de Desgarrar.

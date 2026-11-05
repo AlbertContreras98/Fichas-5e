@@ -1,0 +1,151 @@
+@treant|Ent
+T|Monstruo de asedio|Hace el doble de daño a objetos y estructuras.
+X|Ataque múltiple|Dos ataques de Golpe.
+A|Golpe|+10|3d6 + 6 contundente.
+A|Lluvia de corteza|+10|A distancia (180 pies). 4d10 + 6 perforante.
+X|Animar árboles|Anima hasta dos árboles que vea a 60 pies. Usan la ficha del ent, pero con INT y CAR 1, sin habla y sin esta acción; actúan justo después de él y le obedecen. Duran 1 día, hasta morir, hasta que muera el ent o si se alejan más de 120 pies.
+@troll|Trol
+T|Miembros repugnantes|Si acaba un turno Ensangrentado y recibió 15+ de daño cortante en ese turno, pierde un miembro, que se convierte en un Miembro de trol y actúa justo después de él. Tiene 1 nivel de Agotamiento por cada miembro que le falte; le vuelven a crecer cuando recupere PG.
+T|Regeneración|Recupera 15 PG al inicio de cada turno suyo. Si recibe daño de ácido o fuego, no se regenera en su siguiente turno. Solo muere si empieza su turno con 0 PG y no se regenera.
+X|Ataque múltiple|Tres ataques de Desgarrar.
+A|Desgarrar|+7|Alcance 10 pies. 2d6 + 4 cortante.
+B|Carga|Se mueve hasta la mitad de su velocidad en línea recta hacia un enemigo que vea.
+@troll-limb|Miembro de trol
+T|Regeneración|Recupera 5 PG al inicio de cada turno suyo. Si recibe daño de ácido o fuego, no se regenera en su siguiente turno. Solo muere si empieza su turno con 0 PG y no se regenera.
+T|Engendro de trol|Tiene los sentidos de un trol entero. Si no lo destruyen en 24 horas, tira 1d12: con un 12 se convierte en un trol; si no, se marchita.
+A|Desgarrar|+6|2d4 + 4 cortante.
+@unicorn|Unicornio
+T|Resistencia legendaria|*LR
+T|Resistencia mágica|*MR
+X|Ataque múltiple|Un ataque de Cascos y uno de Cuerno radiante.
+A|Cascos|+7|2d6 + 4 contundente.
+A|Cuerno radiante|+7|1d10 + 4 radiante.
+X|Lanzamiento de conjuros|*SP
+L|Cuerno a la carga|Se mueve hasta la mitad de su velocidad sin provocar ataques de oportunidad y hace un ataque de Cuerno radiante.
+L|Escudo reluciente|Él o una criatura que vea a 60 pies gana 3d6 PG temporales y +2 a la CA hasta el final del siguiente turno del unicornio. No puede repetirla hasta el inicio de su turno.
+@vampire-familiar|Familiar vampírico
+T|Conexión vampírica|En el mismo plano, su amo vampiro le habla por telepatía y percibe a través de sus sentidos.
+X|Ataque múltiple|Dos ataques de Daga umbría.
+A|Daga umbría|+5|Cuerpo a cuerpo o a distancia (20/60 pies). 1d4 + 3 perforante + 3d4 necrótico. Si cae a 0 PG por este ataque, queda estable pero Envenenado (y Paralizado) 1 hora.
+B|Agilidad inmortal|Hace la acción de Correr o de Destrabarse.
+@vampire-spawn|Engendro vampírico
+T|Trepar como una araña|*SC
+T|Debilidades de vampiro|*VW
+T|Prohibición|*VFORB
+T|Agua corriente|*VWATER
+T|Estaca en el corazón|Queda destruido si le clavan en el corazón un arma perforante mientras está Incapacitado.
+T|Luz del sol|*VSUN
+X|Ataque múltiple|Dos ataques de Garra y usa Mordisco.
+A|Garra|+6|2d4 + 3 cortante. Si es Mediano o menor, queda Agarrado (escapar CD 13) por una de sus dos garras.
+X|Mordisco|Salvación de Constitución CD 14, una criatura a 5 pies voluntaria, Agarrada, Incapacitada o Apresada. Falla: 1d4 + 3 perforante + 3d6 necrótico; sus PG máximos bajan tanto como el daño necrótico y el vampiro recupera esos PG.
+B|Agilidad inmortal|Hace la acción de Correr o de Destrabarse.
+@vampire-vampire|Vampiro (forma de vampiro)
+T|Resistencia legendaria|*LR
+T|Huida en niebla|*VMIST
+T|Trepar como una araña|*SC
+T|Debilidades de vampiro|*VW
+T|Prohibición|*VFORB
+T|Agua corriente|*VWATER
+T|Estaca en el corazón|*VSTAKE
+T|Luz del sol|*VSUN
+X|Ataque múltiple|Dos ataques de Golpe sepulcral y usa Mordisco.
+A|Golpe sepulcral|+9|1d8 + 4 contundente + 2d6 necrótico. Si es Grande o menor, queda Agarrado (escapar CD 14) por una de sus dos manos.
+X|Mordisco|*VBITE
+B|Hechizar|*VCHARM
+B|Cambiar de forma|*VSHAPE
+L|Embaucar|*VBEG
+L|Golpe inmortal|*VSTRIKE
+@vampire-bat|Vampiro (forma de murciélago)
+T|Resistencia legendaria|*LR
+T|Huida en niebla|*VMIST
+T|Trepar como una araña|*SC
+T|Debilidades de vampiro|*VW
+T|Prohibición|*VFORB
+T|Agua corriente|*VWATER
+T|Estaca en el corazón|*VSTAKE
+T|Luz del sol|*VSUN
+X|Mordisco|*VBITE
+B|Hechizar|*VCHARM
+B|Cambiar de forma|*VSHAPE
+L|Embaucar|*VBEG
+L|Golpe inmortal|*VSTRIKE
+@vampire-mist|Vampiro (forma de niebla)
+T|Resistencia legendaria|*LR
+T|Huida en niebla|*VMIST
+T|Trepar como una araña|*SC
+T|Debilidades de vampiro|*VW
+T|Prohibición|*VFORB
+T|Agua corriente|*VWATER
+T|Estaca en el corazón|*VSTAKE
+T|Luz del sol|*VSUN
+B|Hechizar|*VCHARM
+B|Cambiar de forma|*VSHAPE
+L|Embaucar|*VBEG
+L|Golpe inmortal|*VSTRIKE
+@vrock|Vrock
+T|Restauración demoníaca|*AR
+T|Resistencia mágica|*MR
+X|Ataque múltiple|Dos ataques de Despedazar.
+A|Despedazar|+6|2d6 + 3 perforante + 3d6 de veneno.
+X|Esporas|Salvación de Constitución CD 15, a 20 pies. Falla: Envenenado; recibe 1d10 de veneno al inicio de cada turno suyo y repite al final. Echarle un frasco de agua bendita lo cura.
+X|Chillido aturdidor|Salvación de Constitución CD 15, a 20 pies (los demonios la superan solos). Falla: 3d6 de trueno y Aturdido hasta el final del siguiente turno del vrock.
+@warrior-infantry|Soldado de infantería
+T|Tácticas de manada|*PT
+A|Lanza|+3|Cuerpo a cuerpo o a distancia (20/60 pies). 1d6 + 1 perforante.
+@warrior-veteran|Soldado veterano
+X|Ataque múltiple|Dos ataques de Mandoble o de Ballesta pesada.
+A|Mandoble|+5|2d6 + 3 cortante.
+A|Ballesta pesada|+3|A distancia (100/400 pies). 2d10 + 1 perforante.
+R|Parada|Cuando le impacta un ataque cuerpo a cuerpo y empuña un arma: +2 a la CA contra ese ataque, que puede fallar.
+@water-elemental|Elemental de agua
+T|Congelarse|Si recibe daño de frío, su velocidad baja 20 pies hasta el final de su siguiente turno.
+T|Forma de agua|Puede entrar en el espacio de un enemigo y quedarse. Pasa por huecos de 1 pulgada sin gastar movimiento extra.
+X|Ataque múltiple|Dos ataques de Golpe.
+A|Golpe|+7|2d8 + 4 contundente. Si es Mediano o menor, queda Derribado.
+X|Inundar|Salvación de Fuerza CD 15, cada criatura en su espacio. Falla: 4d8 + 4 contundente y, si es Grande o menor, Agarrada (escapar CD 14): Apresada, se asfixia si no respira agua y recibe 2d8 contundente al inicio de cada turno del elemental. Puede tener una Grande o dos Medianas. Alguien a 5 pies puede sacarla con una acción y Fuerza (Atletismo) CD 14. Si supera: solo la mitad.
+@werebear-human|Hombre oso (forma humana)
+X|Ataque múltiple|Dos ataques, con Hacha de mano o Desgarrar en cualquier combinación. Puede cambiar uno por Mordisco.
+A|Hacha de mano|+7|Cuerpo a cuerpo o a distancia (20/60 pies). 3d6 + 4 cortante.
+B|Cambiar de forma|*WSHAPE
+@werebear-hybrid|Hombre oso (forma híbrida)
+X|Ataque múltiple|Dos ataques, con Hacha de mano o Desgarrar en cualquier combinación. Puede cambiar uno por Mordisco.
+A|Mordisco|+7|2d12 + 4 perforante. Si es humanoide: salvación de Constitución CD 14. Falla: queda maldito; si cae a 0 PG, se convierte en hombre oso controlado por el máster con 10 PG. Si supera, inmune 24 horas.
+A|Hacha de mano|+7|Cuerpo a cuerpo o a distancia (20/60 pies). 3d6 + 4 cortante.
+A|Desgarrar|+7|2d8 + 4 cortante.
+B|Cambiar de forma|*WSHAPE
+@werebear-bear|Hombre oso (forma de oso)
+X|Ataque múltiple|Dos ataques de Desgarrar. Puede cambiar uno por Mordisco.
+A|Mordisco|+7|2d12 + 4 perforante. Si es humanoide: salvación de Constitución CD 14. Falla: queda maldito; si cae a 0 PG, se convierte en hombre oso controlado por el máster con 10 PG. Si supera, inmune 24 horas.
+A|Desgarrar|+7|2d8 + 4 cortante.
+B|Cambiar de forma|*WSHAPE
+@wereboar-human|Hombre jabalí (forma humana)
+X|Ataque múltiple|Dos ataques, con Jabalina o Colmillo en cualquier combinación. Puede cambiar uno por Cornada.
+A|Jabalina|+5|Cuerpo a cuerpo o a distancia (30/120 pies). 3d6 + 3 perforante.
+B|Cambiar de forma|*WSHAPE
+@wereboar-hybrid|Hombre jabalí (forma híbrida)
+X|Ataque múltiple|Dos ataques, con Jabalina o Colmillo en cualquier combinación. Puede cambiar uno por Cornada.
+A|Cornada|+5|2d8 + 3 perforante. Si es humanoide: salvación de Constitución CD 12. Falla: queda maldito; si cae a 0 PG, se convierte en hombre jabalí controlado por el máster con 10 PG. Si supera, inmune 24 horas.
+A|Jabalina|+5|Cuerpo a cuerpo o a distancia (30/120 pies). 3d6 + 3 perforante.
+A|Colmillo|+5|2d6 + 3 perforante. Si es Mediano o menor y se movió 20+ pies en línea recta hacia él justo antes: +2d6 perforante y queda Derribado.
+B|Cambiar de forma|*WSHAPE
+@wereboar-boar|Hombre jabalí (forma de jabalí)
+X|Ataque múltiple|Dos ataques de Colmillo. Puede cambiar uno por Cornada.
+A|Cornada|+5|2d8 + 3 perforante. Si es humanoide: salvación de Constitución CD 12. Falla: queda maldito; si cae a 0 PG, se convierte en hombre jabalí controlado por el máster con 10 PG. Si supera, inmune 24 horas.
+A|Colmillo|+5|2d6 + 3 perforante. Si es Mediano o menor y se movió 20+ pies en línea recta hacia él justo antes: +2d6 perforante y queda Derribado.
+B|Cambiar de forma|*WSHAPE
+@wererat-human|Hombre rata (forma humana)
+X|Ataque múltiple|Dos ataques, con Arañazo o Ballesta de mano en cualquier combinación. Puede cambiar uno por Mordisco.
+A|Arañazo|+5|1d6 + 3 cortante.
+A|Ballesta de mano|+5|A distancia (30/120 pies). 1d6 + 3 perforante.
+B|Cambiar de forma|*WSHAPE
+@wererat-hybrid|Hombre rata (forma híbrida)
+X|Ataque múltiple|Dos ataques, con Arañazo o Ballesta de mano en cualquier combinación. Puede cambiar uno por Mordisco.
+A|Mordisco|+5|2d4 + 3 perforante. Si es humanoide: salvación de Constitución CD 11. Falla: queda maldito; si cae a 0 PG, se convierte en hombre rata controlado por el máster con 10 PG. Si supera, inmune 24 horas.
+A|Arañazo|+5|1d6 + 3 cortante.
+A|Ballesta de mano|+5|A distancia (30/120 pies). 1d6 + 3 perforante.
+B|Cambiar de forma|*WSHAPE
+@wererat-rat|Hombre rata (forma de rata)
+X|Ataque múltiple|Dos ataques de Arañazo. Puede cambiar uno por Mordisco.
+A|Mordisco|+5|2d4 + 3 perforante. Si es humanoide: salvación de Constitución CD 11. Falla: queda maldito; si cae a 0 PG, se convierte en hombre rata controlado por el máster con 10 PG. Si supera, inmune 24 horas.
+A|Arañazo|+5|1d6 + 3 cortante.
+B|Cambiar de forma|*WSHAPE

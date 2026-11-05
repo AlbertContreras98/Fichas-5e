@@ -20,6 +20,7 @@ Fichas de personaje interactivas para **Dragones y Mazmorras, 5.ª edición (reg
 - **Magia:** espacios de conjuro y de pacto, concentración, conjuros preparados y un buscador con los 339 conjuros del SRD 5.2 traducidos.
 - **Inventario:** armas y armaduras que calculan solas el ataque, el daño y la CA. La munición se descuenta al disparar. También gestiona pociones, pergaminos, objetos mágicos con sintonización y monedas con cambio automático.
 - **Criaturas:** familiares, invocaciones y compañeros, más formas de Forma salvaje y transformaciones, con un catálogo de 90 criaturas.
+- **Modo máster:** campañas, jugadores que se añaden con un QR, tiendas y un seguimiento de combate con iniciativa, rondas y enemigos muertos o incapacitados. Incluye un bestiario con las 341 criaturas del SRD 5.2 traducidas, con su ficha completa.
 - **Asistentes:** para crear personajes (10 especies con sus linajes, 16 trasfondos, dotes de origen) y para subir de nivel (12 clases y 48 subclases). Lo automatizable se aplica solo.
 - **Diario de campaña:** carpetas, notas y enlaces entre notas con `[[nombre]]`.
 - **Ayuda integrada:** glosario pulsable, visita guiada la primera vez y pistas por sección.

@@ -1,0 +1,125 @@
+@aboleth|Aboleth
+T|Anfibio|*AMF
+T|Restauración sobrenatural|Si lo destruyen, recibe un cuerpo nuevo en 5d10 días y revive con todos sus PG en el Reino Lejano u otro sitio que elija el máster.
+T|Resistencia legendaria|*LR
+T|Nube de mucosidad|Bajo el agua, al final de su turno: salvación de Constitución CD 14 para cada criatura a 5 pies. Si falla, queda maldita: piel viscosa, respira aire y agua, y solo recupera PG bajo el agua. Fuera del agua recibe 1d12 de ácido cada 10 minutos si no se moja la piel.
+T|Telepatía sondeadora|Si una criatura que ve le habla por telepatía, descubre sus mayores deseos.
+X|Ataque múltiple|Dos ataques de Tentáculo y usa Devorar recuerdos o Dominar mente si puede.
+A|Tentáculo|+9|Alcance 15 pies. 2d6 + 5 contundente. Si es Grande o menor, queda Agarrado (escapar CD 14); tiene cuatro tentáculos.
+X|Devorar recuerdos|Salvación de Inteligencia CD 16, una criatura a 30 pies Hechizada o Agarrada por él. Falla: 3d6 psíquico (mitad si supera). Si es humanoide y cae a 0 PG, el aboleth obtiene sus recuerdos.
+X|Dominar mente|Salvación de Sabiduría CD 16, una criatura que vea a 30 pies. Falla: queda Hechizada hasta que el aboleth muera o cambie de plano; actúa como su aliada y la controla a 60 pies, y se hablan por telepatía a cualquier distancia. Repite la salvación al recibir daño y cada 24 horas a más de 1 milla.
+L|Latigazo|Un ataque de Tentáculo.
+L|Drenaje psíquico|Si tiene al menos una criatura Hechizada o Agarrada, usa Devorar recuerdos y recupera 1d10 PG.
+@air-elemental|Elemental de aire
+T|Forma de aire|Puede entrar en el espacio de otra criatura y quedarse allí. Pasa por huecos de 1 pulgada sin gastar movimiento extra.
+X|Ataque múltiple|Dos ataques de Golpe atronador.
+A|Golpe atronador|+8|Alcance 10 pies. 2d8 + 5 de trueno.
+X|Torbellino|Salvación de Fuerza CD 13, una criatura Mediana o menor en su espacio. Falla: 4d10 + 2 de trueno, la empuja 20 pies y queda Derribada. Si supera: solo la mitad del daño.
+@animated-armor|Armadura animada
+X|Ataque múltiple|Dos ataques de Golpe.
+A|Golpe|+4|1d6 + 2 contundente.
+@animated-flying-sword|Espada voladora animada
+A|Tajo|+4|1d8 + 2 cortante.
+@animated-rug-of-smothering|Alfombra asfixiante animada
+A|Asfixiar|+5|2d6 + 3 contundente. Si es Mediana o menor, en vez de daño puede Agarrarla (escapar CD 13): queda Cegada y Apresada, se asfixia y recibe 2d6 + 3 contundente al inicio de cada turno suyo. Solo una a la vez. Mientras la agarra, la alfombra recibe la mitad del daño y el objetivo recibe la otra mitad.
+@ankheg|Ankheg
+T|Excavador|Excava roca sólida a la mitad de su velocidad de excavar y deja un túnel de 10 pies de diámetro.
+A|Mordisco|+5|Ventaja si el objetivo está Agarrado por él. 2d6 + 3 cortante + 1d6 de ácido. Si es Grande o menor, queda Agarrado (escapar CD 13).
+X|Rociada ácida|Salvación de Destreza CD 12, línea de 30 × 5 pies. Falla: 4d6 de ácido (mitad si supera).
+@assassin|Asesino
+T|Evasión|Si una salvación de Destreza le deja recibir la mitad del daño, no recibe nada si la supera y la mitad si la falla. No funciona si está Incapacitado.
+X|Ataque múltiple|Tres ataques, con Espada corta o Ballesta ligera en cualquier combinación.
+A|Espada corta|+7|1d6 + 4 perforante + 5d6 de veneno, y queda Envenenado hasta el inicio del siguiente turno del asesino.
+A|Ballesta ligera|+7|A distancia (80/320 pies). 1d8 + 4 perforante + 6d6 de veneno.
+B|Acción astuta|Hace la acción de Correr, Destrabarse o Esconderse.
+@awakened-shrub|Arbusto despertado
+A|Arañazo|+1|1 cortante.
+@awakened-tree|Árbol despertado
+A|Golpe|+6|Alcance 10 pies. 3d6 + 4 contundente.
+@axe-beak|Pico de hacha
+A|Pico|+4|1d8 + 2 cortante.
+@azer-sentinel|Centinela azer
+T|Aura de fuego|Al final de cada turno suyo, las criaturas que elija a 5 pies reciben 1d10 de fuego (salvo si está Incapacitado).
+T|Iluminación|Da luz brillante en 10 pies y luz tenue otros 10.
+A|Martillo ardiente|+5|1d10 + 3 contundente + 1d6 de fuego.
+@balor|Balor
+T|Estertores de muerte|Explota al morir: salvación de Destreza CD 20, a 30 pies. Falla: 9d6 de fuego + 9d6 de fuerza (mitad si supera). Si muere fuera del Abismo, revive al instante allí con todos sus PG.
+T|Aura de fuego|Al final de cada turno suyo, las criaturas a 5 pies reciben 3d8 de fuego.
+T|Resistencia legendaria|*LR
+T|Resistencia mágica|*MR
+X|Ataque múltiple|Un ataque de Látigo de llamas y uno de Espada relámpago.
+A|Látigo de llamas|+14|Alcance 30 pies. 3d6 + 8 de fuerza + 5d6 de fuego. Si es Enorme o menor, lo atrae 25 pies hacia sí y queda Derribado.
+A|Espada relámpago|+14|Alcance 10 pies. 3d8 + 8 de fuerza + 4d10 de relámpago, y no puede usar reacciones hasta el inicio del siguiente turno del balor.
+B|Teletransporte|Se teletransporta (a sí mismo o a un demonio voluntario a 10 pies) hasta 60 pies a un espacio libre que vea.
+@bandit|Bandido
+A|Cimitarra|+3|1d6 + 1 cortante.
+A|Ballesta ligera|+3|A distancia (80/320 pies). 1d8 + 1 perforante.
+@bandit-captain|Capitán bandido
+X|Ataque múltiple|Dos ataques, con Cimitarra o Pistola en cualquier combinación.
+A|Cimitarra|+5|1d6 + 3 cortante.
+A|Pistola|+5|A distancia (30/90 pies). 1d10 + 3 perforante.
+R|Parada|Cuando le impacta un ataque cuerpo a cuerpo y empuña un arma: +2 a la CA contra ese ataque, que puede fallar.
+@barbed-devil|Diablo espinoso
+T|Piel espinosa|Al inicio de cada turno suyo, hace 1d10 perforante a quien esté agarrando o a quien le agarre.
+T|Restauración diabólica|*DR
+T|Resistencia mágica|*MR
+X|Ataque múltiple|Un ataque de Garras y uno de Cola, o dos de Arrojar llamas.
+A|Garras|+6|2d6 + 3 perforante. Si es Grande o menor, queda Agarrado (escapar CD 13) por ambas garras.
+A|Cola|+6|Alcance 10 pies. 2d10 + 3 cortante.
+A|Arrojar llamas|+5|A distancia (150 pies). 5d6 de fuego. Los objetos inflamables que nadie lleve empiezan a arder.
+@basilisk|Basilisco
+A|Mordisco|+5|2d6 + 3 perforante + 2d6 de veneno.
+B|Mirada petrificadora|Salvación de Constitución CD 12, cono de 30 pies (si ve su reflejo en él, también la hace él). 1.ª falla: queda Apresado y repite la salvación al final de su siguiente turno. 2.ª falla: queda Petrificado.
+@bearded-devil|Diablo barbudo
+T|Resistencia mágica|*MR
+X|Ataque múltiple|Un ataque de Barba y uno de Guja infernal.
+A|Barba|+5|1d8 + 3 perforante, y queda Envenenado hasta el inicio del siguiente turno del diablo; mientras, no recupera PG.
+A|Guja infernal|+5|Alcance 10 pies. 1d10 + 3 cortante. Si no tiene ya una herida infernal: salvación de Constitución CD 12; si falla, pierde 1d10 PG al inicio de cada turno suyo. Se cierra tras 1 minuto, con curación mágica o con una acción y una prueba de Sabiduría (Medicina) CD 12.
+@behir|Behir
+X|Ataque múltiple|Un ataque de Mordisco y usa Constreñir.
+A|Mordisco|+10|Alcance 10 pies. 2d12 + 6 perforante + 2d10 de relámpago.
+X|Constreñir|Salvación de Fuerza CD 18, una criatura Grande o menor que vea a 5 pies. Falla: 5d8 + 6 contundente, queda Agarrada (escapar CD 16) y Apresada mientras dure.
+X|Aliento de relámpago|Salvación de Destreza CD 16, línea de 90 × 5 pies. Falla: 12d10 de relámpago (mitad si supera).
+B|Tragar|Salvación de Destreza CD 18, una criatura Grande o menor que tenga Agarrada (solo una tragada a la vez). Falla: se la traga: queda Cegada y Apresada, con cobertura total, y recibe 6d6 de ácido al inicio de cada turno del behir. Si recibe 30+ de daño desde dentro en un turno, salvación de Constitución CD 14 o la regurgita Derribada a 10 pies. Si muere, sale gastando 15 pies.
+@berserker|Berserker
+T|Frenesí sangriento|Mientras está Ensangrentado (a la mitad de PG o menos), tiene ventaja en ataques y salvaciones.
+A|Gran hacha|+5|1d12 + 3 cortante.
+@black-dragon-wyrmling|Cría de dragón negro
+T|Anfibio|*AMF
+X|Ataque múltiple|Dos ataques de Desgarrar.
+A|Desgarrar|+4|1d6 + 2 cortante + 1d4 de ácido.
+X|Aliento ácido|Salvación de Destreza CD 11, línea de 15 × 5 pies. Falla: 5d8 de ácido (mitad si supera).
+@young-black-dragon|Dragón negro joven
+T|Anfibio|*AMF
+X|Ataque múltiple|Tres ataques de Desgarrar.
+A|Desgarrar|+7|Alcance 10 pies. 2d4 + 4 cortante + 1d6 de ácido.
+X|Aliento ácido|Salvación de Destreza CD 14, línea de 30 × 5 pies. Falla: 14d6 de ácido (mitad si supera).
+@adult-black-dragon|Dragón negro adulto
+T|Anfibio|*AMF
+T|Resistencia legendaria|*LR
+X|Ataque múltiple|Tres ataques de Desgarrar. Puede cambiar uno por lanzar Flecha ácida (a nivel 3).
+A|Desgarrar|+11|Alcance 10 pies. 2d6 + 6 cortante + 1d8 de ácido.
+X|Aliento ácido|Salvación de Destreza CD 18, línea de 60 × 5 pies. Falla: 12d8 de ácido (mitad si supera).
+X|Lanzamiento de conjuros|*SP
+L|Nube de insectos|Salvación de Destreza CD 17, una criatura que vea a 120 pies. Falla: 4d10 de veneno y desventaja en las salvaciones de concentración hasta el final de su siguiente turno. No puede repetirla hasta el inicio de su turno.
+L|Presencia aterradora|Lanza Miedo. No puede repetirla hasta el inicio de su turno.
+L|Abalanzarse|Se mueve hasta la mitad de su velocidad y hace un ataque de Desgarrar.
+@ancient-black-dragon|Dragón negro anciano
+T|Anfibio|*AMF
+T|Resistencia legendaria|*LR
+X|Ataque múltiple|Tres ataques de Desgarrar. Puede cambiar uno por lanzar Flecha ácida (a nivel 4).
+A|Desgarrar|+15|Alcance 15 pies. 2d8 + 8 cortante + 2d8 de ácido.
+X|Aliento ácido|Salvación de Destreza CD 22, línea de 90 × 10 pies. Falla: 15d8 de ácido (mitad si supera).
+X|Lanzamiento de conjuros|*SP
+L|Nube de insectos|Salvación de Destreza CD 21, una criatura que vea a 120 pies. Falla: 6d10 de veneno y desventaja en las salvaciones de concentración hasta el final de su siguiente turno. No puede repetirla hasta el inicio de su turno.
+L|Presencia aterradora|Lanza Miedo. No puede repetirla hasta el inicio de su turno.
+L|Abalanzarse|Se mueve hasta la mitad de su velocidad y hace un ataque de Desgarrar.
+@black-pudding|Pudin negro
+T|Amorfo|*AMO
+T|Forma corrosiva|Quien le impacte cuerpo a cuerpo recibe 1d8 de ácido. La munición no mágica que le impacta se destruye. Cada arma no mágica que le hace daño sufre −1 acumulable a los ataques (se destruye a −5; Reparar lo quita). En 1 minuto disuelve 2 pies de madera o metal no mágicos.
+T|Trepar como una araña|*SC
+A|Pseudópodo disolvente|+5|Alcance 10 pies. 4d6 + 3 de ácido. La armadura no mágica del objetivo pierde 1 de CA (se destruye si llega a 10; Reparar lo quita).
+R|Dividirse|Si es Grande o Mediano, tiene 10+ PG y queda Ensangrentado o recibe daño cortante o de relámpago: se divide en dos pudines una talla menores, que actúan en su iniciativa y se reparten sus PG.
+@blink-dog|Perro intermitente
+A|Mordisco|+5|1d4 + 3 perforante.
+B|Teletransporte|Se teletransporta hasta 40 pies a un espacio libre que vea.

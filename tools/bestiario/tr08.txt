@@ -1,0 +1,160 @@
+@scout|Explorador
+X|Ataque múltiple|Dos ataques, con Espada corta o Arco largo en cualquier combinación.
+A|Espada corta|+4|1d6 + 2 perforante.
+A|Arco largo|+4|A distancia (150/600 pies). 1d8 + 2 perforante.
+@sea-hag|Saga marina
+T|Anfibio|*AMF
+T|Magia de aquelarre|Con al menos dos sagas aliadas a 30 pies, puede lanzar (una vez por descanso largo cada uno, Inteligencia, CD 11): Augurio, Encontrar familiar, Identificar, Localizar objeto, Escudriñar o Sirviente invisible.
+T|Aspecto repugnante|Salvación de Sabiduría CD 11 para cada bestia o humanoide que empiece su turno a 30 pies y vea su forma real. Falla: Asustado hasta el inicio de su siguiente turno. Si supera, inmune 24 horas.
+A|Garra|+5|2d6 + 3 cortante.
+X|Mirada mortal|Salvación de Sabiduría CD 11, una criatura Asustada que vea a 30 pies. Falla: si tiene 20 PG o menos, cae a 0 PG; si no, recibe 3d8 psíquico.
+X|Apariencia ilusoria|Lanza Disfrazarse (Constitución, CD 13), que dura 24 horas.
+@shadow|Sombra
+T|Amorfo|*AMO
+T|Debilidad a la luz solar|Desventaja en las pruebas d20 a la luz del sol.
+A|Zarpazo drenante|+4|1d6 + 2 necrótico, y su Fuerza baja 1d4. Si llega a 0, muere. Si mata a un humanoide, de su cadáver surge una sombra 1d4 horas después.
+B|Sigilo de las sombras|Con luz tenue u oscuridad, hace la acción de Esconderse.
+@shambling-mound|Montículo errante
+T|Absorber relámpagos|El daño de relámpago le cura: recupera esos PG.
+X|Ataque múltiple|Tres ataques de Zarcillo cargado. Puede cambiar uno por Engullir.
+A|Zarcillo cargado|+7|Alcance 10 pies. 1d6 + 4 contundente + 2d4 de relámpago. Si es Mediano o menor, lo atrae 5 pies.
+X|Engullir|Salvación de Fuerza CD 15, una criatura Mediana o menor a 5 pies. Falla: la mete en su espacio, Agarrada (escapar CD 14): Cegada y Apresada, con 3d6 de relámpago al inicio de cada turno suyo, y se mueve con él. Solo una a la vez.
+@shield-guardian|Guardián escudo
+T|Vinculado|Ligado a un amuleto. En el mismo plano, quien lo lleva puede llamarlo por telepatía y el guardián sabe dónde está. Si está a 60 pies, la mitad del daño que recibe el portador (redondeando arriba) pasa al guardián.
+T|Regeneración|Recupera 10 PG al inicio de cada turno suyo si tiene al menos 1 PG.
+T|Almacenar conjuro|Quien lleve el amuleto puede guardar en él un conjuro de nivel 4 o menor lanzándoselo a 5 pies. El guardián puede lanzarlo después sin componentes, tal como lo preparó el lanzador.
+X|Ataque múltiple|Dos ataques de Puño.
+A|Puño|+7|Alcance 10 pies. 2d6 + 4 contundente + 2d6 de fuerza.
+R|Protección|Cuando un ataque impacta al portador del amuleto a 5 pies del guardián: el portador gana +5 a la CA (también contra ese ataque, que puede fallar) hasta el inicio del siguiente turno del guardián.
+@silver-dragon-wyrmling|Cría de dragón de plata
+X|Ataque múltiple|Dos ataques de Desgarrar.
+A|Desgarrar|+6|1d10 + 4 perforante.
+X|Aliento de frío|Salvación de Constitución CD 13, cono de 15 pies. Falla: 4d8 de frío (mitad si supera).
+X|Aliento paralizante|Salvación de Constitución CD 13, cono de 15 pies. 1.ª falla: Incapacitado hasta el final de su siguiente turno, y repite. 2.ª falla: Paralizado; repite al final de cada turno suyo y la supera sola tras 1 minuto.
+@young-silver-dragon|Dragón de plata joven
+X|Ataque múltiple|Tres ataques de Desgarrar. Puede cambiar uno por Aliento paralizante.
+A|Desgarrar|+10|Alcance 10 pies. 2d8 + 6 cortante.
+X|Aliento de frío|Salvación de Constitución CD 17, cono de 30 pies. Falla: 11d8 de frío (mitad si supera).
+X|Aliento paralizante|Salvación de Constitución CD 17, cono de 30 pies. 1.ª falla: Incapacitado hasta el final de su siguiente turno, y repite. 2.ª falla: Paralizado; repite al final de cada turno suyo y la supera sola tras 1 minuto.
+@adult-silver-dragon|Dragón de plata adulto
+T|Resistencia legendaria|*LR
+X|Ataque múltiple|Tres ataques de Desgarrar. Puede cambiar uno por Aliento paralizante o por lanzar Cuchillo de hielo.
+A|Desgarrar|+13|Alcance 10 pies. 2d8 + 8 cortante + 1d8 de frío.
+X|Aliento de frío|Salvación de Constitución CD 20, cono de 60 pies. Falla: 12d8 de frío (mitad si supera).
+X|Aliento paralizante|Salvación de Constitución CD 20, cono de 60 pies. 1.ª falla: Incapacitado hasta el final de su siguiente turno, y repite. 2.ª falla: Paralizado; repite al final de cada turno suyo y la supera sola tras 1 minuto.
+X|Lanzamiento de conjuros|*SP
+L|Escalofrío|Lanza Inmovilizar monstruo. No puede repetirla hasta el inicio de su turno.
+L|Vendaval helado|Salvación de Destreza CD 19, línea de 60 × 10 pies. Falla: 4d6 de frío y lo empuja 30 pies. Si supera: solo la mitad del daño. No puede repetirla hasta el inicio de su turno.
+L|Abalanzarse|Se mueve hasta la mitad de su velocidad y hace un ataque de Desgarrar.
+@ancient-silver-dragon|Dragón de plata anciano
+T|Resistencia legendaria|*LR
+X|Ataque múltiple|Tres ataques de Desgarrar. Puede cambiar uno por Aliento paralizante o por lanzar Cuchillo de hielo (a nivel 2).
+A|Desgarrar|+17|Alcance 15 pies. 2d8 + 10 cortante + 2d8 de frío.
+X|Aliento de frío|Salvación de Constitución CD 24, cono de 90 pies. Falla: 15d8 de frío (mitad si supera).
+X|Aliento paralizante|Salvación de Constitución CD 24, cono de 90 pies. 1.ª falla: Incapacitado hasta el final de su siguiente turno, y repite. 2.ª falla: Paralizado; repite al final de cada turno suyo y la supera sola tras 1 minuto.
+X|Lanzamiento de conjuros|*SP
+L|Escalofrío|Lanza Inmovilizar monstruo. No puede repetirla hasta el inicio de su turno.
+L|Vendaval helado|Salvación de Destreza CD 23, línea de 60 × 10 pies. Falla: 4d6 de frío y lo empuja 30 pies. Si supera: solo la mitad del daño. No puede repetirla hasta el inicio de su turno.
+L|Abalanzarse|Se mueve hasta la mitad de su velocidad y hace un ataque de Desgarrar.
+@warhorse-skeleton|Esqueleto de caballo de guerra
+A|Cascos|+6|1d6 + 4 contundente. Si es Grande o menor y se movió 20+ pies en línea recta hacia él justo antes, queda Derribado.
+@minotaur-skeleton|Esqueleto de minotauro
+A|Cornada|+6|2d6 + 4 perforante. Si es Grande o menor y se movió 20+ pies en línea recta hacia él justo antes: +2d8 perforante y queda Derribado.
+A|Golpe|+6|2d10 + 4 contundente.
+@solar|Solar
+T|Percepción divina|Sabe cuándo oye una mentira.
+T|Restauración exaltada|Si muere fuera del Monte Celestia, revive al instante allí con todos sus PG.
+T|Resistencia legendaria|*LR
+T|Resistencia mágica|*MR
+X|Ataque múltiple|Dos ataques de Espada voladora. Puede cambiar uno por Arco asesino.
+A|Espada voladora|+15|Cuerpo a cuerpo (alcance 10 pies) o a distancia (120 pies). 4d6 + 8 cortante + 8d8 radiante. Tras lanzarla vuelve a su mano o flota a 5 pies.
+X|Arco asesino|Salvación de Destreza CD 21, una criatura que vea a 600 pies. Falla: si tiene 100 PG o menos, muere; si no, recibe 4d8 + 6 perforante + 8d8 radiante.
+X|Lanzamiento de conjuros|*SP
+B|Ayuda divina|Lanza Curar heridas (a nivel 2), Restablecimiento menor o Levantar maldición.
+L|Mirada cegadora|Salvación de Constitución CD 25, una criatura que vea a 120 pies. Falla: Cegada 1 minuto. No puede repetirla hasta el inicio de su turno.
+L|Teletransporte radiante|Se teletransporta hasta 60 pies. Salvación de Destreza CD 25 para las criaturas a 10 pies de su destino. Falla: 2d10 radiante (mitad si supera).
+@specter|Espectro
+T|Movimiento incorpóreo|Atraviesa criaturas y objetos como si fueran terreno difícil. Si acaba su turno dentro de un objeto, recibe 1d10 de fuerza.
+T|Sensibilidad a la luz solar|*SS
+A|Drenar vida|+4|2d6 necrótico, y sus PG máximos bajan tanto como el daño.
+@sphinx-of-lore|Esfinge del saber
+T|Inescrutable|Ninguna magia puede observarla a distancia ni leerle la mente sin permiso. Las pruebas de Sabiduría (Perspicacia) sobre sus intenciones tienen desventaja.
+T|Resistencia legendaria|*LR
+X|Ataque múltiple|Tres ataques de Garra.
+A|Garra|+8|3d6 + 4 cortante.
+X|Rugido desgarramentes|Salvación de Sabiduría CD 16, enemigos a 300 pies. Falla: 10d6 psíquico e Incapacitados hasta el inicio del siguiente turno de la esfinge.
+X|Lanzamiento de conjuros|*SP
+L|Merodeo arcano|Se teletransporta hasta 30 pies y hace un ataque de Garra.
+L|Peso de los años|Salvación de Constitución CD 16, una criatura que vea a 120 pies. Falla: 1 nivel de Agotamiento; mientras tenga alguno, aparenta 3d10 años más. No puede repetirla hasta el inicio de su turno.
+@sphinx-of-valor|Esfinge del valor
+T|Inescrutable|Ninguna magia puede observarla a distancia ni leerle la mente sin permiso. Las pruebas de Sabiduría (Perspicacia) sobre sus intenciones tienen desventaja.
+T|Resistencia legendaria|*LR
+X|Ataque múltiple|Dos ataques de Garra y usa Rugido.
+A|Garra|+12|4d6 + 6 cortante.
+X|Rugido|Ruge con un efecto distinto cada vez, en este orden (vuelve a empezar tras un descanso largo):
+X|Primer rugido|Salvación de Sabiduría CD 20, enemigos a 500 pies. Falla: Asustados 1 minuto.
+X|Segundo rugido|Salvación de Sabiduría CD 20, enemigos a 500 pies. Falla: Paralizados; repiten al final de cada turno suyo y la superan solos tras 1 minuto.
+X|Tercer rugido|Salvación de Constitución CD 20, enemigos a 500 pies. Falla: 8d10 de trueno y Derribados. Si superan: solo la mitad del daño.
+X|Lanzamiento de conjuros|*SP
+L|Merodeo arcano|Se teletransporta hasta 30 pies y hace un ataque de Garra.
+L|Peso de los años|Salvación de Constitución CD 16, una criatura que vea a 120 pies. Falla: 1 nivel de Agotamiento; mientras tenga alguno, aparenta 3d10 años más. No puede repetirla hasta el inicio de su turno.
+@spirit-naga|Naga espiritual
+T|Restauración infernal|Si muere, revive en 1d6 días con todos sus PG. Solo Deseo lo impide.
+X|Ataque múltiple|Tres ataques, con Mordisco o Rayo necrótico en cualquier combinación.
+A|Mordisco|+7|Alcance 10 pies. 1d6 + 4 perforante + 4d6 de veneno.
+A|Rayo necrótico|+6|A distancia (60 pies). 6d6 necrótico.
+X|Lanzamiento de conjuros|*SP
+@spy|Espía
+A|Espada corta|+4|1d6 + 2 perforante + 2d6 de veneno.
+A|Ballesta de mano|+4|A distancia (30/120 pies). 1d6 + 2 perforante + 2d6 de veneno.
+B|Acción astuta|Hace la acción de Correr, Destrabarse o Esconderse.
+@stirge|Estirge
+A|Probóscide|+5|1d6 + 3 perforante y se pega al objetivo: no puede volver a atacar con la probóscide y el objetivo recibe 2d4 necrótico al inicio de cada turno de la estirge. Se suelta gastando 5 pies; el objetivo u otro a 5 pies puede arrancarla con una acción.
+@stone-giant|Gigante de piedra
+X|Ataque múltiple|Dos ataques, con Garrote de piedra o Roca en cualquier combinación.
+A|Garrote de piedra|+9|Alcance 15 pies. 3d10 + 6 contundente.
+A|Roca|+9|A distancia (60/240 pies). 2d8 + 6 contundente. Si es Grande o menor, queda Derribado.
+R|Desviar proyectil|Cuando le impacta un ataque a distancia contundente, perforante o cortante: reduce el daño en 1d10 + 6. Si llega a 0, salvación de Destreza CD 17 para una criatura que vea a 60 pies; si falla, 1d10 + 6 de fuerza.
+@stone-golem|Gólem de piedra
+T|Forma inmutable|*IF
+T|Resistencia mágica|*MR
+X|Ataque múltiple|Dos ataques, con Golpe o Proyectil de fuerza en cualquier combinación.
+A|Golpe|+10|2d8 + 6 contundente + 2d8 de fuerza.
+A|Proyectil de fuerza|+9|A distancia (120 pies). 4d10 de fuerza.
+B|Ralentizar|Lanza Ralentizar sin componentes (Constitución, CD 17).
+@storm-giant|Gigante de las tormentas
+T|Anfibio|*AMF
+X|Ataque múltiple|Dos ataques, con Espada de tormenta o Rayo atronador en cualquier combinación.
+A|Espada de tormenta|+14|Alcance 10 pies. 4d6 + 9 cortante + 3d8 de relámpago.
+A|Rayo atronador|+14|A distancia (500 pies). 2d12 + 9 de relámpago, y queda Cegado y Ensordecido hasta el inicio del siguiente turno del gigante.
+X|Tormenta de relámpagos|Salvación de Destreza CD 18, cilindro de 10 pies de radio y 40 de alto en un punto que vea a 500 pies. Falla: 10d10 de relámpago (mitad si supera).
+X|Lanzamiento de conjuros|*SP
+@succubus|Súcubo
+T|Forma de íncubo|Al terminar un descanso largo puede convertirse en íncubo (usa esa ficha).
+X|Ataque múltiple|Un ataque de Toque infernal y usa Hechizar o Beso drenante.
+A|Toque infernal|+7|2d10 + 5 psíquico.
+X|Hechizar|Lanza Dominar persona (a nivel 8) sin componentes (Carisma, CD 15).
+X|Beso drenante|Salvación de Constitución CD 15, una criatura Hechizada por ella a 5 pies. Falla: 3d8 psíquico (mitad si supera). Sus PG máximos bajan tanto como el daño.
+B|Cambiar de forma|Se transforma en un humanoide Mediano o Pequeño, o vuelve a su forma real. Solo vuela en su forma real; el equipo no se transforma.
+@tarrasque|Tarasca
+T|Resistencia legendaria|*LR
+T|Resistencia mágica|*MR
+T|Caparazón reflectante|Si la apunta Proyectil mágico o un conjuro con ataque a distancia, tira 1d6: con 1-5 no le afecta; con 6 no le afecta y se lo devuelve al lanzador.
+T|Monstruo de asedio|Hace el doble de daño a objetos y estructuras.
+X|Ataque múltiple|Un ataque de Mordisco y otros tres, con Garra o Cola en cualquier combinación.
+A|Mordisco|+19|Alcance 15 pies. 4d12 + 10 perforante, y queda Agarrado (escapar CD 20): Apresado y sin poder teletransportarse mientras dure.
+A|Garra|+19|Alcance 15 pies. 4d8 + 10 cortante.
+A|Cola|+19|Alcance 30 pies. 3d8 + 10 contundente. Si es Enorme o menor, queda Derribado.
+X|Bramido atronador|Salvación de Constitución CD 27, criaturas y objetos que nadie lleve en un cono de 150 pies. Falla: 12d12 de trueno y Ensordecidos y Asustados hasta el final de su siguiente turno. Si supera: solo la mitad del daño.
+B|Tragar|Salvación de Fuerza CD 27, una criatura Grande o menor que tenga Agarrada (hasta seis tragadas). Falla: se la traga: Cegada y Apresada, sin poder teletransportarse, con cobertura total, y 16d6 de ácido al inicio de cada turno de la tarasca. Si recibe 60+ de daño desde dentro en un turno, salvación de Constitución CD 20 o las regurgita Derribadas a 10 pies. Si muere, salen gastando 20 pies.
+L|Embestida|Se mueve hasta la mitad de su velocidad y hace un ataque de Garra o Cola.
+L|Movimiento sísmico|Se mueve hasta su velocidad y al final crea una onda expansiva de 60 pies: quien esté dentro pierde la concentración y, si es Mediano o menor, queda Derribado. No puede repetirla hasta el inicio de su turno.
+@tough|Matón
+T|Tácticas de manada|*PT
+A|Maza|+4|1d6 + 2 contundente.
+A|Ballesta pesada|+3|A distancia (100/400 pies). 1d10 + 1 perforante.
+@tough-boss|Jefe de matones
+T|Tácticas de manada|*PT
+X|Ataque múltiple|Dos ataques, con Martillo de guerra o Ballesta pesada en cualquier combinación.
+A|Martillo de guerra|+5|2d8 + 3 contundente. Si es Grande o menor, lo empuja 10 pies.
+A|Ballesta pesada|+4|A distancia (100/400 pies). 2d10 + 2 perforante.

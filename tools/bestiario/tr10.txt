@@ -1,0 +1,139 @@
+@weretiger-human|Hombre tigre (forma humana)
+X|Ataque múltiple|Dos ataques, con Arañazo o Arco largo en cualquier combinación. Puede cambiar uno por Mordisco.
+A|Arañazo|+5|2d6 + 3 cortante.
+A|Arco largo|+4|A distancia (150/600 pies). 2d8 + 2 perforante.
+B|Cambiar de forma|*WSHAPE
+@weretiger-hybrid|Hombre tigre (forma híbrida)
+X|Ataque múltiple|Dos ataques, con Arañazo o Arco largo en cualquier combinación. Puede cambiar uno por Mordisco.
+A|Mordisco|+5|2d8 + 3 perforante. Si es humanoide: salvación de Constitución CD 13. Falla: queda maldito; si cae a 0 PG, se convierte en hombre tigre controlado por el máster con 10 PG. Si supera, inmune 24 horas.
+A|Arañazo|+5|2d6 + 3 cortante.
+A|Arco largo|+4|A distancia (150/600 pies). 2d8 + 2 perforante.
+B|Merodear|Se mueve hasta su velocidad sin provocar ataques de oportunidad y al final puede Esconderse.
+B|Cambiar de forma|*WSHAPE
+@weretiger-tiger|Hombre tigre (forma de tigre)
+X|Ataque múltiple|Dos ataques de Arañazo. Puede cambiar uno por Mordisco.
+A|Mordisco|+5|2d8 + 3 perforante. Si es humanoide: salvación de Constitución CD 13. Falla: queda maldito; si cae a 0 PG, se convierte en hombre tigre controlado por el máster con 10 PG. Si supera, inmune 24 horas.
+A|Arañazo|+5|2d6 + 3 cortante.
+B|Merodear|Se mueve hasta su velocidad sin provocar ataques de oportunidad y al final puede Esconderse.
+B|Cambiar de forma|*WSHAPE
+@werewolf-human|Hombre lobo (forma humana)
+T|Tácticas de manada|*PT
+X|Ataque múltiple|Dos ataques, con Arañazo o Arco largo en cualquier combinación. Puede cambiar uno por Mordisco.
+A|Arañazo|+5|2d6 + 3 cortante.
+A|Arco largo|+4|A distancia (150/600 pies). 2d8 + 2 perforante.
+B|Cambiar de forma|*WSHAPE
+@werewolf-hybrid|Hombre lobo (forma híbrida)
+T|Tácticas de manada|*PT
+X|Ataque múltiple|Dos ataques, con Arañazo o Arco largo en cualquier combinación. Puede cambiar uno por Mordisco.
+A|Mordisco|+5|2d8 + 3 perforante. Si es humanoide: salvación de Constitución CD 12. Falla: queda maldito; si cae a 0 PG, se convierte en hombre lobo controlado por el máster con 10 PG. Si supera, inmune 24 horas.
+A|Arañazo|+5|2d6 + 3 cortante.
+A|Arco largo|+4|A distancia (150/600 pies). 2d8 + 2 perforante.
+B|Cambiar de forma|*WSHAPE
+@werewolf-wolf|Hombre lobo (forma de lobo)
+T|Tácticas de manada|*PT
+X|Ataque múltiple|Dos ataques de Arañazo. Puede cambiar uno por Mordisco.
+A|Mordisco|+5|2d8 + 3 perforante. Si es humanoide: salvación de Constitución CD 12. Falla: queda maldito; si cae a 0 PG, se convierte en hombre lobo controlado por el máster con 10 PG. Si supera, inmune 24 horas.
+A|Arañazo|+5|2d6 + 3 cortante.
+B|Cambiar de forma|*WSHAPE
+@white-dragon-wyrmling|Cría de dragón blanco
+T|Caminar sobre el hielo|*IW
+X|Ataque múltiple|Dos ataques de Desgarrar.
+A|Desgarrar|+4|1d8 + 2 cortante + 1d4 de frío.
+X|Aliento de frío|Salvación de Constitución CD 12, cono de 15 pies. Falla: 5d8 de frío (mitad si supera).
+@young-white-dragon|Dragón blanco joven
+T|Caminar sobre el hielo|*IW
+X|Ataque múltiple|Tres ataques de Desgarrar.
+A|Desgarrar|+7|Alcance 10 pies. 2d4 + 4 cortante + 1d4 de frío.
+X|Aliento de frío|Salvación de Constitución CD 15, cono de 30 pies. Falla: 9d8 de frío (mitad si supera).
+@adult-white-dragon|Dragón blanco adulto
+T|Caminar sobre el hielo|*IW
+T|Resistencia legendaria|*LR
+X|Ataque múltiple|Tres ataques de Desgarrar.
+A|Desgarrar|+11|Alcance 10 pies. 2d6 + 6 cortante + 1d8 de frío.
+X|Aliento de frío|Salvación de Constitución CD 19, cono de 60 pies. Falla: 12d8 de frío (mitad si supera).
+L|Estallido congelante|Salvación de Constitución CD 14, esfera de 30 pies de radio en un punto que vea a 120 pies. Falla: 2d6 de frío y velocidad 0 hasta el final de su siguiente turno. No puede repetirla hasta el inicio de su turno.
+L|Presencia aterradora|Lanza Miedo sin componentes materiales (Carisma, CD 14). No puede repetirla hasta el inicio de su turno.
+L|Abalanzarse|Se mueve hasta la mitad de su velocidad y hace un ataque de Desgarrar.
+@ancient-white-dragon|Dragón blanco anciano
+T|Caminar sobre el hielo|*IW
+T|Resistencia legendaria|*LR
+X|Ataque múltiple|Tres ataques de Desgarrar.
+A|Desgarrar|+14|Alcance 15 pies. 2d8 + 8 cortante + 2d6 de frío.
+X|Aliento de frío|Salvación de Constitución CD 22, cono de 90 pies. Falla: 14d8 de frío (mitad si supera).
+L|Estallido congelante|Salvación de Constitución CD 20, esfera de 30 pies de radio en un punto que vea a 120 pies. Falla: 4d6 de frío y velocidad 0 hasta el final de su siguiente turno. No puede repetirla hasta el inicio de su turno.
+L|Presencia aterradora|Lanza Miedo sin componentes materiales (Carisma, CD 18). No puede repetirla hasta el inicio de su turno.
+L|Abalanzarse|Se mueve hasta la mitad de su velocidad y hace un ataque de Desgarrar.
+@wight|Tumulario
+T|Sensibilidad a la luz solar|*SS
+X|Ataque múltiple|Dos ataques, con Espada necrótica o Arco necrótico en cualquier combinación. Puede cambiar uno por Drenar vida.
+A|Espada necrótica|+4|1d8 + 2 cortante + 1d8 necrótico.
+A|Arco necrótico|+4|A distancia (150/600 pies). 1d8 + 2 perforante + 1d8 necrótico.
+X|Drenar vida|Salvación de Constitución CD 13, una criatura a 5 pies. Falla: 1d8 + 2 necrótico y sus PG máximos bajan tanto como el daño. Un humanoide que muera así se levanta en 24 horas como zombi a su servicio (máximo doce), salvo que lo resuciten o destruyan su cuerpo.
+@will-o-wisp|Fuego fatuo
+T|Efímero|No puede llevar ni cargar nada.
+T|Iluminación|Da luz brillante en 20 pies y tenue otros 20.
+T|Movimiento incorpóreo|*INC
+A|Descarga|+4|2d8 + 2 de relámpago.
+B|Consumir vida|Salvación de Constitución CD 10, una criatura viva que vea a 5 pies con 0 PG. Falla: muere y el fuego fatuo recupera 3d6 PG.
+B|Desvanecerse|Él y su luz quedan Invisibles mientras se concentre; acaba justo después de atacar o usar Consumir vida.
+@winter-wolf|Lobo invernal
+T|Tácticas de manada|*PT
+A|Mordisco|+6|2d6 + 4 perforante. Si es Grande o menor, queda Derribado.
+X|Aliento de frío|Salvación de Constitución CD 12, cono de 15 pies. Falla: 4d8 de frío (mitad si supera).
+@worg|Huargo
+A|Mordisco|+5|1d8 + 3 perforante, y el siguiente ataque contra el objetivo antes del inicio del siguiente turno del huargo tiene ventaja.
+@wraith|Espectro mayor
+T|Movimiento incorpóreo|*INC
+T|Sensibilidad a la luz solar|*SS
+A|Drenar vida|+6|4d8 + 3 necrótico, y sus PG máximos bajan tanto como el daño.
+X|Crear espectro|Elige el cadáver de un humanoide a 10 pies muerto hace 1 minuto o menos: su espíritu se levanta como espectro a su servicio (máximo siete).
+@wyvern|Guiverno
+X|Ataque múltiple|Un ataque de Mordisco y uno de Aguijón.
+A|Mordisco|+7|2d8 + 4 perforante.
+A|Aguijón|+7|Alcance 10 pies. 2d6 + 4 perforante + 7d6 de veneno, y queda Envenenado hasta el inicio del siguiente turno del guiverno.
+@xorn|Xorn
+T|Deslizarse por la tierra|Excava tierra y piedra no mágicas ni trabajadas sin alterarlas.
+T|Olfato del tesoro|Localiza con exactitud metales y piedras preciosas a 60 pies.
+X|Ataque múltiple|Un ataque de Mordisco y tres de Garra.
+A|Mordisco|+6|4d6 + 3 perforante.
+A|Garra|+6|1d10 + 3 cortante.
+B|Carga|Se mueve hasta su velocidad (o de excavar) en línea recta hacia un enemigo que perciba.
+@ogre-zombie|Zombi ogro
+T|Fortaleza de muerto viviente|Si un daño lo deja a 0 PG, hace una salvación de Constitución (CD 5 + el daño), salvo que sea radiante o un crítico. Si la supera, se queda a 1 PG.
+A|Golpe|+6|2d8 + 4 contundente.
+@flying-snake|Serpiente voladora
+T|Vuelo rasante|*FLY
+A|Mordisco|+4|1 perforante + 2d4 de veneno.
+@giant-eagle|Águila gigante
+X|Ataque múltiple|Dos ataques de Desgarrar.
+A|Desgarrar|+5|1d4 + 3 cortante + 1d6 radiante.
+@giant-elk|Alce gigante
+A|Embestida|+6|Alcance 10 pies. 2d6 + 4 contundente + 2d4 radiante. Si es Enorme o menor y se movió 20+ pies en línea recta hacia él justo antes: +2d4 contundente y queda Derribado.
+@giant-owl|Búho gigante
+T|Vuelo rasante|*FLY
+A|Garras|+4|1d10 + 2 cortante.
+X|Lanzamiento de conjuros|*SP
+@giant-vulture|Buitre gigante
+T|Tácticas de manada|*PT
+A|Arrancar|+4|2d6 + 2 perforante, y queda Envenenado hasta el final de su siguiente turno.
+@swarm-of-bats|Enjambre de murciélagos
+T|Enjambre|*SW
+A|Mordiscos|+4|2d4 perforante, o 1d4 si está Ensangrentado.
+@swarm-of-insects|Enjambre de insectos
+T|Trepar como una araña|Si tiene velocidad de trepar, trepa por superficies difíciles, incluso por el techo, sin hacer pruebas.
+T|Enjambre|*SW
+A|Picaduras|+3|2d4 + 1 de veneno, o 1d4 + 1 si está Ensangrentado.
+@swarm-of-piranhas|Enjambre de pirañas
+T|Enjambre|*SW
+T|Respirar bajo el agua|Solo respira bajo el agua.
+A|Mordiscos|+5|Ventaja si el objetivo no tiene todos sus PG. 2d4 + 3 perforante, o 1d4 + 3 si está Ensangrentado.
+@swarm-of-rats|Enjambre de ratas
+T|Enjambre|*SW
+A|Mordiscos|+2|2d4 perforante, o 1d4 si está Ensangrentado.
+@swarm-of-ravens|Enjambre de cuervos
+T|Enjambre|*SW
+A|Picotazos|+4|1d6 + 2 perforante, o 1d4 si está Ensangrentado.
+X|Cacofonía|Salvación de Sabiduría CD 10, una criatura en su espacio. Falla: Ensordecida hasta el inicio del siguiente turno del enjambre, y con desventaja en pruebas de característica y ataques.
+@swarm-of-venomous-snakes|Enjambre de serpientes venenosas
+T|Enjambre|*SW
+A|Mordiscos|+6|1d8 + 4 perforante (1d4 + 4 si está Ensangrentado) + 3d6 de veneno.

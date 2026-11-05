@@ -1,0 +1,150 @@
+@kraken|Kraken
+T|Anfibio|*AMF
+T|Resistencia legendaria|*LR
+T|Monstruo de asedio|Hace el doble de daño a objetos y estructuras.
+X|Ataque múltiple|Dos ataques de Tentáculo y usa Arrojar, Golpe de relámpago o Tragar.
+A|Tentáculo|+17|Alcance 30 pies. 4d6 + 10 contundente. Queda Agarrado (escapar CD 20) por uno de sus diez tentáculos y Apresado mientras dure.
+X|Arrojar|Lanza a una criatura Grande o menor que tenga Agarrada a un sitio que vea a 60 pies (no en el aire). Salvación de Destreza CD 25 para ella y quien esté allí. Falla: 4d8 contundente y Derribada. Si supera: solo la mitad.
+X|Golpe de relámpago|Salvación de Destreza CD 23, una criatura que vea a 120 pies. Falla: 6d10 de relámpago (mitad si supera).
+X|Tragar|Salvación de Destreza CD 25, una criatura que tenga Agarrada (hasta cuatro tragadas). Falla: 3d8 + 10 perforante y, si es Grande o menor, se la traga: Apresada, con cobertura total, y 7d6 de ácido al inicio de cada turno suyo. Si recibe 50+ de daño desde dentro en un turno, salvación de Constitución CD 25 o las regurgita todas Derribadas a 10 pies. Si muere, salen gastando 15 pies.
+L|Rayo de tormenta|Usa Golpe de relámpago.
+L|Tinta tóxica|Bajo el agua: salvación de Constitución CD 23, a 15 pies. Falla: Cegado y Envenenado hasta el final del siguiente turno del kraken. Después se mueve hasta su velocidad. No puede repetirla hasta el inicio de su turno.
+@lamia|Lamia
+X|Ataque múltiple|Dos ataques de Garra. Puede cambiar uno por Toque corruptor.
+A|Garra|+5|1d8 + 3 cortante + 2d6 psíquico.
+X|Toque corruptor|Salvación de Sabiduría CD 13, una criatura que vea a 5 pies. Falla: 3d8 psíquico y queda maldita 1 hora: Hechizada y Envenenada.
+X|Lanzamiento de conjuros|*SP
+B|Salto|Salta hasta 30 pies gastando 10 de movimiento.
+@lemure|Lémur
+T|Restauración infernal|Si muere en los Nueve Infiernos, revive en 1d10 días con todos sus PG, salvo que lo mate alguien bajo Bendición o rocíen sus restos con agua bendita.
+A|Baba vil|+2|1d4 de veneno.
+@lich|Liche
+T|Resistencia legendaria|*LR
+T|Filacteria|Si lo destruyen y tiene su filacteria, en 1d10 días se rehace en su guarida con todos sus PG.
+X|Ataque múltiple|Tres ataques, con Estallido sobrenatural o Toque paralizante en cualquier combinación.
+A|Estallido sobrenatural|+12|Cuerpo a cuerpo o a distancia (120 pies). 4d12 + 5 de fuerza.
+A|Toque paralizante|+12|3d6 + 5 de frío, y queda Paralizado hasta el inicio del siguiente turno del liche.
+X|Lanzamiento de conjuros|*SP
+R|Magia protectora|Lanza Contraconjuro o Escudo cuando se dé su condición.
+L|Teletransporte mortal|Se teletransporta hasta 60 pies; cada criatura a 10 pies del sitio que deja recibe 2d10 necrótico.
+L|Alterar la vida|Salvación de Constitución CD 20, a quien no sea muerto viviente a 20 pies. Falla: 9d6 necrótico (mitad si supera). No puede repetirla hasta el inicio de su turno.
+L|Mirada aterradora|Lanza Miedo. No puede repetirla hasta el inicio de su turno.
+@mage|Mago
+X|Ataque múltiple|Tres ataques de Estallido arcano.
+A|Estallido arcano|+6|Cuerpo a cuerpo o a distancia (120 pies). 3d8 + 3 de fuerza.
+X|Lanzamiento de conjuros|*SP
+B|Paso brumoso|Lanza Paso brumoso.
+R|Magia protectora|Lanza Contraconjuro o Escudo cuando se dé su condición.
+@archmage|Archimago
+T|Resistencia mágica|*MR
+X|Ataque múltiple|Cuatro ataques de Estallido arcano.
+A|Estallido arcano|+9|Cuerpo a cuerpo o a distancia (150 pies). 4d10 + 5 de fuerza.
+X|Lanzamiento de conjuros|*SP
+B|Paso brumoso|Lanza Paso brumoso.
+R|Magia protectora|Lanza Contraconjuro o Escudo cuando se dé su condición.
+@magmin|Magmin
+T|Estallido mortal|Explota al morir: salvación de Destreza CD 11, a 10 pies. Falla: 2d6 de fuego (mitad si supera).
+A|Toque|+4|2d4 + 2 de fuego. Si es una criatura u objeto inflamable que nadie lleve, empieza a arder.
+B|Encenderse|Se prende o se apaga. Encendido da luz brillante en 10 pies y tenue otros 10.
+@manticore|Mantícora
+X|Ataque múltiple|Tres ataques, con Desgarrar o Púa de la cola en cualquier combinación.
+A|Desgarrar|+5|1d8 + 3 cortante.
+A|Púa de la cola|+5|A distancia (100/200 pies). 1d8 + 3 perforante.
+@marilith|Marilith
+T|Restauración demoníaca|*AR
+T|Resistencia mágica|*MR
+T|Reactiva|Puede usar una reacción en cada turno del combate.
+X|Ataque múltiple|Seis ataques de Hoja del pacto y usa Constreñir.
+A|Hoja del pacto|+10|1d10 + 5 cortante + 2d6 necrótico.
+X|Constreñir|Salvación de Fuerza CD 17, una criatura Mediana o menor que vea a 5 pies. Falla: 2d10 + 4 contundente, queda Agarrada (escapar CD 14) y Apresada mientras dure.
+B|Teletransporte|Se teletransporta hasta 120 pies a un espacio libre que vea.
+R|Parada|Cuando le impacta un ataque cuerpo a cuerpo y empuña un arma: +5 a la CA contra ese ataque, que puede fallar.
+@medusa|Medusa
+X|Ataque múltiple|Dos ataques de Garra y uno de Pelo de serpientes, o tres de Rayo venenoso.
+A|Garra|+6|2d6 + 3 cortante.
+A|Pelo de serpientes|+6|1d4 + 3 perforante + 4d6 de veneno.
+A|Rayo venenoso|+5|A distancia (150 pies). 2d8 + 2 de veneno.
+B|Mirada petrificadora|Salvación de Constitución CD 13, cono de 30 pies (si ve su reflejo en él, también la hace ella). 1.ª falla: Apresado y repite al final de su siguiente turno. 2.ª falla: Petrificado.
+@dust-mephit|Mefit de polvo
+T|Estallido mortal|Explota al morir: salvación de Destreza CD 10, a 5 pies. Falla: 2d4 contundente (mitad si supera).
+A|Garra|+4|1d4 + 2 cortante.
+X|Aliento cegador|Salvación de Destreza CD 10, cono de 15 pies. Falla: Cegado hasta el final del siguiente turno del mefit.
+X|Sueño|Lanza Dormir sin componentes (Carisma, CD 10).
+@ice-mephit|Mefit de hielo
+T|Estallido mortal|Explota al morir: salvación de Constitución CD 10, a 5 pies. Falla: 2d4 de frío (mitad si supera).
+A|Garra|+3|1d4 + 1 cortante + 1d4 de frío.
+X|Nube de niebla|Lanza Nube de niebla sin componentes (Carisma).
+X|Aliento de escarcha|Salvación de Constitución CD 10, cono de 15 pies. Falla: 3d4 de frío (mitad si supera).
+@magma-mephit|Mefit de magma
+T|Estallido mortal|Explota al morir: salvación de Destreza CD 11, a 5 pies. Falla: 2d6 de fuego (mitad si supera).
+A|Garra|+3|1d4 + 1 cortante + 1d6 de fuego.
+X|Aliento de fuego|Salvación de Destreza CD 11, cono de 15 pies. Falla: 2d6 de fuego (mitad si supera).
+@steam-mephit|Mefit de vapor
+T|Forma borrosa|Los ataques contra él tienen desventaja, salvo si está Incapacitado.
+T|Estallido mortal|Explota al morir: salvación de Destreza CD 10, a 5 pies. Falla: 2d4 de fuego (mitad si supera).
+A|Garra|+2|1d4 cortante + 1d4 de fuego.
+X|Aliento de vapor|Salvación de Constitución CD 10, cono de 15 pies. Falla: 2d4 de fuego y velocidad −10 pies hasta el final del siguiente turno del mefit. Si supera: solo la mitad del daño. Bajo el agua no da resistencia.
+@merfolk-skirmisher|Tritón hostigador
+T|Anfibio|*AMF
+A|Lanza oceánica|+2|Cuerpo a cuerpo o a distancia (20/60 pies). 1d6 perforante + 1d4 de frío, y su velocidad baja 10 pies hasta el final de su siguiente turno. Vuelve a su mano tras lanzarla.
+@merrow|Merrow
+T|Anfibio|*AMF
+X|Ataque múltiple|Dos ataques, con Mordisco, Garra o Arpón en cualquier combinación.
+A|Mordisco|+6|1d4 + 4 perforante, y queda Envenenado hasta el final del siguiente turno del merrow.
+A|Garra|+6|2d4 + 4 cortante.
+A|Arpón|+6|Cuerpo a cuerpo o a distancia (20/60 pies). 2d6 + 4 perforante. Si es Grande o menor, lo atrae 15 pies hacia sí.
+@mimic|Mímico
+T|Adhesivo (solo en forma de objeto)|Se pega a lo que le toca. Una criatura Enorme o menor pegada queda Agarrada (escapar CD 13, con desventaja).
+A|Mordisco|+5|Ventaja si el objetivo está Agarrado por él. 1d8 + 3 perforante (2d8 + 3 si está Agarrado) + 1d8 de ácido.
+A|Pseudópodo|+5|1d8 + 3 contundente + 1d8 de ácido. Si es Grande o menor, queda Agarrado (escapar CD 13, con desventaja).
+B|Cambiar de forma|Se convierte en un objeto Mediano o Pequeño, o vuelve a su forma de masa. Mantiene sus estadísticas; el equipo no se transforma.
+@minotaur-of-baphomet|Minotauro de Baphomet
+A|Guja abisal|+6|Alcance 10 pies. 1d12 + 4 cortante + 3d6 necrótico.
+A|Cornada|+6|4d6 + 4 perforante. Si es Grande o menor y el minotauro se movió 10+ pies en línea recta hacia él justo antes: +3d6 perforante y queda Derribado.
+@mummy|Momia
+X|Ataque múltiple|Dos ataques de Puño putrefacto y usa Mirada terrible.
+A|Puño putrefacto|+5|1d10 + 3 contundente + 3d6 necrótico, y queda maldito: no recupera PG, sus PG máximos no se recuperan con un descanso largo y bajan 3d6 cada 24 horas. Si cae a 0 PG por este ataque, muere y se convierte en polvo.
+X|Mirada terrible|Salvación de Sabiduría CD 11, una criatura que vea a 60 pies. Falla: Asustada hasta el final del siguiente turno de la momia. Si supera, inmune 24 horas.
+@mummy-lord|Señor momia
+T|Resistencia legendaria|*LR
+T|Resistencia mágica|*MR
+T|Restauración de muerto viviente|Si lo destruyen y su corazón está intacto, en 24 horas revive en su guarida con todos sus PG. El corazón es un objeto Diminuto (CA 17, 10 PG, solo le daña el fuego).
+X|Ataque múltiple|Un ataque de Puño putrefacto o Canalizar energía negativa, y usa Mirada terrible.
+A|Puño putrefacto|+9|2d10 + 4 contundente + 3d6 necrótico, y queda maldito: no recupera PG, no se beneficia de los descansos largos y sus PG máximos bajan 3d6 cada 24 horas. Si cae a 0 PG por este ataque, muere y se convierte en polvo.
+A|Canalizar energía negativa|+9|A distancia (60 pies). 6d6 + 4 necrótico.
+X|Mirada terrible|Salvación de Sabiduría CD 17, una criatura que vea a 60 pies. Falla: 6d6 + 4 psíquico y Paralizada hasta el final del siguiente turno de la momia.
+X|Lanzamiento de conjuros|*SP
+R|Torbellino de arena|Cuando le impacta un ataque: +2 a la CA contra él (puede fallar) y se teletransporta hasta 60 pies. Las criaturas que elija a 5 pies de su destino quedan Cegadas hasta el final de su siguiente turno.
+L|Orden terrible|Lanza Orden imperiosa (a nivel 2). No puede repetirla hasta el inicio de su turno.
+L|Mirada|Usa Mirada terrible. No puede repetirla hasta el inicio de su turno.
+L|Golpe necrótico|Un ataque de Puño putrefacto o Canalizar energía negativa.
+@nalfeshnee|Nalfeshnee
+T|Restauración demoníaca|*AR
+T|Resistencia mágica|*MR
+X|Ataque múltiple|Tres ataques de Desgarrar.
+A|Desgarrar|+10|Alcance 10 pies. 2d10 + 5 cortante + 2d10 de fuerza.
+X|Teletransporte|Se teletransporta hasta 120 pies a un espacio libre que vea.
+B|Nimbo de horror|Salvación de Sabiduría CD 15, a 15 pies. Falla: 8d6 psíquico y Asustada 1 minuto (acaba si recibe daño o termina su turno sin verlo). Si supera, inmune 24 horas.
+R|Persecución|Cuando otra criatura que ve acaba su movimiento a 120 pies: usa Teletransporte, pero a 10 pies de ella.
+@night-hag|Saga nocturna
+T|Magia de aquelarre|Con al menos dos sagas aliadas a 30 pies, puede lanzar (una vez por descanso largo cada uno, Inteligencia, CD 14): Augurio, Encontrar familiar, Identificar, Localizar objeto, Escudriñar o Sirviente invisible.
+T|Resistencia mágica|*MR
+T|Bolsa de almas|Con ella puede usar Acoso de pesadilla. La bolsa tiene CA 15, 20 PG y resistencia a todo el daño; si se destruye, libera las almas. Puede hacer otra en 7 días.
+X|Ataque múltiple|Dos ataques de Garra.
+A|Garra|+7|2d8 + 4 cortante.
+X|Acoso de pesadilla (necesita la bolsa)|Desde el Plano Etéreo lanza Sueño (el conjuro de mensajes en sueños) sobre una criatura que vea en el Plano Material, siendo ella la mensajera. Falla si el objetivo tiene Protección contra el bien y el mal o está en un Círculo mágico. El daño reduce sus PG máximos; si muere, su alma queda atrapada en la bolsa.
+X|Lanzamiento de conjuros|*SP
+B|Cambiar de forma|Se transforma en un humanoide Pequeño o Mediano, o vuelve a su forma real. Solo cambia su tamaño; el equipo no se transforma.
+@nightmare|Pesadilla
+T|Dar resistencia al fuego|Su jinete tiene resistencia al fuego mientras la monta.
+T|Iluminación|Da luz brillante en 10 pies y tenue otros 10.
+A|Cascos|+6|2d8 + 4 contundente + 3d6 de fuego.
+X|Paso etéreo|Ella y hasta tres criaturas voluntarias a 5 pies se teletransportan entre el Plano Material y el Etéreo.
+@noble|Noble
+A|Estoque|+3|1d8 + 1 perforante.
+R|Parada|Cuando le impacta un ataque cuerpo a cuerpo y empuña un arma: +2 a la CA contra ese ataque, que puede fallar.
+@ochre-jelly|Jalea ocre
+T|Amorfo|*AMO
+T|Trepar como una araña|*SC
+A|Pseudópodo|+4|3d6 + 2 de ácido.
+R|Dividirse|Si es Grande o Mediana, tiene 10+ PG y queda Ensangrentada o recibe daño cortante o de relámpago: se divide en dos jaleas una talla menores, que actúan en su iniciativa y se reparten sus PG.

@@ -1,0 +1,160 @@
+@blue-dragon-wyrmling|Cría de dragón azul
+X|Ataque múltiple|Dos ataques de Desgarrar.
+A|Desgarrar|+5|1d10 + 3 cortante + 1d6 de relámpago.
+X|Aliento de relámpago|Salvación de Destreza CD 12, línea de 30 × 5 pies. Falla: 6d6 de relámpago (mitad si supera).
+@young-blue-dragon|Dragón azul joven
+X|Ataque múltiple|Tres ataques de Desgarrar.
+A|Desgarrar|+9|Alcance 10 pies. 2d6 + 5 cortante + 1d10 de relámpago.
+X|Aliento de relámpago|Salvación de Destreza CD 16, línea de 60 × 5 pies. Falla: 10d10 de relámpago (mitad si supera).
+@adult-blue-dragon|Dragón azul adulto
+T|Resistencia legendaria|*LR
+X|Ataque múltiple|Tres ataques de Desgarrar. Puede cambiar uno por lanzar Romper.
+A|Desgarrar|+12|Alcance 10 pies. 2d8 + 7 cortante + 1d10 de relámpago.
+X|Aliento de relámpago|Salvación de Destreza CD 19, línea de 90 × 5 pies. Falla: 11d10 de relámpago (mitad si supera).
+X|Lanzamiento de conjuros|*SP
+L|Vuelo oculto|Se lanza Invisibilidad y vuela hasta la mitad de su velocidad de vuelo. No puede repetirla hasta el inicio de su turno.
+L|Estampido sónico|Lanza Romper. No puede repetirla hasta el inicio de su turno.
+L|Coletazo|Un ataque de Desgarrar.
+@ancient-blue-dragon|Dragón azul anciano
+T|Resistencia legendaria|*LR
+X|Ataque múltiple|Tres ataques de Desgarrar. Puede cambiar uno por lanzar Romper (a nivel 3).
+A|Desgarrar|+16|Alcance 15 pies. 2d8 + 9 cortante + 2d10 de relámpago.
+X|Aliento de relámpago|Salvación de Destreza CD 23, línea de 120 × 10 pies. Falla: 16d10 de relámpago (mitad si supera).
+X|Lanzamiento de conjuros|*SP
+L|Vuelo oculto|Se lanza Invisibilidad y vuela hasta la mitad de su velocidad de vuelo. No puede repetirla hasta el inicio de su turno.
+L|Estampido sónico|Lanza Romper (a nivel 3). No puede repetirla hasta el inicio de su turno.
+L|Coletazo|Un ataque de Desgarrar.
+@bone-devil|Diablo óseo
+T|Restauración diabólica|*DR
+T|Resistencia mágica|*MR
+X|Ataque múltiple|Dos ataques de Garra y uno de Aguijón infernal.
+A|Garra|+8|Alcance 10 pies. 2d8 + 4 cortante.
+A|Aguijón infernal|+8|Alcance 10 pies. 2d10 + 4 perforante + 4d8 de veneno, y queda Envenenado hasta el inicio del siguiente turno del diablo; mientras, no recupera PG.
+@brass-dragon-wyrmling|Cría de dragón de latón
+A|Desgarrar|+4|1d10 + 2 cortante.
+X|Aliento de fuego|Salvación de Destreza CD 11, línea de 20 × 5 pies. Falla: 4d6 de fuego (mitad si supera).
+X|Aliento de sueño|Salvación de Constitución CD 11, cono de 15 pies. Falla: Incapacitado hasta el final de su siguiente turno, y repite. 2.ª falla: Inconsciente 1 minuto (despierta si recibe daño o alguien a 5 pies usa una acción para despertarlo).
+@young-brass-dragon|Dragón de latón joven
+X|Ataque múltiple|Tres ataques de Desgarrar. Puede cambiar dos por usar Aliento de sueño.
+A|Desgarrar|+7|Alcance 10 pies. 2d10 + 4 cortante.
+X|Aliento de fuego|Salvación de Destreza CD 14, línea de 40 × 5 pies. Falla: 11d6 de fuego (mitad si supera).
+X|Aliento de sueño|Salvación de Constitución CD 14, cono de 30 pies. Falla: Incapacitado hasta el final de su siguiente turno, y repite. 2.ª falla: Inconsciente 1 minuto (despierta si recibe daño o alguien a 5 pies usa una acción para despertarlo).
+@adult-brass-dragon|Dragón de latón adulto
+T|Resistencia legendaria|*LR
+X|Ataque múltiple|Tres ataques de Desgarrar. Puede cambiar uno por Aliento de sueño o por lanzar Rayo abrasador.
+A|Desgarrar|+11|Alcance 10 pies. 2d10 + 6 cortante + 1d8 de fuego.
+X|Aliento de fuego|Salvación de Destreza CD 18, línea de 60 × 5 pies. Falla: 10d8 de fuego (mitad si supera).
+X|Aliento de sueño|Salvación de Constitución CD 18, cono de 60 pies. Falla: Incapacitado hasta el final de su siguiente turno, y repite. 2.ª falla: Inconsciente 10 minutos (despierta si recibe daño o alguien a 5 pies usa una acción para despertarlo).
+X|Lanzamiento de conjuros|*SP
+L|Luz abrasadora|Lanza Rayo abrasador.
+L|Abalanzarse|Se mueve hasta la mitad de su velocidad y hace un ataque de Desgarrar.
+L|Arenas ardientes|Salvación de Destreza CD 16, una criatura que vea a 120 pies. Falla: 6d8 de fuego y su velocidad se reduce a la mitad hasta el final de su siguiente turno. No puede repetirla hasta el inicio de su turno.
+@ancient-brass-dragon|Dragón de latón anciano
+T|Resistencia legendaria|*LR
+X|Ataque múltiple|Tres ataques de Desgarrar. Puede cambiar uno por Aliento de sueño o por lanzar Rayo abrasador (a nivel 3).
+A|Desgarrar|+14|Alcance 15 pies. 2d10 + 8 cortante + 2d6 de fuego.
+X|Aliento de fuego|Salvación de Destreza CD 21, línea de 90 × 5 pies. Falla: 13d8 de fuego (mitad si supera).
+X|Aliento de sueño|Salvación de Constitución CD 21, cono de 90 pies. Falla: Incapacitado hasta el final de su siguiente turno, y repite. 2.ª falla: Inconsciente 10 minutos (despierta si recibe daño o alguien a 5 pies usa una acción para despertarlo).
+X|Lanzamiento de conjuros|*SP
+L|Luz abrasadora|Lanza Rayo abrasador (a nivel 3).
+L|Abalanzarse|Se mueve hasta la mitad de su velocidad y hace un ataque de Desgarrar.
+L|Arenas ardientes|Salvación de Destreza CD 20, una criatura que vea a 120 pies. Falla: 8d8 de fuego y su velocidad se reduce a la mitad hasta el final de su siguiente turno. No puede repetirla hasta el inicio de su turno.
+@bronze-dragon-wyrmling|Cría de dragón de bronce
+T|Anfibio|*AMF
+X|Ataque múltiple|Dos ataques de Desgarrar.
+A|Desgarrar|+5|1d10 + 3 cortante.
+X|Aliento de relámpago|Salvación de Destreza CD 12, línea de 40 × 5 pies. Falla: 3d10 de relámpago (mitad si supera).
+X|Aliento de repulsión|Salvación de Fuerza CD 12, cono de 30 pies. Falla: lo empuja 30 pies y queda Derribado.
+@young-bronze-dragon|Dragón de bronce joven
+T|Anfibio|*AMF
+X|Ataque múltiple|Tres ataques de Desgarrar. Puede cambiar uno por Aliento de repulsión.
+A|Desgarrar|+8|Alcance 10 pies. 2d10 + 5 cortante.
+X|Aliento de relámpago|Salvación de Destreza CD 15, línea de 60 × 5 pies. Falla: 9d10 de relámpago (mitad si supera).
+X|Aliento de repulsión|Salvación de Fuerza CD 15, cono de 30 pies. Falla: lo empuja 40 pies y queda Derribado.
+@adult-bronze-dragon|Dragón de bronce adulto
+T|Anfibio|*AMF
+T|Resistencia legendaria|*LR
+X|Ataque múltiple|Tres ataques de Desgarrar. Puede cambiar uno por Aliento de repulsión o por lanzar Saeta guía (a nivel 2).
+A|Desgarrar|+12|Alcance 10 pies. 2d8 + 7 cortante + 1d10 de relámpago.
+X|Aliento de relámpago|Salvación de Destreza CD 19, línea de 90 × 5 pies. Falla: 10d10 de relámpago (mitad si supera).
+X|Aliento de repulsión|Salvación de Fuerza CD 19, cono de 30 pies. Falla: lo empuja 60 pies y queda Derribado.
+X|Lanzamiento de conjuros|*SP
+L|Luz guía|Lanza Saeta guía (a nivel 2).
+L|Abalanzarse|Se mueve hasta la mitad de su velocidad y hace un ataque de Desgarrar.
+L|Trueno|Salvación de Constitución CD 17, esfera de 20 pies de radio en un punto que vea a 90 pies. Falla: 3d6 de trueno y queda Ensordecido hasta el final de su siguiente turno.
+@ancient-bronze-dragon|Dragón de bronce anciano
+T|Anfibio|*AMF
+T|Resistencia legendaria|*LR
+X|Ataque múltiple|Tres ataques de Desgarrar. Puede cambiar uno por Aliento de repulsión o por lanzar Saeta guía (a nivel 2).
+A|Desgarrar|+16|Alcance 15 pies. 2d8 + 9 cortante + 2d8 de relámpago.
+X|Aliento de relámpago|Salvación de Destreza CD 23, línea de 120 × 10 pies. Falla: 15d10 de relámpago (mitad si supera).
+X|Aliento de repulsión|Salvación de Fuerza CD 23, cono de 30 pies. Falla: lo empuja 60 pies y queda Derribado.
+X|Lanzamiento de conjuros|*SP
+L|Luz guía|Lanza Saeta guía (a nivel 2).
+L|Abalanzarse|Se mueve hasta la mitad de su velocidad y hace un ataque de Desgarrar.
+L|Trueno|Salvación de Constitución CD 22, esfera de 20 pies de radio en un punto que vea a 120 pies. Falla: 3d8 de trueno y queda Ensordecido hasta el final de su siguiente turno.
+@bugbear-stalker|Osgo acechador
+T|Raptor|No gasta movimiento extra al mover a una criatura que tenga agarrada.
+X|Ataque múltiple|Dos ataques de Jabalina o de Lucero del alba.
+A|Jabalina|+5|Cuerpo a cuerpo (alcance 10 pies) o a distancia (30/120 pies). 3d6 + 3 perforante.
+A|Lucero del alba|+5|Alcance 10 pies; ventaja si el objetivo está Agarrado por él. 2d8 + 3 perforante.
+B|Agarre rápido|Salvación de Destreza CD 13, una criatura Mediana o menor que vea a 10 pies. Falla: queda Agarrada (escapar CD 13).
+@bugbear-warrior|Osgo guerrero
+T|Raptor|No gasta movimiento extra al mover a una criatura que tenga agarrada.
+A|Agarrón|+4|Alcance 10 pies. 2d6 + 2 contundente. Si es Mediana o menor, queda Agarrada (escapar CD 12).
+A|Martillo ligero|+4|Cuerpo a cuerpo (alcance 10 pies) o a distancia (20/60 pies); ventaja si el objetivo está Agarrado por él. 3d4 + 2 contundente.
+@bulette|Bulette
+X|Ataque múltiple|Dos ataques de Mordisco.
+A|Mordisco|+7|2d12 + 4 perforante.
+X|Salto mortal|Gasta 5 pies de movimiento para saltar a un espacio a 15 pies donde haya criaturas Grandes o menores. Salvación de Destreza CD 15 para cada una. Falla: 3d12 contundente y Derribada. Si supera: la mitad y la empuja 5 pies.
+B|Salto|Salta hasta 30 pies gastando 10 de movimiento.
+@centaur-trooper|Centauro soldado
+X|Ataque múltiple|Dos ataques, con Pica o Arco largo en cualquier combinación.
+A|Pica|+6|Alcance 10 pies. 1d10 + 4 perforante.
+A|Arco largo|+4|A distancia (150/600 pies). 1d8 + 2 perforante.
+B|Carga arrolladora|Se mueve hasta su velocidad sin provocar ataques de oportunidad y atraviesa criaturas Medianas o menores. Cada una cuyo espacio pisa: salvación de Fuerza CD 14; si falla, 1d6 + 4 contundente y Derribada.
+@chain-devil|Diablo de las cadenas
+T|Restauración diabólica|*DR
+T|Resistencia mágica|*MR
+X|Ataque múltiple|Dos ataques de Cadena y usa Conjurar cadena infernal.
+A|Cadena|+7|Alcance 10 pies. 2d6 + 4 cortante. Si es Grande o menor, queda Agarrado (escapar CD 14) por una de sus dos cadenas y Apresado mientras dure.
+X|Conjurar cadena infernal|Salvación de Destreza CD 15, una criatura que vea a 60 pies. Falla: 2d4 + 4 de fuego y queda Apresada hasta el final del siguiente turno del diablo; si es Grande o menor, la atrae 30 pies hacia él.
+R|Mirada inquietante|Cuando una criatura que lo ve empieza su turno a 30 pies: salvación de Sabiduría CD 15. Falla: Asustada hasta el final de su turno. Si supera, es inmune 24 horas.
+@chimera|Quimera
+X|Ataque múltiple|Un ataque de Embestida, uno de Mordisco y uno de Garra. Puede cambiar la Garra por Aliento de fuego si lo tiene.
+A|Mordisco|+7|2d6 + 4 perforante, o 4d6 + 4 si atacó con ventaja.
+A|Garra|+7|1d6 + 4 cortante.
+A|Embestida|+7|1d12 + 4 contundente. Si es Mediana o menor, queda Derribada.
+X|Aliento de fuego|Salvación de Destreza CD 15, cono de 15 pies. Falla: 7d8 de fuego (mitad si supera).
+@chuul|Chuul
+T|Anfibio|*AMF
+T|Sentir magia|Percibe la magia a 120 pies, como Detectar magia (pero no es mágico).
+X|Ataque múltiple|Dos ataques de Pinza y usa Tentáculos paralizantes.
+A|Pinza|+6|Alcance 10 pies. 1d10 + 4 contundente. Si es Grande o menor, queda Agarrado (escapar CD 14) por una de sus dos pinzas.
+X|Tentáculos paralizantes|Salvación de Constitución CD 13, una criatura que tenga Agarrada. Falla: queda Envenenada (y Paralizada mientras lo esté); repite al final de cada turno suyo y la supera sola tras 1 minuto.
+@clay-golem|Gólem de arcilla
+T|Absorber ácido|El daño de ácido no le hace daño: recupera esos PG.
+T|Furia|Si empieza su turno Ensangrentado, tira 1d6: con un 6 enloquece y ataca a la criatura más cercana que vea (o a un objeto) hasta que lo destruyan o deje de estar Ensangrentado.
+T|Forma inmutable|No puede cambiar de forma.
+T|Resistencia mágica|*MR
+X|Ataque múltiple|Dos ataques de Golpe, o tres si usó Acelerar este turno.
+A|Golpe|+9|1d10 + 5 contundente + 1d12 de ácido, y sus PG máximos bajan tanto como el daño de ácido.
+B|Acelerar|Hace las acciones de Correr y Destrabarse.
+@cloaker|Capa negra
+T|Sensibilidad a la luz|Desventaja en los ataques con luz brillante.
+X|Ataque múltiple|Un ataque de Adherirse y dos de Cola.
+A|Adherirse|+6|3d6 + 3 perforante. Si es Grande o menor, se le pega: queda Cegado; la capa recibe la mitad del daño y el objetivo la otra mitad. Se suelta gastando 5 pies; para arrancarla hace falta una acción y Fuerza (Atletismo) CD 14.
+A|Cola|+6|Alcance 10 pies. 1d10 + 3 cortante.
+B|Gemido|Salvación de Sabiduría CD 13, a 60 pies. Falla: Asustado hasta el final del siguiente turno de la capa. Si supera, inmune 24 horas.
+B|Fantasmas|Lanza Imagen múltiple sin componentes (Sabiduría). Acaba si empieza o termina su turno con luz brillante.
+@cloud-giant|Gigante de las nubes
+X|Ataque múltiple|Dos ataques, con Maza atronadora o Nube de tormenta en cualquier combinación. Puede cambiar uno por lanzar Nube de niebla.
+A|Maza atronadora|+12|Alcance 10 pies. 3d8 + 8 contundente + 2d6 de trueno.
+A|Nube de tormenta|+12|A distancia (240 pies). 3d6 + 8 de trueno, y queda Incapacitado hasta el final de su siguiente turno.
+X|Lanzamiento de conjuros|*SP
+B|Paso brumoso|Lanza Paso brumoso.
+@cockatrice|Cocatriz
+A|Mordisco petrificante|+3|1d4 + 1 perforante. Salvación de Constitución CD 11. 1.ª falla: Apresado; repite al final de su siguiente turno. 2.ª falla: Petrificado 24 horas.
+@commoner|Plebeyo
+T|Oficio|Competente en una habilidad que elija el máster, con ventaja en esas pruebas.
+A|Garrote|+2|1d4 contundente.

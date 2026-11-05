@@ -1,0 +1,144 @@
+@ogre|Ogro
+A|Gran garrote|+6|2d8 + 4 contundente.
+A|Jabalina|+6|Cuerpo a cuerpo o a distancia (30/120 pies). 2d6 + 4 perforante.
+@oni|Oni
+T|Regeneración|Recupera 10 PG al inicio de cada turno suyo si tiene al menos 1 PG.
+X|Ataque múltiple|Dos ataques de Garra o de Rayo de pesadilla. Puede cambiar uno por Lanzamiento de conjuros.
+A|Garra|+7|Alcance 10 pies. 1d12 + 4 cortante + 2d8 necrótico.
+A|Rayo de pesadilla|+5|A distancia (60 pies). 2d6 + 2 psíquico, y queda Asustado hasta el inicio del siguiente turno del oni.
+X|Cambiar de forma|Se transforma en un humanoide Pequeño o Mediano o en un gigante Grande, o vuelve a su forma real. Solo cambia su tamaño; el equipo no se transforma.
+X|Lanzamiento de conjuros|*SP
+B|Invisibilidad|Se lanza Invisibilidad sin componentes.
+@otyugh|Otyugh
+X|Ataque múltiple|Un ataque de Mordisco y dos de Tentáculo.
+A|Mordisco|+6|2d8 + 3 perforante, y queda Envenenado. Cada vez que termine un descanso largo envenenado: salvación de Constitución CD 15. Falla: sus PG máximos bajan 1d10 hasta que se cure. Si supera, se cura.
+A|Tentáculo|+6|Alcance 10 pies. 2d8 + 3 perforante. Si es Mediano o menor, queda Agarrado (escapar CD 13) por uno de sus dos tentáculos.
+X|Golpe de tentáculos|Salvación de Constitución CD 14, cada criatura que tenga Agarrada. Falla: 3d8 + 3 contundente y Aturdida hasta el inicio del siguiente turno del otyugh. Si supera: solo la mitad.
+@owlbear|Oso lechuza
+X|Ataque múltiple|Dos ataques de Desgarrar.
+A|Desgarrar|+7|2d8 + 5 cortante.
+@pegasus|Pegaso
+A|Cascos|+6|1d6 + 4 contundente + 2d4 radiante.
+@phase-spider|Araña de fase
+T|Vista etérea|Ve 60 pies dentro del Plano Etéreo desde el Material, y al revés.
+T|Trepar como una araña|*SC
+T|Caminante de telarañas|Ignora las restricciones de movimiento de las telarañas y sabe dónde está cualquiera que toque la misma telaraña.
+X|Ataque múltiple|Dos ataques de Mordisco.
+A|Mordisco|+5|1d10 + 3 perforante + 2d8 de veneno. Si cae a 0 PG por este daño, queda estable pero Envenenado (y Paralizado) 1 hora.
+B|Salto etéreo|Se teletransporta del Plano Material al Etéreo, o al revés.
+@pirate|Pirata
+X|Ataque múltiple|Dos ataques de Daga. Puede cambiar uno por Encanto cautivador.
+A|Daga|+5|Cuerpo a cuerpo o a distancia (20/60 pies). 1d4 + 3 perforante.
+X|Encanto cautivador|Salvación de Sabiduría CD 12, una criatura que vea a 30 pies. Falla: Hechizada hasta el inicio del siguiente turno del pirata.
+@pirate-captain|Capitán pirata
+X|Ataque múltiple|Tres ataques, con Estoque o Pistola en cualquier combinación.
+A|Estoque|+7|2d8 + 4 perforante, y ventaja en su siguiente ataque este turno.
+A|Pistola|+7|A distancia (30/90 pies). 2d10 + 4 perforante.
+R|Contraataque|Cuando le impacta un ataque cuerpo a cuerpo y empuña un arma: +3 a la CA contra ese ataque. Si falla, le hace un ataque de Estoque si está a su alcance.
+@pit-fiend|Diablo de la sima
+T|Restauración diabólica|*DR
+T|Aura de miedo|Mientras no esté Incapacitado: salvación de Sabiduría CD 21 para cada enemigo que empiece su turno a 20 pies. Falla: Asustado hasta el inicio de su siguiente turno. Si supera, inmune 24 horas.
+T|Resistencia legendaria|*LR
+T|Resistencia mágica|*MR
+X|Ataque múltiple|Un ataque de Mordisco, dos de Garra diabólica y uno de Maza ígnea.
+A|Mordisco|+14|Alcance 10 pies. 3d6 + 8 perforante. Salvación de Constitución CD 21. Falla: Envenenado: no recupera PG, recibe 6d6 de veneno al inicio de cada turno suyo y repite al final; tras 1 minuto, la supera sola.
+A|Garra diabólica|+14|Alcance 10 pies. 4d8 + 8 necrótico.
+A|Maza ígnea|+14|Alcance 10 pies. 4d6 + 8 de fuerza + 6d6 de fuego.
+X|Conjuros del fuego infernal|Lanza dos veces Bola de fuego (a nivel 5) sin componentes materiales (Carisma, CD 21). Puede cambiar una por Inmovilizar monstruo (a nivel 7) o Muro de fuego.
+@planetar|Planetar
+T|Percepción divina|Sabe cuándo oye una mentira.
+T|Restauración exaltada|Si muere fuera del Monte Celestia, revive al instante allí con todos sus PG.
+T|Resistencia mágica|*MR
+X|Ataque múltiple|Tres ataques de Espada radiante, o usa Estallido sagrado dos veces.
+A|Espada radiante|+12|Alcance 10 pies. 2d6 + 7 cortante + 4d8 radiante.
+X|Estallido sagrado|Salvación de Destreza CD 20, enemigos en una esfera de 20 pies de radio en un punto que vea a 120 pies. Falla: 7d6 radiante (mitad si supera).
+X|Lanzamiento de conjuros|*SP
+B|Ayuda divina|Lanza Curar heridas, Invisibilidad, Restablecimiento menor o Levantar maldición.
+@priest-acolyte|Acólito
+A|Maza|+4|1d6 + 2 contundente + 1d4 radiante.
+A|Llama radiante|+4|A distancia (60 pies). 2d6 radiante.
+X|Lanzamiento de conjuros|*SP
+B|Ayuda divina|Lanza Bendición, Palabra de curación o Santuario.
+@priest|Sacerdote
+X|Ataque múltiple|Dos ataques, con Maza o Llama radiante en cualquier combinación.
+A|Maza|+5|1d6 + 3 contundente + 2d4 radiante.
+A|Llama radiante|+5|A distancia (60 pies). 2d10 radiante.
+X|Lanzamiento de conjuros|*SP
+B|Ayuda divina|Lanza Bendición, Disipar magia, Palabra de curación o Restablecimiento menor.
+@purple-worm|Gusano púrpura
+T|Excavador|Excava roca sólida a la mitad de su velocidad de excavar y deja un túnel de 10 pies de diámetro.
+X|Ataque múltiple|Un ataque de Mordisco y uno de Aguijón de la cola.
+A|Mordisco|+14|Alcance 10 pies. 3d8 + 9 perforante. Si es Grande o menor, queda Agarrado (escapar CD 19) y Apresado mientras dure.
+A|Aguijón de la cola|+14|Alcance 10 pies. 2d6 + 9 perforante + 10d6 de veneno.
+B|Tragar|Salvación de Fuerza CD 19, una criatura Grande o menor que tenga Agarrada (hasta tres tragadas). Falla: se la traga: Cegada y Apresada, con cobertura total, y 5d6 de ácido al inicio de cada turno del gusano. Si recibe 30+ de daño desde dentro en un turno, salvación de Constitución CD 21 o las regurgita Derribadas a 5 pies. Si muere, salen gastando 20 pies.
+@rakshasa|Rakshasa
+T|Resistencia mágica mayor|Supera automáticamente las salvaciones contra conjuros y efectos mágicos, y los ataques de conjuro fallan siempre contra él. Sin su permiso, ningún conjuro puede observarlo ni detectar sus pensamientos, tipo o alineamiento.
+T|Restauración infernal|Si muere fuera de los Nueve Infiernos, su cuerpo se vuelve icor y revive al instante allí con todos sus PG.
+X|Ataque múltiple|Tres ataques de Toque maldito.
+A|Toque maldito|+10|2d6 + 5 cortante + 3d12 necrótico, y queda maldito: no se beneficia de descansos cortos ni largos.
+X|Orden funesta|Salvación de Sabiduría CD 18, enemigos a 30 pies. Falla: 8d6 psíquico y Asustados e Incapacitados hasta el inicio del siguiente turno del rakshasa.
+X|Lanzamiento de conjuros|*SP
+@red-dragon-wyrmling|Cría de dragón rojo
+X|Ataque múltiple|Dos ataques de Desgarrar.
+A|Desgarrar|+6|1d10 + 4 cortante + 1d6 de fuego.
+X|Aliento de fuego|Salvación de Destreza CD 13, cono de 15 pies. Falla: 7d6 de fuego (mitad si supera).
+@young-red-dragon|Dragón rojo joven
+X|Ataque múltiple|Tres ataques de Desgarrar.
+A|Desgarrar|+10|Alcance 10 pies. 2d6 + 6 cortante + 1d6 de fuego.
+X|Aliento de fuego|Salvación de Destreza CD 17, cono de 30 pies. Falla: 16d6 de fuego (mitad si supera).
+@adult-red-dragon|Dragón rojo adulto
+T|Resistencia legendaria|*LR
+X|Ataque múltiple|Tres ataques de Desgarrar. Puede cambiar uno por lanzar Rayo abrasador.
+A|Desgarrar|+14|Alcance 10 pies. 1d10 + 8 cortante + 2d4 de fuego.
+X|Aliento de fuego|Salvación de Destreza CD 21, cono de 60 pies. Falla: 17d6 de fuego (mitad si supera).
+X|Lanzamiento de conjuros|*SP
+L|Presencia imponente|Lanza Orden imperiosa (a nivel 2). No puede repetirla hasta el inicio de su turno.
+L|Rayos ígneos|Lanza Rayo abrasador. No puede repetirla hasta el inicio de su turno.
+L|Abalanzarse|Se mueve hasta la mitad de su velocidad y hace un ataque de Desgarrar.
+@ancient-red-dragon|Dragón rojo anciano
+T|Resistencia legendaria|*LR
+X|Ataque múltiple|Tres ataques de Desgarrar. Puede cambiar uno por lanzar Rayo abrasador (a nivel 3).
+A|Desgarrar|+17|Alcance 15 pies. 2d8 + 10 cortante + 3d6 de fuego.
+X|Aliento de fuego|Salvación de Destreza CD 24, cono de 90 pies. Falla: 26d6 de fuego (mitad si supera).
+X|Lanzamiento de conjuros|*SP
+L|Presencia imponente|Lanza Orden imperiosa (a nivel 2). No puede repetirla hasta el inicio de su turno.
+L|Rayos ígneos|Lanza Rayo abrasador (a nivel 3). No puede repetirla hasta el inicio de su turno.
+L|Abalanzarse|Se mueve hasta la mitad de su velocidad y hace un ataque de Desgarrar.
+@remorhaz|Remorhaz
+T|Aura de calor|Al final de cada turno suyo, las criaturas a 5 pies reciben 3d10 de fuego.
+A|Mordisco|+11|Alcance 10 pies. 2d10 + 7 perforante + 4d6 de fuego. Si es Grande o menor, queda Agarrado (escapar CD 17) y Apresado mientras dure.
+B|Tragar|Salvación de Fuerza CD 19, una criatura Grande o menor que tenga Agarrada (hasta dos tragadas). Falla: se la traga: Cegada y Apresada, con cobertura total, y 3d6 de ácido + 3d6 de fuego al inicio de cada turno del remorhaz. Si recibe 30+ de daño desde dentro en un turno, salvación de Constitución CD 15 o las regurgita Derribadas a 5 pies. Si muere, salen gastando 15 pies.
+@roc|Roc
+X|Ataque múltiple|Dos ataques de Pico. Puede cambiar uno por uno de Garras.
+A|Pico|+13|Alcance 10 pies. 3d12 + 9 perforante.
+A|Garras|+13|4d6 + 9 cortante. Si es Enorme o menor, queda Agarrado (escapar CD 19) por ambas garras y Apresado mientras dure.
+B|Picado|Si tiene a alguien Agarrado, vuela hasta la mitad de su velocidad de vuelo sin provocar ataques de oportunidad y lo suelta.
+@roper|Cordelero
+T|Trepar como una araña|*SC
+X|Ataque múltiple|Dos ataques de Tentáculo, usa Recoger y hace dos de Mordisco.
+A|Mordisco|+7|3d8 + 4 perforante.
+A|Tentáculo|+7|Alcance 60 pies. Sin daño: queda Agarrado (escapar CD 14) por uno de sus seis tentáculos y Envenenado mientras dure. Cada tentáculo tiene CA 20 y 10 PG (inmune a veneno y psíquico); dañarlo no daña al cordelero, y al destruirlo suelta a su presa. Vuelve a crecer al inicio de su siguiente turno.
+X|Recoger|Atrae 30 pies hacia sí a cada criatura que tenga Agarrada.
+@rust-monster|Monstruo corrosivo
+T|Olfato del hierro|Localiza con exactitud el metal ferroso a 30 pies.
+X|Ataque múltiple|Un ataque de Mordisco y usa Antenas dos veces.
+A|Mordisco|+3|1d8 + 1 perforante.
+X|Antenas|Elige un objeto de metal no mágico (armadura o arma) que lleve una criatura a 5 pies. Salvación de Destreza CD 11. Falla: −1 a la CA que da la armadura o a los ataques del arma. La armadura se destruye si llega a CA 10 y el arma a −5. Reparar lo quita.
+X|Destruir metal|Toca un objeto de metal no mágico a 5 pies que nadie lleve y destruye un cubo de 1 pie de él.
+R|Antenas reflejas|Cuando le impacta un ataque, usa Antenas.
+@sahuagin-warrior|Sahuagin guerrero
+T|Frenesí de sangre|Ventaja al atacar a criaturas que no tengan todos sus PG.
+T|Anfibio limitado|Respira aire y agua, pero fuera del agua debe sumergirse al menos cada 4 horas o se asfixia.
+T|Telepatía con tiburones|Controla tiburones a 120 pies con una telepatía especial.
+X|Ataque múltiple|Dos ataques de Garra.
+A|Garra|+3|1d6 + 1 cortante.
+B|Carga acuática|Nada hasta su velocidad de nado en línea recta hacia un enemigo que vea.
+@salamander|Salamandra
+T|Aura de fuego|Al final de cada turno suyo, las criaturas que elija a 5 pies reciben 2d6 de fuego.
+X|Ataque múltiple|Dos ataques de Lanza de llamas. Puede cambiar uno por Constreñir.
+A|Lanza de llamas|+7|Cuerpo a cuerpo o a distancia (20/60 pies). 2d8 + 4 perforante + 2d6 de fuego. Vuelve a su mano tras lanzarla.
+X|Constreñir|Salvación de Fuerza CD 15, una criatura Grande o menor que vea a 10 pies. Falla: 2d6 + 4 contundente + 2d6 de fuego, queda Agarrada (escapar CD 14) y Apresada mientras dure.
+@satyr|Sátiro
+T|Resistencia mágica|*MR
+A|Cascos|+5|1d4 + 3 contundente. Si es Mediano o menor, lo empuja 10 pies.
+X|Burla|Salvación de Sabiduría CD 12, una criatura que vea a 90 pies. Falla: 1d6 + 2 psíquico.

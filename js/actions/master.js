@@ -208,7 +208,7 @@ Object.assign(A, {
       sin = L.filter(f => f.init === '');
     if (!L.length) return;
     if (sin.length && !mStartForce) {
-      openModal(`<h2>¿Empezar el combate?</h2><p class="hint">Falta la iniciativa de: ${sin.map(f => `<b>${esc(f.name)}</b>`).join(', ')}. Si empiezas igualmente, irán al final.</p>
+      openModal(`<h2>¿Empezar el combate?</h2><p class="hint">Falta la iniciativa de: ${sin.map(f => `<b>${esc(f.name)}</b>`).join(', ')}. Si empiezas igualmente, ${sin.length === 1 ? 'irá' : 'irán'} al final.</p>
         <div class="btns"><button class="b pri" data-act="m-start-ok">Empezar igualmente</button><button class="b" data-act="close-modal">Apuntarla antes</button></div>`);
       return;
     }

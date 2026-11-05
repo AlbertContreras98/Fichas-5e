@@ -1,0 +1,148 @@
+@copper-dragon-wyrmling|Cría de dragón de cobre
+A|Desgarrar|+4|1d10 + 2 cortante.
+X|Aliento ácido|Salvación de Destreza CD 11, línea de 20 × 5 pies. Falla: 4d8 de ácido (mitad si supera).
+X|Aliento ralentizador|Salvación de Constitución CD 11, cono de 15 pies. Falla: hasta el final de su siguiente turno, sin reacciones, velocidad a la mitad y solo una acción o una acción adicional.
+@young-copper-dragon|Dragón de cobre joven
+X|Ataque múltiple|Tres ataques de Desgarrar. Puede cambiar uno por Aliento ralentizador.
+A|Desgarrar|+7|Alcance 10 pies. 2d10 + 4 cortante.
+X|Aliento ácido|Salvación de Destreza CD 14, línea de 40 × 5 pies. Falla: 9d8 de ácido (mitad si supera).
+X|Aliento ralentizador|Salvación de Constitución CD 14, cono de 30 pies. Falla: hasta el final de su siguiente turno, sin reacciones, velocidad a la mitad y solo una acción o una acción adicional.
+@adult-copper-dragon|Dragón de cobre adulto
+T|Resistencia legendaria|*LR
+X|Ataque múltiple|Tres ataques de Desgarrar. Puede cambiar uno por Aliento ralentizador o por lanzar Punzada mental (a nivel 4).
+A|Desgarrar|+11|Alcance 10 pies. 2d10 + 6 cortante + 1d8 de ácido.
+X|Aliento ácido|Salvación de Destreza CD 18, línea de 60 × 5 pies. Falla: 12d8 de ácido (mitad si supera).
+X|Aliento ralentizador|Salvación de Constitución CD 18, cono de 60 pies. Falla: hasta el final de su siguiente turno, sin reacciones, velocidad a la mitad y solo una acción o una acción adicional.
+X|Lanzamiento de conjuros|*SP
+L|Magia de la risa|Salvación de Carisma CD 17, una criatura que vea a 90 pies. Falla: 7d6 psíquico y, hasta el final de su siguiente turno, resta 1d6 a sus pruebas de característica y ataques. No puede repetirla hasta el inicio de su turno.
+L|Sacudida mental|Lanza Punzada mental (a nivel 4). No puede repetirla hasta el inicio de su turno.
+L|Abalanzarse|Se mueve hasta la mitad de su velocidad y hace un ataque de Desgarrar.
+@ancient-copper-dragon|Dragón de cobre anciano
+T|Resistencia legendaria|*LR
+X|Ataque múltiple|Tres ataques de Desgarrar. Puede cambiar uno por Aliento ralentizador o por lanzar Punzada mental (a nivel 5).
+A|Desgarrar|+15|Alcance 15 pies. 2d10 + 8 cortante + 2d8 de ácido.
+X|Aliento ácido|Salvación de Destreza CD 22, línea de 90 × 10 pies. Falla: 14d8 de ácido (mitad si supera).
+X|Aliento ralentizador|Salvación de Constitución CD 22, cono de 90 pies. Falla: hasta el final de su siguiente turno, sin reacciones, velocidad a la mitad y solo una acción o una acción adicional.
+X|Lanzamiento de conjuros|*SP
+L|Magia de la risa|Salvación de Carisma CD 21, una criatura que vea a 120 pies. Falla: 9d6 psíquico y, hasta el final de su siguiente turno, resta 1d8 a sus pruebas de característica y ataques. No puede repetirla hasta el inicio de su turno.
+L|Sacudida mental|Lanza Punzada mental (a nivel 5). No puede repetirla hasta el inicio de su turno.
+L|-|-
+L|Abalanzarse|Se mueve hasta la mitad de su velocidad y hace un ataque de Desgarrar.
+@couatl|Couatl
+T|Mente protegida|Nadie puede leerle la mente, y solo pueden hablarle por telepatía si lo permite.
+A|Mordisco|+7|1d12 + 5 perforante, y queda Envenenado hasta el final del siguiente turno del couatl.
+X|Constreñir|Salvación de Fuerza CD 15, una criatura Mediana o menor que vea a 5 pies. Falla: 1d6 + 5 contundente, queda Agarrada (escapar CD 13) y Apresada mientras dure.
+X|Lanzamiento de conjuros|*SP
+B|Ayuda divina|Lanza Bendición, Restablecimiento menor o Santuario, sin componentes.
+@swarm-of-crawling-claws|Enjambre de garras reptantes
+T|Enjambre|Puede ocupar el espacio de otra criatura (y al revés) y pasar por huecos para criaturas Diminutas. No recupera PG ni gana PG temporales.
+A|Enjambre de manos|+4|4d8 + 2 necrótico, o 2d8 + 2 si está Ensangrentado. Si es Mediana o menor, queda Derribada.
+@cultist|Sectario
+A|Hoz ritual|+3|1d4 + 1 cortante + 1 necrótico.
+@cultist-fanatic|Sectario fanático
+A|Hoja del pacto|+4|1d8 + 2 cortante + 2d6 necrótico.
+X|Lanzamiento de conjuros|*SP
+B|Arma espiritual|Lanza Arma espiritual.
+@darkmantle|Manto oscuro
+A|Aplastar|+5|1d6 + 3 contundente y se pega al objetivo. Si es Mediano o menor y atacó con ventaja, lo cubre: queda Cegado y asfixiándose. Pegado, solo ataca a ese objetivo pero con ventaja, y se mueve con él. Para arrancarlo: acción y Fuerza (Atletismo) CD 13. Se suelta gastando 5 pies.
+X|Aura de oscuridad|Oscuridad mágica en 15 pies a su alrededor mientras se concentre (hasta 10 minutos). La visión en la oscuridad no la atraviesa.
+@death-dog|Perro de la muerte
+X|Ataque múltiple|Dos ataques de Mordisco.
+A|Mordisco|+4|1d4 + 2 perforante. Salvación de Constitución CD 12. 1.ª falla: Envenenado; no recupera los PG máximos con un descanso largo y repite cada 24 horas. Cada falla siguiente: sus PG máximos bajan 1d10.
+@deva|Deva
+T|Restauración exaltada|Si muere fuera del Monte Celestia, revive al instante allí con todos sus PG.
+T|Resistencia mágica|*MR
+X|Ataque múltiple|Dos ataques de Maza sagrada.
+A|Maza sagrada|+8|1d6 + 4 contundente + 4d8 radiante.
+X|Lanzamiento de conjuros|*SP
+B|Ayuda divina|Lanza Curar heridas, Restablecimiento menor o Levantar maldición.
+@djinni|Djinn
+T|Restauración elemental|Si muere fuera del Plano Elemental del Aire, se deshace en niebla y en 1d4 días revive allí con todos sus PG.
+T|Resistencia mágica|*MR
+T|Deseos|30 % de probabilidades de conocer Deseo. Solo lo lanza para una criatura que no sea genio y le pida un deseo; no sufre el desgaste. Tras 3 veces, no puede en 365 días.
+X|Ataque múltiple|Tres ataques, con Hoja de tormenta o Rayo de tormenta en cualquier combinación.
+A|Hoja de tormenta|+9|2d6 + 5 cortante + 2d6 de relámpago.
+A|Rayo de tormenta|+9|A distancia (120 pies). 3d8 de trueno. Si es Grande o menor, queda Derribado.
+X|Crear torbellino|Torbellino (cilindro de 20 pies de radio y 60 de alto) en un punto a 120 pies, mientras se concentre; lo mueve 20 pies al inicio de su turno. Quien entre o sea alcanzado: salvación de Fuerza CD 17 (una vez por turno). Falla: Apresado y se mueve con él; 6d6 de trueno al inicio de cada turno suyo y repite al final.
+X|Lanzamiento de conjuros|*SP
+@doppelganger|Doppelganger
+X|Ataque múltiple|Dos ataques de Golpe y usa Rostro inquietante si puede.
+A|Golpe|+6|Ventaja en la primera ronda de cada combate. 2d6 + 4 contundente.
+X|Leer pensamientos|Lanza Detectar pensamientos sin componentes (Carisma, CD 12).
+X|Rostro inquietante|Salvación de Sabiduría CD 12, criaturas a 15 pies que lo vean. Falla: Asustada; repite al final de cada turno suyo y la supera sola tras 1 minuto.
+B|Cambiar de forma|Se transforma en un humanoide Mediano o Pequeño, o vuelve a su forma real. Solo cambia su tamaño; el equipo no se transforma.
+@dragon-turtle|Tortuga dragón
+T|Anfibio|*AMF
+X|Ataque múltiple|Tres ataques de Mordisco. Puede cambiar uno por uno de Cola.
+A|Mordisco|+13|Alcance 15 pies. 3d10 + 7 perforante + 2d6 de fuego (estar bajo el agua no da resistencia a este fuego).
+A|Cola|+13|Alcance 15 pies. 2d10 + 7 contundente. Si es Enorme o menor, queda Derribado.
+X|Aliento de vapor|Salvación de Constitución CD 19, cono de 60 pies. Falla: 16d6 de fuego (mitad si supera). Estar bajo el agua no da resistencia.
+@dretch|Dretch
+A|Desgarrar|+3|1d6 + 1 cortante.
+X|Nube fétida|Salvación de Constitución CD 11, a 10 pies. Falla: Envenenado hasta el final de su siguiente turno; mientras, solo una acción o una acción adicional, y sin reacciones.
+@drider|Drider
+T|Trepar como una araña|*SC
+T|Sensibilidad a la luz solar|Desventaja en pruebas de característica y ataques a la luz del sol.
+T|Caminante de telarañas|Ignora las restricciones de movimiento de las telarañas y sabe dónde está cualquiera que toque la misma telaraña.
+X|Ataque múltiple|Tres ataques, con Pata delantera o Estallido venenoso en cualquier combinación.
+A|Pata delantera|+7|Alcance 10 pies. 2d8 + 4 perforante.
+A|Estallido venenoso|+6|A distancia (120 pies). 3d6 + 3 de veneno.
+B|Magia de la Reina Araña|Lanza Oscuridad, Fuego feérico o Telaraña sin componentes materiales (Sabiduría, CD 14).
+@druid|Druida
+X|Ataque múltiple|Dos ataques, con Bastón de enredaderas o Fuego fatuo verde en cualquier combinación.
+A|Bastón de enredaderas|+5|1d8 + 3 contundente + 1d4 de veneno.
+A|Fuego fatuo verde|+5|A distancia (90 pies). 3d6 radiante.
+X|Lanzamiento de conjuros|*SP
+@dryad|Dríade
+T|Resistencia mágica|*MR
+T|Hablar con bestias y plantas|Se comunica con bestias y plantas como si compartieran idioma.
+X|Ataque múltiple|Un ataque de Látigo de enredadera o Estallido de espinas, y puede lanzar Hechizar monstruo.
+A|Látigo de enredadera|+6|Alcance 10 pies. 1d8 + 4 cortante.
+A|Estallido de espinas|+6|A distancia (60 pies). 1d6 + 4 perforante.
+X|Lanzamiento de conjuros|*SP
+B|Paso arbóreo|Si está a 5 pies de un árbol Grande o mayor, se teletransporta junto a otro árbol así a 60 pies.
+@earth-elemental|Elemental de tierra
+T|Deslizarse por la tierra|Excava tierra y piedra no mágicas ni trabajadas sin alterarlas.
+T|Monstruo de asedio|Hace el doble de daño a objetos y estructuras.
+X|Ataque múltiple|Dos ataques, con Golpe o Lanzar roca en cualquier combinación.
+A|Golpe|+8|Alcance 10 pies. 2d8 + 5 contundente.
+A|Lanzar roca|+8|A distancia (60 pies). 1d6 + 5 contundente. Si es Grande o menor, queda Derribado.
+@efreeti|Efreet
+T|Restauración elemental|Si muere fuera del Plano Elemental del Fuego, se deshace en ceniza y en 1d4 días revive allí con todos sus PG.
+T|Resistencia mágica|*MR
+T|Deseos|30 % de probabilidades de conocer Deseo. Solo lo lanza para una criatura que no sea genio y le pida un deseo; no sufre el desgaste. Tras 3 veces, no puede en 365 días.
+X|Ataque múltiple|Tres ataques, con Hoja ardiente o Arrojar llamas en cualquier combinación.
+A|Hoja ardiente|+10|2d6 + 6 cortante + 2d12 de fuego.
+A|Arrojar llamas|+8|A distancia (120 pies). 7d6 de fuego.
+X|Lanzamiento de conjuros|*SP
+@erinyes|Erinia
+T|Restauración diabólica|*DR
+T|Resistencia mágica|*MR
+T|Cuerda mágica|Con ella puede usar Cuerda enredadora. La cuerda tiene CA 20, 90 PG e inmunidad a veneno y psíquico; se vuelve polvo a 0 PG, si pasa 1 hora a 5+ pies de ella o si muere. La repara con un descanso corto o largo.
+X|Ataque múltiple|Tres ataques de Espada marchitadora y puede usar Cuerda enredadora.
+A|Espada marchitadora|+8|2d8 + 4 cortante + 2d10 necrótico.
+X|Cuerda enredadora (necesita la cuerda)|Salvación de Fuerza CD 16, una criatura que vea a 120 pies. Falla: 4d6 de fuerza y queda Apresada hasta que se destruya la cuerda, la suelte (acción adicional) o vuelva a usarla.
+R|Parada|Cuando le impacta un ataque cuerpo a cuerpo y empuña un arma: +4 a la CA contra ese ataque, que puede fallar.
+@ettercap|Ettercap
+T|Trepar como una araña|*SC
+T|Caminante de telarañas|Ignora las restricciones de movimiento de las telarañas y sabe dónde está cualquiera que toque la misma telaraña.
+X|Ataque múltiple|Un ataque de Mordisco y uno de Garra.
+A|Mordisco|+4|1d6 + 2 perforante + 1d4 de veneno, y queda Envenenado hasta el inicio del siguiente turno del ettercap.
+A|Garra|+4|2d4 + 2 cortante.
+X|Hilo de telaraña|Salvación de Destreza CD 12, una criatura Grande o menor que vea a 30 pies. Falla: Apresada hasta que se destruya la telaraña (CA 10, 5 PG, vulnerable al fuego; inmune a contundente, veneno y psíquico).
+B|Recoger|Atrae 25 pies hacia sí a una criatura a 30 pies Apresada por su Hilo de telaraña.
+@ettin|Ettin
+X|Ataque múltiple|Un ataque de Hacha de batalla y uno de Lucero del alba.
+A|Hacha de batalla|+7|2d8 + 5 cortante. Si es Grande o menor, queda Derribado.
+A|Lucero del alba|+7|2d8 + 5 perforante, y desventaja en su siguiente ataque antes del final de su siguiente turno.
+@fire-elemental|Elemental de fuego
+T|Aura de fuego|Al final de cada turno suyo, las criaturas a 10 pies reciben 1d10 de fuego. Criaturas y objetos inflamables empiezan a arder.
+T|Forma de fuego|Pasa por huecos de 1 pulgada y puede entrar en el espacio de otra criatura y quedarse. La primera vez por turno que entra en el espacio de alguien, le hace 1d10 de fuego.
+T|Iluminación|Da luz brillante en 30 pies y luz tenue otros 30.
+T|Vulnerable al agua|Recibe 1d6 de frío por cada 5 pies que se mueve en agua o por cada 4 litros que le echen.
+X|Ataque múltiple|Dos ataques de Quemar.
+A|Quemar|+6|2d6 + 3 de fuego. Si es una criatura u objeto inflamable, empieza a arder.
+@fire-giant|Gigante de fuego
+X|Ataque múltiple|Dos ataques, con Espada de llamas o Lanzar martillo en cualquier combinación.
+A|Espada de llamas|+11|Alcance 10 pies. 4d6 + 7 cortante + 3d6 de fuego.
+A|Lanzar martillo|+11|A distancia (60/240 pies). 3d10 + 7 contundente + 1d8 de fuego; lo empuja 15 pies y tiene desventaja en su siguiente ataque antes del final de su siguiente turno.

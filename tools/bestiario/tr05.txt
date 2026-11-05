@@ -1,0 +1,128 @@
+@ancient-green-dragon|Dragón verde anciano
+T|Anfibio|*AMF
+T|Resistencia legendaria|*LR
+X|Ataque múltiple|Tres ataques de Desgarrar. Puede cambiar uno por lanzar Punzada mental (a nivel 5).
+A|Desgarrar|+15|Alcance 15 pies. 2d8 + 8 cortante + 3d6 de veneno.
+X|Aliento venenoso|Salvación de Constitución CD 22, cono de 90 pies. Falla: 22d6 de veneno (mitad si supera).
+X|Lanzamiento de conjuros|*SP
+L|Invasión mental|Lanza Punzada mental (a nivel 5).
+L|Miasma nocivo|Salvación de Constitución CD 21, esfera de 30 pies de radio en un punto que vea a 90 pies. Falla: 5d6 de veneno y −2 a la CA hasta el final de su siguiente turno. No puede repetirla hasta el inicio de su turno.
+L|Abalanzarse|Se mueve hasta la mitad de su velocidad y hace un ataque de Desgarrar.
+@green-hag|Saga verde
+T|Anfibio|*AMF
+T|Magia de aquelarre|Con al menos dos sagas aliadas a 30 pies, puede lanzar (una vez por descanso largo cada uno, Inteligencia, CD 11): Augurio, Encontrar familiar, Identificar, Localizar objeto, Escudriñar o Sirviente invisible.
+T|Imitación|Imita sonidos de animales y voces. Para notar que es falso: Sabiduría (Perspicacia) CD 14.
+X|Ataque múltiple|Dos ataques de Garra.
+A|Garra|+6|1d8 + 4 cortante + 1d6 de veneno.
+X|Lanzamiento de conjuros|*SP
+@grick|Grick
+X|Ataque múltiple|Un ataque de Pico y uno de Tentáculos.
+A|Pico|+4|2d6 + 2 perforante.
+A|Tentáculos|+4|1d10 + 2 cortante. Si es Mediano o menor, queda Agarrado (escapar CD 12) por sus cuatro tentáculos.
+@griffon|Grifo
+X|Ataque múltiple|Dos ataques de Desgarrar.
+A|Desgarrar|+6|1d8 + 4 perforante. Si es Mediano o menor, queda Agarrado (escapar CD 14) por sus garras delanteras.
+@grimlock|Grimlock
+A|Porra de hueso|+5|1d6 + 3 contundente + 1d4 psíquico.
+@guardian-naga|Naga guardiana
+T|Restauración celestial|Si muere, revive en 1d6 días con todos sus PG, salvo que lancen Disipar el bien y el mal sobre sus restos.
+X|Ataque múltiple|Dos ataques de Mordisco. Puede cambiar cualquiera por Escupitajo venenoso.
+A|Mordisco|+8|Alcance 10 pies. 2d12 + 4 perforante + 4d10 de veneno.
+X|Escupitajo venenoso|Salvación de Constitución CD 16, una criatura que vea a 60 pies. Falla: 7d8 de veneno y Cegada hasta el inicio del siguiente turno de la naga. Si supera: solo la mitad del daño.
+X|Lanzamiento de conjuros|*SP
+@guard|Guardia
+A|Lanza|+3|Cuerpo a cuerpo o a distancia (20/60 pies). 1d6 + 1 perforante.
+@guard-captain|Capitán de la guardia
+X|Ataque múltiple|Dos ataques, con Jabalina o Espada larga en cualquier combinación.
+A|Jabalina|+6|Cuerpo a cuerpo o a distancia (30/120 pies). 3d6 + 4 perforante.
+A|Espada larga|+6|2d10 + 4 cortante.
+@half-dragon|Semidragón
+T|Origen dracónico|Está ligado a un tipo de dragón y a un tipo de daño que elige el máster: ácido, frío, fuego, relámpago o veneno.
+X|Ataque múltiple|Dos ataques de Garra.
+A|Garra|+7|Alcance 10 pies. 1d4 + 4 cortante + 2d6 del tipo de su origen dracónico.
+X|Aliento de dragón|Salvación de Destreza CD 14, cono de 30 pies. Falla: 8d6 del tipo de su origen dracónico (mitad si supera).
+B|Salto|Salta hasta 30 pies gastando 10 de movimiento.
+@harpy|Arpía
+A|Garra|+3|2d4 + 1 cortante.
+X|Canción seductora|Canta mientras se concentre. Salvación de Sabiduría CD 11, humanoides y gigantes a 300 pies al empezar. Falla: Hechizado (e Incapacitado) mientras dure, y repite al final de cada turno suyo. Va hacia la arpía por el camino más directo, sin evitar ataques de oportunidad; repite la salvación antes de entrar en terreno peligroso y al recibir daño de otra fuente. Si supera, inmune 24 horas.
+@hell-hound|Perro del infierno
+T|Tácticas de manada|*PT
+X|Ataque múltiple|Dos ataques de Mordisco.
+A|Mordisco|+5|1d8 + 3 perforante + 1d6 de fuego.
+X|Aliento de fuego|Salvación de Destreza CD 12, cono de 15 pies. Falla: 5d6 de fuego (mitad si supera).
+@hezrou|Hezrou
+T|Restauración demoníaca|*AR
+T|Resistencia mágica|*MR
+T|Hedor|Salvación de Constitución CD 16 para quien empiece su turno a 10 pies. Falla: Envenenado hasta el inicio de su siguiente turno.
+X|Ataque múltiple|Tres ataques de Desgarrar.
+A|Desgarrar|+7|1d4 + 4 cortante + 2d8 de veneno.
+B|Salto|Salta hasta 30 pies gastando 10 de movimiento.
+@hill-giant|Gigante de las colinas
+X|Ataque múltiple|Dos ataques, con Garrote de árbol o Lanzar basura en cualquier combinación.
+A|Garrote de árbol|+8|Alcance 10 pies. 3d8 + 5 contundente. Si es Grande o menor, queda Derribado.
+A|Lanzar basura|+8|A distancia (60/240 pies). 2d10 + 5 contundente, y queda Envenenado hasta el final de su siguiente turno.
+@hippogriff|Hipogrifo
+T|Vuelo rasante|*FLY
+X|Ataque múltiple|Dos ataques de Desgarrar.
+A|Desgarrar|+5|1d8 + 3 cortante.
+@hobgoblin-warrior|Hobgoblin guerrero
+T|Tácticas de manada|*PT
+A|Espada larga|+3|2d10 + 1 cortante.
+A|Arco largo|+3|A distancia (150/600 pies). 1d8 + 1 perforante + 3d4 de veneno.
+@hobgoblin-captain|Capitán hobgoblin
+T|Aura de autoridad|Él y sus aliados a 10 pies tienen ventaja en ataques y salvaciones, mientras no esté Incapacitado.
+X|Ataque múltiple|Dos ataques, con Mandoble o Arco largo en cualquier combinación.
+A|Mandoble|+4|2d6 + 2 cortante + 1d6 de veneno.
+A|Arco largo|+4|A distancia (150/600 pies). 1d8 + 2 perforante + 2d4 de veneno.
+@homunculus|Homúnculo
+T|Vínculo telepático|En el mismo plano que su amo, se hablan por telepatía.
+A|Mordisco|+4|1 perforante. Salvación de Constitución CD 12. Falla: Envenenado hasta el final del siguiente turno del homúnculo. Falla por 5 o más: Envenenado 1 minuto, e Inconsciente mientras tanto (despierta si recibe daño).
+@horned-devil|Diablo astado
+T|Restauración diabólica|*DR
+T|Resistencia mágica|*MR
+X|Ataque múltiple|Tres ataques, con Horca abrasadora o Arrojar llamas en cualquier combinación. Puede cambiar uno por Cola infernal.
+A|Horca abrasadora|+10|Alcance 10 pies. 2d8 + 6 perforante + 2d8 de fuego.
+A|Arrojar llamas|+8|A distancia (150 pies). 5d8 + 4 de fuego. Los objetos inflamables que nadie lleve empiezan a arder.
+X|Cola infernal|Salvación de Destreza CD 17, una criatura que vea a 10 pies. Falla: 1d8 + 6 necrótico y, si no la tiene ya, una herida infernal: pierde 3d6 PG al inicio de cada turno suyo. Se cierra tras 1 minuto, con curación mágica o con una acción y Sabiduría (Medicina) CD 17.
+@hydra|Hidra
+T|Aguantar la respiración|Aguanta la respiración 1 hora.
+T|Varias cabezas|Tiene cinco cabezas. Si recibe 25+ de daño en un turno, muere una. Muere si mueren todas. Al final de su turno, si le queda alguna, le salen dos por cada una que murió desde su último turno (salvo si recibió daño de fuego) y recupera 20 PG.
+T|Cabezas atentas|Por cada cabeza de más, una reacción extra solo para ataques de oportunidad.
+X|Ataque múltiple|Tantos ataques de Mordisco como cabezas tenga.
+A|Mordisco|+8|Alcance 10 pies. 1d10 + 5 perforante.
+@ice-devil|Diablo gélido
+T|Restauración diabólica|*DR
+T|Resistencia mágica|*MR
+X|Ataque múltiple|Tres ataques de Lanza de hielo. Puede cambiar uno por uno de Cola.
+A|Lanza de hielo|+10|Cuerpo a cuerpo o a distancia (30/120 pies). 2d8 + 5 perforante + 3d6 de frío. Hasta el final de su siguiente turno: sin acción adicional ni reacción, velocidad −10 pies y solo moverse o una acción. La lanza vuelve a su mano tras lanzarla.
+A|Cola|+10|Alcance 10 pies. 3d6 + 5 contundente + 4d8 de frío.
+X|Muro de hielo|Lanza Muro de hielo (a nivel 8) sin componentes (Inteligencia, CD 17).
+@incubus|Íncubo
+T|Forma de súcubo|Al terminar un descanso largo puede convertirse en súcubo (usa esa ficha). El equipo no se transforma.
+X|Ataque múltiple|Dos ataques de Toque inquieto.
+A|Toque inquieto|+7|3d6 + 5 psíquico, y queda maldito 24 horas o hasta que muera el íncubo: no recibe beneficios de los descansos cortos.
+X|Lanzamiento de conjuros|*SP
+B|Pesadilla|Salvación de Sabiduría CD 15, una criatura que vea a 60 pies. Falla: si tiene 20 PG o menos, queda Inconsciente 1 hora (despierta si recibe daño o la despiertan con una acción); si no, recibe 4d8 psíquico.
+@invisible-stalker|Acechador invisible
+T|Forma de aire|Puede entrar en el espacio de un enemigo y quedarse. Pasa por huecos de 1 pulgada sin gastar movimiento extra.
+T|Invisibilidad|Está Invisible.
+X|Ataque múltiple|Tres ataques de Zarpazo de viento. Puede cambiar uno por Vórtice.
+A|Zarpazo de viento|+7|2d6 + 4 de fuerza.
+X|Vórtice|Salvación de Constitución CD 14, una criatura Grande o menor en su espacio. Falla: 1d8 + 3 de trueno y queda Agarrada (escapar CD 13): no puede lanzar conjuros verbales y recibe 2d6 de trueno al inicio de cada turno del acechador.
+@iron-golem|Gólem de hierro
+T|Absorber fuego|El daño de fuego le cura: recupera esos PG.
+T|Forma inmutable|*IF
+T|Resistencia mágica|*MR
+X|Ataque múltiple|Dos ataques, con Brazo afilado o Rayo ígneo en cualquier combinación.
+A|Brazo afilado|+12|Alcance 10 pies. 3d8 + 7 cortante + 3d6 de fuego.
+A|Rayo ígneo|+10|A distancia (120 pies). 8d8 de fuego.
+X|Aliento venenoso|Salvación de Constitución CD 18, cono de 60 pies. Falla: 10d10 de veneno (mitad si supera).
+@knight|Caballero
+X|Ataque múltiple|Dos ataques, con Mandoble o Ballesta pesada en cualquier combinación.
+A|Mandoble|+5|2d6 + 3 cortante + 1d8 radiante.
+A|Ballesta pesada|+2|A distancia (100/400 pies). 2d10 perforante + 1d8 radiante.
+R|Parada|Cuando le impacta un ataque cuerpo a cuerpo y empuña un arma: +2 a la CA contra ese ataque, que puede fallar.
+@kobold-warrior|Kobold guerrero
+T|Tácticas de manada|*PT
+T|Sensibilidad a la luz solar|*SS
+A|Daga|+4|Cuerpo a cuerpo o a distancia (20/60 pies). 1d4 + 2 perforante.
