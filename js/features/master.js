@@ -190,9 +190,9 @@ const fightSorted = () =>
     (a, b) =>
       (b.init === '' ? -99 : +b.init) - (a.init === '' ? -99 : +a.init) || a.name.localeCompare(b.name, 'es')
   );
-/* Enemigo a 0 PG o menos */
+/* NPC a 0 PG o menos */
 const fDown = f => f.kind !== 'pj' && f.hp !== '' && +f.hp <= 0;
-/* Cómo ha quedado un enemigo caído */
+/* Cómo ha quedado un NPC caído */
 const F_ST = { dead: 'Muerto', ko: 'Incapacitado' };
 const fStLabel = f => F_ST[f.st] || 'Derrotado';
 /* El combate ha empezado cuando a alguien le toca */
@@ -212,7 +212,7 @@ function masterFight() {
         ? 'Jugador'
         : down
           ? `<button class="mst ${f.st || ''}" data-act="m-st-ask" data-id="${f.id}" aria-label="Cambiar cómo ha quedado ${esc(f.name)}">${f.st === 'dead' ? '☠ ' : ''}${fStLabel(f)}</button>`
-          : 'Enemigo';
+          : 'NPC';
     return `<div class="mrow ${F.cur === f.id ? 'cur' : ''} ${down ? 'down' : ''} ${down && f.st ? 'st-' + f.st : ''}">
       <div class="mname"><b>${F.cur === f.id ? '▶ ' : ''}${esc(f.name)}</b><small>${who}${ib !== null && ib !== undefined && ib !== '' ? ` · inic. ${sgn(ib)}` : ''}${f.mon && bestGet(f.mon) ? ` · <button class="lnk" data-act="m-mon" data-id="${esc(f.mon)}">Ver ficha</button>` : ''}</small></div>
       <label class="mf"><span>Inic.</span>${num(f, 'init')}</label>
@@ -229,14 +229,14 @@ function masterFight() {
   return `<section class="card mfight"><div class="card-head"><h2>Combate${on ? ` <span class="round">Ronda ${F.round}</span>` : ''}</h2><div class="btns">${btn}</div></div>
     <p class="hint">${
       on
-        ? '«Siguiente turno» marca a quién le toca y al dar la vuelta pasa de ronda. Los enemigos caídos se saltan.'
+        ? '«Siguiente turno» marca a quién le toca y al dar la vuelta pasa de ronda. Los NPC caídos se saltan.'
         : 'Añade a todos y apunta la iniciativa que saque cada uno: la lista se ordena sola. Cuando estéis listos, pulsa «Empezar combate».'
     }</p>
     ${rows ? `<div class="mlist">${rows}</div>` : '<p class="empty">Nadie en el combate todavía.</p>'}
-    <div class="btns" style="margin-top:.8rem"><button class="b" data-act="m-pjs" ${missing ? '' : 'disabled'}>Añadir jugadores${missing ? ` (${missing})` : ''}</button><button class="b" data-act="m-foe">Añadir enemigo</button>${F.list.length ? '<button class="b bad" data-act="m-end">Terminar combate</button>' : ''}</div>
+    <div class="btns" style="margin-top:.8rem"><button class="b" data-act="m-pjs" ${missing ? '' : 'disabled'}>Añadir jugadores${missing ? ` (${missing})` : ''}</button><button class="b" data-act="m-foe">Añadir NPC</button>${F.list.length ? '<button class="b bad" data-act="m-end">Terminar combate</button>' : ''}</div>
     ${MST.players.length ? '' : '<p class="hint">Para añadir jugadores, pulsa «+ Jugador» y escanea su QR (en su app: ⚙ Ajustes → Compartir con el máster).</p>'}</section>`;
 }
-/* Pregunta cómo queda un enemigo que ha caído a 0 PG */
+/* Pregunta cómo queda un NPC que ha caído a 0 PG */
 function openFoeDown(f) {
   openModal(`<h2>${esc(f.name)} ha caído</h2>
     <p class="hint">Ha llegado a 0 PG. ¿Cómo queda?</p>
@@ -253,7 +253,7 @@ function openAddPlayer() {
     <h3>O pega su código</h3><textarea id="m-code" class="code" style="min-height:5rem" placeholder="Código o enlace que te ha pasado el jugador"></textarea>
     <div class="btns"><button class="b" data-act="m-paste">Añadir</button></div>`);
 }
-/* Enemigo que se está añadiendo (la ventana se repinta al buscar o elegir del bestiario) */
+/* NPC que se está añadiendo (la ventana se repinta al buscar o elegir del bestiario) */
 let MFOE = null;
 const mfoeNew = () => ({ q: '', id: '', name: '', n: 1, init: '', ac: '', hp: '' });
 /* Guarda en MFOE lo escrito en la ventana */
@@ -276,7 +276,7 @@ function openAddFoe() {
   if (!MFOE) MFOE = mfoeNew();
   const x = MFOE,
     b = x.id && bestGet(x.id);
-  openModal(`<div class="wz-head"><h2>Añadir enemigo</h2><button class="b sm" data-act="close-modal">Cerrar</button></div>
+  openModal(`<div class="wz-head"><h2>Añadir NPC</h2><button class="b sm" data-act="close-modal">Cerrar</button></div>
     <h3>Del bestiario</h3>
     <p class="hint">Busca la criatura y tócala: se rellenan solos su CA y sus PG. Si no está, rellena los datos a mano.</p>
     <input id="mf-q" type="search" class="bsearch" placeholder="Goblin, lobo, dragón rojo…" autocomplete="off" value="${esc(x.q)}" aria-label="Buscar en el bestiario">

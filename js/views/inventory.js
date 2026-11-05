@@ -306,8 +306,7 @@ function acCalc(c) {
       o.push([10 + dex + M(c, 'wis'), 'Defensa sin armadura: 10 + DES + SAB']);
     if (c.subclassKey === 'draconic')
       o.push([10 + dex + M(c, 'cha'), 'Resistencia dracónica: 10 + DES + CAR']);
-    if (c.effects.some(e => norm(e.name).includes('armadura de mago')))
-      o.push([13 + dex, 'Armadura de mago: 13 + DES']);
+    if (mageArmorOn(c)) o.push([13 + dex, 'Armadura de mago: 13 + DES']);
     o.sort((a, b) => b[0] - a[0]);
     [base, src] = o[0];
   }
@@ -354,7 +353,22 @@ function acCalc(c) {
     slow: !!(body && ARMORS[body.armor].str && c.abilities.str < ARMORS[body.armor].str),
   };
 }
-const acOf = c => (armorAuto(c) ? acCalc(c).ac : (+c.ac || 0) + miAC(c));
+/* Lleva puesta una armadura (no cuenta el escudo) */
+const wearsBodyArmor = c =>
+  c.equipment.some(
+    e =>
+      e.equipped &&
+      (e.armor
+        ? ARMORS[e.armor] && ARMORS[e.armor].t !== 's'
+        : e.cat === 'armadura' && !/escudo/.test(norm(e.name)))
+  );
+const mageArmorOn = c => c.effects.some(e => norm(e.name).includes('armadura de mago'));
+/* Sin armaduras en el inventario, la CA es la que escribe el jugador; Armadura de mago la sube a 13 + DES si es mayor */
+const acOf = c =>
+  armorAuto(c)
+    ? acCalc(c).ac
+    : Math.max(+c.ac || 0, mageArmorOn(c) && !wearsBodyArmor(c) ? 13 + M(c, 'dex') + (+c.acBonus || 0) : 0) +
+      miAC(c);
 function linkArmor(c) {
   if (c._armorLinked) return;
   c._armorLinked = true;

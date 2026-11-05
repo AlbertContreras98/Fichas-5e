@@ -3285,18 +3285,77 @@ button.eff.cond-pill {
 }
 @media (max-width: 480px) {
   .shrow {
-    grid-template-columns: auto auto minmax(2.4rem, 1fr);
+    grid-template-columns: auto auto minmax(0, 1fr);
   }
   .shrow .shname {
     grid-column: 1 / -1;
   }
-  .shrow > .b {
+  .shrow > .b,
+  .shrow > .shbtns {
     justify-self: end;
   }
 }
 .shrow .inline-num,
 .shop-q {
   width: 4.6rem;
+}
+.shrow.hid > :not(.shbtns) {
+  opacity: 0.55;
+}
+.shrow.hid .shname b {
+  text-decoration: line-through;
+}
+.shpay {
+  margin-top: 0;
+  flex-wrap: nowrap;
+  gap: 0.25rem;
+}
+.shpay input {
+  width: 4.4rem;
+}
+.shbtns {
+  flex-wrap: nowrap;
+  justify-self: end;
+}
+/* Catálogo de la tienda: casillas para añadir varios objetos de golpe */
+.shpick {
+  flex: none;
+  max-height: 18rem;
+  overflow-y: auto;
+  margin: 0.5rem 0;
+  padding: 0 0.4rem;
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) - 2px);
+  background: var(--sunk);
+}
+.shgrp h4 {
+  margin: 0.7rem 0 0.2rem;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+.shopt {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px dashed var(--line);
+  cursor: pointer;
+}
+.shopt input {
+  width: 1.15rem;
+  height: 1.15rem;
+  flex: none;
+  accent-color: var(--accent);
+}
+.shopt span {
+  flex: 1;
+  min-width: 0;
+}
+.shopt small {
+  color: var(--muted);
+  white-space: nowrap;
 }
 .setgrp > summary {
   list-style: none;

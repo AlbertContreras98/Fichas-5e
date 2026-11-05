@@ -145,3 +145,15 @@ const MAGIC={
   other:{n:'Otro objeto mágico',d:''}};
 /* Cuándo puede cada clase cambiar sus conjuros preparados (reglas de 2024) */
 const PREP_RULE={cleric:'all',druid:'all',wizard:'all',paladin:'one',ranger:'one'};
+/* Precio del manual (en piezas de cobre) por compra: el del Manual del jugador de 2024; las pociones y objetos mágicos, según su rareza en la Guía del máster (los consumibles, a mitad de precio). Orientativo: el máster lo cambia. */
+const PRICES={
+  'w:club':10,'w:dagger':200,'w:greatclub':20,'w:handaxe':500,'w:javelin':50,'w:lighthammer':200,'w:mace':500,'w:quarterstaff':20,'w:sickle':100,'w:spear':100,'w:dart':5,'w:lightcrossbow':2500,'w:shortbow':2500,'w:sling':10,
+  'w:battleaxe':1000,'w:flail':1000,'w:glaive':2000,'w:greataxe':3000,'w:greatsword':5000,'w:halberd':2000,'w:lance':1000,'w:longsword':1500,'w:maul':1000,'w:morningstar':1500,'w:pike':500,'w:rapier':2500,'w:scimitar':2500,'w:shortsword':1000,'w:trident':500,'w:warhammer':1500,'w:warpick':500,'w:whip':200,'w:blowgun':1000,'w:handcrossbow':7500,'w:heavycrossbow':5000,'w:longbow':5000,'w:musket':50000,'w:pistol':25000,
+  'a:padded':500,'a:leather':1000,'a:studded':4500,'a:hide':1000,'a:chainshirt':5000,'a:scale':5000,'a:breastplate':40000,'a:halfplate':75000,'a:ring':3000,'a:chainmail':7500,'a:splint':20000,'a:plate':150000,'a:shield':1000,
+  'm:arrow':100,'m:bolt':100,'m:slingbullet':4,'m:firebullet':300,'m:needle':100,
+  'p:healing':5000,'p:healing2':20000,'p:healing3':200000,'p:healing4':2000000,'p:heroism':20000,'p:invisibility':200000,'p:speed':2000000,'p:flying':2000000,'p:climbing':5000,'p:waterbreathing':20000,'p:resistance':20000,'p:giantstr':200000,'p:gaseous':200000,'p:firebreath':20000,
+  't:alchemist':5000,'t:brewer':2000,'t:calligrapher':1000,'t:carpenter':800,'t:cartographer':1500,'t:cobbler':500,'t:cook':100,'t:glassblower':3000,'t:jeweler':2500,'t:leatherworker':500,'t:mason':1000,'t:painter':1000,'t:potter':1000,'t:smith':2000,'t:tinker':5000,'t:weaver':100,'t:woodcarver':100,'t:disguise':2500,'t:forgery':1500,'t:gaming':10,'t:herbalism':500,'t:instrument':3000,'t:navigator':2500,'t:poisoner':5000,'t:thieves':2500,
+  'g:healerkit':500,'g:antitoxin':5000,'g:acid':2500,'g:alchfire':5000,'g:holywater':2500,'g:caltrops':100,'g:ballbearings':100,'g:climberkit':2500,'g:torch':1,'g:rations':250,'g:waterskin':20,
+  'mi:ringprot':400000,'mi:cloakprot':40000,'mi:bracers':400000,'mi:wandmm':40000,'mi:wandweb':40000};
+/* Pergaminos de conjuro según el nivel (0 = truco) */
+const SCROLL_PRICES=[3000,5000,20000,20000,200000,200000,2000000,2000000,2000000,10000000];

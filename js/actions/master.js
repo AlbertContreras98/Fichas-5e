@@ -156,7 +156,7 @@ Object.assign(A, {
     mfoeCollect();
     const x = MFOE || mfoeNew(),
       b = x.id && bestGet(x.id),
-      name = x.name || (b ? b.n : 'Enemigo'),
+      name = x.name || (b ? b.n : 'NPC'),
       n = clamp(parseInt(x.n) || 1, 1, 20),
       ini = x.init,
       ac = x.ac,

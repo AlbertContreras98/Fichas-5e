@@ -185,14 +185,38 @@ Object.assign(A, {
       it.cat = $('#she-xc').value;
       it.d = $('#she-xd').value.trim();
     }
-    const [t, key] = it.c.split(':');
-    if (t === 'g' && GEAR[key] && GEAR[key].qty) it.u = GEAR[key].qty;
-    if (t === 'm' && AMMO[key]) it.u = AMMO[key][1];
-    const p = parseFloat(String($('#she-p').value).replace(',', '.'));
-    it.p = p >= 0 ? Math.round(p * 100) : 0;
+    const p = $('#she-p').value.trim() === '' ? NaN : readCp('she-p', 'she-p-c');
+    it.p = p >= 0 ? p : shPrice(it.c);
+    it.pc = $('#she-p-c').value;
     const q = $('#she-q').value.trim();
     it.q = q === '' ? -1 : Math.max(0, parseInt(q) || 0);
     SHE.items.push(it);
+    shEditRefresh();
+  },
+  'msh-add-many': () => {
+    (SHE.pick || []).forEach(code => {
+      const [t, key] = code.split(':'),
+        it = { id: uid().slice(0, 6), c: code, p: shPrice(code), q: -1, u: 1 };
+      if (t === 'g' && GEAR[key] && GEAR[key].qty) it.u = GEAR[key].qty;
+      if (t === 'm' && AMMO[key]) it.u = AMMO[key][1];
+      SHE.items.push(it);
+    });
+    const n = SHE.pick.length;
+    SHE.pick = [];
+    shEditRefresh();
+    toast(
+      `<div class="t-parts">${n === 1 ? 'Añadido 1 objeto' : `Añadidos ${n} objetos`} con el precio del manual.</div>`
+    );
+  },
+  'msh-pick-clear': () => {
+    SHE.pick = [];
+    shEditRefresh();
+  },
+  'msh-hide': el => {
+    const it = SHE.items[+el.dataset.i];
+    if (!it) return;
+    if (it.h) delete it.h;
+    else it.h = 1;
     shEditRefresh();
   },
   'msh-rm': el => {

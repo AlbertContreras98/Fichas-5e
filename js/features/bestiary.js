@@ -72,7 +72,7 @@ function bestFind(q) {
     .sort((x, y) => x[0] - y[0])
     .map(x => x[1]);
 }
-/* Lista de resultados para la ventana «Añadir enemigo» */
+/* Lista de resultados para la ventana «Añadir NPC» */
 function bestResults(q, sel) {
   const L = bestFind(q),
     max = 40;

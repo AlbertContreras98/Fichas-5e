@@ -169,16 +169,18 @@ function shopPayload(sh) {
     v: sh.ver,
     n: sh.n,
     g: sh.g,
-    i: sh.items.map(it => [
-      it.id,
-      it.c,
-      it.p,
-      it.q,
-      it.u || 1,
-      it.c === 'x' ? it.n : 0,
-      it.c === 'x' ? it.cat : 0,
-      it.c === 'x' ? it.d || 0 : 0,
-    ]),
+    i: sh.items
+      .filter(it => !it.h)
+      .map(it => [
+        it.id,
+        it.c,
+        it.p,
+        it.q,
+        it.u || 1,
+        it.c === 'x' ? it.n : 0,
+        it.c === 'x' ? it.cat : 0,
+        it.c === 'x' ? it.d || 0 : 0,
+      ]),
   };
 }
 const shopLink = sh =>
@@ -382,7 +384,7 @@ function masterShops() {
   const list = MST.shops
     .map(
       sh => `<div class="it"><div class="it-head"><span class="it-name">${esc(sh.n)}</span><b>${fmtCp(sh.g)}</b></div>
-      <div class="meta">${sh.items.length} ${sh.items.length === 1 ? 'objeto' : 'objetos'} · dinero del vendedor</div>
+      <div class="meta">${sh.items.length} ${sh.items.length === 1 ? 'objeto' : 'objetos'}${sh.items.some(it => it.h) ? ` (${sh.items.filter(it => it.h).length} ocultos)` : ''} · dinero del vendedor</div>
       <div class="btns"><button class="b sm pri" data-act="msh-qr" data-id="${sh.id}">Mostrar QR</button><button class="b sm" data-act="msh-edit" data-id="${sh.id}">Editar</button><button class="b sm bad" data-act="msh-del" data-id="${sh.id}">Borrar</button></div></div>`
     )
     .join('');
@@ -403,38 +405,76 @@ function shopQrOpen(sh) {
     true
   );
 }
-/* Catálogo para añadir objetos a la tienda */
-function shCatalog() {
-  const g = (lbl, pre, obj, nm = v => v.n) =>
-    `<optgroup label="${lbl}">${Object.entries(obj)
+/* Precio del manual de un objeto del catálogo, en pc (0 si no lo hay) */
+function shPrice(code) {
+  const [k, key] = code.split(':');
+  if (k === 's') return SPBY[key] ? SCROLL_PRICES[SPBY[key].l] || 0 : 0;
+  return PRICES[code] || 0;
+}
+/* Objetos del manual, por grupos, para marcarlos y añadirlos de golpe */
+function shCatalogGroups() {
+  const g = (lbl, pre, obj, nm = v => v.n) => [
+    lbl,
+    Object.entries(obj)
       .filter(([k]) => k !== 'other')
-      .map(([k, v]) => [k, nm(v)])
-      .sort((a, b) => a[1].localeCompare(b[1], 'es'))
-      .map(([k, n]) => `<option value="${pre}:${k}">${esc(n)}</option>`)
-      .join('')}</optgroup>`;
-  return `<option value="">— Elige un objeto —</option><option value="x">Otro (lo invento yo)</option><option value="s:">Pergamino de conjuro…</option>
-    ${g('Armas', 'w', WEAPONS)}${g('Armaduras y escudos', 'a', ARMORS)}${g('Munición', 'm', AMMO, v => v[0])}${g('Pociones', 'p', POTIONS)}${g('Equipo', 'g', GEAR)}${g('Herramientas', 't', TOOLS)}${g('Objetos mágicos', 'mi', MAGIC)}`;
+      .map(([k, v]) => [`${pre}:${k}`, nm(v)])
+      .sort((a, b) => a[1].localeCompare(b[1], 'es')),
+  ];
+  return [
+    g('Armas', 'w', WEAPONS),
+    g('Armaduras y escudos', 'a', ARMORS),
+    g('Munición', 'm', AMMO, v => `${v[0]} (${v[1]})`),
+    g('Pociones', 'p', POTIONS),
+    g('Equipo', 'g', GEAR, v => (v.qty ? `${v.n} (${v.qty})` : v.n)),
+    g('Herramientas', 't', TOOLS),
+    g('Objetos mágicos', 'mi', MAGIC),
+  ];
+}
+/* Precio con su moneda: casilla de cantidad + desplegable */
+function shPriceIn(id, cp, coin, attrs = '') {
+  const k = coin && COINV[coin] ? coin : cpCoin(cp)[0];
+  return `<span class="pay shpay"><input id="${id}" type="number" inputmode="decimal" min="0" step="any" value="${cp === '' ? '' : +(cp / COINV[k]).toFixed(2)}" ${attrs} aria-label="Precio"><select id="${id}-c" ${attrs.replace('data-she="p"', 'data-she="pc"')} aria-label="Moneda">${COINS.map(([c, l]) => `<option value="${c}" ${c === k ? 'selected' : ''}>${l}</option>`).join('')}</select></span>`;
 }
 function shEditHTML() {
   const sh = SHE;
   const [gc, ga] = cpCoin(sh.g);
+  const hid = sh.items.filter(it => it.h).length;
   const rows = sh.items
     .map(
       (
         it,
         i
-      ) => `<div class="shrow"><div class="shname"><b>${esc(shName(it))}</b>${shStack(it) ? `<label class="mf"><span>Por compra</span><input class="inline-num" type="number" inputmode="numeric" min="1" value="${it.u || 1}" data-she="u" data-i="${i}" aria-label="Unidades por compra"></label>` : ''}</div>
-      <label class="mf"><span>Precio (po)</span><input class="inline-num" type="number" inputmode="decimal" min="0" step="0.01" value="${it.p / 100}" data-she="p" data-i="${i}" style="width:5rem" aria-label="Precio en po"></label>
+      ) => `<div class="shrow ${it.h ? 'hid' : ''}"><div class="shname"><b>${esc(shName(it))}</b>${it.h ? '<span class="tag">Oculto</span>' : ''}${shStack(it) ? `<label class="mf"><span>Por compra</span><input class="inline-num" type="number" inputmode="numeric" min="1" value="${it.u || 1}" data-she="u" data-i="${i}" aria-label="Unidades por compra"></label>` : ''}</div>
+      <label class="mf"><span>Precio</span>${shPriceIn(`she-p${i}`, it.p, it.pc, `data-she="p" data-i="${i}"`)}</label>
       <label class="mf"><span>Stock</span><input class="inline-num" type="number" inputmode="numeric" min="0" value="${it.q < 0 ? '' : it.q}" placeholder="∞" data-she="q" data-i="${i}" aria-label="Stock (vacío = sin límite)"></label>
-      <button class="b sm" data-act="msh-rm" data-i="${i}" aria-label="Quitar ${esc(shName(it))}">×</button></div>`
+      <span class="btns shbtns"><button class="b sm" data-act="msh-hide" data-i="${i}" aria-pressed="${it.h ? 'true' : 'false'}">${it.h ? 'Mostrar' : 'Ocultar'}</button><button class="b sm" data-act="msh-rm" data-i="${i}" aria-label="Quitar ${esc(shName(it))}">×</button></span></div>`
     )
+    .join('');
+  const have = new Set(sh.items.map(it => it.c)),
+    pick = new Set(sh.pick || []),
+    f = bestNorm(sh.f || '');
+  const groups = shCatalogGroups()
+    .map(([lbl, list]) => {
+      const opts = list
+        .map(
+          ([code, n]) =>
+            `<label class="shopt" data-n="${esc(bestNorm(n))}" ${f && !bestNorm(n).includes(f) ? 'hidden' : ''}><input type="checkbox" data-she-pick="${code}" ${pick.has(code) ? 'checked' : ''}><span>${esc(n)}${have.has(code) ? ' <small>(ya está)</small>' : ''}</span><small>${shPrice(code) ? fmtCp(shPrice(code)) : '—'}</small></label>`
+        )
+        .join('');
+      return `<div class="shgrp"><h4>${lbl}</h4>${opts}</div>`;
+    })
     .join('');
   const len = shopLink(sh).length;
   return `<div class="grid"><label class="f wide"><span>Nombre de la tienda o del vendedor</span><input id="she-n" value="${esc(sh.n)}" placeholder="Herrería de Brom"></label>
     <label class="f"><span>Dinero del vendedor</span><span class="pay"><input id="she-g" type="number" inputmode="decimal" min="0" value="${ga}">${coinSel('she-gc', gc)}</span></label></div>
     <h3>A la venta</h3>${rows || '<p class="empty">Nada todavía.</p>'}
-    <p class="hint">Precio por compra, en po (0,1 = 1 pp; 0,01 = 1 pc). Stock vacío = sin límite.</p>
-    <h3>Añadir</h3><div class="grid"><label class="f wide"><span>Objeto</span><select id="she-k">${shCatalog()}</select></label>
+    <p class="hint">Precio por compra, en la moneda que elijas (PO oro, PP plata, PC cobre…). Stock vacío = sin límite. «Ocultar» deja el objeto en tu tienda pero no sale en el QR que enseñas a los jugadores${hid ? ` (ahora hay ${hid} ${hid === 1 ? 'oculto' : 'ocultos'})` : ''}; si luego lo muestras, pásales el QR de nuevo.</p>
+    <h3>Añadir del manual</h3>
+    <p class="hint">Marca todo lo que quieras y pulsa «Añadir». Se ponen con el precio del manual y después puedes cambiarlo.</p>
+    <input id="she-f" type="search" class="bsearch" placeholder="Buscar: espada, poción, cuerda…" autocomplete="off" value="${esc(sh.f || '')}" aria-label="Buscar en el catálogo">
+    <div class="shpick" id="she-pick">${groups}</div>
+    <div class="btns"><button class="b pri" id="she-pick-btn" data-act="msh-add-many" ${pick.size ? '' : 'disabled'}>Añadir${pick.size ? ` (${pick.size})` : ''}</button>${pick.size ? '<button class="b" data-act="msh-pick-clear">Desmarcar</button>' : ''}</div>
+    <h3>Añadir otro objeto</h3><div class="grid"><label class="f wide"><span>Objeto</span><select id="she-k"><option value="">— Elige —</option><option value="s:">Pergamino de conjuro…</option><option value="x">Otro (lo invento yo)</option></select></label>
       <label class="f wide" id="she-sp-w" hidden><span>Conjuro del pergamino</span><select id="she-sp"><option value="">—</option>${[
         ...SP,
       ]
@@ -448,10 +488,28 @@ function shEditHTML() {
         .join(
           ''
         )}</select></label><label class="f wide"><span>Descripción (corta)</span><input id="she-xd" maxlength="200"></label></div></div>
-      <label class="f"><span>Precio (po)</span><input id="she-p" type="number" inputmode="decimal" min="0" step="0.01"></label>
+      <label class="f"><span>Precio</span>${shPriceIn('she-p', '', 'gp')}</label>
       <label class="f"><span>Stock</span><input id="she-q" type="number" inputmode="numeric" min="0" placeholder="∞ (sin límite)"></label></div>
+    <p class="hint">Si es un pergamino y no pones precio, se pone el del manual según su nivel.</p>
     <div class="btns"><button class="b" data-act="msh-add">Añadir a la tienda</button></div>
-    ${len > QR_BIG ? '<p class="hint warn">La tienda ya es grande: el QR será muy denso. Quita objetos o acorta las descripciones.</p>' : ''}`;
+    ${len > QR_BIG ? '<p class="hint warn">La tienda ya es grande: el QR será muy denso. Quita u oculta objetos, o acorta las descripciones.</p>' : ''}`;
+}
+/* Filtra el catálogo sin repintar (para no perder el foco ni lo marcado) */
+function shPickFilter(q) {
+  SHE.f = q;
+  const f = bestNorm(q);
+  document.querySelectorAll('#she-pick .shopt').forEach(l => (l.hidden = !!f && !l.dataset.n.includes(f)));
+  document
+    .querySelectorAll('#she-pick .shgrp')
+    .forEach(g => (g.hidden = !g.querySelector('.shopt:not([hidden])')));
+}
+/* Cuenta lo marcado en el botón «Añadir» */
+function shPickCount() {
+  const n = (SHE.pick || []).length,
+    b = $('#she-pick-btn');
+  if (!b) return;
+  b.disabled = !n;
+  b.textContent = n ? `Añadir (${n})` : 'Añadir';
 }
 function shEditOpen(sh) {
   SHE = JSON.parse(JSON.stringify(sh || { id: uid(), ver: 0, n: '', g: 10000, items: [], applied: {} }));
@@ -460,6 +518,7 @@ function shEditOpen(sh) {
     `<div class="wz-head"><h2>${sh ? 'Editar tienda' : 'Nueva tienda'}</h2><div class="btns"><button class="b sm" data-act="close-modal">Cancelar</button><button class="b sm pri" data-act="msh-save">Guardar</button></div></div><div class="wz-body" id="she-body">${shEditHTML()}</div>`,
     true
   );
+  shPickFilter('');
 }
 function shEditRefresh() {
   const b = $('#she-body');
@@ -470,6 +529,7 @@ function shEditRefresh() {
   const sc = b.scrollTop;
   b.innerHTML = shEditHTML();
   enhanceSelects(b);
+  shPickFilter(SHE.f || '');
   b.scrollTop = sc;
 }
 /* Máster: aplica un recibo a su tienda */

@@ -42,6 +42,10 @@ document.addEventListener('click', e => {
 });
 document.addEventListener('input', e => {
   const el = e.target;
+  if (el.id === 'she-f' && SHE) {
+    shPickFilter(el.value);
+    return;
+  }
   if (el.id === 'mf-q' && MFOE) {
     mfoeSearch(el.value);
     return;
@@ -317,11 +321,24 @@ document.addEventListener('change', e => {
     $('#she-x').hidden = el.value !== 'x';
     return;
   }
+  if (el.dataset && el.dataset.shePick && SHE) {
+    const set = new Set(SHE.pick || []);
+    if (el.checked) set.add(el.dataset.shePick);
+    else set.delete(el.dataset.shePick);
+    SHE.pick = [...set];
+    shPickCount();
+    return;
+  }
   if (el.dataset && el.dataset.she && SHE) {
     const it = SHE.items[+el.dataset.i],
       v = el.value.trim();
     if (!it) return;
-    if (el.dataset.she === 'p') it.p = Math.max(0, Math.round((parseFloat(v.replace(',', '.')) || 0) * 100));
+    if (el.dataset.she === 'p' || el.dataset.she === 'pc') {
+      const i = +el.dataset.i,
+        cp = readCp('she-p' + i, 'she-p' + i + '-c');
+      it.pc = $('#she-p' + i + '-c').value;
+      it.p = cp >= 0 ? cp : 0;
+    }
     if (el.dataset.she === 'q') it.q = v === '' ? -1 : Math.max(0, parseInt(v) || 0);
     if (el.dataset.she === 'u') it.u = Math.max(1, parseInt(v) || 1);
     return;
@@ -332,7 +349,7 @@ document.addEventListener('change', e => {
       const v = el.value.trim(),
         was = fDown(f);
       f[el.dataset.mf] = v === '' ? '' : +v;
-      /* Si un enemigo cae a 0 PG, se pregunta si está muerto o incapacitado; si se levanta, deja de estarlo */
+      /* Si un NPC cae a 0 PG, se pregunta si está muerto o incapacitado; si se levanta, deja de estarlo */
       const now = fDown(f);
       if (!now) delete f.st;
       masterSave();

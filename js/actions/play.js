@@ -38,6 +38,16 @@ Object.assign(A, {
       sp = c.spells[+el.dataset.i],
       L = +sp.level || 0;
     castFree = false;
+    /* Armadura de mago no funciona si llevas armadura */
+    if (!el.dataset.armorOk && sp.ref === 'mage-armor' && wearsBodyArmor(c)) {
+      const ar = c.equipment.find(
+        e => e.equipped && e.cat === 'armadura' && !(e.armor && ARMORS[e.armor] && ARMORS[e.armor].t === 's')
+      );
+      openModal(`<h2>Llevas armadura puesta</h2><p>Armadura de mago solo funciona si no llevas armadura${ar ? ` (ahora llevas ${esc(ar.name)})` : ''}: tu CA no cambiará.</p>
+        <p class="hint">Quítate la armadura desde el inventario si quieres que te proteja, o lánzalo igualmente (por ejemplo, sobre otra criatura que no lleve armadura).</p>
+        <div class="btns"><button class="b pri" data-act="cast-armor-ok" data-i="${el.dataset.i}">Lanzar igualmente</button><button class="b" data-act="close-modal">Cancelar</button></div>`);
+      return;
+    }
     const hdNeed = csHdCost(sp, L),
       hdLeft = c.hitDice.total - c.hitDice.spent;
     if (hdNeed > hdLeft) {
@@ -71,11 +81,17 @@ Object.assign(A, {
       ${sp.ritual ? `<button class="b opt" data-act="cast-with" data-i="${el.dataset.i}" data-kind="ritual"><span>Como ritual</span><small>+10 min, sin espacio</small></button>` : ''}
       <button class="b" data-act="close-modal">Cancelar</button>`);
   },
+  'cast-armor-ok': el => {
+    const pe = pendingEco;
+    closeModal();
+    pendingEco = pe;
+    A.cast({ dataset: { i: el.dataset.i, armorOk: '1' } });
+  },
   'cast-force': el => {
     const pe = pendingEco;
     closeModal();
     pendingEco = pe;
-    A.cast({ dataset: { i: el.dataset.i, force: '1' } });
+    A.cast({ dataset: { i: el.dataset.i, force: '1', armorOk: '1' } });
   },
   'fl-ok': el => {
     const c = C(),
