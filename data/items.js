@@ -173,3 +173,21 @@ const CLASS_KITS={
   sorcerer:[{gp:28,items:[['w:spear',1],['w:dagger',2],['Cristal (canalizador arcano)',1],['pk:dungeoneer',1]]}],
   warlock:[{gp:15,items:[['a:leather',1],['w:sickle',1],['w:dagger',2],['Orbe (canalizador arcano)',1],['Libro (saber oculto)',1],['pk:scholar',1]]}],
   wizard:[{gp:5,items:[['w:dagger',2],['w:quarterstaff',1,'Bastón (canalizador arcano)'],['Túnica',1],['Libro de conjuros',1],['pk:scholar',1]]}]};
+/* Equipo de cada trasfondo (opción A del Manual del jugador de 2024; la B son 50 po). Mismo formato que CLASS_KITS. */
+const BG_KITS={
+  acolyte:{gp:8,items:[['t:calligrapher',1],['Libro (oraciones)',1],['Símbolo sagrado',1],['Pergamino (hojas)',10],['Túnica',1]]},
+  artisan:{gp:32,items:[['Herramientas de artesano',1],['Bolsa',2],['Ropa de viajero',1]]},
+  charlatan:{gp:15,items:[['t:forgery',1],['Disfraz',1],['Ropa fina',1]]},
+  criminal:{gp:16,items:[['w:dagger',2],['t:thieves',1],['Palanca',1],['Bolsa',2],['Ropa de viajero',1]]},
+  entertainer:{gp:11,items:[['t:instrument',1],['Disfraz',2],['Espejo',1],['Perfume',1],['Ropa de viajero',1]]},
+  farmer:{gp:30,items:[['w:sickle',1],['t:carpenter',1],['g:healerkit',1],['Olla de hierro',1],['Pala',1],['Ropa de viajero',1]]},
+  guard:{gp:12,items:[['w:spear',1],['w:lightcrossbow',1],['m:bolt',20],['t:gaming',1],['Linterna sorda',1],['Grilletes',1],['Carcaj',1],['Ropa de viajero',1]]},
+  guide:{gp:3,items:[['w:shortbow',1],['m:arrow',20],['t:cartographer',1],['Saco de dormir',1],['Carcaj',1],['Tienda de campaña',1],['Ropa de viajero',1]]},
+  hermit:{gp:16,items:[['w:quarterstaff',1],['t:herbalism',1],['Saco de dormir',1],['Libro (filosofía)',1],['Lámpara',1],['Aceite (frasco)',3],['Ropa de viajero',1]]},
+  merchant:{gp:22,items:[['t:navigator',1],['Bolsa',2],['Ropa de viajero',1]]},
+  noble:{gp:29,items:[['t:gaming',1],['Ropa fina',1],['Perfume',1]]},
+  sage:{gp:8,items:[['w:quarterstaff',1],['t:calligrapher',1],['Libro (historia)',1],['Pergamino (hojas)',8],['Túnica',1]]},
+  sailor:{gp:20,items:[['w:dagger',1],['t:navigator',1],['Cuerda',1],['Ropa de viajero',1]]},
+  scribe:{gp:23,items:[['t:calligrapher',1],['Ropa fina',1],['Lámpara',1],['Aceite (frasco)',3],['Pergamino (hojas)',12]]},
+  soldier:{gp:14,items:[['w:spear',1],['w:shortbow',1],['m:arrow',20],['t:gaming',1],['g:healerkit',1],['Carcaj',1],['Ropa de viajero',1]]},
+  wayfarer:{gp:16,items:[['w:dagger',2],['t:thieves',1],['t:gaming',1],['Saco de dormir',1],['Bolsa',2],['Ropa de viajero',1]]}};

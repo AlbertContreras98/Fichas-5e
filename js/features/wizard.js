@@ -32,7 +32,7 @@ function wizSteps() {
       st.push(['spells', 'Conjuros']);
     if (W.classKey === 'warlock') st.push(['invoc', 'Invocaciones']);
   }
-  if (W.mode === 'create' && CLASS_KITS[W.classKey]) st.push(['equip', 'Equipo']);
+  if (W.mode === 'create' && (CLASS_KITS[W.classKey] || BG_KITS[W.bgKey])) st.push(['equip', 'Equipo']);
   st.push(['confirm', 'Confirmar']);
   return st;
 }
@@ -352,23 +352,34 @@ function wizBody(step) {
       })()}`;
     }
     case 'equip': {
-      const kits = CLASS_KITS[W.classKey] || [];
+      const kits = CLASS_KITS[W.classKey] || [],
+        bk = BG_KITS[W.bgKey];
       if (W.kit === undefined) W.kit = 0;
-      const opt = (v, title, sub) =>
-        `<label><input type="radio" name="wz-kit" value="${v}" ${W.kit === v ? 'checked' : ''}><span><b>${title}</b><br><small>${sub}</small></span></label>`;
-      return `<p>¿Quieres empezar con el equipo básico de ${esc(def.n.toLowerCase())}? Es el que trae el manual para empezar a jugar.</p>
-    <div class="choice">${kits
-      .map((k, i) =>
-        opt(
-          i,
-          `Sí, el equipo básico${kits.length > 1 ? `: ${esc(k.n)}` : ''}`,
-          `${esc(kitList(k))} y ${k.gp} po.`
-        )
-      )
-      .join(
-        ''
-      )}${opt(-1, 'No, lo añado yo', 'Empiezas sin equipo ni dinero y lo añades después desde la mochila.')}</div>
-    <p class="hint">Las armas, las armaduras y el dinero se colocan solos: la armadura y el escudo quedan puestos y la CA se calcula sola. El equipo del trasfondo no se añade: si lo usáis, añádelo después.</p>`;
+      if (W.bgKit === undefined) W.bgKit = 0;
+      const opt = (nm, cur, v, title, sub) =>
+        `<label><input type="radio" name="${nm}" value="${v}" ${cur === v ? 'checked' : ''}><span><b>${title}</b><br><small>${sub}</small></span></label>`;
+      return `${
+        kits.length
+          ? `<h3>De tu clase (${esc(def.n.toLowerCase())})</h3><div class="choice">${kits
+              .map((k, i) =>
+                opt(
+                  'wz-kit',
+                  W.kit,
+                  i,
+                  `Equipo básico${kits.length > 1 ? `: ${esc(k.n)}` : ''}`,
+                  `${esc(kitList(k))} y ${k.gp} po.`
+                )
+              )
+              .join(
+                ''
+              )}${opt('wz-kit', W.kit, -1, 'Nada, lo añado yo', 'Sin equipo ni dinero de la clase.')}</div>`
+          : ''
+      }${
+        bk
+          ? `<h3>De tu trasfondo (${esc(BG[W.bgKey].n.toLowerCase())})</h3><div class="choice">${opt('wz-bgkit', W.bgKit, 0, 'Su equipo', `${esc(kitList(bk))} y ${bk.gp} po.`)}${opt('wz-bgkit', W.bgKit, 1, '50 po en su lugar', 'Te lo gastas tú en lo que quieras.')}${opt('wz-bgkit', W.bgKit, -1, 'Nada, lo añado yo', 'Sin equipo ni dinero del trasfondo.')}</div>`
+          : '<p class="hint">Tu trasfondo es propio: su equipo lo añades tú desde la mochila.</p>'
+      }
+    <p class="hint">Es el equipo que trae el manual para empezar a jugar. Las armas, las armaduras y el dinero se colocan solos: la armadura y el escudo quedan puestos y la CA se calcula sola.</p>`;
     }
     case 'hp': {
       const con = mod(W.ab.con),
@@ -723,8 +734,6 @@ function applyWizard() {
   ]);
   // especie, linaje y dotes de origen
   if (W.mode === 'create') applyOrigin(c);
-  if (W.mode === 'create' && W.kit >= 0 && CLASS_KITS[W.classKey] && CLASS_KITS[W.classKey][W.kit])
-    kitGive(c, CLASS_KITS[W.classKey][W.kit]);
   else {
     if (W.lineageKey && !c.lineageKey) {
       c.lineageKey = W.lineageKey;
@@ -740,6 +749,18 @@ function applyWizard() {
       (specOf(c.speciesKey) || { n: 'Origen' }).n
     );
   }
+  // equipo inicial de la clase y del trasfondo
+  if (
+    W.mode === 'create' &&
+    (W.kit === undefined || W.kit >= 0) &&
+    CLASS_KITS[W.classKey] &&
+    CLASS_KITS[W.classKey][W.kit || 0]
+  )
+    kitGive(c, CLASS_KITS[W.classKey][W.kit || 0]);
+  if (W.mode === 'create' && BG_KITS[W.bgKey]) {
+    if (W.bgKit === 0 || W.bgKit === undefined) kitGive(c, BG_KITS[W.bgKey]);
+    else if (W.bgKit === 1) c.coins.gp = (+c.coins.gp || 0) + 50;
+  }
   if (!c.spellcasting.ability && c.spells.length)
     c.spellcasting.ability = ['int', 'wis', 'cha'].sort((a, b) => c.abilities[b] - c.abilities[a])[0];
   const name = c.name,
@@ -751,7 +772,7 @@ function applyWizard() {
   scrollTo(0, 0);
   toast(
     mode === 'create'
-      ? `<div class="t-label">Personaje creado</div><div class="t-big">${esc(name)}</div><div class="t-parts">Añade armas, armaduras y herramientas desde la pestaña Partida, y los demás objetos con el botón de la mochila.</div>`
+      ? `<div class="t-label">Personaje creado</div><div class="t-big">${esc(name)}</div><div class="t-parts">${C().equipment.length ? 'Tu equipo ya está en la mochila. Puedes añadir más desde la pestaña Partida o con el botón de la mochila.' : 'Añade armas, armaduras y herramientas desde la pestaña Partida, y los demás objetos con el botón de la mochila.'}</div>`
       : `<div class="t-label">¡Subida de nivel!</div><div class="t-big">${esc(def.n)} ${L}</div><div class="t-parts">Rasgos, recursos y espacios actualizados.</div>`
   );
 }
@@ -794,13 +815,19 @@ function kitGive(c, kit) {
     const [k, key] = code.split(':');
     if (k === 'pk') return packGive(c, key, q);
     if (!code.includes(':')) {
-      c.equipment.push({ id: uid(), name: code, qty: q, cat: 'otro', notes: '' });
+      const ex = c.equipment.find(e => norm(e.name) === norm(code) && !e.weapon && !e.armor);
+      if (ex) ex.qty = (+ex.qty || 0) + q;
+      else c.equipment.push({ id: uid(), name: code, qty: q, cat: 'otro', notes: '' });
       return;
     }
-    const [id] = shGive(c, { c: code, u: 1 }, k === 'm' ? q : 1),
+    const [id] = shGive(
+        c,
+        { c: code, u: k === 'g' && GEAR[key] && GEAR[key].qty ? GEAR[key].qty : 1 },
+        k === 'm' || k === 'g' ? q : 1
+      ),
       e = c.equipment.find(x => x.id === id);
     if (!e) return;
-    if (k !== 'm' && q > 1) e.qty = q;
+    if (k !== 'm' && k !== 'g' && q > 1) e.qty = q;
     if (nm) {
       e.name = nm;
       c.attacks.forEach(a => {

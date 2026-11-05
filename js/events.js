@@ -434,6 +434,12 @@ document.addEventListener('change', e => {
       refreshWizFoot();
       return;
     }
+    if (el.name === 'wz-bgkit') {
+      W.bgKit = +el.value;
+      W._keepScroll = true;
+      renderWizard();
+      return;
+    }
     if (el.name === 'wz-kit') {
       W.kit = +el.value;
       W._keepScroll = true;
