@@ -179,27 +179,7 @@ Object.assign(A, {
     niCollect();
     const c = C();
     if (NI.cat === 'paquete') {
-      const P = PACKS[NI.pack || 'explorer'],
-        k = Math.max(1, parseInt(NI.qty) || 1);
-      P.items.forEach(([key, q]) => {
-        const G = GEAR[key],
-          nm = G ? G.n : key,
-          ex = c.equipment.find(e => (G ? e.gear === key : norm(e.name) === norm(nm)));
-        if (ex) ex.qty = (+ex.qty || 0) + q * k;
-        else
-          c.equipment.push(
-            Object.assign(
-              {
-                id: uid(),
-                name: nm,
-                qty: q * k,
-                cat: G ? G.cat : /aceite|vela/i.test(nm) ? 'consumible' : 'otro',
-                notes: '',
-              },
-              G ? { gear: key } : {}
-            )
-          );
-      });
+      packGive(c, NI.pack || 'explorer', Math.max(1, parseInt(NI.qty) || 1));
       NI = null;
       closeModal();
       save();

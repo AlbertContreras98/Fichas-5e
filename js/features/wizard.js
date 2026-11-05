@@ -32,6 +32,7 @@ function wizSteps() {
       st.push(['spells', 'Conjuros']);
     if (W.classKey === 'warlock') st.push(['invoc', 'Invocaciones']);
   }
+  if (W.mode === 'create' && CLASS_KITS[W.classKey]) st.push(['equip', 'Equipo']);
   st.push(['confirm', 'Confirmar']);
   return st;
 }
@@ -349,6 +350,25 @@ function wizBody(step) {
           ? `<h3>Conjuros que se añaden solos</h3><p>${ids.map(id => esc(SPBY[id].n)).join(', ')}</p><p class="hint">Siempre preparados o de tu especie: no cuentan en tu límite.</p>`
           : '';
       })()}`;
+    }
+    case 'equip': {
+      const kits = CLASS_KITS[W.classKey] || [];
+      if (W.kit === undefined) W.kit = 0;
+      const opt = (v, title, sub) =>
+        `<label><input type="radio" name="wz-kit" value="${v}" ${W.kit === v ? 'checked' : ''}><span><b>${title}</b><br><small>${sub}</small></span></label>`;
+      return `<p>¿Quieres empezar con el equipo básico de ${esc(def.n.toLowerCase())}? Es el que trae el manual para empezar a jugar.</p>
+    <div class="choice">${kits
+      .map((k, i) =>
+        opt(
+          i,
+          `Sí, el equipo básico${kits.length > 1 ? `: ${esc(k.n)}` : ''}`,
+          `${esc(kitList(k))} y ${k.gp} po.`
+        )
+      )
+      .join(
+        ''
+      )}${opt(-1, 'No, lo añado yo', 'Empiezas sin equipo ni dinero y lo añades después desde la mochila.')}</div>
+    <p class="hint">Las armas, las armaduras y el dinero se colocan solos: la armadura y el escudo quedan puestos y la CA se calcula sola. El equipo del trasfondo no se añade: si lo usáis, añádelo después.</p>`;
     }
     case 'hp': {
       const con = mod(W.ab.con),
@@ -703,6 +723,8 @@ function applyWizard() {
   ]);
   // especie, linaje y dotes de origen
   if (W.mode === 'create') applyOrigin(c);
+  if (W.mode === 'create' && W.kit >= 0 && CLASS_KITS[W.classKey] && CLASS_KITS[W.classKey][W.kit])
+    kitGive(c, CLASS_KITS[W.classKey][W.kit]);
   else {
     if (W.lineageKey && !c.lineageKey) {
       c.lineageKey = W.lineageKey;
@@ -754,4 +776,43 @@ function applyOrigin(c) {
   if (sp.lv) for (const l in sp.lv) if (+l <= c.level) sp.lv[l].forEach(t => addFeature(c, t[0], t[1], sp.n));
   addOriginSpells(c, originSpellIds(c.speciesKey, c.lineageKey, 1, c.level));
   upsertRes(c, originRes(c.speciesKey, c.lineageKey, c.featKeys || [], c.level), sp.n);
+}
+/* ── Equipo inicial de la clase ── */
+function kitName([code, q, nm]) {
+  const n =
+    nm ||
+    (code.startsWith('pk:') ? PACKS[code.slice(3)].n : code.includes(':') ? shInfo({ c: code }).n : code);
+  return code.startsWith('m:') ? `${n} (${q})` : q > 1 ? `${n} ×${q}` : n;
+    ? `${q} × ${n.toLowerCase()}`
+    : code.startsWith('m:')
+      ? `${n} (${q})`
+      : n;
+}
+const kitList = k =>
+  k.items
+    .map(kitName)
+    .join(', ')
+    .replace(/^./, m => m.toUpperCase());
+function kitGive(c, kit) {
+  kit.items.forEach(([code, q, nm]) => {
+    const [k, key] = code.split(':');
+    if (k === 'pk') return packGive(c, key, q);
+    if (!code.includes(':')) {
+      c.equipment.push({ id: uid(), name: code, qty: q, cat: 'otro', notes: '' });
+      return;
+    }
+    const [id] = shGive(c, { c: code, u: 1 }, k === 'm' ? q : 1),
+      e = c.equipment.find(x => x.id === id);
+    if (!e) return;
+    if (k !== 'm' && q > 1) e.qty = q;
+    if (nm) {
+      e.name = nm;
+      c.attacks.forEach(a => {
+        if (a.item === e.id) a.name = nm;
+      });
+    }
+    if (k === 'a') e.equipped = true;
+  });
+  c.coins.gp = (+c.coins.gp || 0) + kit.gp;
+  syncWeapons(c);
 }

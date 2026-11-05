@@ -286,6 +286,28 @@ function scrollModal(i, eco) {
     <details><summary>Qué hace</summary><p>${esc(d.de)}</p></details>
     <div class="btns">${hard && onList ? `<button class="b pri" data-act="scr-cast">La supero: lanzar</button><button class="b bad" data-act="scr-fail">La fallo</button>` : `<button class="b pri" data-act="scr-cast">${onList ? 'Lanzar' : 'Lanzarlo igualmente'}</button>`}<button class="b" data-act="close-modal">Cancelar</button></div>`);
 }
+/* Mete en la mochila k paquetes de equipo (juntando lo que ya tengas) */
+function packGive(c, key, k = 1) {
+  PACKS[key].items.forEach(([gk, q]) => {
+    const G = GEAR[gk],
+      nm = G ? G.n : gk,
+      ex = c.equipment.find(e => (G ? e.gear === gk : norm(e.name) === norm(nm)));
+    if (ex) ex.qty = (+ex.qty || 0) + q * k;
+    else
+      c.equipment.push(
+        Object.assign(
+          {
+            id: uid(),
+            name: nm,
+            qty: q * k,
+            cat: G ? G.cat : /aceite|vela/i.test(nm) ? 'consumible' : 'otro',
+            notes: '',
+          },
+          G ? { gear: gk } : {}
+        )
+      );
+  });
+}
 /* Daño del ataque extra con un arma ligera (acción adicional): sin el modificador de característica, salvo
    que sea negativo o que tengas el estilo Combate con dos armas, que te deja sumarlo */
 function lightDmg(c, a) {

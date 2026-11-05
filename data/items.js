@@ -157,3 +157,19 @@ const PRICES={
   'mi:ringprot':400000,'mi:cloakprot':40000,'mi:bracers':400000,'mi:wandmm':40000,'mi:wandweb':40000};
 /* Pergaminos de conjuro según el nivel (0 = truco) */
 const SCROLL_PRICES=[3000,5000,20000,20000,200000,200000,2000000,2000000,2000000,10000000];
+/* Equipo inicial de cada clase (opción A del Manual del jugador de 2024). Cada objeto: código de la tienda (w: arma, a: armadura,
+   m: munición, t: herramienta, g: equipo, pk: paquete) o un nombre libre, y cantidad. gp: monedas de oro que vienen con él. */
+const CLASS_KITS={
+  barbarian:[{gp:15,items:[['w:greataxe',1],['w:handaxe',4],['pk:explorer',1]]}],
+  bard:[{gp:19,items:[['a:leather',1],['w:dagger',2],['t:instrument',1],['pk:entertainer',1]]}],
+  cleric:[{gp:7,items:[['a:chainshirt',1],['a:shield',1],['w:mace',1],['Símbolo sagrado',1],['pk:priest',1]]}],
+  druid:[{gp:9,items:[['a:leather',1],['a:shield',1],['w:sickle',1],['w:quarterstaff',1,'Bastón (canalizador druídico)'],['pk:explorer',1],['t:herbalism',1]]}],
+  fighter:[{n:'Armadura pesada y armas grandes',gp:4,items:[['a:chainmail',1],['w:greatsword',1],['w:flail',1],['w:javelin',8],['pk:dungeoneer',1]]},
+    {n:'Armadura ligera y arco',gp:11,items:[['a:studded',1],['w:scimitar',1],['w:shortsword',1],['w:longbow',1],['m:arrow',20],['Carcaj',1],['pk:dungeoneer',1]]}],
+  monk:[{gp:11,items:[['w:spear',1],['w:dagger',5],['t:instrument',1],['pk:explorer',1]]}],
+  paladin:[{gp:9,items:[['a:chainmail',1],['a:shield',1],['w:longsword',1],['w:javelin',6],['Símbolo sagrado',1],['pk:priest',1]]}],
+  ranger:[{gp:7,items:[['a:studded',1],['w:scimitar',1],['w:shortsword',1],['w:longbow',1],['m:arrow',20],['Carcaj',1],['Ramita de muérdago (canalizador druídico)',1],['pk:explorer',1]]}],
+  rogue:[{gp:8,items:[['a:leather',1],['w:dagger',2],['w:shortsword',1],['w:shortbow',1],['m:arrow',20],['Carcaj',1],['t:thieves',1],['pk:burglar',1]]}],
+  sorcerer:[{gp:28,items:[['w:spear',1],['w:dagger',2],['Cristal (canalizador arcano)',1],['pk:dungeoneer',1]]}],
+  warlock:[{gp:15,items:[['a:leather',1],['w:sickle',1],['w:dagger',2],['Orbe (canalizador arcano)',1],['Libro (saber oculto)',1],['pk:scholar',1]]}],
+  wizard:[{gp:5,items:[['w:dagger',2],['w:quarterstaff',1,'Bastón (canalizador arcano)'],['Túnica',1],['Libro de conjuros',1],['pk:scholar',1]]}]};
