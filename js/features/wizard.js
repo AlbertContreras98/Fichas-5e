@@ -783,10 +783,6 @@ function kitName([code, q, nm]) {
     nm ||
     (code.startsWith('pk:') ? PACKS[code.slice(3)].n : code.includes(':') ? shInfo({ c: code }).n : code);
   return code.startsWith('m:') ? `${n} (${q})` : q > 1 ? `${n} ×${q}` : n;
-    ? `${q} × ${n.toLowerCase()}`
-    : code.startsWith('m:')
-      ? `${n} (${q})`
-      : n;
 }
 const kitList = k =>
   k.items
