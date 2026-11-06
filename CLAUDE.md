@@ -57,7 +57,9 @@ Cada archivo empieza con un comentario de una línea que dice qué contiene. El 
 
 ## Probar
 
-No hay tests automatizados en el repo. Para comprobar los cambios:
+**Pruebas de mecánicas:** el seguimiento está en `tests/` (`PLAN.md` = hechas y pendientes, `HALLAZGOS.md` = lo encontrado, `README.md` = cómo seguir). Si Albert pide «haz la siguiente prueba» o seguir con las pruebas, lee `tests/README.md` y `tests/PLAN.md` y haz solo la primera pendiente.
+
+Para comprobar cualquier otro cambio:
 - Levanta un servidor estático (`python3 -m http.server 8777`) y prueba con Playwright, usando `serviceWorkers: 'block'` en el contexto.
 - Prueba el flujo real: importar una ficha (botón «Importar ficha», textarea `#imp-text`, `[data-act=import]`) y pulsar los `data-act` implicados.
 - Para que el tutorial no se cruce en las pruebas, define antes de cargar la página `localStorage['fichas-tips'] = {"tour":1,"seen":{},"off":1}`.
