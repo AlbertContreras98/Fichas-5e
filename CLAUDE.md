@@ -68,5 +68,6 @@ Para comprobar cualquier otro cambio:
 
 ## Git
 
-- Identidad para commits: `Albert Contreras <acont.g98@gmail.com>`.
+- Identidad para commits: `Albert Contreras <acont.g98@gmail.com>`. Configúrala al empezar con `git config user.name "Albert Contreras"` y `git config user.email "acont.g98@gmail.com"`, y después usa `git commit` sin `-c`: los permisos de `.claude/settings.json` solo dejan pasar sin preguntar los comandos que empiezan por `git commit`, `git push`, etc.
+- Haz cada comando de git por separado o encadenado con `&&`, sin mezclarlo con otros comandos (python, sed…), para que no salte la pregunta de permiso.
 - Mensajes de commit en castellano y descriptivos.
