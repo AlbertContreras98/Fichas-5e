@@ -83,7 +83,7 @@ Object.assign(A, {
   'short-done': () => {
     const c = C();
     c.pact.used = 0;
-    endEffects(c, e => e.r != null || (e.m != null && e.m <= 60));
+    passTime(c, 60);
     c.features.forEach(f => {
       if (f.uses.recover === 'corto') f.uses.used = 0;
       if (f.uses.recover === 'corto1') f.uses.used = Math.max(0, f.uses.used - 1);
@@ -130,7 +130,7 @@ Object.assign(A, {
       const st = creaStats(c, x);
       if (st.track) x.hp.current = st.hpMax;
     });
-    endEffects(c, e => e.r != null || (e.m != null && e.m <= 480));
+    passTime(c, 480);
     c.hp.current = c.hp.max;
     c.hp.temp = 0;
     c.hitDice.spent = 0;

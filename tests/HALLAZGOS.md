@@ -57,7 +57,7 @@ Formato:
 - Qué debería pasar: al invocar el arma de pacto, la app debería dejar elegir el arma (sencilla o marcial cuerpo a cuerpo) y crear el ataque con CAR para ataque y daño, con competencia, y el tipo de daño a elegir (el normal, necrótico, psíquico o radiante).
 - Propuesta: un ataque temporal como los de los conjuros propios (`fxSpell`), ligado al arma de pacto, que se quite al volver a invocarla o al soltarla.
 - Prioridad: frecuencia 3 + olvido 3 + coste 2 = 8
-- Estado: pendiente
+- Estado: arreglado (2026-11-09): al pulsar «Invocar arma de pacto» se elige una de tus armas cuerpo a cuerpo o se invoca una nueva, y el tipo de daño. El ataque usa CAR (o tu mejor característica) y es competente. Solo hay una arma de pacto a la vez.
 
 ### 4. Con un trasfondo propio, el asistente solo deja escribir el nombre
 - Origen: Base, reparto y prueba de humo
@@ -120,7 +120,7 @@ Formato:
 - Qué debería pasar: duración según el espacio, y que un descanso corto no los quite si les queda tiempo.
 - Propuesta: duración por nivel de espacio en los datos; el descanso corto solo resta 1 h.
 - Prioridad: frecuencia 2 + olvido 3 + coste 2 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-09): Maleficio dura 4 h con espacio de nivel 2, 8 h con 3–4 y 24 h con 5+ (Marca del cazador, 8 h y 24 h). Los descansos restan su tiempo (1 h el corto, 8 h el largo) en vez de quitar todos los efectos de hasta 1 h.
 
 ### 11. Defensa paciente y Paso del viento siempre gastan 1 punto
 - Origen: 1a. Datos de la app (clases)

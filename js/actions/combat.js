@@ -191,6 +191,7 @@ Object.assign(A, {
   't-der': el => {
     const c = C(),
       o = DERIVED[+el.dataset.j];
+    if (o.n === 'Invocar arma de pacto') return pactOpen(true);
     if (o.cost) {
       const f = c.features.find(x => x.name === o.cost);
       if (!f || featLeft(f) <= 0) return;
@@ -200,6 +201,44 @@ Object.assign(A, {
     save();
     render();
     toast(`<div class="t-label">${esc(o.n)}</div><div class="t-parts">${esc(o.d)}</div>`);
+  },
+  'pact-ok': el => {
+    const c = C(),
+      v = $('#pact-w').value,
+      t = $('#pact-t').value;
+    if (!v) return;
+    let a = v.startsWith('a:') ? c.attacks[+v.slice(2)] : null;
+    // Solo puede haber un arma de pacto: la invocada anterior desaparece
+    c.attacks = c.attacks.filter(x => !(x.pact && x.pactNew));
+    c.attacks.forEach(x => {
+      if (x.pact) {
+        delete x.pact;
+        delete x.pactT;
+      }
+    });
+    if (v.startsWith('w:')) {
+      const k = v.slice(2);
+      a = Object.assign(NEW.attacks(), {
+        name: `${WEAPONS[k].n} (pacto)`,
+        wpn: k,
+        magic: 0,
+        mastery: false,
+        pactNew: true,
+      });
+      c.attacks.push(a);
+    }
+    if (!a) return;
+    a.pact = true;
+    a.pactT = t;
+    const r = wpnCalc(c, a);
+    Object.assign(a, { atk: r.atk, dmg: r.dmg, type: r.type, notes: r.notes });
+    if (el.dataset.eco) spendEco(c, 'AA');
+    closeModal();
+    save();
+    render();
+    toast(
+      `<div class="t-label">Arma de pacto</div><div class="t-big">${esc(a.name)}</div><div class="t-parts">${sgn(r.atk)} al ataque · ${esc(r.dmg)} ${esc(r.type)}. Desaparece si la sueltas más de un minuto o la vuelves a invocar.</div>`
+    );
   },
   't-item': el => {
     const c = C(),

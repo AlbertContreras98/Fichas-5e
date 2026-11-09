@@ -12,6 +12,31 @@ function parseDur(t) {
   if ((m = t.match(/^(\d+)\s*dias?/))) return { m: 1440 * +m[1] };
   return null;
 }
+/* Conjuros que duran más con un espacio de nivel mayor: nivel mínimo → minutos */
+const DUR_UP = {
+  hex: [
+    [5, 1440],
+    [3, 480],
+    [2, 240],
+  ],
+  'hunters-mark': [
+    [5, 1440],
+    [3, 480],
+  ],
+};
+function spellDur(sp, L) {
+  const d = parseDur(sp.dur),
+    up = DUR_UP[sp.ref] && DUR_UP[sp.ref].find(([n]) => (L || 0) >= n);
+  return up ? { m: up[1] } : d;
+}
+/* Pasa el tiempo (descansos): quita los efectos que se acaban y descuenta el resto */
+function passTime(c, min) {
+  const gone = endEffects(c, e => e.r != null || (e.m != null && e.m <= min));
+  c.effects.forEach(e => {
+    if (e.m != null) e.m -= min;
+  });
+  return gone;
+}
 function fmtEff(e) {
   if (e.r != null) return `${e.r} ronda${e.r === 1 ? '' : 's'}`;
   if (e.inf) return 'hasta que se disipe';

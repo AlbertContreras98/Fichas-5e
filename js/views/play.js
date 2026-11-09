@@ -339,7 +339,7 @@ function afterCast(sp, how) {
       note = `<div class="t-parts">Dejas de concentrarte en ${esc(c.concentration)}.</div>`;
     c.concentration = sp.name;
   }
-  addEffect(c, sp.name, parseDur(sp.dur), sp.conc, eco !== 'R');
+  addEffect(c, sp.name, spellDur(sp, lastCastL), sp.conc, eco !== 'R');
   const used = spUseItem(c, sp) + csOnCast(c, sp);
   save();
   render();

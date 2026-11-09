@@ -90,6 +90,28 @@ const DERIVED = [
     d: 'Haces aparecer tu arma de pacto en la mano.',
   },
 ];
+/* Pacto del Filo: elegir el arma de pacto (una de las tuyas o una invocada) y el tipo de daño */
+function pactOpen(eco) {
+  const c = C(),
+    cur = c.attacks.find(a => a.pact),
+    mine = c.attacks
+      .map((a, i) => [a, i])
+      .filter(([a]) => a.wpn && WEAPONS[a.wpn] && !WEAPONS[a.wpn].r && !a.pactNew && atkReady(c, a)),
+    all = Object.entries(WEAPONS).filter(([, W]) => !W.r && W.d !== '1'),
+    opt = (v, n, on) => `<option value="${v}" ${on ? 'selected' : ''}>${esc(n)}</option>`,
+    W0 = cur && WEAPONS[cur.wpn];
+  openModal(`<h2>Invocar arma de pacto</h2><p class="hint">Haces aparecer un arma cuerpo a cuerpo sencilla o marcial, o unes a tu pacto un arma que ya llevas. Con ella eres competente y puedes usar tu CAR para el ataque y el daño.</p>
+    <label class="f"><span>Arma</span><select id="pact-w">${mine.length ? `<optgroup label="Tus armas">${mine.map(([a, i]) => opt('a:' + i, a.name, cur === a)).join('')}</optgroup>` : ''}<optgroup label="Invocar una nueva">${all.map(([k, W]) => opt('w:' + k, W.n, cur && cur.pactNew && cur.wpn === k)).join('')}</optgroup></select></label>
+    <label class="f"><span>Tipo de daño</span><select id="pact-t">${[
+      ['', 'El normal del arma'],
+      ['necrótico', 'Necrótico'],
+      ['psíquico', 'Psíquico'],
+      ['radiante', 'Radiante'],
+    ]
+      .map(([v, n]) => opt(v, n, cur && (cur.pactT || '') === v && W0))
+      .join('')}</select></label>
+    <div class="btns"><button class="b pri" data-act="pact-ok" ${eco && c.combat ? 'data-eco="1"' : ''}>Invocar</button><button class="b" data-act="close-modal">Cancelar</button></div>`);
+}
 /* Desplegables «Magia» de cada columna que el jugador tiene abiertos (solo mientras la app está abierta) */
 const TMAG = {};
 const GENERIC = [

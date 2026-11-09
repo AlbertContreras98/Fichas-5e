@@ -201,8 +201,11 @@ function wpnCalc(c, a) {
     str = M(c, 'str'),
     dex = M(c, 'dex'),
     mg = +a.magic || 0;
-  const mod = W.p.includes('sutil') ? Math.max(str, dex) : W.r ? dex : str,
-    prof = wpnProf(c, W);
+  const pact = a.pact && !W.r,
+    cha = M(c, 'cha');
+  const phys = W.p.includes('sutil') ? Math.max(str, dex) : W.r ? dex : str,
+    mod = pact ? Math.max(phys, cha) : phys,
+    prof = pact || wpnProf(c, W);
   const arch = W.r && featHas(c, 'rangedAtk'),
     gwm = W.p.includes('pesada') && featHas(c, 'heavyPB');
   const dm = x => {
@@ -215,6 +218,7 @@ function wpnCalc(c, a) {
     .concat(W.am ? [`munición (${W.am[1]})`] : [])
     .concat(W.v ? [`versátil (${W.v})`] : []);
   const notes = [
+    pact ? `Arma de pacto: ${cha >= phys ? 'usas CAR' : 'usas tu mejor característica'}` : '',
     props.join(', ').replace(/^./, m => m.toUpperCase()),
     a.mastery ? `Maestría: ${MASTERY[W.ms][0].toLowerCase()}` : '',
     prof ? '' : 'sin competencia',
@@ -232,7 +236,7 @@ function wpnCalc(c, a) {
   return {
     atk: mod + (prof ? pb(c) : 0) + mg + (arch ? arch.rangedAtk : 0),
     dmg: dm(W.d) + (W.v ? ` (${dm(W.v)} a dos manos)` : ''),
-    type: W.t,
+    type: pact && a.pactT ? a.pactT : W.t,
     notes,
     prof,
   };
