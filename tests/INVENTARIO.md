@@ -6,7 +6,7 @@ Resultado de la prueba 1a: qué hace la app **sola**, qué hace **a medias** y q
 - `inventario-conjuros.md` — conjuros (guion: `inventario-conjuros.js`).
 - `inventario-origen.md` — dotes, invocaciones, especies, linajes, trasfondos y objetos (guion: `inventario-origen.js`).
 
-Las reglas generales que no dependen de los datos (estados, acciones, cobertura…) van aparte, en `REGLAS.md` (prueba 1b). Los fallos encontrados de paso están en `HALLAZGOS.md` (n.º 6–28). Las candidatas a automatizar se pasan a `HALLAZGOS.md` con su prioridad en la prueba 1c.
+Las reglas generales que no dependen de los datos (estados, acciones, cobertura…) van aparte, en `REGLAS.md` (prueba 1b). Los fallos encontrados de paso están en `HALLAZGOS.md` (n.º 6–28). Las candidatas a automatizar ya están en `HALLAZGOS.md` con su prioridad (prueba 1c, n.º 45–81 y la sección «Prioridades»).
 
 ## Resumen en cifras
 
@@ -42,7 +42,7 @@ Las reglas generales que no dependen de los datos (estados, acciones, cobertura�
 
 ## Candidatas a automatizar (las que más se notarían)
 
-Juntadas de los tres informes, sin repetir. Se puntúan en la prueba 1c.
+Juntadas de los tres informes, sin repetir. Puntuadas en la prueba 1c: en `HALLAZGOS.md`, «Prioridades», está a qué hallazgo ha ido cada una.
 
 1. **Arma de pacto** con CAR, competencia y tipo de daño a elegir (ya en n.º 3).
 2. **Daño y curación de conjuros**, empezando por los más usados: Estallido arcano, trucos de daño (14 escalan igual a niveles 5, 11 y 17), Curar heridas y Palabra de curación, castigos del paladín. Con un patrón común se cubren 52 conjuros que suben dados por nivel de espacio.
