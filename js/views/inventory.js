@@ -22,10 +22,18 @@ function openMoney() {
     `<div class="wz-head"><h2>Dinero</h2><button class="b sm" data-act="money-close">Hecho</button></div><div id="money-body">${moneyHTML(C())}</div>`
   );
 }
+/* Nombres antiguos de algunas herramientas, para fichas creadas antes de unificarlos */
+const TOOL_ALIAS = {
+  calligrapher: 'utiles de caligrafia',
+  forgery: 'utiles de falsificacion',
+  poisoner: 'utiles de envenenador',
+};
 function toolProf(c, T, v) {
-  const t = norm(c.proficiencies.tools || '');
+  const t = norm(c.proficiencies.tools || ''),
+    al = Object.keys(TOOL_ALIAS).find(k => TOOLS[k] === T);
   return (
     t.includes(norm(T.n)) ||
+    (!!al && t.includes(TOOL_ALIAS[al])) ||
     (!!v && t.includes(norm(v))) ||
     (T.vars && /instrumento/.test(t) && T === TOOLS.instrument) ||
     (T === TOOLS.gaming && /juego/.test(t))
@@ -405,7 +413,7 @@ const wearsBodyArmor = c =>
         ? ARMORS[e.armor] && ARMORS[e.armor].t !== 's'
         : e.cat === 'armadura' && !/escudo/.test(norm(e.name)))
   );
-const mageArmorOn = c => c.effects.some(e => norm(e.name).includes('armadura de mago'));
+const mageArmorOn = c => c.effects.some(e => !e.other && norm(e.name).includes('armadura de mago'));
 /* Sin armaduras en el inventario, la CA es la que escribe el jugador; Armadura de mago la sube a 13 + DES si es mayor */
 const acOf = c =>
   armorAuto(c)

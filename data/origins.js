@@ -55,9 +55,9 @@ tiefling:{n:'Tiefling',size:'M o P',speed:30,dv:60,linLabel:'Legado infernal',
 
 /* Trasfondos: características que puedes aumentar, habilidades, herramienta y dote de origen */
 window.BACKGROUNDS={
-acolyte:{n:'Acólito',ab:['int','wis','cha'],skills:['insight','religion'],tool:'Útiles de caligrafía',feat:'magic-cleric'},
+acolyte:{n:'Acólito',ab:['int','wis','cha'],skills:['insight','religion'],tool:'Suministros de calígrafo',feat:'magic-cleric'},
 artisan:{n:'Artesano',ab:['str','dex','int'],skills:['investigation','persuasion'],tool:'Herramientas de artesano (una)',feat:'crafter'},
-charlatan:{n:'Charlatán',ab:['dex','con','cha'],skills:['deception','sleight'],tool:'Útiles de falsificación',feat:'skilled'},
+charlatan:{n:'Charlatán',ab:['dex','con','cha'],skills:['deception','sleight'],tool:'Kit de falsificación',feat:'skilled'},
 criminal:{n:'Criminal',ab:['dex','con','int'],skills:['sleight','stealth'],tool:'Herramientas de ladrón',feat:'alert'},
 entertainer:{n:'Artista',ab:['str','dex','cha'],skills:['acrobatics','performance'],tool:'Instrumento musical (uno)',feat:'musician'},
 farmer:{n:'Granjero',ab:['str','con','wis'],skills:['animal','nature'],tool:'Herramientas de carpintero',feat:'tough'},
@@ -66,9 +66,9 @@ guide:{n:'Guía',ab:['dex','con','wis'],skills:['stealth','survival'],tool:'Herr
 hermit:{n:'Ermitaño',ab:['con','wis','cha'],skills:['medicine','religion'],tool:'Útiles de herborista',feat:'healer'},
 merchant:{n:'Mercader',ab:['con','int','cha'],skills:['animal','persuasion'],tool:'Herramientas de navegante',feat:'lucky'},
 noble:{n:'Noble',ab:['str','int','cha'],skills:['history','persuasion'],tool:'Juego (uno)',feat:'skilled'},
-sage:{n:'Sabio',ab:['con','int','wis'],skills:['arcana','history'],tool:'Útiles de caligrafía',feat:'magic-wizard'},
+sage:{n:'Sabio',ab:['con','int','wis'],skills:['arcana','history'],tool:'Suministros de calígrafo',feat:'magic-wizard'},
 sailor:{n:'Marinero',ab:['str','dex','wis'],skills:['acrobatics','perception'],tool:'Herramientas de navegante',feat:'tavern-brawler'},
-scribe:{n:'Escriba',ab:['dex','int','wis'],skills:['investigation','perception'],tool:'Útiles de caligrafía',feat:'skilled'},
+scribe:{n:'Escriba',ab:['dex','int','wis'],skills:['investigation','perception'],tool:'Suministros de calígrafo',feat:'skilled'},
 soldier:{n:'Soldado',ab:['str','dex','con'],skills:['athletics','intimidation'],tool:'Juego (uno)',feat:'savage-attacker'},
 wayfarer:{n:'Vagabundo',ab:['dex','wis','cha'],skills:['insight','stealth'],tool:'Herramientas de ladrón',feat:'lucky'}
 };

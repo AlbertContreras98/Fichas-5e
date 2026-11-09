@@ -340,6 +340,11 @@ function afterCast(sp, how) {
     c.concentration = sp.name;
   }
   addEffect(c, sp.name, spellDur(sp, lastCastL), sp.conc, eco !== 'R');
+  if (castOther) {
+    const fx = c.effects.find(e => e.name === sp.name);
+    if (fx) fx.other = true;
+    castOther = false;
+  }
   const used = spUseItem(c, sp) + csOnCast(c, sp);
   save();
   render();

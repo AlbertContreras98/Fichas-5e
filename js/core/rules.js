@@ -41,7 +41,7 @@ function originRes(sk, lk, feats, L) {
   ]) {
     if (L < (r.from || 1)) continue;
     const max = r.by === 'pb' ? pbAt(L) : r.by;
-    if (max > 0) out.push({ n: r.n, max, rec: r.rec, pool: false });
+    if (max > 0) out.push({ n: r.n, max, rec: r.rec, pool: !!r.pool });
   }
   return out;
 }
@@ -73,6 +73,7 @@ function alwaysIds(ck, sk, from, to) {
 const FREE_LINK = {
   'hunters-mark': 'Marca del cazador gratis',
   'divine-smite': 'Castigo del paladín gratis',
+  'misty-step': 'Pasos de las hadas',
 };
 function addAlways(c, ids) {
   for (const id of ids)

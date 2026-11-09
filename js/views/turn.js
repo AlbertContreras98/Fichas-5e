@@ -5,6 +5,7 @@
 const WHEN = {
   Furia: 'AA',
   'Tomar aliento': 'AA',
+  'Pasos de las hadas': 'AA',
   'Oleada de acción': 'free',
   Indómito: 'free',
   'Inspiración bárdica': 'AA',
@@ -55,19 +56,21 @@ const DERIVED = [
     cost: 'Puntos de concentración',
     d: 'Dos golpes desarmados (1 punto).',
   },
+  { need: 'Puntos de concentración', n: 'Defensa paciente', t: 'AA', d: 'Destrabarse (gratis).' },
   {
     need: 'Puntos de concentración',
-    n: 'Defensa paciente',
+    n: 'Defensa paciente (1 punto)',
     t: 'AA',
     cost: 'Puntos de concentración',
-    d: 'Destrabarse y Esquivar (1 punto).',
+    d: 'Destrabarse y Esquivar.',
   },
+  { need: 'Puntos de concentración', n: 'Paso del viento', t: 'AA', d: 'Correr (gratis).' },
   {
     need: 'Puntos de concentración',
-    n: 'Paso del viento',
+    n: 'Paso del viento (1 punto)',
     t: 'AA',
     cost: 'Puntos de concentración',
-    d: 'Destrabarse y Correr, salto doble (1 punto).',
+    d: 'Destrabarse y Correr, salto doble.',
   },
   {
     need: 'Golpe aturdidor',
@@ -188,10 +191,11 @@ function viewTurn(c) {
   const nAtk = attacksPerAction(c),
     fm = formOf(c),
     ws = wsInfo(c),
-    noSpells = fm && !(fm.via === 'wild' && ws && ws.moon);
+    beast = fm && fm.via === 'wild' && c.classKey === 'druid' && c.level >= 18,
+    noSpells = fm && !beast && !(fm.via === 'wild' && ws && ws.moon);
   if (fm) {
     cols.A.push(
-      `<p class="hint">Transformado en <b>${esc(fm.name)}</b>: usas sus ataques.${noSpells ? ' No puedes lanzar conjuros.' : ' Solo puedes lanzar los conjuros de tu círculo.'}</p>`
+      `<p class="hint">Transformado en <b>${esc(fm.name)}</b>: usas sus ataques.${noSpells ? ' No puedes lanzar conjuros.' : beast ? ' Conjuros bestiales: puedes lanzar conjuros, salvo los que gastan un material con precio.' : ' Solo puedes lanzar los conjuros de tu círculo.'}</p>`
     );
     (fm.attacks || []).forEach((a, i) =>
       cols.A.push(

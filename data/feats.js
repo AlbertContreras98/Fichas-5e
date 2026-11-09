@@ -83,7 +83,7 @@ observant:{n:'Observador',cat:'general',ab:['int','wis'],req:{ab:['int','wis'],m
  text:'Eliges Perspicacia, Investigación o Percepción: ganas competencia en ella o, si ya la tenías, pericia. Puedes usar la acción de Buscar como acción adicional.'},
 piercer:{n:'Perforador',cat:'general',ab:['str','dex'],
  text:'Una vez por turno, al impactar con daño perforante, puedes repetir uno de los dados de daño. Si haces un crítico con daño perforante, tiras un dado de daño más.'},
-poisoner:{n:'Envenenador',cat:'general',ab:['dex','int'],toolProf:'útiles de envenenador',
+poisoner:{n:'Envenenador',cat:'general',ab:['dex','int'],toolProf:'kit de envenenador',
  text:'Tu daño de veneno ignora la resistencia. Competencia con útiles de envenenador: en 1 hora y con 50 po de materiales preparas tantas dosis como tu competencia. Con una acción adicional aplicas una a un arma o munición; al impactar, el objetivo hace salvación de CON (CD 8 + modificador + competencia) o recibe 2d8 de daño de veneno y queda envenenado hasta el final de tu siguiente turno.'},
 'polearm-master':{n:'Maestro de armas de asta',cat:'general',ab:['str','dex'],req:{ab:['str','dex'],min:13},
  text:'Tras atacar con un bastón, una lanza o un arma pesada con alcance en la acción de Atacar, puedes atacar con el otro extremo con una acción adicional (1d4 contundente). Con esas armas, cuando una criatura entra en tu alcance, puedes hacerle un ataque con tu reacción.'},

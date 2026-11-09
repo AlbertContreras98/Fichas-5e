@@ -129,7 +129,7 @@ Formato:
 - Qué debería pasar: ofrecer las dos versiones.
 - Propuesta: dos botones (gratis / con punto).
 - Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-09): salen las dos versiones, la gratis y la de 1 punto.
 
 ### 12. Las armas de monje calculan con FUE en vez de la mejor entre FUE y DES
 - Origen: 1a. Datos de la app (clases)
@@ -156,7 +156,7 @@ Formato:
 - Qué debería pasar: que pida concentración.
 - Propuesta: cambiar el dato.
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-09).
 
 ### 15. Los conjuros de Arcano místico no se pueden lanzar
 - Origen: 1a. Datos de la app (clases y conjuros)
@@ -192,7 +192,7 @@ Formato:
 - Qué debería pasar: reconocer la competencia.
 - Propuesta: unificar los nombres.
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-09): los trasfondos y la dote usan los mismos nombres que el inventario, y las fichas antiguas se reconocen igual.
 
 ### 19. Lecciones de los Primeros no aplica las elecciones de la dote
 - Origen: 1a. Datos de la app (invocaciones)
@@ -210,7 +210,7 @@ Formato:
 - Qué debería pasar: no ofrecer el ritual en combate, o avisar de los 10 minutos.
 - Propuesta: aviso o quitar la opción con el combate en marcha.
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-09): en combate no se ofrece el ritual y se avisa de que tarda 10 minutos más.
 
 ### 21. Armadura de mago lanzada sobre otra criatura sube tu CA
 - Origen: 1a. Datos de la app (conjuros)
@@ -219,7 +219,7 @@ Formato:
 - Qué debería pasar: preguntar el objetivo y solo subir tu CA si eres tú.
 - Propuesta: pregunta «¿sobre ti?» al lanzarlo.
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-09): pregunta si es sobre ti o sobre otra criatura; solo sube tu CA si es sobre ti.
 
 ### 22. Don de recuperación pierde la reserva de 10d10
 - Origen: 1a. Datos de la app (origen)
@@ -228,7 +228,7 @@ Formato:
 - Qué debería pasar: reserva de 10d10 que se gasta y se recupera en descanso largo.
 - Propuesta: conservar `pool` al crear el recurso.
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-09).
 
 ### 23. El druida de nivel 18 sigue sin poder lanzar conjuros en forma salvaje
 - Origen: 1a. Datos de la app (clases)
@@ -236,7 +236,7 @@ Formato:
 - Qué pasa: `js/views/turn.js:169` bloquea siempre los conjuros en forma salvaje, aunque Conjuros bestiales (nivel 18) lo permite.
 - Propuesta: no bloquearlos desde nivel 18.
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-09).
 
 ### 24. Pasos de las hadas sale como «sin gastar acción»
 - Origen: 1a. Datos de la app (clases)
@@ -244,7 +244,7 @@ Formato:
 - Qué pasa: no está en `WHEN`, así que no gasta la acción adicional que le toca. Además, el Paso brumoso gratis no está enlazado en `FREE_LINK`.
 - Propuesta: añadirlo a `WHEN` como acción adicional y enlazarlo.
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-09): gasta la acción adicional y el Paso brumoso gratis se enlaza al rasgo (en personajes nuevos o al subir de nivel).
 
 ### 25. La Furia no corta la concentración
 - Origen: 1a. Datos de la app (clases)
@@ -260,7 +260,7 @@ Formato:
 - Qué pasa: desde nivel 13 (Cazador implacable) el daño no rompe la concentración de Marca del cazador, pero la app pide la salvación igual.
 - Propuesta: no pedirla desde nivel 13 si solo se concentra en Marca del cazador.
 - Prioridad: frecuencia 1 + olvido 1 + coste 3 = 5
-- Estado: pendiente
+- Estado: arreglado (2026-11-09): al recibir daño se avisa de que Cazador implacable mantiene la concentración.
 
 ### 27. No se controla «un solo espacio de conjuro por turno»
 - Origen: 1a. Datos de la app (conjuros)

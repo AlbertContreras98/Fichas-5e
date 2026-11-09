@@ -38,16 +38,20 @@ Object.assign(A, {
       sp = c.spells[+el.dataset.i],
       L = +sp.level || 0;
     castFree = false;
-    /* Armadura de mago no funciona si llevas armadura */
-    if (!el.dataset.armorOk && sp.ref === 'mage-armor' && wearsBodyArmor(c)) {
-      const ar = c.equipment.find(
-        e => e.equipped && e.cat === 'armadura' && !(e.armor && ARMORS[e.armor] && ARMORS[e.armor].t === 's')
-      );
-      openModal(`<h2>Llevas armadura puesta</h2><p>Armadura de mago solo funciona si no llevas armadura${ar ? ` (ahora llevas ${esc(ar.name)})` : ''}: tu CA no cambiará.</p>
-        <p class="hint">Quítate la armadura desde el inventario si quieres que te proteja, o lánzalo igualmente (por ejemplo, sobre otra criatura que no lleve armadura).</p>
-        <div class="btns"><button class="b pri" data-act="cast-armor-ok" data-i="${el.dataset.i}">Lanzar igualmente</button><button class="b" data-act="close-modal">Cancelar</button></div>`);
+    /* Armadura de mago: sobre quién se lanza; sobre ti no funciona si llevas armadura */
+    if (!el.dataset.who && sp.ref === 'mage-armor') {
+      const ar =
+        wearsBodyArmor(c) &&
+        c.equipment.find(
+          e =>
+            e.equipped && e.cat === 'armadura' && !(e.armor && ARMORS[e.armor] && ARMORS[e.armor].t === 's')
+        );
+      openModal(`<h2>Armadura de mago</h2><p>¿Sobre quién lo lanzas? Solo sube tu CA si te lo lanzas a ti.</p>
+        ${ar ? `<p class="hint warn">Llevas armadura puesta (${esc(ar.name)}): sobre ti no funcionará hasta que te la quites desde el inventario.</p>` : ''}
+        <div class="btns"><button class="b pri" data-act="cast-armor-ok" data-i="${el.dataset.i}" data-who="me">Sobre mí</button><button class="b" data-act="cast-armor-ok" data-i="${el.dataset.i}" data-who="other">Sobre otra criatura</button><button class="b" data-act="close-modal">Cancelar</button></div>`);
       return;
     }
+    castOther = el.dataset.who === 'other';
     const hdNeed = csHdCost(sp, L),
       hdLeft = c.hitDice.total - c.hitDice.spent;
     if (hdNeed > hdLeft) {
@@ -70,7 +74,7 @@ Object.assign(A, {
       usable = opts.filter(o => o.avail > 0);
     const fr = freeUse(c, sp);
     lastCastL = L;
-    if (!sp.ritual && !fr && usable.length === 1) {
+    if ((!sp.ritual || c.combat) && !fr && usable.length === 1) {
       lastCastL = usable[0].level;
       consume(c, usable[0].kind, usable[0].level);
       return afterCast(sp, `${slotLabel(usable[0])} · te quedan ${usable[0].avail - 1}`);
@@ -78,20 +82,20 @@ Object.assign(A, {
     openModal(`<h2>Lanzar ${esc(sp.name)}</h2><p class="hint">Elige con qué espacio. Con uno de nivel superior algunos conjuros son más potentes.</p>
       ${opts.map(o => `<button class="b opt" data-act="cast-with" data-i="${el.dataset.i}" data-kind="${o.kind}" data-level="${o.level}" ${o.avail > 0 ? '' : 'disabled'}><span>${slotLabel(o)}</span><small>quedan ${o.avail}</small></button>`).join('')}
       ${fr ? `<button class="b opt" data-act="cast-with" data-i="${el.dataset.i}" data-kind="free"><span>Gratis (${esc(sp.src || 'rasgo')})</span><small>${fr.atwill ? 'sin límite' : `quedan ${fr.uses.max - fr.uses.used}`}</small></button>` : ''}
-      ${sp.ritual ? `<button class="b opt" data-act="cast-with" data-i="${el.dataset.i}" data-kind="ritual"><span>Como ritual</span><small>+10 min, sin espacio</small></button>` : ''}
+      ${sp.ritual ? (c.combat ? '<p class="hint">Como ritual tarda 10 minutos más: no da tiempo en combate.</p>' : `<button class="b opt" data-act="cast-with" data-i="${el.dataset.i}" data-kind="ritual"><span>Como ritual</span><small>+10 min, sin espacio</small></button>`) : ''}
       <button class="b" data-act="close-modal">Cancelar</button>`);
   },
   'cast-armor-ok': el => {
     const pe = pendingEco;
     closeModal();
     pendingEco = pe;
-    A.cast({ dataset: { i: el.dataset.i, armorOk: '1' } });
+    A.cast({ dataset: { i: el.dataset.i, who: el.dataset.who } });
   },
   'cast-force': el => {
     const pe = pendingEco;
     closeModal();
     pendingEco = pe;
-    A.cast({ dataset: { i: el.dataset.i, force: '1', armorOk: '1' } });
+    A.cast({ dataset: { i: el.dataset.i, force: '1', who: castOther ? 'other' : 'me' } });
   },
   'fl-ok': el => {
     const c = C(),
@@ -249,7 +253,11 @@ Object.assign(A, {
         }
       }
       let acts = '';
-      if (c.concentration && n > 0 && c.hp.current > 0) {
+      const relentless = c.classKey === 'ranger' && c.level >= 13 && c.concentration === 'Marca del cazador';
+      if (relentless && n > 0 && c.hp.current > 0)
+        acts =
+          '<div class="t-parts">Cazador implacable: el daño no rompe tu concentración en Marca del cazador.</div>';
+      else if (c.concentration && n > 0 && c.hp.current > 0) {
         const dc = Math.min(30, Math.max(10, Math.floor(n / 2)));
         acts = `<div class="t-parts">Concentración en ${esc(c.concentration)}: tira salvación de CON, CD <b>${dc}</b> (tu bonificador ${sgn(saveB(c, 'con'))}).</div><div class="t-actions"><button class="b sm" data-act="conc-keep">La supero</button><button class="b sm bad" data-act="conc-lose">La fallo</button></div>`;
       } else if (c.concentration && c.hp.current === 0) c.concentration = '';
