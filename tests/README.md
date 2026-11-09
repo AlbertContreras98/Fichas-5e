@@ -25,7 +25,9 @@ Cuando Albert pida «haz la siguiente prueba pendiente» (o algo parecido):
 
 Si Albert cuenta algo de una partida real, apúntalo en `HALLAZGOS.md` con origen «Partida real», aunque no toque ninguna prueba.
 
-**Subagentes:** solo en la prueba 1a, y solo para leer, cada uno con su propio archivo de salida. En el resto, no: cada uno empieza de cero y escribirían a la vez en los mismos archivos.
+**Cada prueba se lanza en un subagente** con el esfuerzo que indica `PLAN.md` (si Albert pide otro, se usa el suyo). Una prueba cada vez, nunca varias a la vez, para que no escriban en los mismos archivos. El subagente hace los pasos 2 a 5; el chat principal revisa lo que ha hecho, hace el paso 7 (commit y push) y el 8 (resumen para Albert). Así el chat principal crece poco, y cuando se alargue Albert sigue en uno nuevo: el avance está en `PLAN.md`.
+
+Excepción: en la prueba 1a se pueden lanzar a la vez hasta 3 subagentes que solo lean, cada uno con su propio archivo de salida.
 
 ## Comprobaciones
 
