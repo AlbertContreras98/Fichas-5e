@@ -302,3 +302,142 @@ Formato:
 - Propuesta: si dice que dormir la rompe, terminar la concentración en el descanso largo (cambio pequeño).
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
 - Estado: pendiente (esperando la respuesta del máster)
+- Nota (prueba 1b, comprobado con `tests/reglas.js`): la app hace ya **lo contrario** de lo que dice «Qué pasa». `long-done` (`js/actions/rest.js:144`) pone `c.concentration = ''`, así que el descanso largo termina siempre la concentración: un efecto de concentración de 24 h desaparece al dormir. Lo que sí sigue (con 8 h menos) son los efectos de más de 8 h **sin** concentración. Si el máster dice que dormir **no** rompe la concentración, el cambio es quitar esa línea.
+
+### 31. La reacción se recupera al terminar tu turno, no al empezar el siguiente
+- Origen: 1b. Reglas generales
+- Tipo: Regla
+- Qué pasa: `t-end` (`js/actions/combat.js:19-21`) deja libres la acción, la acción adicional **y la reacción** al pulsar «Terminar turno». Ejemplo: Zyo se aleja de un enemigo en su turno, le hacen un ataque de oportunidad y responde con una reacción (Escudo, Represión infernal…). Al terminar su turno la app le devuelve la reacción, y podría usar otra antes de su siguiente turno. Al revés, si gasta la reacción en el turno de un enemigo, en su propio turno sale «Gastada» aunque ya la tiene.
+- Qué debería pasar: la reacción se recupera al **empezar** tu turno.
+- Propuesta: al pulsar «Terminar turno», dejar libres la acción y la adicional, y la reacción solo si no se ha gastado en este turno (o recuperarla al empezar el turno siguiente). El botón ↺ ya permite arreglarlo a mano.
+- Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
+- Estado: pendiente
+
+### 32. Daño a 0 PG: no mira la muerte instantánea ni deja marcar el crítico
+- Origen: 1b. Reglas generales
+- Tipo: Regla
+- Qué pasa: si ya estás a 0 PG y recibes daño igual o mayor que tus PG máximos, mueres. La app solo suma un fallo (comprobado con `tests/reglas.js`: Zyo, 10 PG máximos, 25 de daño a 0 PG → 1 fallo). Si el golpe es crítico son dos fallos, pero solo lo dice el texto: no hay forma de indicarlo.
+- Qué debería pasar: con daño ≥ PG máximos estando a 0, avisar de la muerte; con un crítico, sumar dos fallos.
+- Propuesta: en `hp` (`js/actions/play.js:249-254`), comprobar `rest >= c.hp.max` y añadir un botón «Era un crítico» en el mensaje que sume el segundo fallo.
+- Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
+- Estado: pendiente
+
+### 33. El descanso largo a 0 PG lo recupera todo
+- Origen: 1b. Reglas generales
+- Tipo: Regla
+- Qué pasa: en 2024 hace falta tener al menos 1 PG al empezar el descanso largo para recibir sus beneficios. La app deja hacerlo a 0 PG y te deja con todos los PG (comprobado).
+- Qué debería pasar: a 0 PG, avisar de que no recibe los beneficios (primero hay que curarse o estabilizarse y recuperar 1 PG).
+- Propuesta: aviso en `longModal` (`js/actions/rest.js`) si `c.hp.current <= 0`.
+- Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
+- Estado: pendiente
+
+### 34. Escudo y armadura sin competencia
+- Origen: 1b. Reglas generales
+- Tipo: Regla
+- Qué pasa: con un escudo sin competencia la app suma +2 a la CA y avisa con la regla de 2014 («desventaja en pruebas, salvaciones y ataques de FUE y DES, y no puedes lanzar conjuros»). En 2024, sin competencia con escudos **no ganas su bonificador a la CA**. Con armadura sin competencia el aviso es correcto, pero la app deja lanzar conjuros igual (comprobado: Zyo con escudo, CA 13 → 15 y puede lanzar Maleficio).
+- Qué debería pasar: escudo sin competencia → sin +2 a la CA. Armadura sin competencia → no dejar lanzar (o avisar al lanzar).
+- Propuesta: en `acCalc()` (`js/views/inventory.js:376-380`), no sumar el escudo sin competencia y cambiar el aviso; en `canCast()` o al lanzar, avisar si hay armadura sin competencia.
+- Prioridad: frecuencia 1 + olvido 1 + coste 3 = 5
+- Estado: pendiente
+
+### 35. Días sin comer: la app usa la regla de 2014 (por confirmar)
+- Origen: 1b. Reglas generales
+- Tipo: Regla
+- Qué pasa: en el descanso largo, si no comes, la app aguanta «3 + CON días» y después suma 1 nivel de agotamiento por día (`js/actions/rest.js:155-163`). Esa es la regla de 2014. En el glosario de 2024 (Desnutrición) creo que es distinto: si comes menos de la mitad, salvación de CON CD 10 o 1 nivel de agotamiento al final del día; sin comer nada, agotamiento seguro desde el quinto día; y ese agotamiento no se quita hasta comer un día entero. El agua (Deshidratación) no aparece.
+- Qué debería pasar: lo que diga el manual de 2024 (conviene confirmarlo antes de cambiar nada).
+- Propuesta: confirmarlo con el manual y ajustar el texto y la cuenta.
+- Prioridad: frecuencia 1 + olvido 1 + coste 3 = 5
+- Estado: pendiente
+
+### 36. Textos de estados y del glosario incompletos o de 2014
+- Origen: 1b. Reglas generales
+- Tipo: Regla
+- Qué pasa (`CONDS` en `js/core/constants.js:35` y `data/glossary.js`):
+  - **Derribado:** dice que los ataques cuerpo a cuerpo contra ti tienen ventaja. En 2024 es cualquier ataque a 5 pies o menos; los de más lejos, desventaja.
+  - **Incapacitado:** falta que no puedes hablar (ni lanzar conjuros con componente verbal) y que tiras la iniciativa con desventaja.
+  - **Inconsciente, Paralizado, Petrificado:** faltan velocidad 0, te atacan con ventaja y fallas las salvaciones de FUE y DES (Petrificado: inmune a veneno).
+  - **Invisible:** falta la ventaja en la iniciativa.
+  - **Inspiración heroica:** en 2024 sirve para repetir **cualquier dado**, no solo un d20.
+  - **Ayudar:** mezcla las dos formas (para ayudar en una prueba necesitas competencia en esa habilidad; para un ataque, el enemigo tiene que estar a 5 pies de ti) y no dice que sirve para estabilizar (Medicina CD 10).
+  - **Preparar:** no dice que un conjuro preparado gasta el espacio y pide concentración hasta que lo sueltas.
+  - **Hendir** (glosario de armas): falta que el segundo ataque no suma el modificador al daño (en `MASTERY` sí está).
+  - **Munición:** dice que tras el combate recuperas la mitad; vuestro máster no usa esa regla. Se podría quitar o poner «si el máster lo permite».
+- Propuesta: corregir los textos (cambio pequeño, solo texto).
+- Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
+- Estado: pendiente
+
+### 37. La app no avisa de la ventaja o desventaja ni resta el agotamiento
+- Origen: 1b. Reglas generales
+- Tipo: Automatizar
+- Qué pasa: los estados, el agotamiento y otras reglas cambian las tiradas, pero la app solo lo explica en notas aparte. Comprobado: atacando Envenenado, el mensaje del ataque dice «1d20 +1» sin mencionar la desventaja; con Agotamiento 1, Sigilo sigue saliendo «+4» y no «+2». Tampoco avisa de la desventaja con un arma Pesada y FUE < 13, ni de la ventaja o desventaja en la iniciativa (sorpresa, Invisible, Incapacitado).
+- Qué debería pasar: que cada número que da la app (ataque, habilidad, salvación, iniciativa) diga «con ventaja» o «con desventaja» cuando toque y reste el agotamiento.
+- Propuesta: una función `d20Notes(c, tipo)` que mire los estados (Envenenado, Asustado, Cegado, Derribado, Apresado, Invisible…), el agotamiento y el arma, y que la usen el mensaje del ataque, la ventana de habilidades y características y la de iniciativa. Al empezar el combate, preguntar «¿Te han sorprendido?».
+- Prioridad: frecuencia 3 + olvido 3 + coste 2 = 8
+- Estado: pendiente
+
+### 38. Los estados no bajan la velocidad a 0 ni dicen qué tirar
+- Origen: 1b. Reglas generales
+- Tipo: Automatizar
+- Qué pasa: con Agarrado, Apresado, Paralizado, Petrificado o Inconsciente la velocidad de arriba sigue en 30 pies (comprobado); solo la nota del turno dice «velocidad 0». Agarrado dice «puedes usar una acción para intentar soltarte», pero no qué tirar.
+- Qué debería pasar: velocidad 0 arriba mientras dure el estado, y en Agarrado o Apresado, «Para soltarte: FUE (Atletismo) +X o DES (Acrobacias) +Y».
+- Propuesta: en `js/views/top.js:111`, poner 0 si hay uno de esos estados; en las notas de `viewTurn()`, añadir los bonificadores.
+- Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
+- Estado: pendiente
+
+### 39. Esquivar, Esconderse, Correr, Buscar, Estudiar e Influir solo gastan la acción
+- Origen: 1b. Reglas generales
+- Tipo: Automatizar
+- Qué pasa: los botones de «Otras acciones» (`t-gen`, `js/actions/combat.js:261`) gastan la acción y sacan el texto del glosario. Comprobado: Esquivar no crea ningún efecto y Esconderse no pone Invisible.
+- Qué debería pasar:
+  - **Esquivar:** un efecto «Esquivando» hasta el principio de tu siguiente turno.
+  - **Esconderse:** decir qué tirar (Sigilo +X contra CD 15) y preguntar si lo has superado; si sí, poner Invisible.
+  - **Correr:** «Este turno puedes moverte hasta N pies».
+  - **Buscar, Estudiar e Influir:** enseñar los bonificadores de las habilidades que se pueden usar.
+- Propuesta: un caso para cada una en `t-gen`, reutilizando `addEffect` y `skillB`.
+- Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
+- Estado: pendiente
+
+### 40. El mensaje del ataque no dice qué tirar en un crítico
+- Origen: 1b. Reglas generales
+- Tipo: Automatizar
+- Qué pasa: con un 20 natural se tiran el doble de dados de daño. Solo lo explica el glosario; el mensaje del ataque (`t-atk`) dice «Si impactas, daño: 1d8 + 3».
+- Qué debería pasar: «Si impactas: 1d8 + 3 · con un 20: 2d8 + 3».
+- Propuesta: duplicar los dados de `a.dmg` en el mensaje de `t-atk` y del ataque con arma ligera.
+- Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
+- Estado: pendiente
+
+### 41. No hay golpe desarmado para nadie
+- Origen: 1b. Reglas generales
+- Tipo: Automatizar
+- Qué pasa: cualquiera puede dar un golpe desarmado (FUE + competencia al ataque, 1 + FUE de daño contundente). En la app solo están las opciones Agarrar y Empujar; el golpe para hacer daño no sale en Combate (el del monje con DES y su dado es el n.º 12).
+- Qué debería pasar: un ataque «Golpe desarmado» siempre disponible en Combate.
+- Propuesta: añadirlo junto a Agarrar y Empujar, calculado con FUE (o con lo del monje cuando se arregle el n.º 12).
+- Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
+- Estado: pendiente
+
+### 42. Faltan reglas comunes en el glosario
+- Origen: 1b. Reglas generales
+- Tipo: Mejora
+- Qué pasa: estas reglas no salen en ningún sitio y un novato las tiene que buscar fuera: cobertura (+2, +5, total), atacar a largo alcance o a distancia con un enemigo a 5 pies (desventaja), terreno difícil, saltar, trepar y nadar, caídas, luz y oscuridad, sorpresa, estabilizar a un compañero, asfixia, descanso interrumpido, pruebas de grupo y la acción Magia.
+- Qué debería pasar: poder consultarlas en la app, con los números del personaje cuando los haya (por ejemplo, «Salto de longitud: 8 pies con carrerilla; de altura: 2 pies»).
+- Propuesta: añadir entradas a `GLOSS` y una lista «Reglas» (en Ajustes o en Combate) que las enseñe. Solo texto, barato.
+- Prioridad: frecuencia 2 + olvido 3 + coste 3 = 8
+- Estado: pendiente
+
+### 43. El ataque de oportunidad no dice con qué arma
+- Origen: 1b. Reglas generales
+- Tipo: Automatizar
+- Qué pasa: el botón (`t-opp`, `js/actions/combat.js:269`) gasta la reacción y dice «Haz un ataque cuerpo a cuerpo». No dice qué tirar.
+- Qué debería pasar: elegir el arma cuerpo a cuerpo (o golpe desarmado) y enseñar el ataque y el daño, como en «Atacar».
+- Propuesta: si solo hay un arma cuerpo a cuerpo, usarla directamente; si hay varias, preguntar.
+- Prioridad: frecuencia 2 + olvido 1 + coste 3 = 6
+- Estado: pendiente
+
+### 44. Las salvaciones contra la muerte no se piden en el turno
+- Origen: 1b. Reglas generales
+- Tipo: Automatizar
+- Qué pasa: a 0 PG el contador sale arriba de Combate, pero hay que acordarse de tirar al empezar el turno y de marcarlo con los rombos. Al llegar a tres éxitos solo dice «estable» (que recuperas 1 PG a las 1d4 horas no aparece).
+- Qué debería pasar: al terminar el turno a 0 PG (o al empezar el siguiente), preguntar «¿Qué has sacado?» con botones (10 o más / menos de 10 / 1 / 20) y sumar solo el éxito o el fallo.
+- Propuesta: en `t-end`, si `c.hp.current <= 0` y no está estable, abrir esa pregunta.
+- Prioridad: frecuencia 1 + olvido 2 + coste 2 = 5
+- Estado: pendiente
