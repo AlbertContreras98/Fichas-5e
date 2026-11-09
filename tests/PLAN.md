@@ -8,7 +8,7 @@ Leyenda: `[ ]` pendiente · `[x]` hecha (fecha · hallazgos). Entre paréntesis,
 
 ## Fase 0 · Preparación
 
-- [ ] **Base, reparto y prueba de humo** (medio). `tests/base.js` con lo común: abrir la app, importar una ficha, pulsar `data-act`, recoger errores de consola y comprobar las cuentas (ver «Comprobaciones» en `README.md`). Fichas del reparto en `tests/fichas/`: Zyo, un marcial (guerrero o bárbaro), un lanzador completo (mago o clérigo) y un medio lanzador (paladín o explorador); si Albert pasa las fichas de sus amigos, se añaden. `tests/humo.js`: un recorrido corto por lo básico (combate, daño, curación, descansos, subir de nivel) para pasarlo antes de cada versión.
+- [x] **Base, reparto y prueba de humo** (medio). `tests/base.js` con lo común: abrir la app, importar una ficha, pulsar `data-act`, recoger errores de consola y comprobar las cuentas (ver «Comprobaciones» en `README.md`). Fichas del reparto en `tests/fichas/`: Zyo, un marcial (guerrero o bárbaro), un lanzador completo (mago o clérigo) y un medio lanzador (paladín o explorador); si Albert pasa las fichas de sus amigos, se añaden. `tests/humo.js`: un recorrido corto por lo básico (combate, daño, curación, descansos, subir de nivel) para pasarlo antes de cada versión. (2026-11-09 · 5 hallazgos)
 
 ## Fase 1 · Inventario de automatizaciones
 

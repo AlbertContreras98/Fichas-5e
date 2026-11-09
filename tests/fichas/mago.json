@@ -1,0 +1,535 @@
+{
+  "formato": "fichas-dnd-2024/2",
+  "id": "f200wip3",
+  "name": "Elarion",
+  "species": "Elfo (Alto elfo)",
+  "speciesKey": "elf",
+  "lineageKey": "high",
+  "background": "Sabio",
+  "backgroundKey": "sage",
+  "featKeys": [
+    "magic-wizard"
+  ],
+  "featData": [],
+  "class": "Mago",
+  "classKey": "wizard",
+  "subclass": "",
+  "subclassKey": "",
+  "level": 1,
+  "xp": 0,
+  "abilities": {
+    "str": 8,
+    "dex": 14,
+    "con": 14,
+    "int": 17,
+    "wis": 12,
+    "cha": 10
+  },
+  "saveProf": [
+    "int",
+    "wis"
+  ],
+  "skills": {
+    "arcana": 1,
+    "history": 1,
+    "investigation": 1,
+    "medicine": 1,
+    "perception": 1
+  },
+  "ac": 12,
+  "acBonus": 0,
+  "speedFt": 30,
+  "size": "M",
+  "initiativeBonus": 0,
+  "hp": {
+    "max": 8,
+    "current": 8,
+    "temp": 0
+  },
+  "hitDice": {
+    "die": "d6",
+    "total": 1,
+    "spent": 0
+  },
+  "deathSaves": {
+    "success": 0,
+    "fail": 0
+  },
+  "inspiration": false,
+  "exhaustion": 0,
+  "conditions": [],
+  "concentration": "",
+  "effects": [],
+  "companions": [],
+  "attacks": [
+    {
+      "name": "Daga",
+      "atk": 4,
+      "dmg": "1d4 + 2",
+      "type": "perforante",
+      "notes": "Sutil, ligera, arrojadiza (20/60)",
+      "ammo": "",
+      "wpn": "dagger",
+      "magic": 0,
+      "mastery": false,
+      "item": "qnua9vcc"
+    },
+    {
+      "name": "Bastón (canalizador arcano)",
+      "atk": 1,
+      "dmg": "1d6 − 1 (1d8 − 1 a dos manos)",
+      "type": "contundente",
+      "notes": "Versátil (1d8)",
+      "ammo": "",
+      "wpn": "quarterstaff",
+      "magic": 0,
+      "mastery": false,
+      "item": "kx3ea3xv"
+    },
+    {
+      "name": "Bastón",
+      "atk": 1,
+      "dmg": "1d6 − 1 (1d8 − 1 a dos manos)",
+      "type": "contundente",
+      "notes": "Versátil (1d8)",
+      "ammo": "",
+      "wpn": "quarterstaff",
+      "magic": 0,
+      "mastery": false,
+      "item": "q7ezapoq"
+    }
+  ],
+  "spellcasting": {
+    "ability": "int"
+  },
+  "slots": [
+    {
+      "total": 2,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    }
+  ],
+  "pact": {
+    "level": 0,
+    "total": 0,
+    "used": 0
+  },
+  "spells": [
+    {
+      "level": 0,
+      "name": "Descarga de fuego",
+      "time": "A",
+      "range": "120 pies",
+      "dur": "Instantánea",
+      "conc": false,
+      "ritual": false,
+      "material": "",
+      "desc": "",
+      "ref": "fire-bolt",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 0,
+      "name": "Luz",
+      "time": "A",
+      "range": "Toque",
+      "dur": "1 hora",
+      "conc": false,
+      "ritual": false,
+      "material": "una luciérnaga o musgo fosforescente",
+      "desc": "",
+      "ref": "light",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 0,
+      "name": "Mano de mago",
+      "time": "A",
+      "range": "30 pies",
+      "dur": "1 minuto",
+      "conc": false,
+      "ritual": false,
+      "material": "",
+      "desc": "",
+      "ref": "mage-hand",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 0,
+      "name": "Prestidigitación",
+      "time": "A",
+      "range": "10 pies",
+      "dur": "hasta 1 hora",
+      "conc": false,
+      "ritual": false,
+      "material": "",
+      "desc": "",
+      "ref": "prestidigitation",
+      "src": "Alto elfo"
+    },
+    {
+      "level": 1,
+      "name": "Armadura de mago",
+      "time": "A",
+      "range": "Toque",
+      "dur": "8 horas",
+      "conc": false,
+      "ritual": false,
+      "material": "un trozo de cuero curtido",
+      "desc": "",
+      "ref": "mage-armor",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 1,
+      "name": "Dormir",
+      "time": "A",
+      "range": "60 pies",
+      "dur": "hasta 1 minuto",
+      "conc": true,
+      "ritual": false,
+      "material": "una pizca de arena o pétalos de rosa",
+      "desc": "",
+      "ref": "sleep",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 1,
+      "name": "Escudo",
+      "time": "R",
+      "range": "Personal",
+      "dur": "1 asalto",
+      "conc": false,
+      "ritual": false,
+      "material": "",
+      "desc": "",
+      "ref": "shield",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 1,
+      "name": "Proyectil mágico",
+      "time": "A",
+      "range": "120 pies",
+      "dur": "Instantánea",
+      "conc": false,
+      "ritual": false,
+      "material": "",
+      "desc": "",
+      "ref": "magic-missile",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    }
+  ],
+  "features": [
+    {
+      "name": "Iniciado en la magia (mago)",
+      "source": "Dote de origen (Sabio)",
+      "text": "Aprendes dos trucos y un conjuro de nivel 1 de la lista de mago, siempre preparados. Lanzas el de nivel 1 sin espacio 1 vez por descanso largo (y también con espacios). Aptitud mágica: INT, SAB o CAR (eliges). Puedes repetir la dote con otra lista.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Lanzamiento de conjuros",
+      "source": "Mago 1",
+      "text": "Lanzas conjuros de mago con INT. Tienes un libro de conjuros: preparas conjuros de él y añades 2 nuevos por nivel.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Ritualista",
+      "source": "Mago 1",
+      "text": "Puedes lanzar como ritual cualquier conjuro de ritual de tu libro sin prepararlo.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Recuperación arcana",
+      "source": "Mago 1",
+      "text": "Tras un descanso corto recuperas espacios cuyo nivel total sea la mitad de tu nivel de mago (ninguno de nivel 6+). 1 vez por descanso largo.",
+      "uses": {
+        "max": 1,
+        "used": 0,
+        "recover": "largo",
+        "pool": false
+      }
+    },
+    {
+      "name": "Visión en la oscuridad",
+      "source": "Elfo",
+      "text": "Ves en la oscuridad hasta 60 pies como si fuera luz tenue (sin colores).",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Ascendencia feérica",
+      "source": "Elfo",
+      "text": "Ventaja en salvaciones para evitar o acabar con el estado hechizado.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Sentidos agudos",
+      "source": "Elfo",
+      "text": "Competencia en Perspicacia, Percepción o Supervivencia.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Trance",
+      "source": "Elfo",
+      "text": "No necesitas dormir; un descanso largo te lleva 4 horas de trance.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Magia de alto elfo",
+      "source": "Alto elfo",
+      "text": "Conoces Prestidigitación (puedes cambiarlo por otro truco de mago en un descanso largo); a nivel 3 Detectar magia y a nivel 5 Paso brumoso (1 vez cada uno por descanso largo sin espacio). Aptitud: INT, SAB o CAR.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Conjuro de iniciado (gratis)",
+      "source": "Elfo",
+      "text": "",
+      "uses": {
+        "max": 1,
+        "used": 0,
+        "recover": "largo",
+        "pool": false
+      }
+    }
+  ],
+  "equipment": [
+    {
+      "id": "qnua9vcc",
+      "name": "Daga",
+      "qty": 2,
+      "cat": "arma",
+      "notes": "",
+      "weapon": "dagger",
+      "magic": 0,
+      "equipped": false
+    },
+    {
+      "id": "kx3ea3xv",
+      "name": "Bastón (canalizador arcano)",
+      "qty": 1,
+      "cat": "arma",
+      "notes": "",
+      "weapon": "quarterstaff",
+      "magic": 0,
+      "equipped": false
+    },
+    {
+      "id": "n02ylaik",
+      "name": "Túnica",
+      "qty": 2,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "hpo8bwjc",
+      "name": "Libro de conjuros",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "1b91acbi",
+      "name": "Mochila",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "fisb8qex",
+      "name": "Libro",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "e9wscwwt",
+      "name": "Tinta",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "pg0n2rse",
+      "name": "Pluma",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "zo2batmf",
+      "name": "Lámpara",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "q8u4idbi",
+      "name": "Aceite (frasco)",
+      "qty": 10,
+      "cat": "consumible",
+      "notes": ""
+    },
+    {
+      "id": "jd2n1ecv",
+      "name": "Pergamino (hojas)",
+      "qty": 18,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "utat3icu",
+      "name": "Yesquero",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "q7ezapoq",
+      "name": "Bastón",
+      "qty": 1,
+      "cat": "arma",
+      "notes": "",
+      "weapon": "quarterstaff",
+      "magic": 0,
+      "equipped": false
+    },
+    {
+      "id": "vq4oc7bj",
+      "name": "Suministros de calígrafo",
+      "qty": 1,
+      "cat": "herramienta",
+      "notes": "",
+      "tool": "calligrapher"
+    },
+    {
+      "id": "0mzy5xql",
+      "name": "Libro (historia)",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    }
+  ],
+  "coins": {
+    "cp": 0,
+    "sp": 0,
+    "ep": 0,
+    "gp": 13,
+    "pp": 0
+  },
+  "languages": "Común y dos idiomas a elegir",
+  "proficiencies": {
+    "armor": "Ninguna",
+    "weapons": "Sencillas",
+    "tools": "Útiles de caligrafía"
+  },
+  "notes": "",
+  "story": {
+    "img": "",
+    "alignment": "",
+    "age": "",
+    "appearance": "",
+    "personality": "",
+    "history": ""
+  },
+  "turn": {
+    "a": false,
+    "aa": false,
+    "r": false,
+    "atk": 0
+  },
+  "combat": null,
+  "diary": {
+    "items": []
+  }
+}

@@ -1,0 +1,479 @@
+{
+  "formato": "fichas-dnd-2024/2",
+  "id": "w5meogcv",
+  "name": "Brunilda",
+  "species": "Enano",
+  "speciesKey": "dwarf",
+  "lineageKey": "",
+  "background": "Soldado",
+  "backgroundKey": "soldier",
+  "featKeys": [
+    "savage-attacker",
+    "defense"
+  ],
+  "featData": [
+    {
+      "k": "defense",
+      "ab": "",
+      "opt": "",
+      "sk": [],
+      "save": false,
+      "prof": {},
+      "sp": [],
+      "spConv": [],
+      "src": "Estilo de combate",
+      "feat": "Defensa"
+    }
+  ],
+  "class": "Guerrero",
+  "classKey": "fighter",
+  "subclass": "",
+  "subclassKey": "",
+  "level": 1,
+  "xp": 0,
+  "abilities": {
+    "str": 17,
+    "dex": 13,
+    "con": 15,
+    "int": 8,
+    "wis": 12,
+    "cha": 10
+  },
+  "saveProf": [
+    "str",
+    "con"
+  ],
+  "skills": {
+    "athletics": 1,
+    "intimidation": 1,
+    "perception": 1,
+    "survival": 1
+  },
+  "ac": 11,
+  "acBonus": 0,
+  "speedFt": 30,
+  "size": "M",
+  "initiativeBonus": 0,
+  "hp": {
+    "max": 13,
+    "current": 13,
+    "temp": 0
+  },
+  "hitDice": {
+    "die": "d10",
+    "total": 1,
+    "spent": 0
+  },
+  "deathSaves": {
+    "success": 0,
+    "fail": 0
+  },
+  "inspiration": false,
+  "exhaustion": 0,
+  "conditions": [],
+  "concentration": "",
+  "effects": [],
+  "companions": [],
+  "attacks": [
+    {
+      "name": "Espadón",
+      "atk": 5,
+      "dmg": "2d6 + 3",
+      "type": "cortante",
+      "notes": "Pesada, a dos manos · Maestría: rozar",
+      "ammo": "",
+      "wpn": "greatsword",
+      "magic": 0,
+      "mastery": true,
+      "item": "36ylp2x8"
+    },
+    {
+      "name": "Mayal",
+      "atk": 5,
+      "dmg": "1d8 + 3",
+      "type": "contundente",
+      "notes": "Maestría: debilitar",
+      "ammo": "",
+      "wpn": "flail",
+      "magic": 0,
+      "mastery": true,
+      "item": "fs5bspuc"
+    },
+    {
+      "name": "Jabalina",
+      "atk": 5,
+      "dmg": "1d6 + 3",
+      "type": "perforante",
+      "notes": "Arrojadiza (30/120) · Maestría: ralentizar",
+      "ammo": "",
+      "wpn": "javelin",
+      "magic": 0,
+      "mastery": true,
+      "item": "2tuga1oa"
+    },
+    {
+      "name": "Lanza",
+      "atk": 5,
+      "dmg": "1d6 + 3 (1d8 + 3 a dos manos)",
+      "type": "perforante",
+      "notes": "Arrojadiza (20/60), versátil (1d8) · Maestría: debilitar",
+      "ammo": "",
+      "wpn": "spear",
+      "magic": 0,
+      "mastery": true,
+      "item": "ao7p8kta"
+    },
+    {
+      "name": "Arco corto",
+      "atk": 3,
+      "dmg": "1d6 + 1",
+      "type": "perforante",
+      "notes": "A dos manos, munición (80/320) · Maestría: molestar",
+      "ammo": "3c1f3gpc",
+      "wpn": "shortbow",
+      "magic": 0,
+      "mastery": true,
+      "item": "hxx4rnrq"
+    }
+  ],
+  "spellcasting": {
+    "ability": ""
+  },
+  "slots": [
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    }
+  ],
+  "pact": {
+    "level": 0,
+    "total": 0,
+    "used": 0
+  },
+  "spells": [],
+  "features": [
+    {
+      "name": "Atacante salvaje",
+      "source": "Dote de origen (Soldado)",
+      "text": "Una vez por turno, al impactar con un arma, puedes tirar sus dados de daño dos veces y quedarte con el resultado que prefieras.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Estilo de combate",
+      "source": "Guerrero 1",
+      "text": "Ganas una dote de estilo de combate.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Tomar aliento",
+      "source": "Guerrero 1",
+      "text": "Acción adicional: recuperas 1d10 + tu nivel de guerrero en PG.",
+      "uses": {
+        "max": 2,
+        "used": 0,
+        "recover": "corto1",
+        "pool": false
+      }
+    },
+    {
+      "name": "Maestría con armas",
+      "source": "Guerrero 1",
+      "text": "Usas la propiedad de maestría de varias armas sencillas o marciales; puedes cambiar una al terminar un descanso largo.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Defensa",
+      "source": "Estilo de combate",
+      "text": "+1 a la CA mientras llevas armadura ligera, intermedia o pesada (la app lo suma sola).",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Afinidad con la piedra",
+      "source": "Dote",
+      "text": "Acción adicional: ganas sentido de la vibración a 60 pies durante 10 minutos si estás sobre piedra. Usos: tu bonificador de competencia por descanso largo.",
+      "uses": {
+        "max": 2,
+        "used": 0,
+        "recover": "largo",
+        "pool": false
+      }
+    },
+    {
+      "name": "Visión en la oscuridad",
+      "source": "Enano",
+      "text": "Ves en la oscuridad hasta 120 pies como si fuera luz tenue (sin colores).",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Resistencia enana",
+      "source": "Enano",
+      "text": "Resistencia al daño de veneno y ventaja en salvaciones para evitar o acabar con el estado envenenado.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Dureza enana",
+      "source": "Enano",
+      "text": "Tus PG máximos aumentan en 1 por cada nivel (ya sumado).",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    }
+  ],
+  "equipment": [
+    {
+      "id": "ydet0qaz",
+      "name": "Cota de mallas",
+      "qty": 1,
+      "cat": "armadura",
+      "notes": "",
+      "armor": "chainmail",
+      "magic": 0,
+      "equipped": true
+    },
+    {
+      "id": "36ylp2x8",
+      "name": "Espadón",
+      "qty": 1,
+      "cat": "arma",
+      "notes": "",
+      "weapon": "greatsword",
+      "magic": 0,
+      "equipped": false
+    },
+    {
+      "id": "fs5bspuc",
+      "name": "Mayal",
+      "qty": 1,
+      "cat": "arma",
+      "notes": "",
+      "weapon": "flail",
+      "magic": 0,
+      "equipped": false
+    },
+    {
+      "id": "2tuga1oa",
+      "name": "Jabalina",
+      "qty": 8,
+      "cat": "arma",
+      "notes": "",
+      "weapon": "javelin",
+      "magic": 0,
+      "equipped": false
+    },
+    {
+      "id": "4x6ktll9",
+      "name": "Mochila",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "0325i2yf",
+      "name": "Abrojos",
+      "qty": 1,
+      "cat": "consumible",
+      "notes": "",
+      "gear": "caltrops"
+    },
+    {
+      "id": "qcclb3sg",
+      "name": "Palanca",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "ml7oatxb",
+      "name": "Aceite (frasco)",
+      "qty": 2,
+      "cat": "consumible",
+      "notes": ""
+    },
+    {
+      "id": "8z6dvlc6",
+      "name": "Raciones (días)",
+      "qty": 10,
+      "cat": "comida",
+      "notes": "",
+      "gear": "rations"
+    },
+    {
+      "id": "loxz107m",
+      "name": "Cuerda",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "r4cih8ou",
+      "name": "Yesquero",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "nbqjzmgm",
+      "name": "Antorchas",
+      "qty": 10,
+      "cat": "consumible",
+      "notes": "",
+      "gear": "torch"
+    },
+    {
+      "id": "idc3myqm",
+      "name": "Odre",
+      "qty": 1,
+      "cat": "comida",
+      "notes": "",
+      "gear": "waterskin"
+    },
+    {
+      "id": "ao7p8kta",
+      "name": "Lanza",
+      "qty": 1,
+      "cat": "arma",
+      "notes": "",
+      "weapon": "spear",
+      "magic": 0,
+      "equipped": false
+    },
+    {
+      "id": "hxx4rnrq",
+      "name": "Arco corto",
+      "qty": 1,
+      "cat": "arma",
+      "notes": "",
+      "weapon": "shortbow",
+      "magic": 0,
+      "equipped": false
+    },
+    {
+      "id": "3c1f3gpc",
+      "name": "Flechas",
+      "qty": 20,
+      "cat": "municion",
+      "notes": "",
+      "ammoKind": "arrow"
+    },
+    {
+      "id": "awv0zq92",
+      "name": "Juego",
+      "qty": 1,
+      "cat": "herramienta",
+      "notes": "",
+      "tool": "gaming"
+    },
+    {
+      "id": "d6hh1buf",
+      "name": "Kit de sanador",
+      "qty": 10,
+      "cat": "consumible",
+      "notes": "",
+      "gear": "healerkit"
+    },
+    {
+      "id": "ddgsv7g7",
+      "name": "Carcaj",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "ccdcqen8",
+      "name": "Ropa de viajero",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    }
+  ],
+  "coins": {
+    "cp": 0,
+    "sp": 0,
+    "ep": 0,
+    "gp": 18,
+    "pp": 0
+  },
+  "languages": "Común y dos idiomas a elegir",
+  "proficiencies": {
+    "armor": "Todas, escudos",
+    "weapons": "Sencillas y marciales",
+    "tools": "Juego (uno)"
+  },
+  "notes": "",
+  "story": {
+    "img": "",
+    "alignment": "",
+    "age": "",
+    "appearance": "",
+    "personality": "",
+    "history": ""
+  },
+  "turn": {
+    "a": false,
+    "aa": false,
+    "r": false,
+    "atk": 0
+  },
+  "combat": null,
+  "diary": {
+    "items": []
+  }
+}

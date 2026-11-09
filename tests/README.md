@@ -7,7 +7,7 @@ Pruebas para encontrar **fallos**, **mejoras** y **mecánicas que la app aún no
 - `PLAN.md`: lista de pruebas, hechas y pendientes. Es lo primero que hay que leer.
 - `HALLAZGOS.md`: lo que se ha encontrado, con su prioridad y si ya está arreglado.
 - `INVENTARIO.md` y `REGLAS.md`: lo que hace la app sola, lo que solo muestra como texto y lo que no aparece (salen de la fase 1).
-- `fichas/`: las fichas del reparto de pruebas, para importar.
+- `fichas/`: las fichas del reparto de pruebas, para importar. Se crean con el asistente de la app pasando `node tests/generar-fichas.js` (sobrescribe las que haya).
 - `*.js`: los guiones de prueba (Playwright). Se pueden volver a pasar cuando haga falta. `humo.js` se pasa antes de cada versión.
 
 ## Cómo seguir en un chat nuevo

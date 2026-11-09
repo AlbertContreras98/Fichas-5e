@@ -1,0 +1,431 @@
+{
+  "formato": "fichas-dnd-2024/2",
+  "id": "gohhw4bj",
+  "name": "Tomás",
+  "species": "Humano",
+  "speciesKey": "human",
+  "lineageKey": "",
+  "background": "Acólito",
+  "backgroundKey": "acolyte",
+  "featKeys": [
+    "magic-cleric",
+    "tough"
+  ],
+  "featData": [],
+  "class": "Paladín",
+  "classKey": "paladin",
+  "subclass": "",
+  "subclassKey": "",
+  "level": 1,
+  "xp": 0,
+  "abilities": {
+    "str": 15,
+    "dex": 10,
+    "con": 13,
+    "int": 8,
+    "wis": 13,
+    "cha": 16
+  },
+  "saveProf": [
+    "wis",
+    "cha"
+  ],
+  "skills": {
+    "insight": 1,
+    "religion": 1,
+    "athletics": 1,
+    "persuasion": 1,
+    "perception": 1
+  },
+  "ac": 10,
+  "acBonus": 0,
+  "speedFt": 30,
+  "size": "M o P",
+  "initiativeBonus": 0,
+  "hp": {
+    "max": 13,
+    "current": 13,
+    "temp": 0
+  },
+  "hitDice": {
+    "die": "d10",
+    "total": 1,
+    "spent": 0
+  },
+  "deathSaves": {
+    "success": 0,
+    "fail": 0
+  },
+  "inspiration": true,
+  "exhaustion": 0,
+  "conditions": [],
+  "concentration": "",
+  "effects": [],
+  "companions": [],
+  "attacks": [
+    {
+      "name": "Espada larga",
+      "atk": 4,
+      "dmg": "1d8 + 2 (1d10 + 2 a dos manos)",
+      "type": "cortante",
+      "notes": "Versátil (1d10) · Maestría: debilitar",
+      "ammo": "",
+      "wpn": "longsword",
+      "magic": 0,
+      "mastery": true,
+      "item": "gy4c93p8"
+    },
+    {
+      "name": "Jabalina",
+      "atk": 4,
+      "dmg": "1d6 + 2",
+      "type": "perforante",
+      "notes": "Arrojadiza (30/120) · Maestría: ralentizar",
+      "ammo": "",
+      "wpn": "javelin",
+      "magic": 0,
+      "mastery": true,
+      "item": "k301makz"
+    }
+  ],
+  "spellcasting": {
+    "ability": "cha"
+  },
+  "slots": [
+    {
+      "total": 2,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    }
+  ],
+  "pact": {
+    "level": 0,
+    "total": 0,
+    "used": 0
+  },
+  "spells": [
+    {
+      "level": 1,
+      "name": "Bendición",
+      "time": "A",
+      "range": "30 pies",
+      "dur": "hasta 1 minuto",
+      "conc": true,
+      "ritual": false,
+      "material": "un símbolo sagrado por valor de 5+ PO",
+      "desc": "",
+      "ref": "bless",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 1,
+      "name": "Curar heridas",
+      "time": "A",
+      "range": "Toque",
+      "dur": "Instantánea",
+      "conc": false,
+      "ritual": false,
+      "material": "",
+      "desc": "",
+      "ref": "cure-wounds",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    }
+  ],
+  "features": [
+    {
+      "name": "Iniciado en la magia (clérigo)",
+      "source": "Dote de origen (Acólito)",
+      "text": "Aprendes dos trucos y un conjuro de nivel 1 de la lista de clérigo, siempre preparados. Lanzas el de nivel 1 sin espacio 1 vez por descanso largo (y también con espacios). Aptitud mágica: INT, SAB o CAR (eliges). Puedes repetir la dote con otra lista.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Duro",
+      "source": "Dote de origen (Versátil)",
+      "text": "Tus PG máximos aumentan en 2 por cada nivel de personaje (la app lo suma sola, también al subir de nivel).",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Imposición de manos",
+      "source": "Paladín 1",
+      "text": "Acción adicional: tocas a una criatura y le curas PG de tu reserva (5 × nivel de paladín). Con 5 PG de la reserva también acabas con envenenado.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Lanzamiento de conjuros",
+      "source": "Paladín 1",
+      "text": "Lanzas conjuros de paladín con CAR. Puedes cambiar un conjuro preparado al terminar un descanso largo.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Maestría con armas",
+      "source": "Paladín 1",
+      "text": "Usas la propiedad de maestría de dos tipos de armas; puedes cambiarlas al terminar un descanso largo.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Imposición de manos (PG)",
+      "source": "Paladín",
+      "text": "",
+      "uses": {
+        "max": 5,
+        "used": 0,
+        "recover": "largo",
+        "pool": true
+      }
+    },
+    {
+      "name": "Ingenioso",
+      "source": "Humano",
+      "text": "Ganas Inspiración heroica al terminar cada descanso largo (la app la activa sola).",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Habilidoso",
+      "source": "Humano",
+      "text": "Competencia en una habilidad a tu elección.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Versátil",
+      "source": "Humano",
+      "text": "Ganas una dote de origen a tu elección.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Conjuro de iniciado (gratis)",
+      "source": "Humano",
+      "text": "",
+      "uses": {
+        "max": 1,
+        "used": 0,
+        "recover": "largo",
+        "pool": false
+      }
+    }
+  ],
+  "equipment": [
+    {
+      "id": "rbjlirqh",
+      "name": "Cota de mallas",
+      "qty": 1,
+      "cat": "armadura",
+      "notes": "",
+      "armor": "chainmail",
+      "magic": 0,
+      "equipped": true
+    },
+    {
+      "id": "zq8sqziv",
+      "name": "Escudo",
+      "qty": 1,
+      "cat": "armadura",
+      "notes": "",
+      "armor": "shield",
+      "magic": 0,
+      "equipped": true
+    },
+    {
+      "id": "gy4c93p8",
+      "name": "Espada larga",
+      "qty": 1,
+      "cat": "arma",
+      "notes": "",
+      "weapon": "longsword",
+      "magic": 0,
+      "equipped": false
+    },
+    {
+      "id": "k301makz",
+      "name": "Jabalina",
+      "qty": 6,
+      "cat": "arma",
+      "notes": "",
+      "weapon": "javelin",
+      "magic": 0,
+      "equipped": false
+    },
+    {
+      "id": "z4cnsz6w",
+      "name": "Símbolo sagrado",
+      "qty": 2,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "haszszm6",
+      "name": "Mochila",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "7otxbgtv",
+      "name": "Manta",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "u2azk0gj",
+      "name": "Agua bendita",
+      "qty": 1,
+      "cat": "consumible",
+      "notes": "",
+      "gear": "holywater"
+    },
+    {
+      "id": "wmmdad5o",
+      "name": "Lámpara",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "q0wori50",
+      "name": "Raciones (días)",
+      "qty": 7,
+      "cat": "comida",
+      "notes": "",
+      "gear": "rations"
+    },
+    {
+      "id": "qxvz1ejt",
+      "name": "Túnica",
+      "qty": 2,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "85ldr1id",
+      "name": "Yesquero",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "v3r9gj8l",
+      "name": "Suministros de calígrafo",
+      "qty": 1,
+      "cat": "herramienta",
+      "notes": "",
+      "tool": "calligrapher"
+    },
+    {
+      "id": "mfy6zk4s",
+      "name": "Libro (oraciones)",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "367rkj1b",
+      "name": "Pergamino (hojas)",
+      "qty": 10,
+      "cat": "otro",
+      "notes": ""
+    }
+  ],
+  "coins": {
+    "cp": 0,
+    "sp": 0,
+    "ep": 0,
+    "gp": 17,
+    "pp": 0
+  },
+  "languages": "Común y dos idiomas a elegir",
+  "proficiencies": {
+    "armor": "Todas, escudos",
+    "weapons": "Sencillas y marciales",
+    "tools": "Útiles de caligrafía"
+  },
+  "notes": "",
+  "story": {
+    "img": "",
+    "alignment": "",
+    "age": "",
+    "appearance": "",
+    "personality": "",
+    "history": ""
+  },
+  "turn": {
+    "a": false,
+    "aa": false,
+    "r": false,
+    "atk": 0
+  },
+  "combat": null,
+  "diary": {
+    "items": []
+  }
+}

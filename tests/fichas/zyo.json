@@ -1,0 +1,436 @@
+{
+  "formato": "fichas-dnd-2024/2",
+  "id": "tozd9n2c",
+  "name": "Zyo",
+  "species": "Tiefling (Ctónico)",
+  "speciesKey": "tiefling",
+  "lineageKey": "chthonic",
+  "background": "Mendigo",
+  "backgroundKey": "",
+  "featKeys": [],
+  "featData": [],
+  "class": "Brujo",
+  "classKey": "warlock",
+  "subclass": "",
+  "subclassKey": "",
+  "level": 1,
+  "xp": 0,
+  "abilities": {
+    "str": 8,
+    "dex": 14,
+    "con": 15,
+    "int": 10,
+    "wis": 12,
+    "cha": 17
+  },
+  "saveProf": [
+    "wis",
+    "cha"
+  ],
+  "skills": {
+    "deception": 1,
+    "intimidation": 1,
+    "stealth": 1,
+    "sleight": 1
+  },
+  "ac": 12,
+  "acBonus": 0,
+  "speedFt": 30,
+  "size": "M o P",
+  "initiativeBonus": 0,
+  "hp": {
+    "max": 10,
+    "current": 10,
+    "temp": 0
+  },
+  "hitDice": {
+    "die": "d8",
+    "total": 1,
+    "spent": 0
+  },
+  "deathSaves": {
+    "success": 0,
+    "fail": 0
+  },
+  "inspiration": false,
+  "exhaustion": 0,
+  "conditions": [],
+  "concentration": "",
+  "effects": [],
+  "companions": [],
+  "attacks": [
+    {
+      "name": "Hoz",
+      "atk": 1,
+      "dmg": "1d4 − 1",
+      "type": "cortante",
+      "notes": "Ligera",
+      "ammo": "",
+      "wpn": "sickle",
+      "magic": 0,
+      "mastery": false,
+      "item": "3fiuf0ht"
+    },
+    {
+      "name": "Daga",
+      "atk": 4,
+      "dmg": "1d4 + 2",
+      "type": "perforante",
+      "notes": "Sutil, ligera, arrojadiza (20/60)",
+      "ammo": "",
+      "wpn": "dagger",
+      "magic": 0,
+      "mastery": false,
+      "item": "iml88s2w"
+    }
+  ],
+  "spellcasting": {
+    "ability": "cha"
+  },
+  "slots": [
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    }
+  ],
+  "pact": {
+    "level": 1,
+    "total": 1,
+    "used": 0
+  },
+  "spells": [
+    {
+      "level": 0,
+      "name": "Estallido arcano",
+      "time": "A",
+      "range": "120 pies",
+      "dur": "Instantánea",
+      "conc": false,
+      "ritual": false,
+      "material": "",
+      "desc": "",
+      "ref": "eldritch-blast",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 0,
+      "name": "Ilusión menor",
+      "time": "A",
+      "range": "30 pies",
+      "dur": "1 minuto",
+      "conc": false,
+      "ritual": false,
+      "material": "un poco de vellón",
+      "desc": "",
+      "ref": "minor-illusion",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 0,
+      "name": "Taumaturgia",
+      "time": "A",
+      "range": "30 pies",
+      "dur": "hasta 1 minuto",
+      "conc": false,
+      "ritual": false,
+      "material": "",
+      "desc": "",
+      "ref": "thaumaturgy",
+      "src": "Ctónico"
+    },
+    {
+      "level": 0,
+      "name": "Toque gélido",
+      "time": "A",
+      "range": "Toque",
+      "dur": "Instantánea",
+      "conc": false,
+      "ritual": false,
+      "material": "",
+      "desc": "",
+      "ref": "chill-touch",
+      "src": "Ctónico"
+    },
+    {
+      "level": 1,
+      "name": "Maleficio",
+      "time": "AA",
+      "range": "90 pies",
+      "dur": "hasta 1 hora",
+      "conc": true,
+      "ritual": false,
+      "material": "el ojo petrificado de un tritón",
+      "desc": "",
+      "ref": "hex",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 1,
+      "name": "Represión infernal",
+      "time": "R",
+      "range": "60 pies",
+      "dur": "Instantánea",
+      "conc": false,
+      "ritual": false,
+      "material": "",
+      "desc": "",
+      "ref": "hellish-rebuke",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    }
+  ],
+  "features": [
+    {
+      "name": "Invocaciones sobrenaturales",
+      "source": "Brujo 1",
+      "text": "Eliges invocaciones (por ejemplo, Pacto del Filo, Pacto del tomo o Armadura de sombras) en el asistente o con el botón «Elegir invocaciones» de tus rasgos. Puedes cambiar una al subir de nivel.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Magia de pacto",
+      "source": "Brujo 1",
+      "text": "Lanzas conjuros de brujo con CAR. Todos tus espacios son del mismo nivel y se recuperan con un descanso corto o largo.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Invocación: Pacto del Filo",
+      "source": "Invocación sobrenatural",
+      "text": "Con una acción adicional haces aparecer en tu mano un arma de pacto: un arma cuerpo a cuerpo sencilla o marcial que elijas. También puedes vincularte a un arma mágica que toques, si nadie está sintonizado con ella y ningún otro brujo está vinculado a ella. Mientras dure el vínculo, eres competente con esa arma y puedes usarla como canalizador mágico. Al atacar con ella puedes usar CAR en vez de FUE o DES para el ataque y el daño, y puedes hacer que su daño sea necrótico, psíquico o radiante en vez del normal. El vínculo termina si vuelves a usar esta acción adicional, si el arma pasa 1 minuto o más a más de 5 pies de ti, o si mueres. El arma que hiciste aparecer desaparece entonces.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Visión en la oscuridad",
+      "source": "Tiefling",
+      "text": "Ves en la oscuridad hasta 60 pies como si fuera luz tenue (sin colores).",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Presencia sobrenatural",
+      "source": "Tiefling",
+      "text": "Conoces el truco Taumaturgia (usa la misma aptitud que tu legado).",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Legado ctónico",
+      "source": "Ctónico",
+      "text": "Resistencia al daño necrótico. Conoces Toque gélido; a nivel 3 Falsa vida y a nivel 5 Rayo debilitador (1 vez cada uno por descanso largo sin espacio). Aptitud: INT, SAB o CAR.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Dote Superviviente",
+      "source": "Dote de origen (Mendigo)",
+      "text": "Dote personalizada de Zyo (casera). El texto exacto lo pone Albert.",
+      "when": "",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    }
+  ],
+  "equipment": [
+    {
+      "id": "eb53ghz9",
+      "name": "Armadura de cuero",
+      "qty": 1,
+      "cat": "armadura",
+      "notes": "",
+      "armor": "leather",
+      "magic": 0,
+      "equipped": true
+    },
+    {
+      "id": "3fiuf0ht",
+      "name": "Hoz",
+      "qty": 1,
+      "cat": "arma",
+      "notes": "",
+      "weapon": "sickle",
+      "magic": 0,
+      "equipped": false
+    },
+    {
+      "id": "iml88s2w",
+      "name": "Daga",
+      "qty": 2,
+      "cat": "arma",
+      "notes": "",
+      "weapon": "dagger",
+      "magic": 0,
+      "equipped": false
+    },
+    {
+      "id": "39ht1tn0",
+      "name": "Orbe (canalizador arcano)",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "p6nvr3ao",
+      "name": "Libro (saber oculto)",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "0o8i7mcy",
+      "name": "Mochila",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "u4z3xqth",
+      "name": "Libro",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "ud2a5oe4",
+      "name": "Tinta",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "ycvbd0x6",
+      "name": "Pluma",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "2exi2vm0",
+      "name": "Lámpara",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "2unpz9db",
+      "name": "Aceite (frasco)",
+      "qty": 10,
+      "cat": "consumible",
+      "notes": ""
+    },
+    {
+      "id": "xz2qj92i",
+      "name": "Pergamino (hojas)",
+      "qty": 10,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "7ot070m7",
+      "name": "Yesquero",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    }
+  ],
+  "coins": {
+    "cp": 0,
+    "sp": 0,
+    "ep": 0,
+    "gp": 15,
+    "pp": 0
+  },
+  "languages": "Común y dos idiomas a elegir",
+  "proficiencies": {
+    "armor": "Ligera",
+    "weapons": "Sencillas",
+    "tools": "Kit de disfraz"
+  },
+  "notes": "",
+  "story": {
+    "img": "",
+    "alignment": "",
+    "age": "",
+    "appearance": "",
+    "personality": "",
+    "history": ""
+  },
+  "turn": {
+    "a": false,
+    "aa": false,
+    "r": false,
+    "atk": 0
+  },
+  "combat": null,
+  "diary": {
+    "items": []
+  }
+}
