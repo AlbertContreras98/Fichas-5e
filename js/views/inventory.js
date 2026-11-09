@@ -211,7 +211,15 @@ function wpnCalc(c, a) {
     mg = +a.magic || 0;
   const pact = a.pact && !W.r,
     cha = M(c, 'cha');
-  const phys = W.p.includes('sutil') ? Math.max(str, dex) : W.r ? dex : str,
+  /* Armas de monje (cuerpo a cuerpo sencillas o marciales ligeras), sin armadura ni escudo: mejor entre FUE y DES y dado de artes marciales */
+  const monk =
+      c.classKey === 'monk' &&
+      !W.r &&
+      (W.c === 's' || W.p.includes('ligera')) &&
+      !c.equipment.some(e => e.equipped && e.armor && ARMORS[e.armor]),
+    maD = monk && (infoFor(defOf(c), subOf(c), c.level)['Dado de artes marciales'] || ''),
+    big = maD && /^d\d+$/.test(maD) && +maD.slice(1) > +(W.d.split('d')[1] || 0) ? '1' + maD : '';
+  const phys = W.p.includes('sutil') || monk ? Math.max(str, dex) : W.r ? dex : str,
     mod = pact ? Math.max(phys, cha) : phys,
     prof = pact || wpnProf(c, W);
   const arch = W.r && featHas(c, 'rangedAtk'),
@@ -227,6 +235,9 @@ function wpnCalc(c, a) {
     .concat(W.v ? [`versátil (${W.v})`] : []);
   const notes = [
     pact ? `Arma de pacto: ${cha >= phys ? 'usas CAR' : 'usas tu mejor característica'}` : '',
+    monk
+      ? 'Arma de monje: usas tu mejor entre FUE y DES' + (big ? ` y tu dado de artes marciales (${maD})` : '')
+      : '',
     props.join(', ').replace(/^./, m => m.toUpperCase()),
     a.mastery ? `Maestría: ${MASTERY[W.ms][0].toLowerCase()}` : '',
     prof ? '' : 'sin competencia',
@@ -243,7 +254,7 @@ function wpnCalc(c, a) {
     .join(' · ');
   return {
     atk: mod + (prof ? pb(c) : 0) + mg + (arch ? arch.rangedAtk : 0),
-    dmg: dm(W.d) + (W.v ? ` (${dm(W.v)} a dos manos)` : ''),
+    dmg: dm(big || W.d) + (W.v ? ` (${dm(W.v)} a dos manos)` : ''),
     type: pact && a.pactT ? a.pactT : W.t,
     notes,
     prof,

@@ -130,14 +130,15 @@ const GENERIC = [
   ['a_utilize', 'Usar un objeto'],
 ];
 function attacksPerAction(c) {
-  const has = n => c.features.some(f => norm(f.name).includes(norm(n)));
+  const has = n => c.features.some(f => norm(f.name).includes(norm(n))),
+    pactOn = c.attacks.some(a => a.pact);
   return has('Tres ataques adicionales')
     ? 4
     : has('Dos ataques adicionales')
       ? 3
-      : has('Hoja devoradora')
+      : has('Hoja devoradora') && pactOn
         ? 3
-        : has('Ataque adicional') || has('Hoja sedienta')
+        : has('Ataque adicional') || (has('Hoja sedienta') && pactOn)
           ? 2
           : 1;
 }

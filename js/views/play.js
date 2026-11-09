@@ -222,7 +222,7 @@ function viewPlay(c) {
       ? `<div class="list">${c.features
           .map(
             (f, i) => `<div class="it"><div class="it-head"><span class="it-name">${esc(f.name)}</span></div>
-      ${f.uses.max > 0 ? `<div class="usesrow">${usesCtl(f, i)}<small>${esc(REC[f.uses.recover] || 'sin recuperación automática')}</small></div>` : ''}
+      ${f.uses.max > 0 ? `<div class="usesrow">${usesCtl(f, i)}<small>${esc(REC[f.uses.recover] || 'sin recuperación automática')}</small>${f.name === 'Astucia mágica' && f.uses.used < f.uses.max ? `<button class="b sm" data-act="cunning" data-i="${i}">Usar</button>` : ''}</div>` : ''}
       ${f.source ? `<div class="meta">${esc(f.source)}</div>` : ''}
       ${f.text ? `<details><summary>Detalles</summary><p>${esc(f.text)}</p></details>` : ''}</div>`
           )
@@ -248,8 +248,10 @@ function slotOptions(c, L) {
   return o;
 }
 const freeUse = (c, sp) => {
-  if (!sp.free) return null;
-  const f = c.features.find(x => x.name === sp.free);
+  /* Arcano místico: los conjuros de brujo de nivel 6 a 9 se lanzan con su uso, sin espacio */
+  const free = sp.free || (c.classKey === 'warlock' && +sp.level >= 6 ? 'Arcano místico' : '');
+  if (!free) return null;
+  const f = c.features.find(x => x.name === free);
   if (f && sp.atwill) return { atwill: true };
   return f && f.uses.max - f.uses.used > 0 ? f : null;
 };
@@ -260,6 +262,13 @@ const canCast = (c, sp) => {
 const slotLabel = o =>
   o.kind === 'pact' ? `Espacio de pacto (nivel ${o.level})` : `Espacio de nivel ${o.level}`;
 function consume(c, kind, level) {
+  if (c.combat && c.turn) {
+    if (c.turn.slot)
+      toast(
+        '<div class="t-label">Ojo</div><div class="t-parts">Solo puedes gastar un espacio de conjuro por turno. Si es una reacción fuera de tu turno, no pasa nada.</div>'
+      );
+    c.turn.slot = true;
+  }
   if (kind === 'pact') c.pact.used = Math.min(c.pact.total, c.pact.used + 1);
   else {
     const s = c.slots[level - 1];

@@ -27,6 +27,21 @@ Object.assign(A, {
     save();
     render();
   },
+  /* Astucia mágica (brujo 2): ritual de 1 minuto que devuelve espacios de pacto hasta la mitad del máximo (todos a nivel 20) */
+  cunning: el => {
+    const c = C(),
+      f = c.features[+el.dataset.i];
+    if (!f || f.uses.max - f.uses.used <= 0) return;
+    const cap = c.level >= 20 ? c.pact.total : Math.ceil(c.pact.total / 2),
+      n = Math.min(cap, c.pact.used);
+    f.uses.used++;
+    c.pact.used -= n;
+    save();
+    render();
+    toast(
+      `<div class="t-label">Astucia mágica</div><div class="t-parts">${n ? `Recuperas ${n} ${n === 1 ? 'espacio' : 'espacios'} de pacto. Tienes ${c.pact.total - c.pact.used} / ${c.pact.total}.` : 'No tenías espacios de pacto gastados.'} Tarda 1 minuto.</div>`
+    );
+  },
   'res-d': el => {
     const u = C().features[+el.dataset.i].uses;
     u.used = clamp(u.used - +el.dataset.d, 0, u.max);

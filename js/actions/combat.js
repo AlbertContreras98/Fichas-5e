@@ -170,10 +170,15 @@ Object.assign(A, {
       c.turn.a = false;
       c.turn.atk = 0;
     }
-    if (f.name === 'Furia')
+    if (f.name === 'Furia') {
+      const was = c.concentration;
+      if (was) endEffects(c, e => e.conc);
+      c.concentration = '';
+      addEffect(c, 'Furia', { m: 10 });
       toast(
-        '<div class="t-label">¡Furia!</div><div class="t-parts">Ventaja en FUE, daño extra y resistencia a contundente, cortante y perforante.</div>'
+        `<div class="t-label">¡Furia!</div><div class="t-parts">Ventaja en FUE, daño extra y resistencia a contundente, cortante y perforante. No puedes lanzar conjuros ni concentrarte.${was ? ` Dejas de concentrarte en ${esc(was)}.` : ''}</div>`
       );
+    }
     save();
     render();
   },

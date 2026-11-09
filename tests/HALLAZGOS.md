@@ -138,7 +138,7 @@ Formato:
 - Qué debería pasar: el monje usa DES si es mejor y el dado de Artes marciales si es mayor.
 - Propuesta: aplicarlo en el cálculo del ataque cuando el personaje tiene Artes marciales.
 - Prioridad: frecuencia 2 + olvido 3 + coste 2 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-09): las armas de monje usan la mejor entre FUE y DES y el dado de artes marciales si es mayor (sin armadura ni escudo). Falta aún el ataque de golpe desarmado como tal.
 
 ### 13. Los efectos de minutos u horas nunca bajan
 - Origen: 1a. Datos de la app (conjuros)
@@ -165,7 +165,7 @@ Formato:
 - Qué debería pasar: se lanza una vez por descanso largo sin gastar espacio.
 - Propuesta: tratarlo como lanzamiento gratis con su uso.
 - Prioridad: frecuencia 1 + olvido 3 + coste 2 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-09): los conjuros de brujo de nivel 6 a 9 se lanzan gastando un uso de Arcano místico.
 
 ### 16. Hoja sedienta y Hoja devoradora suben los ataques con cualquier arma
 - Origen: 1a. Datos de la app (invocaciones)
@@ -174,7 +174,7 @@ Formato:
 - Qué debería pasar: solo con el arma de pacto.
 - Propuesta: ligarlo al arma de pacto cuando exista (ver n.º 3).
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-09): solo dan el ataque extra si tienes arma de pacto.
 
 ### 17. La maestría se activa en todas las armas, sin límite
 - Origen: 1a. Datos de la app (objetos)
@@ -252,7 +252,7 @@ Formato:
 - Qué pasa: al entrar en Furia no se quita la concentración ni se impide lanzar conjuros. La Furia tampoco crea un efecto con duración ni aplica daño extra o resistencias (ver candidatas en `INVENTARIO.md`).
 - Propuesta: al usar Furia, terminar la concentración y crear el efecto.
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-09): la Furia termina la concentración y crea el efecto «Furia» (10 minutos).
 
 ### 26. Se pide concentración por Marca del cazador al explorador de nivel 13
 - Origen: 1a. Datos de la app (clases)
@@ -268,7 +268,7 @@ Formato:
 - Qué pasa: en 2024 solo puedes gastar un espacio de conjuro por turno. La app deja gastar varios sin avisar.
 - Propuesta: aviso al gastar un segundo espacio en el mismo turno.
 - Prioridad: frecuencia 1 + olvido 2 + coste 2 = 5
-- Estado: pendiente
+- Estado: arreglado (2026-11-09): aviso al gastar un segundo espacio en el mismo turno.
 
 ### 28. Fallos menores varios
 - Origen: 1a. Datos de la app
@@ -284,3 +284,12 @@ Formato:
 - Propuesta: arreglarlos de uno en uno cuando se toque cada parte.
 - Prioridad: frecuencia 1 + olvido 1 + coste 3 = 5
 - Estado: pendiente
+
+### 29. Astucia mágica no devuelve los espacios de pacto
+- Origen: 1a. Datos de la app (clases)
+- Tipo: Automatizar
+- Qué pasa: el brujo de nivel 2 tiene el contador de Astucia mágica, pero gastarlo no le devuelve ningún espacio de pacto: hay que sumarlos a mano.
+- Qué debería pasar: recuperar espacios de pacto hasta la mitad del máximo (redondeando hacia arriba), o todos a nivel 20.
+- Propuesta: botón «Usar» junto al contador.
+- Prioridad: frecuencia 3 + olvido 3 + coste 3 = 9
+- Estado: arreglado (2026-11-09): botón «Usar» en Rasgos y dotes que gasta el uso y devuelve los espacios.
