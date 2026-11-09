@@ -1,6 +1,6 @@
 {
   "formato": "fichas-dnd-2024/2",
-  "id": "h33i9odq",
+  "id": "l1j4k2lr",
   "name": "Elarion",
   "species": "Elfo (Alto elfo)",
   "speciesKey": "elf",
@@ -72,7 +72,7 @@
       "wpn": "dagger",
       "magic": 0,
       "mastery": false,
-      "item": "v4ijnoub"
+      "item": "74g8i3s9"
     },
     {
       "name": "Bastón (canalizador arcano)",
@@ -84,7 +84,7 @@
       "wpn": "quarterstaff",
       "magic": 0,
       "mastery": false,
-      "item": "bzs5j7a1"
+      "item": "umqquqhg"
     },
     {
       "name": "Bastón",
@@ -96,7 +96,7 @@
       "wpn": "quarterstaff",
       "magic": 0,
       "mastery": false,
-      "item": "9qsi3rx9"
+      "item": "15ggx6xe"
     }
   ],
   "spellcasting": {
@@ -385,7 +385,7 @@
   ],
   "equipment": [
     {
-      "id": "v4ijnoub",
+      "id": "74g8i3s9",
       "name": "Daga",
       "qty": 2,
       "cat": "arma",
@@ -395,7 +395,7 @@
       "equipped": true
     },
     {
-      "id": "bzs5j7a1",
+      "id": "umqquqhg",
       "name": "Bastón (canalizador arcano)",
       "qty": 1,
       "cat": "arma",
@@ -405,77 +405,77 @@
       "equipped": true
     },
     {
-      "id": "ie71jwzi",
+      "id": "g0o9al89",
       "name": "Túnica",
       "qty": 2,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "99sspn1n",
+      "id": "rqhkn2ks",
       "name": "Libro de conjuros",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "qajow3ty",
+      "id": "39ajnleh",
       "name": "Mochila",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "esqzdhnr",
+      "id": "wbnbhobq",
       "name": "Libro",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "adkneknx",
+      "id": "stzkat72",
       "name": "Tinta",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "77osdc8l",
+      "id": "nmktiuka",
       "name": "Pluma",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "6hp4jh9x",
+      "id": "2mpcoy9f",
       "name": "Lámpara",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "gfbp4x2e",
+      "id": "h5y9hh1b",
       "name": "Aceite (frasco)",
       "qty": 10,
       "cat": "consumible",
       "notes": ""
     },
     {
-      "id": "yuc4ogv1",
+      "id": "pk0kmvl1",
       "name": "Pergamino (hojas)",
       "qty": 18,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "cx75h51j",
+      "id": "aceynfes",
       "name": "Yesquero",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "9qsi3rx9",
+      "id": "15ggx6xe",
       "name": "Bastón",
       "qty": 1,
       "cat": "arma",
@@ -485,7 +485,7 @@
       "equipped": true
     },
     {
-      "id": "bl7e3xbi",
+      "id": "el5ur3nd",
       "name": "Suministros de calígrafo",
       "qty": 1,
       "cat": "herramienta",
@@ -493,7 +493,7 @@
       "tool": "calligrapher"
     },
     {
-      "id": "pab18g13",
+      "id": "0bcnr19a",
       "name": "Libro (historia)",
       "qty": 1,
       "cat": "otro",

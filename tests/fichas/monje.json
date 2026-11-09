@@ -1,6 +1,6 @@
 {
   "formato": "fichas-dnd-2024/2",
-  "id": "0ft8f3u2",
+  "id": "7lem4snz",
   "name": "Bruno",
   "species": "Humano",
   "speciesKey": "human",
@@ -65,39 +65,39 @@
   "attacks": [
     {
       "name": "Lanza",
-      "atk": 3,
-      "dmg": "1d6 + 1 (1d8 + 1 a dos manos)",
+      "atk": 4,
+      "dmg": "1d6 + 2 (1d8 + 2 a dos manos)",
       "type": "perforante",
-      "notes": "Arrojadiza (20/60), versátil (1d8)",
+      "notes": "Arma de monje: usas tu mejor entre FUE y DES · Arrojadiza (20/60), versátil (1d8)",
       "ammo": "",
       "wpn": "spear",
       "magic": 0,
       "mastery": false,
-      "item": "o1942bzb"
+      "item": "nnsjhi5d"
     },
     {
       "name": "Daga",
       "atk": 4,
-      "dmg": "1d4 + 2",
+      "dmg": "1d6 + 2",
       "type": "perforante",
-      "notes": "Sutil, ligera, arrojadiza (20/60)",
+      "notes": "Arma de monje: usas tu mejor entre FUE y DES y tu dado de artes marciales (d6) · Sutil, ligera, arrojadiza (20/60)",
       "ammo": "",
       "wpn": "dagger",
       "magic": 0,
       "mastery": false,
-      "item": "l49pmhos"
+      "item": "ivxrk19o"
     },
     {
       "name": "Bastón",
-      "atk": 3,
-      "dmg": "1d6 + 1 (1d8 + 1 a dos manos)",
+      "atk": 4,
+      "dmg": "1d6 + 2 (1d8 + 2 a dos manos)",
       "type": "contundente",
-      "notes": "Versátil (1d8)",
+      "notes": "Arma de monje: usas tu mejor entre FUE y DES · Versátil (1d8)",
       "ammo": "",
       "wpn": "quarterstaff",
       "magic": 0,
       "mastery": false,
-      "item": "ygon717p"
+      "item": "imz60fye"
     }
   ],
   "spellcasting": {
@@ -221,7 +221,7 @@
   ],
   "equipment": [
     {
-      "id": "o1942bzb",
+      "id": "nnsjhi5d",
       "name": "Lanza",
       "qty": 1,
       "cat": "arma",
@@ -231,7 +231,7 @@
       "equipped": true
     },
     {
-      "id": "l49pmhos",
+      "id": "ivxrk19o",
       "name": "Daga",
       "qty": 5,
       "cat": "arma",
@@ -241,7 +241,7 @@
       "equipped": true
     },
     {
-      "id": "f6cqlau5",
+      "id": "ub915ibn",
       "name": "Instrumento musical",
       "qty": 1,
       "cat": "herramienta",
@@ -249,28 +249,28 @@
       "tool": "instrument"
     },
     {
-      "id": "g73z0u7f",
+      "id": "7hr0y5ou",
       "name": "Mochila",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "759eki6z",
+      "id": "llzttktn",
       "name": "Saco de dormir",
       "qty": 2,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "wgdokn1u",
+      "id": "4mcl7d37",
       "name": "Aceite (frasco)",
       "qty": 5,
       "cat": "consumible",
       "notes": ""
     },
     {
-      "id": "biaim9u6",
+      "id": "hzuh2vrs",
       "name": "Raciones (días)",
       "qty": 10,
       "cat": "comida",
@@ -278,21 +278,21 @@
       "gear": "rations"
     },
     {
-      "id": "u40vksnt",
+      "id": "50o7lmts",
       "name": "Cuerda",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "ge6jezj4",
+      "id": "45n03s49",
       "name": "Yesquero",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "puvaa687",
+      "id": "i4xtwtqy",
       "name": "Antorchas",
       "qty": 10,
       "cat": "consumible",
@@ -300,7 +300,7 @@
       "gear": "torch"
     },
     {
-      "id": "o3c9egyy",
+      "id": "jba3epax",
       "name": "Odre",
       "qty": 1,
       "cat": "comida",
@@ -308,7 +308,7 @@
       "gear": "waterskin"
     },
     {
-      "id": "ygon717p",
+      "id": "imz60fye",
       "name": "Bastón",
       "qty": 1,
       "cat": "arma",
@@ -318,7 +318,7 @@
       "equipped": true
     },
     {
-      "id": "6nahmss3",
+      "id": "gywj8smc",
       "name": "Útiles de herborista",
       "qty": 1,
       "cat": "herramienta",
@@ -326,21 +326,21 @@
       "tool": "herbalism"
     },
     {
-      "id": "gu25d3id",
+      "id": "u2jpnywr",
       "name": "Libro (filosofía)",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "2o8fh7ve",
+      "id": "7dh3piug",
       "name": "Lámpara",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "5661ax2d",
+      "id": "huv4j7kt",
       "name": "Ropa de viajero",
       "qty": 1,
       "cat": "otro",
