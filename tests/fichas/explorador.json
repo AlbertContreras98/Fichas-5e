@@ -1,0 +1,533 @@
+{
+  "formato": "fichas-dnd-2024/2",
+  "id": "msw0hx9u",
+  "name": "Vhaeryn",
+  "species": "Elfo (Drow)",
+  "speciesKey": "elf",
+  "lineageKey": "drow",
+  "background": "Vagabundo",
+  "backgroundKey": "wayfarer",
+  "featKeys": [
+    "lucky"
+  ],
+  "featData": [],
+  "class": "Explorador",
+  "classKey": "ranger",
+  "subclass": "",
+  "subclassKey": "",
+  "level": 1,
+  "xp": 0,
+  "abilities": {
+    "str": 12,
+    "dex": 17,
+    "con": 13,
+    "int": 10,
+    "wis": 15,
+    "cha": 8
+  },
+  "saveProf": [
+    "str",
+    "dex"
+  ],
+  "skills": {
+    "insight": 1,
+    "stealth": 1,
+    "perception": 1,
+    "survival": 1,
+    "nature": 1,
+    "animal": 1
+  },
+  "ac": 13,
+  "acBonus": 0,
+  "speedFt": 30,
+  "size": "M",
+  "initiativeBonus": 0,
+  "hp": {
+    "max": 11,
+    "current": 11,
+    "temp": 0
+  },
+  "hitDice": {
+    "die": "d10",
+    "total": 1,
+    "spent": 0
+  },
+  "deathSaves": {
+    "success": 0,
+    "fail": 0
+  },
+  "inspiration": false,
+  "exhaustion": 0,
+  "conditions": [],
+  "concentration": "",
+  "effects": [],
+  "companions": [],
+  "attacks": [
+    {
+      "name": "Cimitarra",
+      "atk": 5,
+      "dmg": "1d6 + 3",
+      "type": "cortante",
+      "notes": "Sutil, ligera · Maestría: mellar",
+      "ammo": "",
+      "wpn": "scimitar",
+      "magic": 0,
+      "mastery": true,
+      "item": "lorfgrr4"
+    },
+    {
+      "name": "Espada corta",
+      "atk": 5,
+      "dmg": "1d6 + 3",
+      "type": "perforante",
+      "notes": "Sutil, ligera · Maestría: molestar",
+      "ammo": "",
+      "wpn": "shortsword",
+      "magic": 0,
+      "mastery": true,
+      "item": "utwllh2i"
+    },
+    {
+      "name": "Arco largo",
+      "atk": 5,
+      "dmg": "1d8 + 3",
+      "type": "perforante",
+      "notes": "Pesada, a dos manos, munición (150/600) · Maestría: ralentizar",
+      "ammo": "czrxcery",
+      "wpn": "longbow",
+      "magic": 0,
+      "mastery": true,
+      "item": "9ks4gxzt"
+    },
+    {
+      "name": "Daga",
+      "atk": 5,
+      "dmg": "1d4 + 3",
+      "type": "perforante",
+      "notes": "Sutil, ligera, arrojadiza (20/60) · Maestría: mellar",
+      "ammo": "",
+      "wpn": "dagger",
+      "magic": 0,
+      "mastery": true,
+      "item": "co9x519x"
+    }
+  ],
+  "spellcasting": {
+    "ability": "wis"
+  },
+  "slots": [
+    {
+      "total": 2,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    }
+  ],
+  "pact": {
+    "level": 0,
+    "total": 0,
+    "used": 0
+  },
+  "spells": [
+    {
+      "level": 0,
+      "name": "Luces danzantes",
+      "time": "A",
+      "range": "120 pies",
+      "dur": "hasta 1 minuto",
+      "conc": true,
+      "ritual": false,
+      "material": "un poco de fósforo",
+      "desc": "",
+      "ref": "dancing-lights",
+      "src": "Drow"
+    },
+    {
+      "level": 1,
+      "name": "Bayas nutritivas",
+      "time": "A",
+      "range": "Personal",
+      "dur": "24 horas",
+      "conc": false,
+      "ritual": false,
+      "material": "una ramita de muérdago",
+      "desc": "",
+      "ref": "goodberry",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 1,
+      "name": "Golpe atrapador",
+      "time": "AA",
+      "range": "Personal",
+      "dur": "hasta 1 minuto",
+      "conc": true,
+      "ritual": false,
+      "material": "",
+      "desc": "",
+      "ref": "ensnaring-strike",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 1,
+      "name": "Marca del cazador",
+      "time": "AA",
+      "range": "90 pies",
+      "dur": "hasta 1 hora",
+      "conc": true,
+      "ritual": false,
+      "material": "",
+      "desc": "",
+      "ref": "hunters-mark",
+      "src": "Siempre preparado",
+      "free": "Marca del cazador gratis"
+    }
+  ],
+  "features": [
+    {
+      "name": "Afortunado",
+      "source": "Dote de origen (Vagabundo)",
+      "text": "Tienes tantos puntos de suerte como tu bonificador de competencia y los recuperas con un descanso largo. Gasta uno para tener ventaja en una prueba d20 o para imponer desventaja a un ataque contra ti.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Enemigo predilecto",
+      "source": "Explorador 1",
+      "text": "Siempre tienes preparado Marca del cazador y puedes lanzarlo sin espacio varias veces por descanso largo.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Lanzamiento de conjuros",
+      "source": "Explorador 1",
+      "text": "Lanzas conjuros de explorador con SAB. Puedes cambiar un conjuro preparado al terminar un descanso largo.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Maestría con armas",
+      "source": "Explorador 1",
+      "text": "Usas la propiedad de maestría de dos tipos de armas; puedes cambiarlas al terminar un descanso largo.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Marca del cazador gratis",
+      "source": "Explorador",
+      "text": "",
+      "uses": {
+        "max": 2,
+        "used": 0,
+        "recover": "largo",
+        "pool": false
+      }
+    },
+    {
+      "name": "Visión en la oscuridad",
+      "source": "Elfo",
+      "text": "Ves en la oscuridad hasta 120 pies como si fuera luz tenue (sin colores).",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Ascendencia feérica",
+      "source": "Elfo",
+      "text": "Ventaja en salvaciones para evitar o acabar con el estado hechizado.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Sentidos agudos",
+      "source": "Elfo",
+      "text": "Competencia en Perspicacia, Percepción o Supervivencia.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Trance",
+      "source": "Elfo",
+      "text": "No necesitas dormir; un descanso largo te lleva 4 horas de trance.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Magia drow",
+      "source": "Drow",
+      "text": "Visión en la oscuridad de 120 pies. Conoces Luces danzantes; a nivel 3 Fuego feérico y a nivel 5 Oscuridad (1 vez cada uno por descanso largo sin espacio). Aptitud: INT, SAB o CAR.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Puntos de suerte",
+      "source": "Elfo",
+      "text": "",
+      "uses": {
+        "max": 2,
+        "used": 0,
+        "recover": "largo",
+        "pool": false
+      }
+    }
+  ],
+  "equipment": [
+    {
+      "id": "9z9uv7kj",
+      "name": "Armadura de cuero tachonado",
+      "qty": 1,
+      "cat": "armadura",
+      "notes": "",
+      "armor": "studded",
+      "magic": 0,
+      "equipped": true
+    },
+    {
+      "id": "lorfgrr4",
+      "name": "Cimitarra",
+      "qty": 1,
+      "cat": "arma",
+      "notes": "",
+      "weapon": "scimitar",
+      "magic": 0,
+      "equipped": true
+    },
+    {
+      "id": "utwllh2i",
+      "name": "Espada corta",
+      "qty": 1,
+      "cat": "arma",
+      "notes": "",
+      "weapon": "shortsword",
+      "magic": 0,
+      "equipped": true
+    },
+    {
+      "id": "9ks4gxzt",
+      "name": "Arco largo",
+      "qty": 1,
+      "cat": "arma",
+      "notes": "",
+      "weapon": "longbow",
+      "magic": 0,
+      "equipped": true
+    },
+    {
+      "id": "czrxcery",
+      "name": "Flechas",
+      "qty": 20,
+      "cat": "municion",
+      "notes": "",
+      "ammoKind": "arrow"
+    },
+    {
+      "id": "fq48fw61",
+      "name": "Carcaj",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "5p5aypqm",
+      "name": "Ramita de muérdago (canalizador druídico)",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "kcptwp42",
+      "name": "Mochila",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "vohasdgt",
+      "name": "Saco de dormir",
+      "qty": 2,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "oohci9bk",
+      "name": "Aceite (frasco)",
+      "qty": 2,
+      "cat": "consumible",
+      "notes": ""
+    },
+    {
+      "id": "clcy04ff",
+      "name": "Raciones (días)",
+      "qty": 10,
+      "cat": "comida",
+      "notes": "",
+      "gear": "rations"
+    },
+    {
+      "id": "upwx5juk",
+      "name": "Cuerda",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "2iiwa0o1",
+      "name": "Yesquero",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "bevd1wx2",
+      "name": "Antorchas",
+      "qty": 10,
+      "cat": "consumible",
+      "notes": "",
+      "gear": "torch"
+    },
+    {
+      "id": "3ew75ijr",
+      "name": "Odre",
+      "qty": 1,
+      "cat": "comida",
+      "notes": "",
+      "gear": "waterskin"
+    },
+    {
+      "id": "co9x519x",
+      "name": "Daga",
+      "qty": 2,
+      "cat": "arma",
+      "notes": "",
+      "weapon": "dagger",
+      "magic": 0,
+      "equipped": true
+    },
+    {
+      "id": "yl6ftg66",
+      "name": "Herramientas de ladrón",
+      "qty": 1,
+      "cat": "herramienta",
+      "notes": "",
+      "tool": "thieves"
+    },
+    {
+      "id": "nal95ady",
+      "name": "Juego",
+      "qty": 1,
+      "cat": "herramienta",
+      "notes": "",
+      "tool": "gaming"
+    },
+    {
+      "id": "pky2biui",
+      "name": "Bolsa",
+      "qty": 2,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "80bzbren",
+      "name": "Ropa de viajero",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    }
+  ],
+  "coins": {
+    "cp": 0,
+    "sp": 0,
+    "ep": 0,
+    "gp": 23,
+    "pp": 0
+  },
+  "languages": "Común y dos idiomas a elegir",
+  "proficiencies": {
+    "armor": "Ligera, media, escudos",
+    "weapons": "Sencillas y marciales",
+    "tools": "Herramientas de ladrón"
+  },
+  "notes": "",
+  "story": {
+    "img": "",
+    "alignment": "",
+    "age": "",
+    "appearance": "",
+    "personality": "",
+    "history": ""
+  },
+  "turn": {
+    "a": false,
+    "aa": false,
+    "r": false,
+    "atk": 0
+  },
+  "combat": null,
+  "diary": {
+    "items": []
+  }
+}

@@ -1,0 +1,382 @@
+{
+  "formato": "fichas-dnd-2024/2",
+  "id": "0ft8f3u2",
+  "name": "Bruno",
+  "species": "Humano",
+  "speciesKey": "human",
+  "lineageKey": "",
+  "background": "Ermitaño",
+  "backgroundKey": "hermit",
+  "featKeys": [
+    "healer",
+    "alert"
+  ],
+  "featData": [],
+  "class": "Monje",
+  "classKey": "monk",
+  "subclass": "",
+  "subclassKey": "",
+  "level": 1,
+  "xp": 0,
+  "abilities": {
+    "str": 12,
+    "dex": 15,
+    "con": 14,
+    "int": 10,
+    "wis": 16,
+    "cha": 8
+  },
+  "saveProf": [
+    "str",
+    "dex"
+  ],
+  "skills": {
+    "medicine": 1,
+    "religion": 1,
+    "acrobatics": 1,
+    "stealth": 1,
+    "athletics": 1
+  },
+  "ac": 15,
+  "acBonus": 0,
+  "speedFt": 30,
+  "size": "M o P",
+  "initiativeBonus": 0,
+  "hp": {
+    "max": 10,
+    "current": 10,
+    "temp": 0
+  },
+  "hitDice": {
+    "die": "d8",
+    "total": 1,
+    "spent": 0
+  },
+  "deathSaves": {
+    "success": 0,
+    "fail": 0
+  },
+  "inspiration": true,
+  "exhaustion": 0,
+  "conditions": [],
+  "concentration": "",
+  "effects": [],
+  "companions": [],
+  "attacks": [
+    {
+      "name": "Lanza",
+      "atk": 3,
+      "dmg": "1d6 + 1 (1d8 + 1 a dos manos)",
+      "type": "perforante",
+      "notes": "Arrojadiza (20/60), versátil (1d8)",
+      "ammo": "",
+      "wpn": "spear",
+      "magic": 0,
+      "mastery": false,
+      "item": "o1942bzb"
+    },
+    {
+      "name": "Daga",
+      "atk": 4,
+      "dmg": "1d4 + 2",
+      "type": "perforante",
+      "notes": "Sutil, ligera, arrojadiza (20/60)",
+      "ammo": "",
+      "wpn": "dagger",
+      "magic": 0,
+      "mastery": false,
+      "item": "l49pmhos"
+    },
+    {
+      "name": "Bastón",
+      "atk": 3,
+      "dmg": "1d6 + 1 (1d8 + 1 a dos manos)",
+      "type": "contundente",
+      "notes": "Versátil (1d8)",
+      "ammo": "",
+      "wpn": "quarterstaff",
+      "magic": 0,
+      "mastery": false,
+      "item": "ygon717p"
+    }
+  ],
+  "spellcasting": {
+    "ability": ""
+  },
+  "slots": [
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    }
+  ],
+  "pact": {
+    "level": 0,
+    "total": 0,
+    "used": 0
+  },
+  "spells": [],
+  "features": [
+    {
+      "name": "Sanador",
+      "source": "Dote de origen (Ermitaño)",
+      "text": "Con un kit de sanador, usas la acción de Usar un objeto y gastas un uso del kit para atender a una criatura a 5 pies: puede gastar uno de sus dados de golpe, lo tiras tú y recupera ese resultado más tu bonificador de competencia. Además, al tirar dados para curar con un conjuro o con esta dote, repites los 1.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Alerta",
+      "source": "Dote de origen (Versátil)",
+      "text": "Sumas tu bonificador de competencia a la iniciativa (la app lo suma sola). Justo después de tirar iniciativa puedes intercambiarla con un aliado dispuesto que no esté incapacitado.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Artes marciales",
+      "source": "Monje 1",
+      "text": "Sin armadura ni escudo: usas DES con golpes desarmados y armas de monje, tu dado de artes marciales para el daño, y haces un golpe desarmado como acción adicional.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Defensa sin armadura",
+      "source": "Monje 1",
+      "text": "Sin armadura ni escudo, tu CA es 10 + DES + SAB.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Ingenioso",
+      "source": "Humano",
+      "text": "Ganas Inspiración heroica al terminar cada descanso largo (la app la activa sola).",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Habilidoso",
+      "source": "Humano",
+      "text": "Competencia en una habilidad a tu elección.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Versátil",
+      "source": "Humano",
+      "text": "Ganas una dote de origen a tu elección.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    }
+  ],
+  "equipment": [
+    {
+      "id": "o1942bzb",
+      "name": "Lanza",
+      "qty": 1,
+      "cat": "arma",
+      "notes": "",
+      "weapon": "spear",
+      "magic": 0,
+      "equipped": true
+    },
+    {
+      "id": "l49pmhos",
+      "name": "Daga",
+      "qty": 5,
+      "cat": "arma",
+      "notes": "",
+      "weapon": "dagger",
+      "magic": 0,
+      "equipped": true
+    },
+    {
+      "id": "f6cqlau5",
+      "name": "Instrumento musical",
+      "qty": 1,
+      "cat": "herramienta",
+      "notes": "",
+      "tool": "instrument"
+    },
+    {
+      "id": "g73z0u7f",
+      "name": "Mochila",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "759eki6z",
+      "name": "Saco de dormir",
+      "qty": 2,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "wgdokn1u",
+      "name": "Aceite (frasco)",
+      "qty": 5,
+      "cat": "consumible",
+      "notes": ""
+    },
+    {
+      "id": "biaim9u6",
+      "name": "Raciones (días)",
+      "qty": 10,
+      "cat": "comida",
+      "notes": "",
+      "gear": "rations"
+    },
+    {
+      "id": "u40vksnt",
+      "name": "Cuerda",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "ge6jezj4",
+      "name": "Yesquero",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "puvaa687",
+      "name": "Antorchas",
+      "qty": 10,
+      "cat": "consumible",
+      "notes": "",
+      "gear": "torch"
+    },
+    {
+      "id": "o3c9egyy",
+      "name": "Odre",
+      "qty": 1,
+      "cat": "comida",
+      "notes": "",
+      "gear": "waterskin"
+    },
+    {
+      "id": "ygon717p",
+      "name": "Bastón",
+      "qty": 1,
+      "cat": "arma",
+      "notes": "",
+      "weapon": "quarterstaff",
+      "magic": 0,
+      "equipped": true
+    },
+    {
+      "id": "6nahmss3",
+      "name": "Útiles de herborista",
+      "qty": 1,
+      "cat": "herramienta",
+      "notes": "",
+      "tool": "herbalism"
+    },
+    {
+      "id": "gu25d3id",
+      "name": "Libro (filosofía)",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "2o8fh7ve",
+      "name": "Lámpara",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "5661ax2d",
+      "name": "Ropa de viajero",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    }
+  ],
+  "coins": {
+    "cp": 0,
+    "sp": 0,
+    "ep": 0,
+    "gp": 27,
+    "pp": 0
+  },
+  "languages": "Común y dos idiomas a elegir",
+  "proficiencies": {
+    "armor": "Ninguna",
+    "weapons": "Sencillas y marciales con la propiedad Ligera",
+    "tools": "Útiles de herborista"
+  },
+  "notes": "",
+  "story": {
+    "img": "",
+    "alignment": "",
+    "age": "",
+    "appearance": "",
+    "personality": "",
+    "history": ""
+  },
+  "turn": {
+    "a": false,
+    "aa": false,
+    "r": false,
+    "atk": 0
+  },
+  "combat": null,
+  "diary": {
+    "items": []
+  }
+}

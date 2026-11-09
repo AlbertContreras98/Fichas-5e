@@ -1,6 +1,6 @@
 {
   "formato": "fichas-dnd-2024/2",
-  "id": "ga4ijdyb",
+  "id": "h33i9odq",
   "name": "Elarion",
   "species": "Elfo (Alto elfo)",
   "speciesKey": "elf",
@@ -72,7 +72,7 @@
       "wpn": "dagger",
       "magic": 0,
       "mastery": false,
-      "item": "dhyb4vuv"
+      "item": "v4ijnoub"
     },
     {
       "name": "Bastón (canalizador arcano)",
@@ -84,7 +84,7 @@
       "wpn": "quarterstaff",
       "magic": 0,
       "mastery": false,
-      "item": "tokl6iek"
+      "item": "bzs5j7a1"
     },
     {
       "name": "Bastón",
@@ -96,7 +96,7 @@
       "wpn": "quarterstaff",
       "magic": 0,
       "mastery": false,
-      "item": "12koqokt"
+      "item": "9qsi3rx9"
     }
   ],
   "spellcasting": {
@@ -385,7 +385,7 @@
   ],
   "equipment": [
     {
-      "id": "dhyb4vuv",
+      "id": "v4ijnoub",
       "name": "Daga",
       "qty": 2,
       "cat": "arma",
@@ -395,7 +395,7 @@
       "equipped": true
     },
     {
-      "id": "tokl6iek",
+      "id": "bzs5j7a1",
       "name": "Bastón (canalizador arcano)",
       "qty": 1,
       "cat": "arma",
@@ -405,77 +405,77 @@
       "equipped": true
     },
     {
-      "id": "jvv5nyq9",
+      "id": "ie71jwzi",
       "name": "Túnica",
       "qty": 2,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "kopdwu3t",
+      "id": "99sspn1n",
       "name": "Libro de conjuros",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "lgh5le57",
+      "id": "qajow3ty",
       "name": "Mochila",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "squhj07k",
+      "id": "esqzdhnr",
       "name": "Libro",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "uthlc2fq",
+      "id": "adkneknx",
       "name": "Tinta",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "qlyz316z",
+      "id": "77osdc8l",
       "name": "Pluma",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "ikj0qtsh",
+      "id": "6hp4jh9x",
       "name": "Lámpara",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "qcn65kkz",
+      "id": "gfbp4x2e",
       "name": "Aceite (frasco)",
       "qty": 10,
       "cat": "consumible",
       "notes": ""
     },
     {
-      "id": "16u693or",
+      "id": "yuc4ogv1",
       "name": "Pergamino (hojas)",
       "qty": 18,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "rf242yct",
+      "id": "cx75h51j",
       "name": "Yesquero",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "12koqokt",
+      "id": "9qsi3rx9",
       "name": "Bastón",
       "qty": 1,
       "cat": "arma",
@@ -485,7 +485,7 @@
       "equipped": true
     },
     {
-      "id": "wzr8i7t3",
+      "id": "bl7e3xbi",
       "name": "Suministros de calígrafo",
       "qty": 1,
       "cat": "herramienta",
@@ -493,7 +493,7 @@
       "tool": "calligrapher"
     },
     {
-      "id": "nw89ybt1",
+      "id": "pab18g13",
       "name": "Libro (historia)",
       "qty": 1,
       "cat": "otro",
@@ -511,7 +511,7 @@
   "proficiencies": {
     "armor": "Ninguna",
     "weapons": "Sencillas",
-    "tools": "Útiles de caligrafía"
+    "tools": "Suministros de calígrafo"
   },
   "notes": "",
   "story": {

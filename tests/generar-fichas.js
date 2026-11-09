@@ -33,6 +33,29 @@ const REPARTO = [
     },
   },
   {
+    archivo: 'explorador.json',
+    nombre: 'Vhaeryn',
+    clase: 'ranger',
+    especie: 'elf',
+    linaje: 'drow',
+    trasfondo: { key: 'wayfarer', mas2: 'dex', mas1: 'wis' },
+    car: { str: 12, dex: 15, con: 13, int: 10, wis: 14, cha: 8 },
+    habilidades: ['perception', 'survival', 'nature', 'animal'],
+    conjuros: ['goodberry', 'ensnaring-strike'],
+  },
+  {
+    archivo: 'monje.json',
+    nombre: 'Bruno',
+    clase: 'monk',
+    especie: 'human',
+    dote: 'alert',
+    trasfondo: { key: 'hermit', mas2: 'wis', mas1: 'con' },
+    car: { str: 12, dex: 15, con: 13, int: 10, wis: 14, cha: 8 },
+    habilidades: ['acrobatics', 'stealth', 'athletics'],
+  },
+  /* En reserva (tests/fichas/reserva/): no entran en la prueba de humo; se usarán más adelante */
+  {
+    reserva: true,
     archivo: 'guerrero.json',
     nombre: 'Brunilda',
     clase: 'fighter',
@@ -54,6 +77,7 @@ const REPARTO = [
     conjuros: ['fire-bolt', 'mage-hand', 'light', 'magic-missile', 'shield', 'sleep', 'mage-armor'],
   },
   {
+    reserva: true,
     archivo: 'paladin.json',
     nombre: 'Tomás',
     clase: 'paladin',
@@ -159,7 +183,9 @@ async function retocar(page, d) {
     await crear(page, f);
     await retocar(page, f.despues);
     const json = await b.exportar(page);
-    fs.writeFileSync(path.join(b.FICHAS, f.archivo), json + '\n');
+    const dir = f.reserva ? path.join(b.FICHAS, 'reserva') : b.FICHAS;
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, f.archivo), json + '\n');
     const c = JSON.parse(json);
     console.log(
       `${f.archivo}: ${c.name}, ${c.species} ${c.class} ${c.level}, ${c.background} · PG ${c.hp.max} · CA ${c.ac} · ${c.spells.length} conjuros · ${c.features.length} rasgos`

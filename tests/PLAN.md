@@ -31,10 +31,11 @@ Guiones automáticos que buscan fallos sin tener que pensar casos concretos. Des
 Jugar como lo haría un jugador real, con situaciones típicas. **Norma principal:** cada vez que el jugador tenga que acordarse de algo, calcular algo o consultar una regla fuera de la app, se apunta como posible automatización.
 
 - [ ] **Zyo, niveles 1 a 3** (alto; extra si se cruzan reglas). Combate con el arma de pacto y Explosión sobrenatural, concentración que se pierde al recibir daño, caer a 0 PG y salvaciones contra la muerte, descanso corto y largo, subir a nivel 2 y 3 (invocaciones nuevas), rasgos del legado ctónico, «Mendigo» y «Dote Superviviente».
-- [ ] **Marcial, niveles 1 a 5** (alto). Armas y maestrías, munición, estilos de combate, Ataque extra.
-- [ ] **Lanzador completo, niveles 1 a 5** (alto). Preparar conjuros, espacios, rituales, concentración, conjuros con salvación cada turno.
-- [ ] **Medio lanzador, niveles 1 a 5** (alto). Mezcla de armas y conjuros, recursos de clase.
-- [ ] **Fichas de los amigos de Albert** (alto). Una prueba por ficha, cuando las pase.
+- [ ] **Explorador elfo drow, niveles 1 a 5** (alto). Como el del grupo de Albert (`explorador.json`). Armas a distancia y maestrías, munición, Marca del cazador, conjuros de explorador, rasgos del drow.
+- [ ] **Monje humano, niveles 1 a 5** (alto). Como el del grupo de Albert (`monje.json`). Artes marciales y golpes desarmados, puntos de concentración, Defensa sin armadura, Ráfaga de golpes, Golpe aturdidor.
+- [ ] **Lanzador completo (mago), niveles 1 a 5** (alto). Preparar conjuros, espacios, rituales, concentración, conjuros con salvación cada turno.
+- [ ] **Fichas reales de los amigos de Albert** (alto). Si las pasa, sustituyen o completan a las de arriba.
+- [ ] **En reserva: marcial (guerrera enana) y medio lanzador (paladín humano), niveles 1 a 5** (alto). Fichas en `tests/fichas/reserva/`. Para más adelante.
 - [ ] **Máster dirigiendo un combate** (alto). El reparto contra NPC del bestiario: iniciativa, turnos, caídos, criaturas de los jugadores.
 - [ ] **Niveles altos (5, 11, 17 y 20)** (alto). Solo cuando el grupo se acerque a esos niveles.
 
