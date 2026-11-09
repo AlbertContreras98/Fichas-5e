@@ -208,9 +208,9 @@ function viewPlay(c) {
             irow(
               k,
               k === 'Invocaciones'
-                ? `${cnt('Invocación')} / ${v}`
+                ? `${cnt('Invocación:')} / ${v}`
                 : k === 'Metamagias conocidas'
-                  ? `${cnt('Metamagia')} / ${v}`
+                  ? `${cnt('Metamagia:')} / ${v}`
                   : String(v),
               INFO_DESC[k] || ''
             )
@@ -329,6 +329,7 @@ function falseLife(c, sp) {
 function afterCast(sp, how) {
   const c = C();
   let note = '';
+  const eco = pendingEco;
   if (pendingEco) {
     spendEco(c, pendingEco);
     pendingEco = null;
@@ -338,7 +339,7 @@ function afterCast(sp, how) {
       note = `<div class="t-parts">Dejas de concentrarte en ${esc(c.concentration)}.</div>`;
     c.concentration = sp.name;
   }
-  addEffect(c, sp.name, parseDur(sp.dur), sp.conc);
+  addEffect(c, sp.name, parseDur(sp.dur), sp.conc, eco !== 'R');
   const used = spUseItem(c, sp) + csOnCast(c, sp);
   save();
   render();

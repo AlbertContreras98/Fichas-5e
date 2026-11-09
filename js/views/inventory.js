@@ -317,7 +317,13 @@ function lightDmg(c, a) {
     b = Math.min(mod, 0) + (+a.magic || 0);
   return W.d === '1' ? `${Math.max(1, 1 + b)}` : `${W.d}${b ? ` ${b > 0 ? '+' : '−'} ${Math.abs(b)}` : ''}`;
 }
-const armorAuto = c => c.equipment.some(e => e.armor && ARMORS[e.armor]);
+/* Defensa sin armadura de clase o subclase: la CA se calcula aunque no haya armaduras en el equipo */
+const udefOf = c =>
+  c.classKey === 'barbarian' ||
+  c.classKey === 'monk' ||
+  c.subclassKey === 'draconic' ||
+  c.subclassKey === 'dance';
+const armorAuto = c => udefOf(c) || c.equipment.some(e => e.armor && ARMORS[e.armor]);
 function acCalc(c) {
   const dex = M(c, 'dex'),
     eq = c.equipment.filter(e => e.armor && ARMORS[e.armor] && e.equipped);
@@ -337,6 +343,8 @@ function acCalc(c) {
       o.push([10 + dex + M(c, 'wis'), 'Defensa sin armadura: 10 + DES + SAB']);
     if (c.subclassKey === 'draconic')
       o.push([10 + dex + M(c, 'cha'), 'Resistencia dracónica: 10 + DES + CAR']);
+    if (c.subclassKey === 'dance' && c.level >= 3 && !shield)
+      o.push([10 + dex + M(c, 'cha'), 'Juego de pies deslumbrante: 10 + DES + CAR']);
     if (mageArmorOn(c)) o.push([13 + dex, 'Armadura de mago: 13 + DES']);
     o.sort((a, b) => b[0] - a[0]);
     [base, src] = o[0];
@@ -366,7 +374,7 @@ function acCalc(c) {
     has = k => /todas/.test(prof) || prof.includes(k);
   if (body) {
     const A = ARMORS[body.armor];
-    if (!has({ l: 'liger', m: 'intermed', h: 'pesad' }[A.t]))
+    if (!(A.t === 'm' ? has('media') || has('intermed') : has({ l: 'liger', h: 'pesad' }[A.t])))
       warn.push(
         `No eres competente con armadura ${ARMOR_T[A.t].toLowerCase()}: desventaja en pruebas, salvaciones y ataques de FUE y DES, y no puedes lanzar conjuros.`
       );
@@ -403,7 +411,7 @@ const acOf = c =>
 function linkArmor(c) {
   if (c._armorLinked) return;
   c._armorLinked = true;
-  if (armorAuto(c)) return;
+  if (c.equipment.some(e => e.armor && ARMORS[e.armor])) return;
   const cands = Object.entries(ARMORS).sort((a, b) => b[1].n.length - a[1].n.length),
     touched = [];
   let body = false;

@@ -22,10 +22,14 @@ function fmtEff(e) {
       ? `${+(m / 60).toFixed(1)} h`
       : `${+(m / 1440).toFixed(1)} día${m === 1440 ? '' : 's'}`;
 }
-function addEffect(c, name, d, conc) {
+/* own: lo lanzas en tu turno. Sus rondas empiezan a contar al terminar tu turno siguiente,
+   así un efecto de 1 ronda dura hasta el final de tu siguiente turno. */
+function addEffect(c, name, d, conc, own) {
   if (!d) return;
   c.effects = c.effects.filter(e => e.name !== name || !!e.conc !== !!conc);
-  c.effects.push(Object.assign({ id: uid(), name, conc: !!conc }, d));
+  const e = Object.assign({ id: uid(), name, conc: !!conc }, d);
+  if (own && e.r != null && c.combat) e.rc = c.combat.round;
+  c.effects.push(e);
 }
 function endEffects(c, pred) {
   const gone = c.effects.filter(pred);

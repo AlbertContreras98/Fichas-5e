@@ -1,6 +1,6 @@
 {
   "formato": "fichas-dnd-2024/2",
-  "id": "w5meogcv",
+  "id": "f1d7qfnh",
   "name": "Brunilda",
   "species": "Enano",
   "speciesKey": "dwarf",
@@ -85,7 +85,7 @@
       "wpn": "greatsword",
       "magic": 0,
       "mastery": true,
-      "item": "36ylp2x8"
+      "item": "t7n8s8tq"
     },
     {
       "name": "Mayal",
@@ -97,7 +97,7 @@
       "wpn": "flail",
       "magic": 0,
       "mastery": true,
-      "item": "fs5bspuc"
+      "item": "og05xxtr"
     },
     {
       "name": "Jabalina",
@@ -109,7 +109,7 @@
       "wpn": "javelin",
       "magic": 0,
       "mastery": true,
-      "item": "2tuga1oa"
+      "item": "xsrsiyzd"
     },
     {
       "name": "Lanza",
@@ -121,7 +121,7 @@
       "wpn": "spear",
       "magic": 0,
       "mastery": true,
-      "item": "ao7p8kta"
+      "item": "0vsm8vtz"
     },
     {
       "name": "Arco corto",
@@ -129,11 +129,11 @@
       "dmg": "1d6 + 1",
       "type": "perforante",
       "notes": "A dos manos, munición (80/320) · Maestría: molestar",
-      "ammo": "3c1f3gpc",
+      "ammo": "dv0g3x5k",
       "wpn": "shortbow",
       "magic": 0,
       "mastery": true,
-      "item": "hxx4rnrq"
+      "item": "1prcgnsa"
     }
   ],
   "spellcasting": {
@@ -279,7 +279,7 @@
   ],
   "equipment": [
     {
-      "id": "ydet0qaz",
+      "id": "1sc0fino",
       "name": "Cota de mallas",
       "qty": 1,
       "cat": "armadura",
@@ -289,44 +289,44 @@
       "equipped": true
     },
     {
-      "id": "36ylp2x8",
+      "id": "t7n8s8tq",
       "name": "Espadón",
       "qty": 1,
       "cat": "arma",
       "notes": "",
       "weapon": "greatsword",
       "magic": 0,
-      "equipped": false
+      "equipped": true
     },
     {
-      "id": "fs5bspuc",
+      "id": "og05xxtr",
       "name": "Mayal",
       "qty": 1,
       "cat": "arma",
       "notes": "",
       "weapon": "flail",
       "magic": 0,
-      "equipped": false
+      "equipped": true
     },
     {
-      "id": "2tuga1oa",
+      "id": "xsrsiyzd",
       "name": "Jabalina",
       "qty": 8,
       "cat": "arma",
       "notes": "",
       "weapon": "javelin",
       "magic": 0,
-      "equipped": false
+      "equipped": true
     },
     {
-      "id": "4x6ktll9",
+      "id": "28kc4hpr",
       "name": "Mochila",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "0325i2yf",
+      "id": "bcbhhrjn",
       "name": "Abrojos",
       "qty": 1,
       "cat": "consumible",
@@ -334,21 +334,21 @@
       "gear": "caltrops"
     },
     {
-      "id": "qcclb3sg",
+      "id": "242xzi5o",
       "name": "Palanca",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "ml7oatxb",
+      "id": "eqf3h1kv",
       "name": "Aceite (frasco)",
       "qty": 2,
       "cat": "consumible",
       "notes": ""
     },
     {
-      "id": "8z6dvlc6",
+      "id": "gxqdrmnn",
       "name": "Raciones (días)",
       "qty": 10,
       "cat": "comida",
@@ -356,21 +356,21 @@
       "gear": "rations"
     },
     {
-      "id": "loxz107m",
+      "id": "9x0a4vc7",
       "name": "Cuerda",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "r4cih8ou",
+      "id": "al89ijmc",
       "name": "Yesquero",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "nbqjzmgm",
+      "id": "m7x8747t",
       "name": "Antorchas",
       "qty": 10,
       "cat": "consumible",
@@ -378,7 +378,7 @@
       "gear": "torch"
     },
     {
-      "id": "idc3myqm",
+      "id": "178vmi2j",
       "name": "Odre",
       "qty": 1,
       "cat": "comida",
@@ -386,27 +386,27 @@
       "gear": "waterskin"
     },
     {
-      "id": "ao7p8kta",
+      "id": "0vsm8vtz",
       "name": "Lanza",
       "qty": 1,
       "cat": "arma",
       "notes": "",
       "weapon": "spear",
       "magic": 0,
-      "equipped": false
+      "equipped": true
     },
     {
-      "id": "hxx4rnrq",
+      "id": "1prcgnsa",
       "name": "Arco corto",
       "qty": 1,
       "cat": "arma",
       "notes": "",
       "weapon": "shortbow",
       "magic": 0,
-      "equipped": false
+      "equipped": true
     },
     {
-      "id": "3c1f3gpc",
+      "id": "dv0g3x5k",
       "name": "Flechas",
       "qty": 20,
       "cat": "municion",
@@ -414,7 +414,7 @@
       "ammoKind": "arrow"
     },
     {
-      "id": "awv0zq92",
+      "id": "5ccoo43k",
       "name": "Juego",
       "qty": 1,
       "cat": "herramienta",
@@ -422,7 +422,7 @@
       "tool": "gaming"
     },
     {
-      "id": "d6hh1buf",
+      "id": "k123tizr",
       "name": "Kit de sanador",
       "qty": 10,
       "cat": "consumible",
@@ -430,14 +430,14 @@
       "gear": "healerkit"
     },
     {
-      "id": "ddgsv7g7",
+      "id": "w5tnrjrl",
       "name": "Carcaj",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "ccdcqen8",
+      "id": "89ku1gxx",
       "name": "Ropa de viajero",
       "qty": 1,
       "cat": "otro",

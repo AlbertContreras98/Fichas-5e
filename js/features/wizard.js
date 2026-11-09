@@ -834,7 +834,7 @@ function kitGive(c, kit) {
         if (a.item === e.id) a.name = nm;
       });
     }
-    if (k === 'a') e.equipped = true;
+    if (k === 'a' || k === 'w') e.equipped = true;
   });
   c.coins.gp = (+c.coins.gp || 0) + kit.gp;
   syncWeapons(c);

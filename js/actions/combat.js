@@ -19,9 +19,13 @@ Object.assign(A, {
   't-end': () => {
     const c = C();
     c.turn = { a: false, aa: false, r: false, atk: 0 };
+    const rd = c.combat ? c.combat.round : null;
     if (c.combat) c.combat.round++;
     c.effects.forEach(e => {
-      if (e.r != null) e.r--;
+      if (e.r == null) return;
+      if (e.rc != null && e.rc === rd) return delete e.rc;
+      delete e.rc;
+      e.r--;
     });
     const gone = endEffects(c, e => e.r != null && e.r <= 0);
     save();

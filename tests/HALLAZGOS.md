@@ -39,7 +39,7 @@ Formato:
 - Qué debería pasar: un personaje recién creado debería poder atacar con sus armas en Combate sin tocar nada más.
 - Propuesta: en `kitGive()` (asistente), marcar también como equipadas las armas del equipo de clase (o al menos las de la opción elegida), igual que se hace con la armadura.
 - Prioridad: frecuencia 3 + olvido 3 + coste 3 = 9
-- Estado: pendiente
+- Estado: arreglado (2026-11-09): las armas del equipo inicial quedan equipadas.
 
 ### 2. «Iniciado en la magia» del trasfondo no añade sus conjuros al crear el personaje
 - Origen: Base, reparto y prueba de humo
@@ -84,7 +84,7 @@ Formato:
 - Qué debería pasar: reconocer «media» como competencia con armadura media.
 - Propuesta: buscar «media» (y dejar «intermed» por compatibilidad).
 - Prioridad: frecuencia 3 + olvido 3 + coste 3 = 9
-- Estado: pendiente
+- Estado: arreglado (2026-11-09).
 
 ### 7. La CA sin armadura solo se calcula si hay alguna armadura en el equipo
 - Origen: 1a. Datos de la app (clases)
@@ -93,7 +93,7 @@ Formato:
 - Qué debería pasar: la Defensa sin armadura (bárbaro, monje, hechicero dracónico; y bardo de la Danza) se calcula siempre.
 - Propuesta: calcular la CA sin armadura aunque no haya armaduras en el equipo.
 - Prioridad: frecuencia 3 + olvido 3 + coste 2 = 8
-- Estado: pendiente
+- Estado: arreglado (2026-11-09): también para el bardo de la Danza desde nivel 3.
 
 ### 8. Los efectos de 1 ronda acaban en el turno equivocado
 - Origen: 1a. Datos de la app (conjuros)
@@ -102,7 +102,7 @@ Formato:
 - Qué debería pasar: distinguir «hasta el final de tu siguiente turno» y «hasta el inicio de tu siguiente turno».
 - Propuesta: guardar en el efecto en qué momento acaba (inicio o final de turno) y descontarlo en ese momento.
 - Prioridad: frecuencia 3 + olvido 3 + coste 2 = 8
-- Estado: pendiente
+- Estado: arreglado en parte (2026-11-09): un efecto de 1 ronda lanzado en tu turno dura hasta el final de tu siguiente turno. Lo lanzado como reacción sigue quitándose al terminar tu siguiente turno: la app no sabe cuándo empieza tu turno, así que Escudo se sigue viendo durante ese turno.
 
 ### 9. El contador de invocaciones (y el de Metamagia) cuenta de más
 - Origen: 1a. Datos de la app (clases)
@@ -111,7 +111,7 @@ Formato:
 - Qué debería pasar: contar solo las invocaciones (u opciones de Metamagia) elegidas.
 - Propuesta: contar solo los rasgos que empiezan por «Invocación:» (o «Metamagia:»).
 - Prioridad: frecuencia 3 + olvido 1 + coste 3 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-09).
 
 ### 10. El descanso corto termina Maleficio y Marca del cazador, y su duración no sube con el espacio
 - Origen: 1a. Datos de la app (conjuros)

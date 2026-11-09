@@ -82,9 +82,9 @@ function openInfo() {
               ([k, v]) =>
                 row(k, '', String(v), INFO_DESC[k] || '') +
                 (k === 'Invocaciones'
-                  ? list('Invocación')
+                  ? list('Invocación:')
                   : k === 'Metamagias conocidas'
-                    ? list('Metamagia')
+                    ? list('Metamagia:')
                     : '')
             )
             .join('')}`
