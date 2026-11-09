@@ -57,7 +57,7 @@ Cada archivo empieza con un comentario de una línea que dice qué contiene. El 
 
 ## Probar
 
-**Pruebas de mecánicas:** el seguimiento está en `tests/` (`PLAN.md` = hechas y pendientes, `HALLAZGOS.md` = lo encontrado, `README.md` = cómo seguir). Si Albert pide «haz la siguiente prueba» o seguir con las pruebas, lee `tests/README.md` y `tests/PLAN.md` y haz solo la primera pendiente.
+**Pruebas de la app** (fallos, mejoras y mecánicas sin automatizar): el seguimiento está en `tests/` (`PLAN.md` = hechas y pendientes, `HALLAZGOS.md` = lo encontrado, `README.md` = cómo seguir). Si Albert pide «haz la siguiente prueba» o seguir con las pruebas, lee `tests/README.md` y `tests/PLAN.md` y haz solo la primera pendiente. Si cuenta algo de una partida real, apúntalo en `tests/HALLAZGOS.md`.
 
 Para comprobar cualquier otro cambio:
 - Levanta un servidor estático (`python3 -m http.server 8777`) y prueba con Playwright, usando `serviceWorkers: 'block'` en el contexto.
