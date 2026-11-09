@@ -20,11 +20,7 @@ const files = [];
   }
 })(path.join(ROOT, 'js'));
 const src = files.map(f => [path.relative(ROOT, f), fs.readFileSync(f, 'utf8').split('\n')]);
-const norm = s =>
-  String(s)
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase();
+const norm = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 function hits(term) {
   const t = norm(term),
     out = [];
@@ -262,21 +258,36 @@ if (sobran.length) console.error('Claves de CLASIF que no existen en data/classe
 if (process.argv.includes('--md')) {
   const out = [];
   const subN = (ck, sk) => (sk ? CL[ck].subs[sk].n : '—');
-  out.push('| Clase | Rasgos | Sola | Parcial | Solo texto | Niv. 1–5: Sola / Parcial / Texto |', '|---|---|---|---|---|---|');
+  out.push(
+    '| Clase | Rasgos | Sola | Parcial | Solo texto | Niv. 1–5: Sola / Parcial / Texto |',
+    '|---|---|---|---|---|---|'
+  );
   const T = { n: 0, S: 0, P: 0, T: 0, l5: { S: 0, P: 0, T: 0 } };
   for (const ck of Object.keys(CL)) {
     const rs = rows.filter(r => r.cls === ck),
       c = e => rs.filter(r => r.e === e).length,
       c5 = e => rs.filter(r => r.e === e && r.lv <= 5).length;
-    out.push(`| ${CL[ck].n} | ${rs.length} | ${c('S')} | ${c('P')} | ${c('T')} | ${c5('S')} / ${c5('P')} / ${c5('T')} |`);
+    out.push(
+      `| ${CL[ck].n} | ${rs.length} | ${c('S')} | ${c('P')} | ${c('T')} | ${c5('S')} / ${c5('P')} / ${c5('T')} |`
+    );
     T.n += rs.length;
-    for (const e of ['S', 'P', 'T']) (T[e] += c(e)), (T.l5[e] += c5(e));
+    for (const e of ['S', 'P', 'T']) ((T[e] += c(e)), (T.l5[e] += c5(e)));
   }
-  out.push(`| **Total** | **${T.n}** | **${T.S}** | **${T.P}** | **${T.T}** | **${T.l5.S} / ${T.l5.P} / ${T.l5.T}** |`);
+  out.push(
+    `| **Total** | **${T.n}** | **${T.S}** | **${T.P}** | **${T.T}** | **${T.l5.S} / ${T.l5.P} / ${T.l5.T}** |`
+  );
   out.push('@@TABLAS@@');
   for (const ck of Object.keys(CL)) {
-    out.push('', `### ${CL[ck].n}`, '', '| Rasgo | Subclase | Nivel | Estado | Qué hace / qué falta |', '|---|---|---|---|---|');
-    const rs = rows.filter(r => r.cls === ck).sort((a, b) => !!a.sub - !!b.sub || (a.sub || '').localeCompare(b.sub || '') || a.lv - b.lv);
+    out.push(
+      '',
+      `### ${CL[ck].n}`,
+      '',
+      '| Rasgo | Subclase | Nivel | Estado | Qué hace / qué falta |',
+      '|---|---|---|---|---|'
+    );
+    const rs = rows
+      .filter(r => r.cls === ck)
+      .sort((a, b) => !!a.sub - !!b.sub || (a.sub || '').localeCompare(b.sub || '') || a.lv - b.lv);
     for (const r of rs) out.push(`| ${r.n} | ${subN(ck, r.sub)} | ${r.lv} | ${EST[r.e]} | ${r.nota} |`);
   }
   console.log(out.join('\n'));
@@ -300,6 +311,8 @@ if (process.argv.includes('--json')) {
   console.log('\nRasgos citados por nombre en js/ (revisar a mano):');
   for (const r of rows)
     if (r.hits.length || r.res.length)
-      console.log(`- ${r.cls}${r.sub ? '/' + r.sub : ''} ${r.lv} «${r.n}» res=[${r.res}] js=[${r.hits.slice(0, 4).join(', ')}${r.hits.length > 4 ? ', …' : ''}]`);
+      console.log(
+        `- ${r.cls}${r.sub ? '/' + r.sub : ''} ${r.lv} «${r.n}» res=[${r.res}] js=[${r.hits.slice(0, 4).join(', ')}${r.hits.length > 4 ? ', …' : ''}]`
+      );
   console.log(`\nTotal: ${rows.length} rasgos.`);
 }

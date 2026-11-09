@@ -76,3 +76,211 @@ Formato:
 - Propuesta: que `originRes` devuelva también el origen de cada recurso y `upsertRes` lo use.
 - Prioridad: frecuencia 1 + olvido 1 + coste 3 = 5
 - Estado: pendiente
+
+### 6. No reconoce la competencia con armadura media
+- Origen: 1a. Datos de la app (clases)
+- Tipo: Fallo
+- Qué pasa: `js/views/inventory.js:369` busca «intermed» en las competencias, pero las clases dicen «armadura media». Un bárbaro, clérigo o explorador con armadura media ve «no eres competente… no puedes lanzar conjuros». Comprobado en la app.
+- Qué debería pasar: reconocer «media» como competencia con armadura media.
+- Propuesta: buscar «media» (y dejar «intermed» por compatibilidad).
+- Prioridad: frecuencia 3 + olvido 3 + coste 3 = 9
+- Estado: pendiente
+
+### 7. La CA sin armadura solo se calcula si hay alguna armadura en el equipo
+- Origen: 1a. Datos de la app (clases)
+- Tipo: Fallo
+- Qué pasa: `acOf` (`js/views/inventory.js:398`) solo recalcula la CA si el equipo tiene alguna armadura. Un bárbaro o monje sin armaduras no sube la CA al subir CON, DES o SAB, y un hechicero dracónico con CAR 16 se queda en CA 11 en vez de 14. Comprobado en la app.
+- Qué debería pasar: la Defensa sin armadura (bárbaro, monje, hechicero dracónico; y bardo de la Danza) se calcula siempre.
+- Propuesta: calcular la CA sin armadura aunque no haya armaduras en el equipo.
+- Prioridad: frecuencia 3 + olvido 3 + coste 2 = 8
+- Estado: pendiente
+
+### 8. Los efectos de 1 ronda acaban en el turno equivocado
+- Origen: 1a. Datos de la app (conjuros)
+- Tipo: Regla
+- Qué pasa: `js/actions/combat.js:24`. La ventaja de Saeta guía se quita al terminar el mismo turno en que se lanza (comprobado), cuando dura hasta el final de tu siguiente turno. Escudo lanzado como reacción sigue visible todo tu turno siguiente, cuando acaba al empezarlo.
+- Qué debería pasar: distinguir «hasta el final de tu siguiente turno» y «hasta el inicio de tu siguiente turno».
+- Propuesta: guardar en el efecto en qué momento acaba (inicio o final de turno) y descontarlo en ese momento.
+- Prioridad: frecuencia 3 + olvido 3 + coste 2 = 8
+- Estado: pendiente
+
+### 9. El contador de invocaciones (y el de Metamagia) cuenta de más
+- Origen: 1a. Datos de la app (clases)
+- Tipo: Fallo
+- Qué pasa: Zyo ve «Invocaciones 2 / 1» porque se cuenta también el rasgo «Invocaciones sobrenaturales» (`js/views/play.js:203,211`, `js/views/top.js:84`). Comprobado. Lo mismo pasa con Metamagia (`js/views/play.js:213`, `js/views/top.js:87`).
+- Qué debería pasar: contar solo las invocaciones (u opciones de Metamagia) elegidas.
+- Propuesta: contar solo los rasgos que empiezan por «Invocación:» (o «Metamagia:»).
+- Prioridad: frecuencia 3 + olvido 1 + coste 3 = 7
+- Estado: pendiente
+
+### 10. El descanso corto termina Maleficio y Marca del cazador, y su duración no sube con el espacio
+- Origen: 1a. Datos de la app (conjuros)
+- Tipo: Regla
+- Qué pasa: `js/actions/rest.js:86` y `js/views/play.js:341`. La app pone siempre 1 h y el descanso corto los quita aunque les quede tiempo. Con un espacio de nivel 2 Maleficio dura 4 h (8 h con nivel 3–4, 24 h con 5+). A Zyo le afectará a partir de nivel 3. Comprobado.
+- Qué debería pasar: duración según el espacio, y que un descanso corto no los quite si les queda tiempo.
+- Propuesta: duración por nivel de espacio en los datos; el descanso corto solo resta 1 h.
+- Prioridad: frecuencia 2 + olvido 3 + coste 2 = 7
+- Estado: pendiente
+
+### 11. Defensa paciente y Paso del viento siempre gastan 1 punto
+- Origen: 1a. Datos de la app (clases)
+- Tipo: Regla
+- Qué pasa: en 2024 la versión básica (Destrabarse / Esquivar o Correr) es gratis como acción adicional; solo la versión mejorada gasta 1 punto de concentración. La app siempre gasta el punto.
+- Qué debería pasar: ofrecer las dos versiones.
+- Propuesta: dos botones (gratis / con punto).
+- Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
+- Estado: pendiente
+
+### 12. Las armas de monje calculan con FUE en vez de la mejor entre FUE y DES
+- Origen: 1a. Datos de la app (clases)
+- Tipo: Regla
+- Qué pasa: `js/views/inventory.js:204`. Las armas de monje (y el arma de pacto, ver n.º 3) usan la regla normal del arma. Además falta el ataque de golpe desarmado del monje con DES y su dado de Artes marciales.
+- Qué debería pasar: el monje usa DES si es mejor y el dado de Artes marciales si es mayor.
+- Propuesta: aplicarlo en el cálculo del ataque cuando el personaje tiene Artes marciales.
+- Prioridad: frecuencia 2 + olvido 3 + coste 2 = 7
+- Estado: pendiente
+
+### 13. Los efectos de minutos u horas nunca bajan
+- Origen: 1a. Datos de la app (conjuros)
+- Tipo: Regla
+- Qué pasa: solo los quitan los descansos. Los de 24 h o más se quedan hasta quitarlos a mano. Fuera de combate no hay forma de decir «han pasado 10 minutos».
+- Qué debería pasar: poder hacer pasar el tiempo y que los efectos caduquen.
+- Propuesta: botón «Pasa el tiempo» (10 min / 1 h) que descuente los efectos.
+- Prioridad: frecuencia 2 + olvido 2 + coste 2 = 6
+- Estado: pendiente
+
+### 14. Protección contra el bien y el mal no es de concentración
+- Origen: 1a. Datos de la app (conjuros)
+- Tipo: Regla
+- Qué pasa: tiene `"k":false` en `data/spells.js`. En 2024 es de concentración. Es el único conjuro con ese error. Comprobado.
+- Qué debería pasar: que pida concentración.
+- Propuesta: cambiar el dato.
+- Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
+- Estado: pendiente
+
+### 15. Los conjuros de Arcano místico no se pueden lanzar
+- Origen: 1a. Datos de la app (clases y conjuros)
+- Tipo: Fallo
+- Qué pasa: a un brujo de nivel 11 o más le sale «Sin espacios» en su conjuro de Arcano místico (`js/views/play.js:240`).
+- Qué debería pasar: se lanza una vez por descanso largo sin gastar espacio.
+- Propuesta: tratarlo como lanzamiento gratis con su uso.
+- Prioridad: frecuencia 1 + olvido 3 + coste 2 = 6
+- Estado: pendiente
+
+### 16. Hoja sedienta y Hoja devoradora suben los ataques con cualquier arma
+- Origen: 1a. Datos de la app (invocaciones)
+- Tipo: Regla
+- Qué pasa: `js/views/turn.js:113-115`. Dan el ataque extra con cualquier arma, no solo con la de pacto.
+- Qué debería pasar: solo con el arma de pacto.
+- Propuesta: ligarlo al arma de pacto cuando exista (ver n.º 3).
+- Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
+- Estado: pendiente
+
+### 17. La maestría se activa en todas las armas, sin límite
+- Origen: 1a. Datos de la app (objetos)
+- Tipo: Regla
+- Qué pasa: `js/views/inventory.js:121` y `js/features/shop.js:136`. No se respeta el número de armas de «Maestría con armas» de cada clase, y la dote Maestro de armas no activa ninguna (`js/views/inventory.js:187`).
+- Qué debería pasar: elegir tantas armas como permita la clase (y la dote).
+- Propuesta: marcar en cada arma si su maestría está elegida, con el tope por clase.
+- Prioridad: frecuencia 2 + olvido 2 + coste 2 = 6
+- Estado: pendiente
+
+### 18. La competencia con algunas herramientas no se reconoce
+- Origen: 1a. Datos de la app (origen)
+- Tipo: Fallo
+- Qué pasa: los trasfondos y dotes usan nombres distintos a los del inventario: «Útiles de caligrafía» (Acólito, Sabio, Escriba, `data/origins.js:58,69,71`) frente a «Suministros de calígrafo»; «Útiles de falsificación» (Charlatán, `data/origins.js:60`) frente a «Kit de falsificación»; «útiles de envenenador» (dote Envenenador, `data/feats.js:86`) frente a «Kit de envenenador». El inventario los marca «sin competencia» (visto en las fichas del mago y el paladín).
+- Qué debería pasar: reconocer la competencia.
+- Propuesta: unificar los nombres.
+- Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
+- Estado: pendiente
+
+### 19. Lecciones de los Primeros no aplica las elecciones de la dote
+- Origen: 1a. Datos de la app (invocaciones)
+- Tipo: Fallo
+- Qué pasa: `js/features/invocations.js:219-232`. La dote de origen se añade como texto, sin pedir sus elecciones (conjuros, habilidades, herramientas). Es el mismo problema que el n.º 2, por otra vía.
+- Qué debería pasar: pedir las elecciones como al coger la dote a nivel 4.
+- Propuesta: usar `featApply` también aquí.
+- Prioridad: frecuencia 1 + olvido 3 + coste 2 = 6
+- Estado: pendiente
+
+### 20. Desde Combate, lanzar como ritual solo gasta la acción
+- Origen: 1a. Datos de la app (conjuros)
+- Tipo: Regla
+- Qué pasa: `js/actions/play.js:81`. Un ritual tarda 10 minutos más que el lanzamiento normal, así que en combate casi nunca se puede.
+- Qué debería pasar: no ofrecer el ritual en combate, o avisar de los 10 minutos.
+- Propuesta: aviso o quitar la opción con el combate en marcha.
+- Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
+- Estado: pendiente
+
+### 21. Armadura de mago lanzada sobre otra criatura sube tu CA
+- Origen: 1a. Datos de la app (conjuros)
+- Tipo: Fallo
+- Qué pasa: `js/views/inventory.js:396`. Siempre se aplica a quien lo lanza.
+- Qué debería pasar: preguntar el objetivo y solo subir tu CA si eres tú.
+- Propuesta: pregunta «¿sobre ti?» al lanzarlo.
+- Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
+- Estado: pendiente
+
+### 22. Don de recuperación pierde la reserva de 10d10
+- Origen: 1a. Datos de la app (origen)
+- Tipo: Fallo
+- Qué pasa: `js/core/rules.js:44`. El recurso se crea sin `pool`, así que no lleva la cuenta de los dados.
+- Qué debería pasar: reserva de 10d10 que se gasta y se recupera en descanso largo.
+- Propuesta: conservar `pool` al crear el recurso.
+- Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
+- Estado: pendiente
+
+### 23. El druida de nivel 18 sigue sin poder lanzar conjuros en forma salvaje
+- Origen: 1a. Datos de la app (clases)
+- Tipo: Regla
+- Qué pasa: `js/views/turn.js:169` bloquea siempre los conjuros en forma salvaje, aunque Conjuros bestiales (nivel 18) lo permite.
+- Propuesta: no bloquearlos desde nivel 18.
+- Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
+- Estado: pendiente
+
+### 24. Pasos de las hadas sale como «sin gastar acción»
+- Origen: 1a. Datos de la app (clases)
+- Tipo: Regla
+- Qué pasa: no está en `WHEN`, así que no gasta la acción adicional que le toca. Además, el Paso brumoso gratis no está enlazado en `FREE_LINK`.
+- Propuesta: añadirlo a `WHEN` como acción adicional y enlazarlo.
+- Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
+- Estado: pendiente
+
+### 25. La Furia no corta la concentración
+- Origen: 1a. Datos de la app (clases)
+- Tipo: Regla
+- Qué pasa: al entrar en Furia no se quita la concentración ni se impide lanzar conjuros. La Furia tampoco crea un efecto con duración ni aplica daño extra o resistencias (ver candidatas en `INVENTARIO.md`).
+- Propuesta: al usar Furia, terminar la concentración y crear el efecto.
+- Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
+- Estado: pendiente
+
+### 26. Se pide concentración por Marca del cazador al explorador de nivel 13
+- Origen: 1a. Datos de la app (clases)
+- Tipo: Regla
+- Qué pasa: desde nivel 13 (Cazador implacable) el daño no rompe la concentración de Marca del cazador, pero la app pide la salvación igual.
+- Propuesta: no pedirla desde nivel 13 si solo se concentra en Marca del cazador.
+- Prioridad: frecuencia 1 + olvido 1 + coste 3 = 5
+- Estado: pendiente
+
+### 27. No se controla «un solo espacio de conjuro por turno»
+- Origen: 1a. Datos de la app (conjuros)
+- Tipo: Regla
+- Qué pasa: en 2024 solo puedes gastar un espacio de conjuro por turno. La app deja gastar varios sin avisar.
+- Propuesta: aviso al gastar un segundo espacio en el mismo turno.
+- Prioridad: frecuencia 1 + olvido 2 + coste 2 = 5
+- Estado: pendiente
+
+### 28. Fallos menores varios
+- Origen: 1a. Datos de la app
+- Tipo: Fallo
+- Qué pasa:
+  - El ataque extra con arma ligera se puede usar sin haber atacado antes con un arma ligera.
+  - La Lanza de caballería sale con la nota de Duelo.
+  - Sentidos agudos del elfo no obliga a elegir de su lista.
+  - El tamaño «M o P» se guarda tal cual, sin dejar elegir.
+  - Las dotes con conjuros usan la aptitud mágica de la ficha en vez de la que dice la dote (`js/features/feats.js:311-312`).
+  - La poción de invisibilidad no pone el estado «Invisible».
+  - Polimorfar deja dos efectos con el mismo nombre.
+- Propuesta: arreglarlos de uno en uno cuando se toque cada parte.
+- Prioridad: frecuencia 1 + olvido 1 + coste 3 = 5
+- Estado: pendiente
