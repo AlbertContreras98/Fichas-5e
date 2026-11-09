@@ -293,3 +293,12 @@ Formato:
 - Propuesta: botón «Usar» junto al contador.
 - Prioridad: frecuencia 3 + olvido 3 + coste 3 = 9
 - Estado: arreglado (2026-11-09): botón «Usar» en Rasgos y dotes que gasta el uso y devuelve los espacios.
+
+### 30. Duda para el máster: ¿dormir en un descanso largo rompe la concentración?
+- Origen: arreglo del n.º 10
+- Tipo: Regla
+- Qué pasa: las reglas de 2024 no lo dejan del todo claro. Ahora la app resta 8 h a los efectos en el descanso largo, así que un Maleficio de 24 h sigue activo (con 16 h) después de dormir.
+- Qué debería pasar: lo que diga el máster de Albert.
+- Propuesta: si dice que dormir la rompe, terminar la concentración en el descanso largo (cambio pequeño).
+- Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
+- Estado: pendiente (esperando la respuesta del máster)
