@@ -52,7 +52,7 @@ function viewEdit(c) {
     )
   ).join('')}</div></section>
   <section class="card"><h2>Combate</h2><div class="grid">
-    ${armorAuto(c) ? `<label class="f"><span>CA (calculada)</span><input value="${acOf(c)}" readonly title="Se calcula con la armadura y el escudo que llevas puestos"></label>${inp('Otros bonificadores a la CA', 'acBonus', c.acBonus || 0, { num: 1 })}` : inp('CA', 'ac', c.ac, { num: 1 })}${inp('Velocidad (pies)', 'speedFt', c.speedFt, { num: 1 })}${inp('Tamaño', 'size', c.size)}${inp('Extra a iniciativa', 'initiativeBonus', c.initiativeBonus, { num: 1 })}
+    ${armorAuto(c) ? `<label class="f"><span>CA (calculada)</span><input value="${acBase(c)}" readonly title="Se calcula con la armadura y el escudo que llevas puestos"></label>${inp('Otros bonificadores a la CA', 'acBonus', c.acBonus || 0, { num: 1 })}` : inp('CA', 'ac', c.ac, { num: 1 })}${inp('Velocidad (pies)', 'speedFt', c.speedFt, { num: 1 })}${inp('Tamaño', 'size', c.size)}${inp('Extra a iniciativa', 'initiativeBonus', c.initiativeBonus, { num: 1 })}
     ${inp('PG máximos', 'hp.max', c.hp.max, { num: 1 })}${inp('PG actuales', 'hp.current', c.hp.current, { num: 1 })}${inp('Dado de golpe', 'hitDice.die', c.hitDice.die, { ph: 'd8' })}${inp('Nº dados de golpe', 'hitDice.total', c.hitDice.total, { num: 1 })}
   </div></section>
   <section class="card"><h2>Armas y ataques</h2><p class="hint">Si el arma usa munición (arco, ballesta…), enlázala a un objeto de munición del inventario y en la partida podrás descontarla con un toque.</p><div class="stack">${c.attacks

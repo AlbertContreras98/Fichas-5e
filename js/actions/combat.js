@@ -20,7 +20,7 @@ Object.assign(A, {
     const c = C();
     /* La reacción no vuelve al terminar tu turno, sino al empezar el siguiente (turnStart) */
     const rSpent = !!c.turn.r;
-    c.turn = { a: false, aa: false, r: rSpent, atk: 0, wait: true };
+    c.turn = { a: false, aa: false, r: rSpent, atk: 0, wait: true, k: (+c.turn.k || 0) + 1 };
     const rd = c.combat ? c.combat.round : null;
     if (c.combat) c.combat.round++;
     c.effects.forEach(e => {
@@ -36,6 +36,8 @@ Object.assign(A, {
       toast(
         `<div class="t-label">Efecto terminado</div><div class="t-parts">${gone.map(esc).join(', ')} ${gone.length > 1 ? 'han' : 'ha'} terminado.</div>`
       );
+    const rs = repeatSaves(c);
+    if (rs) toast(`<div class="t-label">Recuerda al máster</div>${rs}`, true);
   },
   'cb-start': () => {
     const c = C();
@@ -97,7 +99,7 @@ Object.assign(A, {
     save();
     render();
     toast(
-      `<div class="t-label">Ataque con ${esc(a.name)}</div><div class="t-big">1d20 ${sgn((+a.atk || 0) + d20Pen(c))}</div>${d20Line(c, 'atk', a) ? `<div class="t-parts">${d20Line(c, 'atk', a)}</div>` : ''}<div class="t-parts">Si impactas, daño: ${esc(a.dmg || '—')} ${esc(a.type || '')}${am ? ` · quedan ${am.qty} ${esc(am.name)}` : ''}${T.atk > 0 ? ` · te quedan ${T.atk} ataques` : ''}</div>${hitExtras(
+      `<div class="t-label">Ataque con ${esc(a.name)}</div><div class="t-big">1d20 ${sgn((+a.atk || 0) + d20Pen(c))}</div>${d20Line(c, 'atk', a) ? `<div class="t-parts">${d20Line(c, 'atk', a)}</div>` : ''}<div class="t-parts">Si impactas, daño: ${esc(a.dmg || '—')} ${esc(a.type || '')}${am ? ` · quedan ${am.qty} ${esc(am.name)}` : ''}${T.atk > 0 ? ` · te quedan ${T.atk} ataques` : ''}</div>${critLine(a.dmg, hitExtras(c, false).length)}${hitExtras(
         c,
         false
       )
@@ -149,7 +151,7 @@ Object.assign(A, {
     save();
     render();
     toast(
-      `<div class="t-label">Golpe desarmado</div><div class="t-big">1d20 ${sgn(u.atk + d20Pen(c))}</div><div class="t-parts">Si impactas, daño: ${esc(u.dmg)} contundente${T.atk > 0 ? ` · te quedan ${T.atk} ataques` : ''}</div>${dl ? `<div class="t-parts">${dl}</div>` : ''}${u.note ? `<div class="t-parts">${esc(u.note)}</div>` : ''}${hitExtras(
+      `<div class="t-label">Golpe desarmado</div><div class="t-big">1d20 ${sgn(u.atk + d20Pen(c))}</div><div class="t-parts">Si impactas, daño: ${esc(u.dmg)} contundente${T.atk > 0 ? ` · te quedan ${T.atk} ataques` : ''}</div>${dl ? `<div class="t-parts">${dl}</div>` : ''}${u.note ? `<div class="t-parts">${esc(u.note)}</div>` : ''}${critLine(u.dmg, hitExtras(c, false).length)}${hitExtras(
         c,
         false
       )
@@ -165,7 +167,7 @@ Object.assign(A, {
     save();
     render();
     toast(
-      `<div class="t-label">Ataque con ${esc(a.name)} (acción adicional)</div><div class="t-big">1d20 ${sgn((+a.atk || 0) + d20Pen(c))}</div>${d20Line(c, 'atk', a) ? `<div class="t-parts">${d20Line(c, 'atk', a)}</div>` : ''}<div class="t-parts">El ataque suma tu bonificador de competencia como siempre.</div><div class="t-parts">Daño: ${esc(lightDmg(c, a))}${featHas(c, 'twf') ? ' (con Combate con dos armas sumas tu modificador al daño)' : ' (sin tu modificador de característica, salvo que sea negativo)'}.</div>${hitExtras(
+      `<div class="t-label">Ataque con ${esc(a.name)} (acción adicional)</div><div class="t-big">1d20 ${sgn((+a.atk || 0) + d20Pen(c))}</div>${d20Line(c, 'atk', a) ? `<div class="t-parts">${d20Line(c, 'atk', a)}</div>` : ''}<div class="t-parts">El ataque suma tu bonificador de competencia como siempre.</div><div class="t-parts">Daño: ${esc(lightDmg(c, a))}${featHas(c, 'twf') ? ' (con Combate con dos armas sumas tu modificador al daño)' : ' (sin tu modificador de característica, salvo que sea negativo)'}.</div>${critLine(lightDmg(c, a), hitExtras(c, false).length)}${hitExtras(
         c,
         false
       )
@@ -205,6 +207,19 @@ Object.assign(A, {
       c.turn.a = false;
       c.turn.atk = 0;
     }
+    if (f.name === 'Metabolismo asombroso') {
+      const pts = c.features.find(x => x.name === 'Puntos de concentración'),
+        maD = infoFor(defOf(c), subOf(c), c.level)['Dado de artes marciales'] || 'd6';
+      if (pts) pts.uses.used = 0;
+      save();
+      render();
+      return healRoll(
+        'Metabolismo asombroso',
+        `${pts ? `Recuperas todos tus puntos de concentración (${pts.uses.max}). ` : ''}Tira <b>1${maD}</b> y escribe el resultado: la app suma tu nivel de monje (${c.level}).`,
+        c.level,
+        +maD.slice(1) || 6
+      );
+    }
     if (f.name === 'Furia') {
       const was = c.concentration;
       if (was) endEffects(c, e => e.conc);
@@ -216,6 +231,28 @@ Object.assign(A, {
     }
     save();
     render();
+  },
+  'hr-ok': el => {
+    const c = C(),
+      r = parseInt($('#hr-r').value),
+      max = +el.dataset.max;
+    if (!(r >= 1 && r <= max)) {
+      $('#hr-r').focus();
+      return;
+    }
+    const was = c.hp.current,
+      n = r + +el.dataset.x;
+    c.hp.current = Math.min(c.hp.max, c.hp.current + n);
+    if (was <= 0 && c.hp.current > 0) {
+      c.deathSaves = { success: 0, fail: 0 };
+      c.conditions = c.conditions.filter(x => x !== 'Inconsciente');
+    }
+    closeModal();
+    save();
+    render();
+    toast(
+      `<div class="t-label">${esc(el.dataset.t)}</div><div class="t-big good">+${c.hp.current - was}</div><div class="t-parts">${r} + ${el.dataset.x}${c.hp.current - was < n ? ' (no pasas de tu máximo)' : ''} · PG: ${c.hp.current} / ${c.hp.max}</div>`
+    );
   },
   't-pool': el => {
     const c = C(),
@@ -295,11 +332,45 @@ Object.assign(A, {
   },
   't-gen': el => {
     const c = C(),
-      g = G[el.dataset.k];
+      k = el.dataset.k,
+      g = G[k];
     spendEco(c, 'A');
+    let more = '',
+      keep = false;
+    const sk = ids =>
+      `<div class="t-parts">${ids.map(id => `${SK[id][1]} <b>${sgn(skillB(c, SK[id]) + d20Pen(c))}</b>`).join(' · ')}</div>${d20Line(c, 'check') ? `<div class="t-parts">${d20Line(c, 'check')}</div>` : ''}`;
+    if (k === 'a_dodge') {
+      addEffect(c, 'Esquivando', { r: 1 }, false, true);
+      markSt(
+        c,
+        c.effects.find(e => e.name === 'Esquivando')
+      );
+      more =
+        '<div class="t-parts">Hasta el principio de tu siguiente turno: los ataques contra ti tienen desventaja (si ves a quien ataca) y tienes ventaja en las salvaciones de DES. Se pierde si quedas incapacitado o tu velocidad baja a 0. La app lo quita sola al empezar tu turno.</div>';
+    } else if (k === 'a_dash')
+      more = `<div class="t-parts">Este turno puedes moverte hasta <b>${2 * speedCalc(c).ft} pies</b> en total.</div>`;
+    else if (k === 'a_search') more = sk(['perception', 'insight', 'medicine', 'survival']);
+    else if (k === 'a_study') more = sk(['investigation', 'arcana', 'history', 'nature', 'religion']);
+    else if (k === 'a_influence')
+      more = sk(['persuasion', 'deception', 'intimidation', 'performance', 'animal']);
+    else if (k === 'a_hide') {
+      keep = true;
+      more = `<div class="t-parts">Tira Sigilo <b>1d20 ${sgn(skillB(c, SK.stealth) + d20Pen(c))}</b> contra CD 15. Necesitas no estar a la vista de los enemigos (detrás de algo que te tape o en oscuridad).</div>${d20Line(c, 'check') ? `<div class="t-parts">${d20Line(c, 'check')}</div>` : ''}<div class="t-actions"><button class="b sm pri" data-act="hide-ok">Lo supero</button><button class="b sm" data-act="close-toast">No</button></div>`;
+    }
     save();
     render();
-    toast(`<div class="t-label">${esc(g.t)}</div><div class="t-parts">${esc(g.d)}</div>`);
+    toast(`<div class="t-label">${esc(g.t)}</div>${more || `<div class="t-parts">${esc(g.d)}</div>`}`, keep);
+  },
+  'hide-ok': el => {
+    const c = C();
+    if (!c.conditions.includes('Invisible')) c.conditions.push('Invisible');
+    const t = el.closest('.toast');
+    if (t) t.remove();
+    save();
+    render();
+    toast(
+      '<div class="t-label">Escondido</div><div class="t-parts">Tienes el estado Invisible. Lo pierdes si haces ruido, atacas, lanzas un conjuro con componente verbal o te encuentran. Quítalo en Vida y estado cuando pase.</div>'
+    );
   },
   't-opp': () => {
     const c = C();

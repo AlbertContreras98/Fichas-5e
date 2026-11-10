@@ -426,11 +426,26 @@ const wearsBodyArmor = c =>
   );
 const mageArmorOn = c => c.effects.some(e => !e.other && norm(e.name).includes('armadura de mago'));
 /* Sin armaduras en el inventario, la CA es la que escribe el jugador; Armadura de mago la sube a 13 + DES si es mayor */
-const acOf = c =>
+const acBase = c =>
   armorAuto(c)
     ? acCalc(c).ac
     : Math.max(+c.ac || 0, mageArmorOn(c) && !wearsBodyArmor(c) ? 13 + M(c, 'dex') + (+c.acBonus || 0) : 0) +
       miAC(c);
+/* Conjuros activos sobre ti que cambian la CA: +N o «mínimo N» (Piel robliza) */
+const SPELL_AC = { shield: 5, 'shield-of-faith': 2, haste: 2, barkskin: 'min17' };
+function spellACList(c) {
+  return Object.entries(SPELL_AC)
+    .filter(([id]) => {
+      const d = SPBY[id];
+      return d && c.effects.some(e => !e.other && [d.n, d.en].some(x => norm(x) === norm(e.name)));
+    })
+    .map(([id, v]) => [SPBY[id].n, v]);
+}
+function acOf(c) {
+  const l = spellACList(c),
+    ac = acBase(c) + l.reduce((t, [, v]) => t + (typeof v === 'number' ? v : 0), 0);
+  return l.some(([, v]) => v === 'min17') ? Math.max(17, ac) : ac;
+}
 function linkArmor(c) {
   if (c._armorLinked) return;
   c._armorLinked = true;

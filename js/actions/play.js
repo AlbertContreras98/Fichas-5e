@@ -27,6 +27,60 @@ Object.assign(A, {
     save();
     render();
   },
+  /* Recuperación arcana (mago 1): tras un descanso corto, espacios gastados cuyos niveles sumen hasta la mitad del nivel de mago (redondeando hacia arriba), ninguno de nivel 6 o más */
+  arcane: el => {
+    const c = C(),
+      f = c.features[+el.dataset.i];
+    if (!f || f.uses.max - f.uses.used <= 0) return;
+    const cap = Math.ceil(c.level / 2),
+      rows = c.slots
+        .map((s, i) => ({ L: i + 1, used: Math.min(+s.used || 0, +s.total || 0) }))
+        .filter(o => o.L <= 5 && o.L <= cap && o.used > 0);
+    if (!rows.length) {
+      toast(
+        '<div class="t-label">Recuperación arcana</div><div class="t-parts">No tienes espacios gastados que puedas recuperar (de nivel 1 a 5).</div>'
+      );
+      return;
+    }
+    openModal(`<h2>Recuperación arcana</h2><p>Al terminar un descanso corto recuperas espacios gastados cuyos niveles sumen como mucho <b>${cap}</b> (la mitad de tu nivel de mago, redondeando hacia arriba). Ninguno puede ser de nivel 6 o más.</p>
+      <div class="grid">${rows.map(o => `<label class="f"><span>Nivel ${o.L} (gastados ${o.used})</span><select data-arc="${o.L}">${Array.from({ length: Math.min(o.used, Math.floor(cap / o.L)) + 1 }, (_, n) => `<option value="${n}">${n}</option>`).join('')}</select></label>`).join('')}</div>
+      <p class="hint" id="arc-msg"></p>
+      <div class="btns"><button class="b pri" data-act="arcane-ok" data-i="${el.dataset.i}">Recuperar</button><button class="b" data-act="close-modal">Cancelar</button></div>`);
+  },
+  'arcane-ok': el => {
+    const c = C(),
+      f = c.features[+el.dataset.i],
+      cap = Math.ceil(c.level / 2),
+      pick = [...document.querySelectorAll('[data-arc]')]
+        .map(s => [+s.dataset.arc, +s.value])
+        .filter(([, n]) => n > 0),
+      sum = pick.reduce((t, [L, n]) => t + L * n, 0);
+    if (!pick.length) return ($('#arc-msg').textContent = 'Elige al menos un espacio.');
+    if (sum > cap) return ($('#arc-msg').textContent = `Suman ${sum} niveles y el máximo es ${cap}.`);
+    pick.forEach(([L, n]) => (c.slots[L - 1].used = Math.max(0, c.slots[L - 1].used - n)));
+    f.uses.used++;
+    closeModal();
+    save();
+    render();
+    toast(
+      `<div class="t-label">Recuperación arcana</div><div class="t-parts">Recuperas ${pick.map(([L, n]) => `${n} de nivel ${L}`).join(', ')}.</div>`
+    );
+  },
+  /* Restauración hechicera (hechicero 5): tras un descanso corto, puntos de hechicería hasta la mitad del nivel (hacia abajo) */
+  'sorc-rest': el => {
+    const c = C(),
+      f = c.features[+el.dataset.i],
+      pts = c.features.find(x => x.name === 'Puntos de hechicería');
+    if (!f || f.uses.max - f.uses.used <= 0 || !pts) return;
+    const n = Math.min(Math.floor(c.level / 2), pts.uses.used);
+    pts.uses.used -= n;
+    f.uses.used++;
+    save();
+    render();
+    toast(
+      `<div class="t-label">Restauración hechicera</div><div class="t-parts">${n ? `Recuperas ${n} puntos de hechicería.` : 'No tenías puntos de hechicería gastados.'} Úsala al terminar un descanso corto.</div>`
+    );
+  },
   /* Astucia mágica (brujo 2): ritual de 1 minuto que devuelve espacios de pacto hasta la mitad del máximo (todos a nivel 20) */
   cunning: el => {
     const c = C(),
@@ -63,6 +117,12 @@ Object.assign(A, {
         );
       openModal(`<h2>Armadura de mago</h2><p>¿Sobre quién lo lanzas? Solo sube tu CA si te lo lanzas a ti.</p>
         ${ar ? `<p class="hint warn">Llevas armadura puesta (${esc(ar.name)}): sobre ti no funcionará hasta que te la quites desde el inventario.</p>` : ''}
+        <div class="btns"><button class="b pri" data-act="cast-armor-ok" data-i="${el.dataset.i}" data-who="me">Sobre mí</button><button class="b" data-act="cast-armor-ok" data-i="${el.dataset.i}" data-who="other">Sobre otra criatura</button><button class="b" data-act="close-modal">Cancelar</button></div>`);
+      return;
+    }
+    /* Conjuros que suben la CA de quien los recibe: sobre quién se lanzan */
+    if (!el.dataset.who && SPELL_AC[sp.ref] && sp.ref !== 'shield') {
+      openModal(`<h2>${esc(sp.name)}</h2><p>¿Sobre quién lo lanzas? Solo sube tu CA si te lo lanzas a ti.</p>
         <div class="btns"><button class="b pri" data-act="cast-armor-ok" data-i="${el.dataset.i}" data-who="me">Sobre mí</button><button class="b" data-act="cast-armor-ok" data-i="${el.dataset.i}" data-who="other">Sobre otra criatura</button><button class="b" data-act="close-modal">Cancelar</button></div>`);
       return;
     }

@@ -45,6 +45,7 @@ function vidaHTML(c) {
     <div class="hpctl"><input id="hpAmt" type="number" inputmode="numeric" min="0" placeholder="0" aria-label="Cantidad de PG">
       <button class="b bad" data-act="hp" data-m="dmg">Daño</button><button class="b good" data-act="hp" data-m="heal">Curar</button><button class="b" data-act="hp" data-m="temp">PG temporales</button><button class="b sm help" data-act="gloss" data-k="temp" aria-label="Qué son los PG temporales">?</button></div>
     <div class="hpctl2"><small>Daño con</small><button class="b sm bad" data-act="hp" data-m="half">Resistencia (½)</button><button class="b sm bad" data-act="hp" data-m="double">Vulnerabilidad (×2)</button></div>
+    ${resistOf(c).length ? `<p class="hint warn"><b>Resistes:</b> ${esc(resistOf(c).join(', '))}. Si el daño es de ese tipo, pulsa «Resistencia (½)».</p>` : ''}
     <p class="hint">Escribe el daño que sale en los dados. Con resistencia recibes la mitad (redondeando hacia abajo); con vulnerabilidad, el doble.</p>
     ${deathHTML(c)}
     <h3>Estados</h3><div class="chips">${CONDS.map(([n]) => `<button class="chip ${c.conditions.includes(n) ? 'on' : ''}" data-act="cond" data-n="${n}" aria-pressed="${c.conditions.includes(n)}">${n}</button>`).join('')}</div>
@@ -249,7 +250,7 @@ function viewPlay(c) {
       ? `<div class="list">${c.features
           .map(
             (f, i) => `<div class="it"><div class="it-head"><span class="it-name">${esc(f.name)}</span></div>
-      ${f.uses.max > 0 ? `<div class="usesrow">${usesCtl(f, i)}<small>${esc(REC[f.uses.recover] || 'sin recuperación automática')}</small>${f.name === 'Astucia mágica' && f.uses.used < f.uses.max ? `<button class="b sm" data-act="cunning" data-i="${i}">Usar</button>` : ''}</div>` : ''}
+      ${f.uses.max > 0 ? `<div class="usesrow">${usesCtl(f, i)}<small>${esc(REC[f.uses.recover] || 'sin recuperación automática')}</small>${f.name === 'Astucia mágica' && f.uses.used < f.uses.max ? `<button class="b sm" data-act="cunning" data-i="${i}">Usar</button>` : ''}${['Recuperación arcana', 'Restauración hechicera'].includes(f.name) && f.uses.used < f.uses.max ? `<button class="b sm" data-act="${f.name === 'Recuperación arcana' ? 'arcane' : 'sorc-rest'}" data-i="${i}">Usar</button>` : ''}</div>` : ''}
       ${f.source ? `<div class="meta">${esc(f.source)}</div>` : ''}
       ${f.text ? `<details><summary>Detalles</summary><p>${esc(f.text)}</p></details>` : ''}</div>`
           )
@@ -362,6 +363,13 @@ function falseLife(c, sp) {
     <div class="btns"><button class="b" data-act="close-modal">Ahora no</button></div>`);
   setTimeout(() => $('#fl-r') && $('#fl-r').focus(), 0);
 }
+/* Ventana de curación de un rasgo: el jugador tira el dado y la app suma el resto */
+function healRoll(title, text, bonus, max) {
+  openModal(`<h2>${esc(title)}</h2><p>${text}</p>
+    <div class="hpctl"><input id="hr-r" type="number" inputmode="numeric" min="1" max="${max}" placeholder="1–${max}" aria-label="Resultado del dado"><button class="b good" data-act="hr-ok" data-x="${bonus}" data-max="${max}" data-t="${esc(title)}">Curarme</button></div>
+    <div class="btns"><button class="b" data-act="close-modal">Ahora no</button></div>`);
+  setTimeout(() => $('#hr-r') && $('#hr-r').focus(), 0);
+}
 function afterCast(sp, how) {
   const c = C();
   let note = '';
@@ -376,12 +384,24 @@ function afterCast(sp, how) {
     c.concentration = sp.name;
   }
   addEffect(c, sp.name, spellDur(sp, lastCastL), sp.conc, eco !== 'R');
+  if (sp.ref === 'shield') {
+    /* Escudo dura hasta el principio de tu siguiente turno */
+    markSt(
+      c,
+      c.effects.find(e => e.name === sp.name)
+    );
+  }
   if (castOther) {
     const fx = c.effects.find(e => e.name === sp.name);
     if (fx) fx.other = true;
     castOther = false;
   }
-  const used = spUseItem(c, sp) + csOnCast(c, sp);
+  const used =
+    spUseItem(c, sp) +
+    csOnCast(c, sp) +
+    (SPELL_AC[sp.ref] && !(c.effects.find(e => e.name === sp.name) || {}).other
+      ? `<div class="t-parts">Tu CA pasa a <b>${acOf(c)}</b>${sp.ref === 'shield' ? ' hasta el principio de tu siguiente turno (también contra el ataque que la provocó)' : ' mientras dure'}.</div>`
+      : '');
   save();
   render();
   const r = sp.ref || '',
@@ -395,9 +415,10 @@ function afterCast(sp, how) {
           : '');
   const extra =
     roll ||
-    (spMod(c) !== null
-      ? `<div class="t-parts">CD de salvación ${spDC(c)} · ataque de conjuro ${sgn(spAtk(c))}</div>`
-      : '');
+    upcastLine(c, sp, L) +
+      (spMod(c) !== null
+        ? `<div class="t-parts">CD de salvación ${spDC(c)} · ataque de conjuro ${sgn(spAtk(c) + d20Pen(c))}</div>`
+        : '');
   let cbtn = '';
   if (SUMMON_REF[r])
     cbtn = `<button class="b sm pri" data-act="crea-from-cast" data-k="summon" data-s="${SUMMON_REF[r]}" data-l="${lastCastL || sp.level}" data-spell="${esc(sp.name)}">Crear la criatura</button>`;

@@ -148,7 +148,21 @@ function turnStart(c) {
   if (!T || !T.wait || !(T.a || T.aa)) return false;
   T.wait = false;
   T.r = false;
+  /* Lo que dura «hasta el principio de tu siguiente turno» (Esquivar, Escudo) */
+  const gone = endEffects(c, e => e.st && (e.stw || (+e.stk || 0) < (+T.k || 0)));
+  if (gone.length)
+    toast(
+      `<div class="t-label">Empieza tu turno</div><div class="t-parts">${gone.map(esc).join(', ')} ${gone.length > 1 ? 'han' : 'ha'} terminado.</div>`
+    );
   return true;
+}
+/* Marca un efecto que dura hasta el principio de tu siguiente turno */
+function markSt(c, fx) {
+  const T = c.turn || {};
+  if (!fx) return;
+  fx.st = true;
+  fx.stk = +T.k || 0;
+  fx.stw = !!(T.wait && !(T.a || T.aa));
 }
 function spendEco(c, k) {
   if (k === 'A') {
@@ -172,13 +186,15 @@ function viewTurn(c) {
     );
   if (c.conditions.includes('Derribado'))
     condNotes.push(
-      '<b>Derribado:</b> levantarte cuesta la mitad de tu velocidad. Tus ataques tienen desventaja; los cuerpo a cuerpo contra ti, ventaja.'
+      '<b>Derribado:</b> levantarte cuesta la mitad de tu velocidad. Tus ataques tienen desventaja; los de enemigos a 5 pies, ventaja, y los de más lejos, desventaja.'
     );
   if (c.conditions.includes('Agarrado'))
-    condNotes.push('<b>Agarrado:</b> tu velocidad es 0. Puedes usar una acción para intentar soltarte.');
+    condNotes.push(
+      `<b>Agarrado:</b> tu velocidad es 0 y tienes desventaja al atacar a cualquiera que no sea quien te agarra. Para soltarte, usa tu acción: Atletismo <b>1d20 ${sgn(skillB(c, SK.athletics) + d20Pen(c))}</b> o Acrobacias <b>1d20 ${sgn(skillB(c, SK.acrobatics) + d20Pen(c))}</b> contra la CD que te diga el máster.`
+    );
   if (c.conditions.includes('Apresado'))
     condNotes.push(
-      '<b>Apresado:</b> velocidad 0, desventaja en tus ataques y en salvaciones de DES; te atacan con ventaja.'
+      '<b>Apresado:</b> velocidad 0, desventaja en tus ataques y en salvaciones de DES; te atacan con ventaja. Cómo librarte lo dice lo que te apresa (una red, un conjuro…).'
     );
   if (c.conditions.includes('Envenenado'))
     condNotes.push('<b>Envenenado:</b> desventaja en tiradas de ataque y pruebas de característica.');

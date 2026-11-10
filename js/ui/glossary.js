@@ -46,6 +46,16 @@ function showGloss(el) {
       const m = Math.max(1, 1 + M(c, 'con'));
       roll = `Tú: aguantas <b>${m} ${m === 1 ? 'minuto' : 'minutos'}</b>.`;
     }
+    if (k === 'ca' && spellACList(c).length)
+      roll = `Ahora: <b>${acOf(c)}</b> con ${spellACList(c)
+        .map(([n, v]) => (typeof v === 'number' ? `${esc(n)} (+${v})` : `${esc(n)} (mínimo 17)`))
+        .join(', ')}. Sin ellos: ${acBase(c)}.`;
+    if (k === 'speed') {
+      const sp = speedCalc(c);
+      roll = sp.why
+        ? `Ahora: <b>0 pies</b> (${esc(sp.why)}).`
+        : `Ahora: <b>${sp.ft} pies</b>${+c.exhaustion ? ` (ya restado el agotamiento)` : ''}.`;
+    }
     if (k === 'init')
       roll = `Tira <b>1d20 ${sgn(init(c) + d20Pen(c))}</b>.${d20Line(c, 'init') ? `<br>${d20Line(c, 'init')}` : ''}`;
     if (k === 'spatk' && spMod(c) !== null)

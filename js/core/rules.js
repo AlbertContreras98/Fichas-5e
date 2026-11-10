@@ -336,6 +336,10 @@ function cantripRoll(c, sp) {
     out.push(`Lanza arcana: alcance de ${(parseInt(SPBY[r].r) || 0) + 30 * (+c.level || 1)} pies.`);
   if (how === 'atk' && dl) out.push(dl);
   if (how === 'atk')
+    out.push(
+      `Con un 20 natural (crítico): ${r === 'eldritch-blast' ? `<b>2d10${bonus}</b> en ese rayo` : `<b>${2 * t * parseInt(die)}d${die.split('d')[1]}${bonus}</b>`}${hitExtras(c, true).length ? ', y también se doblan los dados extra' : ''}.`
+    );
+  if (how === 'atk')
     hitExtras(c, true).forEach(x =>
       out.push(`Al impactar${r === 'eldritch-blast' && t > 1 ? ' (cada rayo)' : ''}: ${x}.`)
     );
@@ -417,4 +421,140 @@ function initFeats(c) {
       return `<div class="t-parts">· <b>${esc(f.name)}</b>${u}: ${esc(f.text.length > 220 ? f.text.slice(0, 217) + '…' : f.text)}</div>`;
     })
     .join('')}`;
+}
+
+/* Daño de un crítico: los dados se tiran dos veces (los números fijos no). '' si no hay dados */
+function critDmg(s) {
+  s = String(s || '');
+  return /\d*d\d+/.test(s) ? s.replace(/(\d*)d(\d+)/g, (m, n, d) => `${2 * (+n || 1)}d${d}`) : '';
+}
+const critLine = (dmg, extra) =>
+  critDmg(dmg)
+    ? `<div class="t-parts">Con un 20 natural (crítico): <b>${esc(critDmg(dmg))}</b>${extra ? ' (los dados extra al impactar también se doblan)' : ''}.</div>`
+    : '';
+
+/* Velocidad que se ve arriba: base, dotes, rasgos de clase, armadura, agotamiento y estados que la dejan en 0 */
+const SPEED0 = ['Agarrado', 'Apresado', 'Paralizado', 'Petrificado', 'Inconsciente', 'Aturdido'];
+function speedCalc(c) {
+  const fm = formOf(c);
+  const stop = c.conditions.find(n => SPEED0.includes(n));
+  if (stop) return { ft: 0, why: stop };
+  if (fm && parseInt(fm.speed) >= 0)
+    return { ft: Math.max(0, parseInt(fm.speed) - 5 * (+c.exhaustion || 0)) };
+  const worn = c.equipment.filter(e => e.equipped && e.armor && ARMORS[e.armor]),
+    heavy = worn.some(e => ARMORS[e.armor].t === 'h'),
+    has = n => c.features.some(f => norm(f.name) === norm(n));
+  let ft = c.speedFt + featSpeed(c) - (armorAuto(c) && acCalc(c).slow ? 10 : 0);
+  if (c.classKey === 'monk' && !worn.length)
+    ft += parseInt(infoFor(defOf(c), subOf(c), c.level)['Movimiento sin armadura']) || 0;
+  if (!heavy && has('Movimiento rápido')) ft += 10;
+  if (!heavy && has('Errante')) ft += 10;
+  if (has('Aura de presteza')) ft += 10;
+  return { ft: Math.max(0, ft - 5 * (+c.exhaustion || 0)) };
+}
+
+/* Qué tirar con un conjuro de nivel 1 o más, según el espacio usado (lee la frase de nivel superior de los datos) */
+function upcastLine(c, sp, L) {
+  const d = sp.ref && SPBY[sp.ref];
+  if (!d || !(+d.l >= 1) || ['searing-smite', 'shining-smite'].includes(d.id)) return '';
+  L = Math.max(+d.l, +L || +d.l);
+  const up = L - d.l,
+    hl = d.hl || '',
+    mod = spMod(c),
+    out = [];
+  if (d.id === 'magic-missile')
+    out.push(
+      `Lanzas <b>${3 + up} dardos</b>: cada uno impacta sin tirar y hace <b>1d4 + 1</b> de daño de fuerza.`
+    );
+  else if (d.id === 'scorching-ray')
+    out.push(
+      `Lanzas <b>${3 + up} rayos</b>: cada uno es un ataque de conjuro y hace <b>2d6</b> de daño de fuego.`
+    );
+  else {
+    const m = hl.match(/aumenta en (\d+)d(\d+) por cada nivel de espacio por encima de (\d)/);
+    if (m) {
+      const b = d.de.match(new RegExp(`(\\d+)d${m[2]}(?: de daño ((?:de |del )?[a-záéíóúñ]+))?`));
+      const n = (b ? +b[1] : 0) + up * +m[1],
+        heal = /curaci[oó]n/i.test(hl),
+        type = b && b[2] ? (b[2] === 'del' ? ' del tipo elegido' : ` ${b[2]}`) : '';
+      if (heal)
+        out.push(
+          `Curación: <b>${n}d${m[2]}</b>${/modificador/.test(d.de) ? ` + tu aptitud (${mod !== null ? sgn(mod) : 'tu modificador'})` : ''}${up ? ` (con espacio de nivel ${L})` : ''}.`
+        );
+      else if (b)
+        out.push(
+          `Daño: <b>${n}d${m[2]}</b>${type ? ` de daño${type}` : ''}${up ? ` (con espacio de nivel ${L}: +${up * +m[1]}d${m[2]})` : ''}.`
+        );
+    }
+    const t = hl.match(
+      /(?:una|un) (criatura|bestia|humanoide|objetivo)? ?(?:adicional|más) por cada nivel de espacio por encima de \d/
+    );
+    if (t && up && /objetivo|afectar/.test(hl))
+      out.push(
+        `Con espacio de nivel ${L}: <b>${up} ${up === 1 ? 'objetivo' : 'objetivos'} más</b> que con el espacio mínimo.`
+      );
+  }
+  return out.map(x => `<div class="t-parts">${x}</div>`).join('');
+}
+
+/* Conjuros cuyo objetivo repite la salvación: característica y cuándo */
+const EOT = 'al final de cada uno de sus turnos; si la supera, el conjuro termina para él';
+const REPEAT_SAVE = {
+  'searing-smite': [
+    'con',
+    'al principio de cada uno de sus turnos, después de recibir 1d6 de fuego; si la supera, termina',
+  ],
+  sleep: ['wis', 'al final de su siguiente turno; si la falla, queda inconsciente'],
+  'hideous-laughter': [
+    'wis',
+    'al final de cada uno de sus turnos y cada vez que recibe daño (con ventaja si es por el daño)',
+  ],
+  'ensnaring-strike': [
+    'str',
+    'cuando quiera, con su acción, haciendo una prueba de Fuerza (Atletismo) contra tu CD',
+  ],
+  'blindness-deafness': ['con', EOT],
+  'hold-person': ['wis', EOT],
+  'ray-of-enfeeblement': ['con', EOT],
+  slow: ['wis', EOT],
+  confusion: ['wis', EOT],
+  'hold-monster': ['wis', EOT],
+  'phantasmal-killer': [
+    'wis',
+    'al final de cada uno de sus turnos; si la falla, recibe 4d10 de daño psíquico',
+  ],
+  'flesh-to-stone': ['con', 'al final de cada uno de sus turnos'],
+  'dominate-beast': ['wis', 'cada vez que recibe daño'],
+  'dominate-person': ['wis', 'cada vez que recibe daño'],
+  'dominate-monster': ['wis', 'cada vez que recibe daño'],
+};
+/* Recordatorio al terminar tu turno: salvaciones que repiten los objetivos de tus conjuros activos */
+function repeatSaves(c) {
+  const out = [];
+  for (const [id, [ab, when]] of Object.entries(REPEAT_SAVE)) {
+    const d = SPBY[id];
+    if (d && c.effects.some(e => [d.n, d.en].some(x => norm(x) === norm(e.name))))
+      out.push(
+        `<b>${esc(d.n)}:</b> el objetivo repite la salvación de ${AB[ab][2]}${spMod(c) !== null ? ` contra tu CD <b>${spDC(c)}</b>` : ''} ${when}.`
+      );
+  }
+  return out.map(x => `<div class="t-parts">${x}</div>`).join('');
+}
+
+/* Tipos de daño a los que resistes ahora: rasgos (especie, linaje…), Furia, Piel pétrea y Petrificado */
+function resistOf(c) {
+  const set = new Set(),
+    re = /resistencia al daño (?:de )?([a-záéíóúñ]+)(?: y (?:de )?([a-záéíóúñ]+))?/gi;
+  for (const f of c.features)
+    for (const m of String(f.text || '').matchAll(re))
+      [m[1], m[2]].filter(Boolean).forEach(t => set.add(t.toLowerCase()));
+  const on = n => c.effects.some(e => norm(e.name) === norm(n));
+  if (
+    on('Furia') &&
+    !c.equipment.some(e => e.equipped && e.armor && ARMORS[e.armor] && ARMORS[e.armor].t === 'h')
+  )
+    ['contundente', 'cortante', 'perforante'].forEach(t => set.add(t));
+  if (on('Piel pétrea')) ['contundente', 'cortante', 'perforante'].forEach(t => set.add(t));
+  if (c.conditions.includes('Petrificado')) return ['todo'];
+  return [...set];
 }

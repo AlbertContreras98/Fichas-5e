@@ -52,7 +52,7 @@ Se ha cambiado la nota de un hallazgo antiguo: el **n.º 41** (golpe desarmado) 
 
 ### Las 10 primeras
 
-**Arregladas las 10 el 2026-11-10** (y resuelto el n.º 30). La siguiente tanda empieza por el puesto 11 de la tabla.
+**Arregladas las 20 primeras el 2026-11-10** (y resuelto el n.º 30). La siguiente tanda empieza por el puesto 21 de la tabla.
 
 1. **N.º 45 · Estallido arcano: qué tirar.** Es el ataque de Zyo en casi cada turno, y la app no dice ni el dado ni cuántos rayos.
 2. **N.º 49 · Daño extra de Maleficio y Marca del cazador.** Zyo y el explorador los usan en cada combate, y el +1d6 se olvida en cada impacto.
@@ -507,7 +507,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: velocidad 0 arriba mientras dure el estado, y en Agarrado o Apresado, «Para soltarte: FUE (Atletismo) +X o DES (Acrobacias) +Y».
 - Propuesta: en `js/views/top.js:111`, poner 0 si hay uno de esos estados; en las notas de `viewTurn()`, añadir los bonificadores.
 - Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-10): `speedCalc()`: la velocidad de arriba es 0 con Agarrado, Apresado, Paralizado, Petrificado, Inconsciente y Aturdido. Agarrado dice qué tirar para soltarte (Atletismo o Acrobacias). Tocar la velocidad dice por qué es 0.
 
 ### 39. Esquivar, Esconderse, Correr, Buscar, Estudiar e Influir solo gastan la acción
 - Origen: 1b. Reglas generales
@@ -520,7 +520,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
   - **Buscar, Estudiar e Influir:** enseñar los bonificadores de las habilidades que se pueden usar.
 - Propuesta: un caso para cada una en `t-gen`, reutilizando `addEffect` y `skillB`.
 - Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-10): Esquivar crea el efecto «Esquivando», que se quita solo al empezar tu turno; Esconderse dice qué tirar (Sigilo contra CD 15) y pone Invisible si lo superas; Correr dice los pies; Buscar, Estudiar e Influir enseñan los bonificadores de sus habilidades.
 
 ### 40. El mensaje del ataque no dice qué tirar en un crítico
 - Origen: 1b. Reglas generales
@@ -529,7 +529,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: «Si impactas: 1d8 + 3 · con un 20: 2d8 + 3».
 - Propuesta: duplicar los dados de `a.dmg` en el mensaje de `t-atk` y del ataque con arma ligera.
 - Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-10): los mensajes de ataque (armas, arma ligera, golpe desarmado y trucos de ataque) dicen el daño con un 20 natural.
 
 ### 41. No hay golpe desarmado para nadie
 - Origen: 1b. Reglas generales
@@ -592,7 +592,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: «Con espacio de nivel 2: 4 dardos de 1d4 + 1 de fuerza» o «Con espacio de nivel 3: hasta 5 objetivos».
 - Propuesta: empezar por lo barato: leer la frase de nivel superior (`hl`) y enseñarla ya calculada en el aviso de lanzar; después, dados y tipo en los conjuros de nivel 1 y 2 más usados.
 - Prioridad: frecuencia 2 + olvido 3 + coste 2 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-10): `upcastLine()` lee la frase de nivel superior de los datos y, al lanzar, dice el daño o la curación con los dados ya sumados según el espacio, y cuántos objetivos más. Proyectil mágico y Rayo abrasador dicen cuántos dardos o rayos.
 
 ### 48. Los conjuros de curación no dicen qué tirar ni suman los PG
 - Origen: 1c. Priorizar (candidata de 1a: conjuros y clases)
@@ -619,7 +619,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: al pulsar «Terminar turno» con uno de esos conjuros activo, un aviso: «Dormir: el objetivo repite la salvación de SAB (CD 13)».
 - Propuesta: marcar en los datos los conjuros con salvación repetida y añadir el aviso en `t-end`. En el modo máster, más adelante.
 - Prioridad: frecuencia 2 + olvido 3 + coste 2 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-10): `REPEAT_SAVE` y `repeatSaves()`: al pulsar «Terminar turno» con uno de esos conjuros activo, un aviso «Recuerda al máster» con la característica, tu CD y cuándo se repite (15 conjuros: Dormir, Risa horrible, Inmovilizar persona, Ralentizar…). En el modo máster, pendiente.
 
 ### 51. Escudo, Escudo de la fe y otros conjuros no suben la CA
 - Origen: 1c. Priorizar (candidata de 1a: conjuros)
@@ -628,7 +628,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: la CA de arriba sube mientras dure el efecto.
 - Propuesta: generalizar lo de Armadura de mago con un campo de CA en el efecto (`+5`, `+2`, `mín. 17`).
 - Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-10): `SPELL_AC`: Escudo (+5), Escudo de la fe (+2), Acelerar (+2) y Piel robliza (mínimo 17) suben la CA de arriba mientras duran; pregunta sobre quién se lanzan. Escudo se quita solo al empezar tu turno (lo que quedaba del n.º 8). Vínculo protector no, porque siempre se lanza sobre otro.
 
 ### 52. Las resistencias de la especie no se guardan ni se recuerdan al recibir daño
 - Origen: 1c. Priorizar (candidata de 1a: especies, linajes y conjuros)
@@ -637,7 +637,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: la ficha sabe a qué resiste y, en la ventana de daño, se elige el tipo de daño (o se ve «Resistes: necrótico» junto al botón ½).
 - Propuesta: guardar las resistencias en la ficha (de la especie, del linaje y de los efectos activos) y mostrarlas en la ventana de daño.
 - Prioridad: frecuencia 2 + olvido 3 + coste 2 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-10): `resistOf()` lee las resistencias de los rasgos (especie, linaje…), Furia, Piel pétrea y Petrificado, y la ventana de Vida y estado dice «Resistes: necrótico» junto al botón ½. Los conjuros con tipo elegido (Resistencia, Protección contra energía) siguen a mano.
 
 ### 53. Bendición, Perdición, Orientación y Resistencia: el ±1d4 no se recuerda
 - Origen: 1c. Priorizar (candidata de 1a: conjuros)
@@ -655,7 +655,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: «Tira 1d6 + 2 y escribe el resultado» y sumar los PG (o los PG temporales); en Metabolismo, además, rellenar los puntos.
 - Propuesta: la misma ventana del n.º 48; en Metabolismo, rellenar el contador de puntos.
 - Prioridad: frecuencia 2 + olvido 3 + coste 2 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-10): Metabolismo asombroso rellena los puntos de concentración y abre una ventana para escribir el dado de artes marciales; la app suma el nivel de monje (`healRoll()`, reutilizable). Los demás rasgos que curan, pendientes.
 
 ### 55. Recuperación arcana no deja elegir los espacios que recuperas
 - Origen: 1c. Priorizar (candidata de 1a: clases)
@@ -664,7 +664,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: en la ventana del descanso corto, casillas con los espacios gastados que se pueden recuperar, con el tope ya calculado.
 - Propuesta: como el botón «Usar» de Astucia mágica (n.º 29), pero dejando elegir.
 - Prioridad: frecuencia 2 + olvido 3 + coste 2 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-10): botón «Usar» en Recuperación arcana: deja elegir qué espacios recuperar con el tope ya calculado. Restauración hechicera también tiene «Usar».
 
 ### 56. La velocidad no suma los rasgos que la suben
 - Origen: 1c. Priorizar (candidata de 1a: clases)
@@ -673,7 +673,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: sumar los pies cuando se cumple la condición (sin armadura ni escudo para el monje; sin armadura pesada para el bárbaro), igual que ya se resta la armadura pesada sin FUE.
 - Propuesta: añadirlo al cálculo de la velocidad de `js/views/top.js:111`.
 - Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-10): Movimiento sin armadura (monje), Movimiento rápido (bárbaro), Errante (explorador) y Aura de presteza suman a la velocidad de arriba cuando toca.
 
 ### 57. Golpe aturdidor no dice la CD
 - Origen: 1c. Priorizar (candidata de 1a: clases)
