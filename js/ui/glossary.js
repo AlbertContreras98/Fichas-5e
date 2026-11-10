@@ -61,7 +61,7 @@ function showGloss(el) {
     if (k === 'spatk' && spMod(c) !== null)
       roll = `Tira <b>1d20 ${sgn(spAtk(c) + d20Pen(c))}</b>.${d20Line(c, 'atk') ? `<br>${d20Line(c, 'atk')}` : ''}`;
     if (k === 'conc')
-      roll = `Tu salvación de Constitución: <b>1d20 ${sgn(saveB(c, 'con') + d20Pen(c))}</b>.${+c.exhaustion ? ` ${d20Line(c, 'save', 'con')}` : ''}`;
+      roll = `Tu salvación de Constitución: <b>1d20 ${sgn(saveB(c, 'con') + d20Pen(c))}</b>.${+c.exhaustion ? ` ${d20Line(c, 'save', 'con')}` : ''}${concAdv(c) ? ` Para mantener la concentración, con <b>ventaja</b> (${concAdv(c)}).` : ''}`;
   }
   openModal(
     `<h2>${esc(t)}</h2><p>${esc(d)}</p>${roll ? `<p class="roll">${roll}</p>` : ''}<div class="btns"><button class="b pri" data-act="close-modal">Entendido</button></div>`

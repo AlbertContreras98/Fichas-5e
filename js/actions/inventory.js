@@ -131,6 +131,25 @@ Object.assign(A, {
     render();
     refreshInv();
   },
+  /* Usar o dejar de usar la maestría de un tipo de arma (todas las armas de ese tipo a la vez) */
+  'wpn-ms': el => {
+    const c = C(),
+      a = c.attacks[+el.dataset.i];
+    if (!a || !a.wpn) return;
+    const on = !a.mastery;
+    if (on && !masteryCanAdd(c, a.wpn)) {
+      toast(
+        `<div class="t-label">Maestrías</div><div class="t-parts">Ya usas ${masteryMax(c)} (${masteryKinds(c)
+          .map(k => WEAPONS[k].n)
+          .join(', ')}). Quita otra antes. Puedes cambiarlas al terminar un descanso largo.</div>`
+      );
+      return;
+    }
+    c.attacks.filter(x => x.wpn === a.wpn).forEach(x => (x.mastery = on));
+    syncWeapons(c);
+    save();
+    render();
+  },
   belt: el => beltOpen(el.dataset.k),
   'cat-tog': el => {
     invShutToggle(el.dataset.k);
@@ -264,7 +283,7 @@ Object.assign(A, {
           name: n,
           wpn: NI.wpn,
           magic: +NI.mag || 0,
-          mastery: MASTERY_CLS.has(c.classKey) && !!NI.ms,
+          mastery: masteryCanAdd(c, NI.wpn) && !!NI.ms,
           item: it.id,
         });
         if (W.am) {

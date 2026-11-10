@@ -133,7 +133,7 @@ function shGive(c, it, q) {
       name: e.name,
       wpn: key,
       magic: 0,
-      mastery: MASTERY_CLS.has(c.classKey),
+      mastery: masteryCanAdd(c, key),
       item: e.id,
     });
     const W = WEAPONS[key],

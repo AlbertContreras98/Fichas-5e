@@ -1,6 +1,6 @@
 {
   "formato": "fichas-dnd-2024/2",
-  "id": "o3ik6rxm",
+  "id": "vfots3fl",
   "name": "Tomás",
   "species": "Humano",
   "speciesKey": "human",
@@ -90,7 +90,7 @@
       "wpn": "longsword",
       "magic": 0,
       "mastery": true,
-      "item": "mip9pmq1"
+      "item": "g2hudm06"
     },
     {
       "name": "Jabalina",
@@ -102,7 +102,7 @@
       "wpn": "javelin",
       "magic": 0,
       "mastery": true,
-      "item": "esqz7dpw"
+      "item": "znnwkkh3"
     }
   ],
   "spellcasting": {
@@ -344,7 +344,7 @@
   ],
   "equipment": [
     {
-      "id": "9iejvws6",
+      "id": "vpkte5me",
       "name": "Cota de mallas",
       "qty": 1,
       "cat": "armadura",
@@ -354,7 +354,7 @@
       "equipped": true
     },
     {
-      "id": "xpjqmsz0",
+      "id": "13vn6he9",
       "name": "Escudo",
       "qty": 1,
       "cat": "armadura",
@@ -364,7 +364,7 @@
       "equipped": true
     },
     {
-      "id": "mip9pmq1",
+      "id": "g2hudm06",
       "name": "Espada larga",
       "qty": 1,
       "cat": "arma",
@@ -374,7 +374,7 @@
       "equipped": true
     },
     {
-      "id": "esqz7dpw",
+      "id": "znnwkkh3",
       "name": "Jabalina",
       "qty": 6,
       "cat": "arma",
@@ -384,28 +384,28 @@
       "equipped": true
     },
     {
-      "id": "ehy0w0ji",
+      "id": "o1mozura",
       "name": "Símbolo sagrado",
       "qty": 2,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "krcgeyta",
+      "id": "nu59bg16",
       "name": "Mochila",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "wmgi19aa",
+      "id": "v77v0y8m",
       "name": "Manta",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "c1sot0cf",
+      "id": "smi66v30",
       "name": "Agua bendita",
       "qty": 1,
       "cat": "consumible",
@@ -413,14 +413,14 @@
       "gear": "holywater"
     },
     {
-      "id": "wopc0x7g",
+      "id": "uzda72o0",
       "name": "Lámpara",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "9i12yoow",
+      "id": "gao2ip80",
       "name": "Raciones (días)",
       "qty": 7,
       "cat": "comida",
@@ -428,21 +428,21 @@
       "gear": "rations"
     },
     {
-      "id": "tetcwlx0",
+      "id": "p0vvqkpg",
       "name": "Túnica",
       "qty": 2,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "w5nzmw0y",
+      "id": "irth08yr",
       "name": "Yesquero",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "34xo9bo8",
+      "id": "inyksdaf",
       "name": "Suministros de calígrafo",
       "qty": 1,
       "cat": "herramienta",
@@ -450,14 +450,14 @@
       "tool": "calligrapher"
     },
     {
-      "id": "djyy31qx",
+      "id": "7qg5l4kq",
       "name": "Libro (oraciones)",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "5cn0yv7s",
+      "id": "d7m1viaa",
       "name": "Pergamino (hojas)",
       "qty": 10,
       "cat": "otro",

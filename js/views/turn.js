@@ -77,7 +77,8 @@ const DERIVED = [
     n: 'Golpe aturdidor',
     t: 'free',
     cost: 'Puntos de concentración',
-    d: 'Al impactar: salvación de CON o queda aturdido (1 punto).',
+    d: c =>
+      `Al impactar: salvación de CON CD ${8 + pb(c) + M(c, 'wis')} o queda aturdido hasta el principio de tu siguiente turno; si la supera, su velocidad baja a la mitad y el siguiente ataque contra él tiene ventaja (1 punto).`,
   },
   {
     need: 'Artes marciales',
@@ -155,6 +156,17 @@ function turnStart(c) {
       `<div class="t-label">Empieza tu turno</div><div class="t-parts">${gone.map(esc).join(', ')} ${gone.length > 1 ? 'han' : 'ha'} terminado.</div>`
     );
   return true;
+}
+/* Movimiento del turno: pies gastados de los que tienes (Correr suma otra vez tu velocidad) */
+function moveHTML(c, T) {
+  const sp = speedCalc(c).ft,
+    max = sp * (1 + (+T.dash || 0)),
+    used = Math.min(+T.mv || 0, max),
+    left = max - used,
+    prone = c.conditions.includes('Derribado'),
+    b = (d, l) =>
+      `<button class="b sm" data-act="t-mv" data-d="${d}" ${d > 0 && left < d ? 'disabled' : ''}>${l}</button>`;
+  return `<div class="movebar"><span>${term('Movimiento', 'speed')}: te quedan <b>${left}</b> de ${max} pies${T.dash ? ' (con Correr)' : ''}</span><span class="btns">${b(5, '−5')}${b(10, '−10')}${prone && sp ? `<button class="b sm" data-act="t-stand" ${left < Math.ceil(sp / 2) ? 'disabled' : ''}>Levantarse (−${Math.ceil(sp / 2)})</button>` : ''}${used ? b(-used, '↺') : ''}</span></div>`;
 }
 /* Marca un efecto que dura hasta el principio de tu siguiente turno */
 function markSt(c, fx) {
@@ -319,7 +331,7 @@ function viewTurn(c) {
     cols[o.t].push(
       row(
         esc(o.n),
-        esc(o.d) + (src ? ` · quedan ${featLeft(src)}` : ''),
+        esc(typeof o.d === 'function' ? o.d(c) : o.d) + (src ? ` · quedan ${featLeft(src)}` : ''),
         `<button class="b sm" data-act="t-der" data-j="${j}" ${dis(busy || (src && featLeft(src) <= 0))}>Usar</button>`
       )
     );
@@ -418,6 +430,7 @@ function viewTurn(c) {
     `<div class="tcol ${k === 'A' ? (aFree || T.atk > 0 ? '' : 'off') : k === 'AA' ? (T.aa ? 'off' : '') : k === 'R' ? (T.r ? 'off' : '') : ''}"><h3>${term(title, gk)}</h3>${body || '<p class="empty">Nada por ahora.</p>'}</div>`;
   return `<section class="card turn"><div class="card-head"><h2>Tu turno${c.combat ? ` <span class="round">Ronda ${c.combat.round}</span>` : ''}</h2><div class="btns"><button class="b" data-act="t-end">Terminar turno</button>${c.combat ? '<button class="b bad" data-act="cb-end">Terminar combate</button>' : ''}</div></div>
     <div class="pills">${pill('Acción', 'action', T.a, incap ? 'Bloqueada' : aState, 'a')}${pill('Acción adicional', 'bonus', T.aa, incap ? 'Bloqueada' : '', 'aa')}${pill('Reacción', 'reaction', T.r, incap ? 'Bloqueada' : T.r && T.wait ? 'Vuelve en tu turno' : '', 'r')}</div>
+    ${moveHTML(c, T0)}
     ${T.wait && T.r && !incap ? '<p class="hint">Tu reacción vuelve al empezar tu próximo turno: en cuanto uses tu acción o tu acción adicional (o pulsa ↺).</p>' : ''}
     ${condNotes.length ? `<div class="condnotes">${condNotes.map(n => `<p>${n}</p>`).join('')}</div>` : ''}
     <div class="tgrid">

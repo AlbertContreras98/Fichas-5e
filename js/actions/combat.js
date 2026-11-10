@@ -104,9 +104,21 @@ Object.assign(A, {
         false
       )
         .map(x => `<div class="t-parts">Al impactar: ${esc(x)}</div>`)
-        .join(
-          ''
-        )}${a.wpn && a.mastery && WEAPONS[a.wpn] ? `<div class="t-parts"><b>${MASTERY[WEAPONS[a.wpn].ms][0]}:</b> ${esc(MASTERY[WEAPONS[a.wpn].ms][1])}</div>` : ''}`
+        .join('')}${masteryLine(c, a)}${pactExtras(c, a)}`,
+      !!(a.pact && pactSmiteOk(c))
+    );
+  },
+  /* Golpe arcano: al impactar con el arma de pacto, gasta un espacio de pacto */
+  'smite-ok': el => {
+    const c = C();
+    if (!pactSmiteOk(c)) return;
+    c.pact.used++;
+    const t = el.closest('.toast');
+    if (t) t.remove();
+    save();
+    render();
+    toast(
+      `<div class="t-label">Golpe arcano</div><div class="t-big">+${1 + c.pact.level}d8 de fuerza</div><div class="t-parts">Súmalo al daño del golpe. Si el objetivo es Enorme o más pequeño, puedes dejarlo derribado. Te quedan ${c.pact.total - c.pact.used} espacios de pacto.</div>`
     );
   },
   't-reset': el => {
@@ -163,11 +175,13 @@ Object.assign(A, {
   't-light': el => {
     const c = C(),
       a = c.attacks[+el.dataset.i];
-    c.turn.aa = true;
+    const nick = a.mastery && WEAPONS[a.wpn] && WEAPONS[a.wpn].ms === 'nick' && !c.turn.nick;
+    if (nick) c.turn.nick = true;
+    else c.turn.aa = true;
     save();
     render();
     toast(
-      `<div class="t-label">Ataque con ${esc(a.name)} (acción adicional)</div><div class="t-big">1d20 ${sgn((+a.atk || 0) + d20Pen(c))}</div>${d20Line(c, 'atk', a) ? `<div class="t-parts">${d20Line(c, 'atk', a)}</div>` : ''}<div class="t-parts">El ataque suma tu bonificador de competencia como siempre.</div><div class="t-parts">Daño: ${esc(lightDmg(c, a))}${featHas(c, 'twf') ? ' (con Combate con dos armas sumas tu modificador al daño)' : ' (sin tu modificador de característica, salvo que sea negativo)'}.</div>${critLine(lightDmg(c, a), hitExtras(c, false).length)}${hitExtras(
+      `<div class="t-label">Ataque con ${esc(a.name)} (acción adicional)</div><div class="t-big">1d20 ${sgn((+a.atk || 0) + d20Pen(c))}</div>${d20Line(c, 'atk', a) ? `<div class="t-parts">${d20Line(c, 'atk', a)}</div>` : ''}${nick ? '<div class="t-parts"><b>Mellar:</b> este ataque extra va dentro de la acción de Atacar; no gastas la acción adicional.</div>' : ''}<div class="t-parts">El ataque suma tu bonificador de competencia como siempre.</div><div class="t-parts">Daño: ${esc(lightDmg(c, a))}${featHas(c, 'twf') ? ' (con Combate con dos armas sumas tu modificador al daño)' : ' (sin tu modificador de característica, salvo que sea negativo)'}.</div>${critLine(lightDmg(c, a), hitExtras(c, false).length)}${hitExtras(
         c,
         false
       )
@@ -274,10 +288,13 @@ Object.assign(A, {
       if (!f || featLeft(f) <= 0) return;
       f.uses.used++;
     }
+    if (/^Paso del viento/.test(o.n)) c.turn.dash = (+c.turn.dash || 0) + 1;
     spendEco(c, o.t);
     save();
     render();
-    toast(`<div class="t-label">${esc(o.n)}</div><div class="t-parts">${esc(o.d)}</div>`);
+    toast(
+      `<div class="t-label">${esc(o.n)}</div><div class="t-parts">${esc(typeof o.d === 'function' ? o.d(c) : o.d)}</div>`
+    );
   },
   'pact-ok': el => {
     const c = C(),
@@ -347,9 +364,10 @@ Object.assign(A, {
       );
       more =
         '<div class="t-parts">Hasta el principio de tu siguiente turno: los ataques contra ti tienen desventaja (si ves a quien ataca) y tienes ventaja en las salvaciones de DES. Se pierde si quedas incapacitado o tu velocidad baja a 0. La app lo quita sola al empezar tu turno.</div>';
-    } else if (k === 'a_dash')
-      more = `<div class="t-parts">Este turno puedes moverte hasta <b>${2 * speedCalc(c).ft} pies</b> en total.</div>`;
-    else if (k === 'a_search') more = sk(['perception', 'insight', 'medicine', 'survival']);
+    } else if (k === 'a_dash') {
+      c.turn.dash = (+c.turn.dash || 0) + 1;
+      more = `<div class="t-parts">Este turno puedes moverte hasta <b>${speedCalc(c).ft * (1 + c.turn.dash)} pies</b> en total. El contador de movimiento ya lo cuenta.</div>`;
+    } else if (k === 'a_search') more = sk(['perception', 'insight', 'medicine', 'survival']);
     else if (k === 'a_study') more = sk(['investigation', 'arcana', 'history', 'nature', 'religion']);
     else if (k === 'a_influence')
       more = sk(['persuasion', 'deception', 'intimidation', 'performance', 'animal']);
@@ -360,6 +378,25 @@ Object.assign(A, {
     save();
     render();
     toast(`<div class="t-label">${esc(g.t)}</div>${more || `<div class="t-parts">${esc(g.d)}</div>`}`, keep);
+  },
+  't-mv': el => {
+    const c = C(),
+      T = c.turn,
+      max = speedCalc(c).ft * (1 + (+T.dash || 0));
+    T.mv = clamp((+T.mv || 0) + +el.dataset.d, 0, max);
+    save();
+    render();
+  },
+  't-stand': () => {
+    const c = C(),
+      T = c.turn;
+    T.mv = (+T.mv || 0) + Math.ceil(speedCalc(c).ft / 2);
+    c.conditions = c.conditions.filter(x => x !== 'Derribado');
+    save();
+    render();
+    toast(
+      '<div class="t-label">Te levantas</div><div class="t-parts">Gastas la mitad de tu velocidad y dejas de estar derribado.</div>'
+    );
   },
   'hide-ok': el => {
     const c = C();

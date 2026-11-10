@@ -1,6 +1,6 @@
 {
   "formato": "fichas-dnd-2024/2",
-  "id": "0axupdjg",
+  "id": "vhgtob2q",
   "name": "Zyo",
   "species": "Tiefling (Ctónico)",
   "speciesKey": "tiefling",
@@ -69,7 +69,7 @@
       "wpn": "sickle",
       "magic": 0,
       "mastery": false,
-      "item": "t54q6zfp"
+      "item": "uzxdhyo9"
     },
     {
       "name": "Daga",
@@ -81,7 +81,7 @@
       "wpn": "dagger",
       "magic": 0,
       "mastery": false,
-      "item": "rybbi4wc"
+      "item": "1b89vyht"
     }
   ],
   "spellcasting": {
@@ -301,7 +301,7 @@
   ],
   "equipment": [
     {
-      "id": "g23wlvna",
+      "id": "7x06b3ra",
       "name": "Armadura de cuero",
       "qty": 1,
       "cat": "armadura",
@@ -311,7 +311,7 @@
       "equipped": true
     },
     {
-      "id": "t54q6zfp",
+      "id": "uzxdhyo9",
       "name": "Hoz",
       "qty": 1,
       "cat": "arma",
@@ -321,7 +321,7 @@
       "equipped": true
     },
     {
-      "id": "rybbi4wc",
+      "id": "1b89vyht",
       "name": "Daga",
       "qty": 2,
       "cat": "arma",
@@ -331,70 +331,70 @@
       "equipped": true
     },
     {
-      "id": "7phfnk20",
+      "id": "rb1pyjcx",
       "name": "Orbe (canalizador arcano)",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "nxhjcuqd",
+      "id": "z2tw3111",
       "name": "Libro (saber oculto)",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "afmwsg9f",
+      "id": "a4784nwn",
       "name": "Mochila",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "7axsg8uv",
+      "id": "0ul7t4pr",
       "name": "Libro",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "h83ny3aa",
+      "id": "x7zeceum",
       "name": "Tinta",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "qwdndo6r",
+      "id": "f4dlxz54",
       "name": "Pluma",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "mw77dnso",
+      "id": "rfllfeyi",
       "name": "Lámpara",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "8rbvao8j",
+      "id": "9s39n8y7",
       "name": "Aceite (frasco)",
       "qty": 10,
       "cat": "consumible",
       "notes": ""
     },
     {
-      "id": "huij7a7m",
+      "id": "dw2jr40a",
       "name": "Pergamino (hojas)",
       "qty": 10,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "ez0aquc2",
+      "id": "g4unj6d4",
       "name": "Yesquero",
       "qty": 1,
       "cat": "otro",

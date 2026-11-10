@@ -45,6 +45,7 @@ function vidaHTML(c) {
     <div class="hpctl"><input id="hpAmt" type="number" inputmode="numeric" min="0" placeholder="0" aria-label="Cantidad de PG">
       <button class="b bad" data-act="hp" data-m="dmg">Daño</button><button class="b good" data-act="hp" data-m="heal">Curar</button><button class="b" data-act="hp" data-m="temp">PG temporales</button><button class="b sm help" data-act="gloss" data-k="temp" aria-label="Qué son los PG temporales">?</button></div>
     <div class="hpctl2"><small>Daño con</small><button class="b sm bad" data-act="hp" data-m="half">Resistencia (½)</button><button class="b sm bad" data-act="hp" data-m="double">Vulnerabilidad (×2)</button></div>
+    ${dmgReactions(c)}
     ${resistOf(c).length ? `<p class="hint warn"><b>Resistes:</b> ${esc(resistOf(c).join(', '))}. Si el daño es de ese tipo, pulsa «Resistencia (½)».</p>` : ''}
     <p class="hint">Escribe el daño que sale en los dados. Con resistencia recibes la mitad (redondeando hacia abajo); con vulnerabilidad, el doble.</p>
     ${deathHTML(c)}
@@ -52,7 +53,17 @@ function vidaHTML(c) {
     ${active.length ? `<ul class="condlist">${active.map(([n, ds]) => `<li><b>${n}:</b> ${esc(ds)}</li>`).join('')}</ul>` : '<p class="hint">Toca un estado para activarlo o quitarlo.</p>'}
     <div class="exh"><span>${term('Agotamiento', 'exh')}</span><button class="b sq" data-act="exh" data-d="-1" aria-label="Menos">−</button><b>${c.exhaustion}</b><button class="b sq" data-act="exh" data-d="1" aria-label="Más">+</button>
       <small>${c.exhaustion ? `Resta ${2 * c.exhaustion} a tus tiradas d20 y ${5 * c.exhaustion} pies de velocidad${c.exhaustion >= 6 ? ' · nivel 6: muerte' : ''}` : 'Ninguno'}</small></div>
-    <h3>Efectos</h3>${effectsBar(c, true) || '<p class="hint">Ninguno activo.</p>'}<div class="btns"><button class="b sm" data-act="eff-add" data-from="vida">+ Efecto con duración</button></div>`;
+    <h3>Efectos</h3>${effectsBar(c, true) || '<p class="hint">Ninguno activo.</p>'}<div class="btns"><button class="b sm" data-act="eff-add" data-from="vida">+ Efecto con duración</button></div>${
+      c.effects.some(e => e.r != null || e.m != null) && !c.combat
+        ? `<div class="btns"><small>Pasa el tiempo:</small>${[
+            [1, '1 min'],
+            [10, '10 min'],
+            [60, '1 hora'],
+          ]
+            .map(([m, l]) => `<button class="b sm" data-act="pass-time" data-m="${m}">${l}</button>`)
+            .join('')}</div>`
+        : ''
+    }`;
 }
 function openVida() {
   restOpen = false;
@@ -86,6 +97,16 @@ const RULES_LIST = [
   'r_suffocate',
   'r_restbreak',
   'r_group',
+  'r_object',
+  'r_improv',
+  'r_immune',
+  'r_fly',
+  'r_size',
+  'r_travel',
+  'r_senses',
+  'r_knockout',
+  'r_mounted',
+  'r_underwater',
   'a_magic',
   'crit',
   'death',
@@ -143,7 +164,7 @@ function viewPlay(c) {
               : null,
         on = wpnOn(c, e);
       return `<div class="it${a && !on ? ' off' : ''}"><div class="it-head"><button class="it-link" data-act="item-open" data-id="${e.id}">${esc(e.name)}</button>${a ? atkBadges(a) : ''}
-        ${i >= 0 || (e.weapon && WEAPONS[e.weapon]) ? `<button class="chip ${on ? 'on' : ''}" data-act="wpn-eq" data-id="${e.id}" aria-pressed="${on}">${on ? 'Equipada' : 'Sin equipar'}</button>${on ? shoot(c.attacks[i], i) : ''}` : ''}</div>
+        ${i >= 0 || (e.weapon && WEAPONS[e.weapon]) ? `<button class="chip ${on ? 'on' : ''}" data-act="wpn-eq" data-id="${e.id}" aria-pressed="${on}">${on ? 'Equipada' : 'Sin equipar'}</button>${on ? shoot(c.attacks[i], i) : ''}` : ''}${i >= 0 && masteryMax(c) && WEAPONS[c.attacks[i].wpn] ? `<button class="chip ${c.attacks[i].mastery ? 'on' : ''}" data-act="wpn-ms" data-i="${i}" aria-pressed="${!!c.attacks[i].mastery}" title="${esc(MASTERY[WEAPONS[c.attacks[i].wpn].ms][1])}">Maestría: ${MASTERY[WEAPONS[c.attacks[i].wpn].ms][0].toLowerCase()}</button>` : ''}</div>
       ${a ? `<div class="meta">${esc([a.type, a.notes].filter(Boolean).join(' · '))}</div>${atkChips(a.notes)}` : e.notes ? `<div class="meta">${esc(e.notes)}</div>` : ''}</div>`;
     });
   const otherRows = c.attacks
@@ -156,6 +177,7 @@ function viewPlay(c) {
     );
   const atk = `<section class="card"><div class="card-head"><h2>Armas y ataques</h2><button class="b sm" data-act="item-new" data-from="arma">Añadir arma</button></div>
     ${wpnRows.length ? `<div class="list">${wpnRows.join('')}</div>` : '<p class="empty">Sin armas. Pulsa «Añadir arma» para elegirla del catálogo.</p>'}
+    ${masteryMax(c) ? `<p class="hint ${masteryKinds(c).length > masteryMax(c) ? 'warn' : ''}">Maestrías en uso: ${masteryKinds(c).length} de ${masteryMax(c)}${masteryKinds(c).length > masteryMax(c) ? ': quita alguna' : ''}. Se pueden cambiar al terminar un descanso largo.</p>` : ''}
     ${otherRows.length ? `<h3>Otros ataques</h3><div class="list">${otherRows.join('')}</div>` : ''}
     <div class="btns" style="margin-top:.4rem"><button class="b sm" data-act="atk-open" data-i="-1">Añadir otro ataque</button></div>
     <p class="hint" style="margin-top:.5rem">Las armas equipadas salen en Combate para atacar. «Otros ataques» son los que no vienen de un arma de tu equipo, como un arma de pacto o un ataque sin armas. Al atacar tira 1d20 + el primer número contra la CA del enemigo; si impactas, tira el daño. ${term('¿Y si saco un 20?', 'crit')}</p></section>`;
@@ -363,6 +385,47 @@ function falseLife(c, sp) {
     <div class="btns"><button class="b" data-act="close-modal">Ahora no</button></div>`);
   setTimeout(() => $('#fl-r') && $('#fl-r').focus(), 0);
 }
+/* Reacciones que restan daño (Desviar ataques, Esquiva asombrosa, Aguante de piedra): botones en la ventana de daño */
+const DMG_REACT = [
+  [
+    'deflect',
+    'Desviar ataques',
+    '1d10',
+    c => M(c, 'dex') + c.level,
+    'el daño de un ataque (contundente, cortante o perforante, salvo con Desviar energía)',
+  ],
+  ['uncanny', 'Esquiva asombrosa', '', null, 'la mitad del daño de un ataque que veas'],
+  ['stone', 'Aguante de piedra', '1d12', c => M(c, 'con'), 'el daño que recibes'],
+];
+function dmgReactApply(c, R, dmg, red) {
+  const f = c.features.find(x => x.name === R[1]);
+  if (f && f.uses && +f.uses.max) f.uses.used = Math.min(f.uses.max, f.uses.used + 1);
+  if (c.turn) c.turn.r = true;
+  const left = Math.max(0, dmg - red);
+  toast(
+    `<div class="t-label">${esc(R[1])}</div><div class="t-parts">Reduces ${Math.min(dmg, red)} del daño: de ${dmg} a <b>${left}</b>.${R[0] === 'deflect' && !left ? ' Puedes gastar 1 punto de concentración para devolver el golpe a otra criatura.' : ''}</div>`
+  );
+  openVida();
+  if (left) {
+    $('#hpAmt').value = left;
+    A.hp({ dataset: { m: 'dmg' } });
+  } else {
+    save();
+    render();
+  }
+}
+function dmgReactions(c) {
+  const has = n => c.features.find(f => f.name === n);
+  const l = DMG_REACT.filter(([, n]) => has(n));
+  if (!l.length) return '';
+  return `<div class="hpctl2"><small>Con tu reacción${c.turn && c.turn.r ? ' (ya gastada)' : ''}</small>${l
+    .map(([k, n]) => {
+      const f = has(n),
+        left = f.uses && +f.uses.max ? f.uses.max - f.uses.used : 1;
+      return `<button class="b sm" data-act="hp-red" data-k="${k}" ${left > 0 && !(c.turn && c.turn.r) ? '' : 'disabled'}>${esc(n)}</button>`;
+    })
+    .join('')}</div>`;
+}
 /* Ventana de curación de un rasgo: el jugador tira el dado y la app suma el resto */
 function healRoll(title, text, bonus, max) {
   openModal(`<h2>${esc(title)}</h2><p>${text}</p>
@@ -428,7 +491,10 @@ function afterCast(sp, how) {
     cbtn = c.companions.some(x => x.kind === 'familiar')
       ? ''
       : `<button class="b sm pri" data-act="crea-from-cast" data-k="familiar" data-spell="${esc(sp.name)}">Crear el familiar</button>`;
-  else if (['polymorph', 'true-polymorph', 'shapechange'].includes(r))
+  else if (healOf(c, sp, L)) {
+    const h = healOf(c, sp, L);
+    cbtn = `<button class="b sm good" data-act="heal-cast" data-n="${h.n}" data-d="${h.d}" data-x="${h.bonus}" data-t="${esc(sp.name)}">Me curo a mí</button>`;
+  } else if (['polymorph', 'true-polymorph', 'shapechange'].includes(r))
     cbtn = `<button class="b sm pri" data-act="form-cast" data-spell="${esc(sp.name)}">Elegir forma</button>`;
   toast(
     `<div class="t-label">Lanzas</div><div class="t-big">${esc(sp.name)}</div><div class="t-parts">${esc(how)}${sp.conc ? ' · requiere concentración' : ''}</div>${used}${extra}${note}${cbtn ? `<div class="t-actions">${cbtn}</div>` : ''}`,

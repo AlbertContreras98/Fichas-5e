@@ -3423,3 +3423,17 @@ button.eff.cond-pill {
   flex: none;
   flex-wrap: nowrap;
 }
+.movebar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem 0.8rem;
+  margin: 0.5rem 0 0.2rem;
+  font-size: 0.92rem;
+}
+.movebar .btns {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}

@@ -52,7 +52,7 @@ Se ha cambiado la nota de un hallazgo antiguo: el **n.º 41** (golpe desarmado) 
 
 ### Las 10 primeras
 
-**Arregladas las 20 primeras el 2026-11-10** (y resuelto el n.º 30). La siguiente tanda empieza por el puesto 21 de la tabla.
+**Arregladas las 30 primeras el 2026-11-10** (y resuelto el n.º 30). La siguiente tanda empieza por el puesto 31 de la tabla.
 
 1. **N.º 45 · Estallido arcano: qué tirar.** Es el ataque de Zyo en casi cada turno, y la app no dice ni el dado ni cuántos rayos.
 2. **N.º 49 · Daño extra de Maleficio y Marca del cazador.** Zyo y el explorador los usan en cada combate, y el +1d6 se olvida en cada impacto.
@@ -272,7 +272,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: poder hacer pasar el tiempo y que los efectos caduquen.
 - Propuesta: botón «Pasa el tiempo» (10 min / 1 h) que descuente los efectos.
 - Prioridad: frecuencia 2 + olvido 2 + coste 2 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-10): en Vida y estado, fuera de combate, «Pasa el tiempo: 1 min · 10 min · 1 hora» descuenta los efectos y quita los que se acaban.
 
 ### 14. Protección contra el bien y el mal no es de concentración
 - Origen: 1a. Datos de la app (conjuros)
@@ -308,7 +308,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: elegir tantas armas como permita la clase (y la dote).
 - Propuesta: marcar en cada arma si su maestría está elegida, con el tope por clase.
 - Prioridad: frecuencia 2 + olvido 2 + coste 2 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-10): `masteryMax()`: bárbaro y guerrero según el nivel; paladín, explorador y pícaro, 2; +1 con Maestro de armas. Las armas nuevas solo la activan si queda hueco, cada arma tiene un botón «Maestría» para cambiarla y la tarjeta avisa si hay más de las permitidas.
 
 ### 18. La competencia con algunas herramientas no se reconoce
 - Origen: 1a. Datos de la app (origen)
@@ -601,7 +601,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: decir qué tirar con el espacio usado y preguntar el resultado para sumarlo a tus PG (o dejarlo apuntado si es para otro), como ya hace Falsa vida con los PG temporales.
 - Propuesta: reutilizar la ventana de Falsa vida («tira X, escribe el resultado») con los dados de cada conjuro.
 - Prioridad: frecuencia 2 + olvido 2 + coste 2 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-10): al lanzar Curar heridas, Palabra de curación y similares, la app dice qué tirar según el espacio y el botón «Me curo a mí» suma el resultado + la aptitud. Auxilio, Heroísmo y Discípulo de la vida, pendientes.
 
 ### 49. El daño extra de Maleficio, Marca del cazador y similares no sale en los ataques
 - Origen: 1c. Priorizar (candidata de 1a: conjuros)
@@ -682,7 +682,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: «El objetivo hace una salvación de CON CD 13 o queda aturdido».
 - Propuesta: calcularla en el mensaje del botón. Lo mismo serviría para otras CD de rasgos (Arma de aliento, Canalizar divinidad, ver n.º 67).
 - Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-10): el botón de Golpe aturdidor dice la CD (8 + competencia + SAB) y qué pasa si la supera. Las CD de otros rasgos (n.º 67) siguen pendientes.
 
 ### 58. La salvación de concentración no avisa de la ventaja con Mente arcana o Lanzador de guerra
 - Origen: 1c. Priorizar (candidata de 1a: invocaciones y dotes)
@@ -691,7 +691,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: «Salvación de CON CD 10, con ventaja (Mente arcana)».
 - Propuesta: una línea en el aviso de concentración (`js/actions/play.js`, al recibir daño).
 - Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-10): `concAdv()`: el aviso de concentración al recibir daño y el glosario dicen «con ventaja» con Mente arcana o Lanzador de guerra.
 
 ### 59. Los rasgos propios no pueden tener usos «igual a tu bonificador de competencia»
 - Origen: 1c. Priorizar (candidata de 1a: dotes y origen)
@@ -718,7 +718,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: el mensaje del ataque dice el número exacto («Si fallas: 3 de daño (Rozar)»; «Derribar: salvación de CON CD 13»).
 - Propuesta: calcularlo en el mensaje del ataque; Mellar, en el botón del ataque ligero.
 - Prioridad: frecuencia 2 + olvido 2 + coste 2 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-10): `masteryLine()`: el mensaje del ataque da los números de Rozar (daño al fallar), Derribar (CD) y Hendir (ataque y daño del segundo golpe). Con Mellar, el ataque extra ligero no gasta la acción adicional (una vez por turno).
 
 ### 62. El asistente no pregunta Pericia ni las órdenes de nivel 1
 - Origen: 1c. Priorizar (candidata de 1a: clases)
@@ -763,7 +763,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: tras atacar con el arma de pacto, un botón que gaste el espacio y diga qué tirar.
 - Propuesta: opción «Golpe arcano» junto al ataque del arma de pacto; el 1d6 de Bebedor de vida, en el mensaje del ataque (como el n.º 49).
 - Prioridad: frecuencia 2 + olvido 2 + coste 2 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-10): al atacar con el arma de pacto, si tienes Golpe arcano y espacios de pacto, botón «Usar Golpe arcano» que gasta el espacio y dice los d8; Bebedor de vida sale como recordatorio en el mensaje.
 
 ### 67. Rasgos de clases y especies que no están en el grupo
 - Origen: 1c. Priorizar (candidatas de 1a: clases, especies y dotes)
@@ -781,7 +781,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: en la ventana de daño, un botón por reacción que gaste la reacción y pregunte lo sacado (o divida a la mitad).
 - Propuesta: añadirlos junto a «Resistencia (½)».
 - Prioridad: frecuencia 2 + olvido 2 + coste 2 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-10): en la ventana de daño, botones de reacción para Desviar ataques (1d10 + DES + nivel), Esquiva asombrosa (½) y Aguante de piedra (1d12 + CON): restan el daño, gastan la reacción y aplican el resto. Duelista defensivo, Intercepción, Protección y Maestro en armadura pesada, pendientes.
 
 ### 69. Duelo y Combate con armas arrojadizas no suman el +2 al daño
 - Origen: 1c. Priorizar (candidata de 1a: estilos de combate)
@@ -826,7 +826,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: poder consultarlas en la app.
 - Propuesta: hacerlo junto con el n.º 42 (solo texto).
 - Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-10): 11 entradas nuevas en `GLOSS` y en «Reglas útiles» (interactuar con un objeto, armas improvisadas, resistencia e inmunidad, volar, tamaño y espacio, viajar, sentidos especiales, dejar inconsciente, combate montado y bajo el agua) y el ±5 de la Percepción pasiva. Comida y agua no, hasta confirmar la regla de 2024 (n.º 35).
 
 ### 74. No se cuenta el movimiento del turno
 - Origen: 1c. Priorizar (candidata de 1b)
@@ -835,7 +835,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: en Combate, «Te quedan 15 de 30 pies», con botones de 5 pies y reinicio al terminar el turno.
 - Propuesta: un contador sencillo en el turno. Opcional: muchas mesas lo cuentan en el tablero.
 - Prioridad: frecuencia 3 + olvido 1 + coste 2 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-10): contador «Movimiento: te quedan X de Y pies» en el turno, con −5, −10, ↺ y «Levantarse» si estás derribado. Correr y Paso del viento suman otra vez la velocidad; se reinicia al terminar el turno.
 
 ### 75. Los objetos no tienen peso
 - Origen: 1c. Priorizar (candidata de 1b)

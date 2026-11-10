@@ -27,6 +27,58 @@ Object.assign(A, {
     save();
     render();
   },
+  /* Conjuro de curación sobre ti: el jugador tira los dados y la app suma la aptitud */
+  'heal-cast': el => {
+    const t = el.closest('.toast');
+    if (t) t.remove();
+    const n = +el.dataset.n,
+      d = +el.dataset.d,
+      x = +el.dataset.x;
+    healRoll(
+      el.dataset.t,
+      `Tira <b>${n}d${d}</b> y escribe lo que suman.${x ? ` La app añade tu aptitud (${sgn(x)}).` : ''}`,
+      x,
+      n * d
+    );
+  },
+  /* Reacción que resta daño: primero se escribe el daño en la ventana de vida */
+  'hp-red': el => {
+    const c = C(),
+      dmg = Math.max(0, parseInt($('#hpAmt').value) || 0),
+      R = DMG_REACT.find(x => x[0] === el.dataset.k);
+    if (!R) return;
+    if (!dmg) {
+      $('#hpAmt').focus();
+      toast('<div class="t-parts">Escribe primero el daño que te hacen y luego pulsa la reacción.</div>');
+      return;
+    }
+    if (!R[2]) return dmgReactApply(c, R, dmg, Math.ceil(dmg / 2));
+    const x = R[3](c);
+    openModal(`<h2>${esc(R[1])}</h2><p>Usas tu reacción para reducir ${R[4]}. Tira <b>${R[2]}</b> y escribe el resultado: la app suma ${sgn(x)}.</p>
+      <div class="hpctl"><input id="red-r" type="number" inputmode="numeric" min="1" max="${R[2].slice(2)}" aria-label="Resultado del dado"><button class="b pri" data-act="hp-red-ok" data-k="${R[0]}" data-dmg="${dmg}">Reducir</button></div>
+      <div class="btns"><button class="b" data-act="vida">Volver</button></div>`);
+    setTimeout(() => $('#red-r') && $('#red-r').focus(), 0);
+  },
+  'hp-red-ok': el => {
+    const c = C(),
+      R = DMG_REACT.find(x => x[0] === el.dataset.k),
+      r = parseInt($('#red-r').value),
+      max = +R[2].slice(2);
+    if (!(r >= 1 && r <= max)) return $('#red-r').focus();
+    dmgReactApply(c, R, +el.dataset.dmg, r + R[3](c));
+  },
+  /* Fuera de combate: pasa el tiempo y caducan los efectos (los de rondas acaban con 1 minuto o más) */
+  'pass-time': el => {
+    const c = C(),
+      m = +el.dataset.m,
+      gone = passTime(c, m);
+    save();
+    render();
+    refreshVida();
+    toast(
+      `<div class="t-label">Pasan ${m === 60 ? '1 hora' : `${m} min`}</div><div class="t-parts">${gone && gone.length ? `Terminan: ${gone.map(esc).join(', ')}.` : 'Ningún efecto termina todavía.'}</div>`
+    );
+  },
   /* Recuperación arcana (mago 1): tras un descanso corto, espacios gastados cuyos niveles sumen hasta la mitad del nivel de mago (redondeando hacia arriba), ninguno de nivel 6 o más */
   arcane: el => {
     const c = C(),
@@ -334,7 +386,7 @@ Object.assign(A, {
           '<div class="t-parts">Cazador implacable: el daño no rompe tu concentración en Marca del cazador.</div>';
       else if (c.concentration && n > 0 && c.hp.current > 0) {
         const dc = Math.min(30, Math.max(10, Math.floor(n / 2)));
-        acts = `<div class="t-parts">Concentración en ${esc(c.concentration)}: tira salvación de CON, CD <b>${dc}</b> (tu bonificador ${sgn(saveB(c, 'con') + d20Pen(c))}${+c.exhaustion ? ', con el agotamiento' : ''}).</div><div class="t-actions"><button class="b sm" data-act="conc-keep">La supero</button><button class="b sm bad" data-act="conc-lose">La fallo</button></div>`;
+        acts = `<div class="t-parts">Concentración en ${esc(c.concentration)}: tira salvación de CON, CD <b>${dc}</b> (tu bonificador ${sgn(saveB(c, 'con') + d20Pen(c))}${+c.exhaustion ? ', con el agotamiento' : ''}).${concAdv(c) ? ` Con <b>ventaja</b> (${concAdv(c)}): tira 2d20 y quédate el más alto.` : ''}</div><div class="t-actions"><button class="b sm" data-act="conc-keep">La supero</button><button class="b sm bad" data-act="conc-lose">La fallo</button></div>`;
       } else if (c.concentration && c.hp.current === 0) c.concentration = '';
       toast(
         `<div class="t-label">Daño recibido</div><div class="t-big bad">−${n}</div>${why}<div class="t-parts">${fromTemp ? `${fromTemp} absorbidos por PG temporales · ` : ''}PG: ${c.hp.current} / ${c.hp.max}</div>${extra}${acts}`,

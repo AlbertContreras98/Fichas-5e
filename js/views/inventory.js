@@ -126,7 +126,7 @@ function wpnEnsureAtk(c, e) {
       name: e.name,
       wpn: e.weapon,
       magic: +e.magic || 0,
-      mastery: MASTERY_CLS.has(c.classKey),
+      mastery: masteryCanAdd(c, e.weapon),
       item: e.id,
     });
   const r = wpnCalc(c, a);
@@ -193,6 +193,18 @@ function linkGear(c) {
   });
 }
 const MASTERY_CLS = new Set(['barbarian', 'fighter', 'paladin', 'ranger', 'rogue']);
+/* Cuántos tipos de arma pueden usar su maestría: los de la clase (bárbaro y guerrero según el nivel; paladín, explorador y pícaro, 2) + 1 con la dote Maestro de armas */
+function masteryMax(c) {
+  const cls = MASTERY_CLS.has(c.classKey)
+    ? +infoFor(defOf(c), subOf(c), c.level)['Maestrías con armas'] || 2
+    : 0;
+  return cls + ((c.featKeys || []).includes('weapon-master') ? 1 : 0);
+}
+/* Tipos de arma con la maestría elegida */
+const masteryKinds = c => [...new Set(c.attacks.filter(a => a.mastery && a.wpn).map(a => a.wpn))];
+/* ¿Se puede usar la maestría de este tipo de arma sin pasar del tope? */
+const masteryCanAdd = (c, wpn) =>
+  !!wpn && (masteryKinds(c).includes(wpn) || masteryKinds(c).length < masteryMax(c));
 function wpnProf(c, W) {
   const t = norm(c.proficiencies.weapons || '');
   if (t.includes(norm(W.n))) return true;
@@ -258,7 +270,24 @@ function wpnCalc(c, a) {
     type: pact && a.pactT ? a.pactT : W.t,
     notes,
     prof,
+    mod,
   };
+}
+/* La maestría del arma con sus números (Rozar, Derribar, Hendir…) para el mensaje del ataque */
+function masteryLine(c, a) {
+  const W = a.wpn && WEAPONS[a.wpn];
+  if (!W || !a.mastery || !MASTERY[W.ms]) return '';
+  const r = wpnCalc(c, a),
+    [n, d] = MASTERY[W.ms];
+  let t = d;
+  if (W.ms === 'graze')
+    t = `Si fallas, el objetivo recibe igualmente <b>${Math.max(0, r.mod)}</b> de daño ${esc(r.type)}.`;
+  else if (W.ms === 'topple')
+    t = `Si impactas, el objetivo hace una salvación de CON <b>CD ${8 + r.mod + pb(c)}</b> o queda derribado.`;
+  else if (W.ms === 'cleave')
+    t = `Si impactas, puedes atacar a otra criatura a 5 pies de la primera: <b>1d20 ${sgn(r.atk)}</b>, daño <b>${esc(W.d)}</b> (sin tu modificador). Una vez por turno.`;
+  else t = esc(d);
+  return `<div class="t-parts"><b>${esc(n)}:</b> ${t}</div>`;
 }
 function syncWeapons(c) {
   c.attacks.forEach(a => {

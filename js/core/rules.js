@@ -558,3 +558,44 @@ function resistOf(c) {
   if (c.conditions.includes('Petrificado')) return ['todo'];
   return [...set];
 }
+
+/* Ventaja en las salvaciones de concentración: Mente arcana (invocación) o Lanzador de guerra (dote). '' si no */
+function concAdv(c) {
+  const out = [];
+  if (ivFromChar(c).some(e => e.id === 'eldritch-mind')) out.push('Mente arcana');
+  if ((c.featKeys || []).includes('war-caster')) out.push('Lanzador de guerra');
+  return out.join(' y ');
+}
+
+/* Curación de un conjuro con el espacio usado: {n, d, bonus} (n dados de d caras + bonus) o null */
+function healOf(c, sp, L) {
+  const d = sp.ref && SPBY[sp.ref];
+  if (!d || !(+d.l >= 1)) return null;
+  const m = (d.hl || '').match(
+    /curaci[oó]n aumenta en (\d+)d(\d+) por cada nivel de espacio por encima de (\d)/i
+  );
+  if (!m) return null;
+  const b = d.de.match(new RegExp(`(\\d+)d${m[2]}`)),
+    up = Math.max(0, Math.max(+d.l, +L || +d.l) - d.l);
+  return {
+    n: (b ? +b[1] : 0) + up * +m[1],
+    d: +m[2],
+    bonus: /modificador/.test(d.de) && spMod(c) !== null ? spMod(c) : 0,
+  };
+}
+
+/* Arma de pacto: Golpe arcano (gastar un espacio de pacto al impactar, una vez por turno) y Bebedor de vida */
+const pactSmiteOk = c => ivFromChar(c).some(e => e.id === 'eldritch-smite') && c.pact.total - c.pact.used > 0;
+function pactExtras(c, a) {
+  if (!a.pact) return '';
+  const out = [];
+  if (ivFromChar(c).some(e => e.id === 'lifedrinker'))
+    out.push(
+      `<div class="t-parts"><b>Bebedor de vida</b> (una vez por turno, al impactar): +1d6 necrótico, psíquico o radiante, y puedes gastar un dado de golpe para curarte (el dado ${sgn(M(c, 'con'))}).</div>`
+    );
+  if (pactSmiteOk(c))
+    out.push(
+      `<div class="t-parts"><b>Golpe arcano</b> (una vez por turno): si impactas, puedes gastar un espacio de pacto para hacer ${1 + c.pact.level}d8 de fuerza extra.</div><div class="t-actions"><button class="b sm pri" data-act="smite-ok">Usar Golpe arcano</button></div>`
+    );
+  return out.join('');
+}
