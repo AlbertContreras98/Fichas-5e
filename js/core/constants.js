@@ -43,16 +43,31 @@ const CONDS = [
   ['Cegado', 'Fallas pruebas que requieran vista. Tus ataques con desventaja; te atacan con ventaja.'],
   [
     'Derribado',
-    'Solo puedes arrastrarte o levantarte (mitad de movimiento). Desventaja al atacar; los ataques cuerpo a cuerpo contra ti tienen ventaja.',
+    'Solo puedes arrastrarte (cada pie cuesta 1 más) o levantarte (gasta la mitad de tu velocidad). Desventaja al atacar. Los ataques contra ti tienen ventaja si quien ataca está a 5 pies o menos, y desventaja si está más lejos.',
   ],
   ['Ensordecido', 'No oyes y fallas pruebas que requieran oído.'],
   ['Envenenado', 'Desventaja en tiradas de ataque y pruebas de característica.'],
   ['Hechizado', 'No puedes atacar a quien te hechizó y tiene ventaja en interacciones sociales contigo.'],
-  ['Incapacitado', 'Sin acciones, acciones adicionales ni reacciones. Pierdes la concentración.'],
-  ['Inconsciente', 'Incapacitado y derribado; sueltas lo que llevas. Los golpes desde 5 pies son críticos.'],
-  ['Invisible', 'Tus ataques tienen ventaja; los ataques contra ti, desventaja.'],
-  ['Paralizado', 'Incapacitado. Fallas salvaciones de FUE y DES; los golpes desde 5 pies son críticos.'],
-  ['Petrificado', 'Convertido en piedra: incapacitado y con resistencia a todo el daño.'],
+  [
+    'Incapacitado',
+    'Sin acciones, acciones adicionales ni reacciones. No puedes hablar. Pierdes la concentración. Tiras la iniciativa con desventaja.',
+  ],
+  [
+    'Inconsciente',
+    'Incapacitado y derribado; sueltas lo que llevas y no te enteras de nada. Velocidad 0. Fallas salvaciones de FUE y DES. Te atacan con ventaja y los golpes desde 5 pies son críticos.',
+  ],
+  [
+    'Invisible',
+    'Ventaja en la iniciativa. Tus ataques tienen ventaja y los ataques contra ti, desventaja (salvo que quien ataca pueda verte de algún modo).',
+  ],
+  [
+    'Paralizado',
+    'Incapacitado. Velocidad 0. Fallas salvaciones de FUE y DES. Te atacan con ventaja y los golpes desde 5 pies son críticos.',
+  ],
+  [
+    'Petrificado',
+    'Convertido en piedra (pesas 10 veces más): incapacitado y velocidad 0. Fallas salvaciones de FUE y DES y te atacan con ventaja. Resistencia a todo el daño y no te pueden envenenar.',
+  ],
 ];
 const TIME = { A: 'Acción', AA: 'Acción adicional', BA: 'Acción adicional', R: 'Reacción' };
 const FULL = [

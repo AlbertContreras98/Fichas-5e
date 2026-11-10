@@ -34,6 +34,10 @@ document.addEventListener('click', e => {
   const before = JSON.stringify(S.chars),
     act = S.active;
   f(el);
+  if (C() && turnStart(C())) {
+    save();
+    render();
+  }
   if (JSON.stringify(S.chars) !== before) {
     UNDO.push({ chars: before, active: act });
     if (UNDO.length > 40) UNDO.shift();
@@ -427,6 +431,10 @@ document.addEventListener('change', e => {
       W.bg1 = el.value;
       recomputeAb();
       refreshWizFoot();
+      return;
+    }
+    if (el.id === 'wz-ofab') {
+      W.ofsAb = el.value;
       return;
     }
     if (el.id === 'wz-hfeat') {

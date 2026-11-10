@@ -142,6 +142,14 @@ function attacksPerAction(c) {
           ? 2
           : 1;
 }
+/* Empieza tu turno: si gastas la acción o la adicional tras «Terminar turno», recuperas la reacción */
+function turnStart(c) {
+  const T = c && c.turn;
+  if (!T || !T.wait || !(T.a || T.aa)) return false;
+  T.wait = false;
+  T.r = false;
+  return true;
+}
 function spendEco(c, k) {
   if (k === 'A') {
     c.turn.a = true;
@@ -357,13 +365,15 @@ function viewTurn(c) {
   // Acciones de cualquiera
   // Agarrar y Empujar sustituyen un ataque de la acción de Atacar (no gastan la acción entera): van antes de «Usar un objeto»
   const chip = ([k, n]) =>
-    k === 'grapple' || k === 'shove'
+    k === 'grapple' || k === 'shove' || k === 'unarmed'
       ? fm
         ? ''
-        : `<button class="chip" data-act="t-shove" data-k="${k}" ${dis(!atkOn)} title="Sustituye uno de tus ataques">${n}</button>`
+        : `<button class="chip" data-act="${k === 'unarmed' ? 't-unarmed' : 't-shove'}" data-k="${k}" ${dis(!atkOn)} title="${k === 'unarmed' ? 'Uno de los ataques de la acción de Atacar' : 'Sustituye uno de tus ataques'}">${n}</button>`
       : `<button class="chip" data-act="t-gen" data-k="${k}" ${dis(!aFree)}>${n}</button>`;
   const generic = `<div class="chips">${GENERIC.flatMap(g =>
-    g[0] === 'a_utilize' ? [['grapple', 'Agarrar'], ['shove', 'Empujar'], g] : [g]
+    g[0] === 'a_utilize'
+      ? [['unarmed', 'Golpe desarmado'], ['grapple', 'Agarrar'], ['shove', 'Empujar'], g]
+      : [g]
   )
     .map(chip)
     .join('')}</div>`;
@@ -391,7 +401,8 @@ function viewTurn(c) {
   const col = (k, title, gk, body) =>
     `<div class="tcol ${k === 'A' ? (aFree || T.atk > 0 ? '' : 'off') : k === 'AA' ? (T.aa ? 'off' : '') : k === 'R' ? (T.r ? 'off' : '') : ''}"><h3>${term(title, gk)}</h3>${body || '<p class="empty">Nada por ahora.</p>'}</div>`;
   return `<section class="card turn"><div class="card-head"><h2>Tu turno${c.combat ? ` <span class="round">Ronda ${c.combat.round}</span>` : ''}</h2><div class="btns"><button class="b" data-act="t-end">Terminar turno</button>${c.combat ? '<button class="b bad" data-act="cb-end">Terminar combate</button>' : ''}</div></div>
-    <div class="pills">${pill('Acción', 'action', T.a, incap ? 'Bloqueada' : aState, 'a')}${pill('Acción adicional', 'bonus', T.aa, incap ? 'Bloqueada' : '', 'aa')}${pill('Reacción', 'reaction', T.r, incap ? 'Bloqueada' : '', 'r')}</div>
+    <div class="pills">${pill('Acción', 'action', T.a, incap ? 'Bloqueada' : aState, 'a')}${pill('Acción adicional', 'bonus', T.aa, incap ? 'Bloqueada' : '', 'aa')}${pill('Reacción', 'reaction', T.r, incap ? 'Bloqueada' : T.r && T.wait ? 'Vuelve en tu turno' : '', 'r')}</div>
+    ${T.wait && T.r && !incap ? '<p class="hint">Tu reacción vuelve al empezar tu próximo turno: en cuanto uses tu acción o tu acción adicional (o pulsa ↺).</p>' : ''}
     ${condNotes.length ? `<div class="condnotes">${condNotes.map(n => `<p>${n}</p>`).join('')}</div>` : ''}
     <div class="tgrid">
       ${col('A', 'Acción', 'action', `${nAtk > 1 ? `<p class="hint">Con la acción de Atacar haces ${nAtk} ataques.</p>` : ''}${cols.A.join('')}<h3 class="sub3">Otras acciones</h3>${generic}`)}

@@ -102,7 +102,7 @@ function ftSel(attr, val, opts, ph = '—') {
   return `<select ${attr}>${[['', ph], ...opts].map(([k, t, dis]) => `<option value="${esc(k)}" ${val === k ? 'selected' : ''} ${dis ? 'disabled' : ''}>${esc(t)}</option>`).join('')}</select>`;
 }
 /* Desplegable de dotes + opciones de la elegida. extra: opciones añadidas al principio, como [['_custom', 'Otra…']] */
-function ftPickerHTML(fs, ctx, extra = []) {
+function ftPickerHTML(fs, ctx, extra = [], lock = false) {
   const groups = FT_CATS.filter(([cat]) => !fs.cats || fs.cats.includes(cat))
     .map(([cat, lbl]) => {
       const opts = Object.entries(FEATS)
@@ -119,6 +119,20 @@ function ftPickerHTML(fs, ctx, extra = []) {
   const sel = `<label class="f"><span>Dote</span><select data-fs="k"><option value="">— Elige una dote —</option>${extra.map(([k, t]) => `<option value="${k}" ${fs.k === k ? 'selected' : ''}>${esc(t)}</option>`).join('')}${groups}</select></label>`;
   const f = FEATS[fs.k];
   if (!f) return sel;
+  if (lock) {
+    const rowsOnly = (f.spPick || []).flatMap((g, gi) =>
+      Array.from(
+        { length: ftCount(g, ctx.L) },
+        (_, i) =>
+          `<label class="f"><span>${g.lv ? `Conjuro de nivel ${g.lv}` : 'Truco'}${ftCount(g, ctx.L) > 1 ? ` ${i + 1}` : ''}</span>${ftSel(
+            `data-fs="sp" data-g="${gi}" data-i="${i}"`,
+            (fs.sp[gi] || [])[i] || '',
+            ftSpellOpts(fs, ctx, g, gi, i).map(s => [s.id, s.n])
+          )}</label>`
+      )
+    );
+    return `<div class="feat"><b>${esc(f.n)}</b><p>${esc(f.text)}</p></div><div class="grid">${rowsOnly.join('')}</div>`;
+  }
   const L = ctx.L,
     rows = [];
   if (f.ab && f.ab.length)

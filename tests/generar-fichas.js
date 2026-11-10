@@ -75,6 +75,7 @@ const REPARTO = [
     car: { str: 8, dex: 14, con: 13, int: 15, wis: 12, cha: 10 },
     habilidades: ['investigation', 'medicine', 'perception'],
     conjuros: ['fire-bolt', 'mage-hand', 'light', 'magic-missile', 'shield', 'sleep', 'mage-armor'],
+    iniciado: ['prestidigitation', 'ray-of-frost', 'detect-magic'],
   },
   {
     reserva: true,
@@ -87,6 +88,7 @@ const REPARTO = [
     car: { str: 15, dex: 10, con: 13, int: 8, wis: 12, cha: 14 },
     habilidades: ['athletics', 'persuasion', 'perception'],
     conjuros: ['bless', 'cure-wounds'],
+    iniciado: ['guidance', 'sacred-flame', 'healing-word'],
   },
 ];
 
@@ -137,6 +139,19 @@ async function crear(page, f) {
         break;
       case 'spells':
         for (const id of f.conjuros || []) await conjuro(page, id);
+        break;
+      case st.startsWith('ofeat:') && st:
+        /* Iniciado en la magia: los conjuros de f.iniciado (trucos y luego el de nivel 1), o los primeros de la lista */
+        for (const [n, sel] of (
+          await page.$$eval('[data-fs="sp"]', l =>
+            l.map(e => `[data-fs="sp"][data-g="${e.dataset.g}"][data-i="${e.dataset.i}"]`)
+          )
+        ).entries()) {
+          const id = (f.iniciado || [])[n];
+          const val =
+            id || (await page.$eval(sel, e => [...e.options].find(o => o.value && !o.disabled).value));
+          await b.elegir(page, sel, val);
+        }
         break;
       case 'invoc':
         for (const id of f.invocaciones || []) await b.act(page, 'iv-add', { id });

@@ -32,6 +32,11 @@ function wizSteps() {
       st.push(['spells', 'Conjuros']);
     if (W.classKey === 'warlock') st.push(['invoc', 'Invocaciones']);
   }
+  /* Dotes de origen con conjuros a elegir (Iniciado en la magia): después de los conjuros de clase, para no repetirlos */
+  if (W.mode === 'create')
+    wizFeats()
+      .filter((k, i, a) => FEATS[k] && FEATS[k].spPick && a.indexOf(k) === i)
+      .forEach(k => st.push([`ofeat:${k}`, 'Dote de origen']));
   if (W.mode === 'create' && (CLASS_KITS[W.classKey] || BG_KITS[W.bgKey])) st.push(['equip', 'Equipo']);
   st.push(['confirm', 'Confirmar']);
   return st;
@@ -173,6 +178,19 @@ function wizBody(step) {
     sub = wizSub(),
     L = W.L;
   W.ft = null;
+  if (step.startsWith('ofeat:')) {
+    const k = step.slice(6),
+      f = FEATS[k];
+    W.ft = wizOfs(k);
+    const caster = !!casterOf(def, sub);
+    return `<p>Tu dote de origen <b>${esc(f.n)}</b> te da conjuros. Elígelos aquí: quedarán en Magia.</p>
+      ${ftPickerHTML(W.ft, wizOfsCtx(), [], true)}
+      ${
+        caster
+          ? `<p class="hint">Los lanzas con tu aptitud mágica de ${esc(def.n.toLowerCase())}.</p>`
+          : `<label class="f"><span>Aptitud mágica para estos conjuros</span><select id="wz-ofab">${['int', 'wis', 'cha'].map(a => `<option value="${a}" ${(W.ofsAb || 'int') === a ? 'selected' : ''}>${AB[a][2]} (${sgn(mod(W.ab[a]))})</option>`).join('')}</select></label>`
+      }`;
+  }
   switch (step) {
     case 'style': {
       W.style = W.style || ftNew(['style']);
@@ -517,6 +535,7 @@ function wizValid(step) {
     if (!W.bgKey) return !!W.background.trim();
     return W.bgMode === '111' || (!!W.bg2 && !!W.bg1 && W.bg1 !== W.bg2);
   }
+  if (step.startsWith('ofeat:')) return !ftMissing(wizOfs(step.slice(6)), wizOfsCtx());
   if (step === 'lineage') return !!W.lineageKey;
   if (step === 'invoc') {
     const st = wizIv();
@@ -533,6 +552,12 @@ function wizValid(step) {
   }
   return true;
 }
+/* Estado de las dotes de origen con conjuros (asistente de creación) */
+function wizOfs(k) {
+  W.ofs = W.ofs || {};
+  return (W.ofs[k] = W.ofs[k] || Object.assign(ftNew(['origin']), { k }));
+}
+const wizOfsCtx = () => Object.assign(wizFtCtx(), { keys: [] });
 const STEP_HELP = {
   species: 'Elige especie (y su linaje si lo tiene).',
   background: 'Completa el trasfondo y sus aumentos.',
@@ -639,7 +664,7 @@ function applyWizard() {
     c.proficiencies.weapons = def.weapons;
     if (bg) c.proficiencies.tools = bg.tool;
     c.languages = 'Común y dos idiomas a elegir';
-    c.featKeys = wizFeats();
+    c.featKeys = wizFeats().filter(k => !(FEATS[k] && FEATS[k].spPick));
     for (const k of c.featKeys)
       addFeature(
         c,
@@ -727,6 +752,21 @@ function applyWizard() {
   if (W.asi && def.asi.includes(L) && W.asi.mode === 'feat' && FEATS[W.asi.fs.k])
     featApply(c, W.asi.fs, L === 19 ? 'Don épico (nivel 19)' : `Dote (nivel ${L})`);
   if (W.style && FEATS[W.style.k]) featApply(c, W.style, 'Estilo de combate');
+  // dotes de origen con conjuros (Iniciado en la magia), con los conjuros elegidos
+  if (W.mode === 'create') {
+    const bg = BG[W.bgKey];
+    wizFeats()
+      .filter((k, i, a) => FEATS[k] && FEATS[k].spPick && a.indexOf(k) === i)
+      .forEach(k =>
+        featApply(
+          c,
+          wizOfs(k),
+          bg && bg.feat === k ? `Dote de origen (${bg.n})` : 'Dote de origen (Versátil)'
+        )
+      );
+    if (!c.spellcasting.ability && wizFeats().some(k => FEATS[k] && FEATS[k].spPick))
+      c.spellcasting.ability = W.ofsAb || 'int';
+  }
   // conjuros siempre preparados de clase y subclase
   addAlways(c, [
     ...alwaysIds(c.classKey, '', W.mode === 'create' ? 1 : L, L),

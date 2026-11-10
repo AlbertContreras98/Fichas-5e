@@ -1,6 +1,6 @@
 {
   "formato": "fichas-dnd-2024/2",
-  "id": "l1j4k2lr",
+  "id": "cu81ldhf",
   "name": "Elarion",
   "species": "Elfo (Alto elfo)",
   "speciesKey": "elf",
@@ -10,7 +10,24 @@
   "featKeys": [
     "magic-wizard"
   ],
-  "featData": [],
+  "featData": [
+    {
+      "k": "magic-wizard",
+      "ab": "",
+      "opt": "",
+      "sk": [],
+      "save": false,
+      "prof": {},
+      "sp": [
+        "prestidigitation",
+        "ray-of-frost",
+        "detect-magic"
+      ],
+      "spConv": [],
+      "src": "Dote de origen (Sabio)",
+      "feat": "Iniciado en la magia (mago)"
+    }
+  ],
   "class": "Mago",
   "classKey": "wizard",
   "subclass": "",
@@ -72,7 +89,7 @@
       "wpn": "dagger",
       "magic": 0,
       "mastery": false,
-      "item": "74g8i3s9"
+      "item": "f6s11z2v"
     },
     {
       "name": "Bastón (canalizador arcano)",
@@ -84,7 +101,7 @@
       "wpn": "quarterstaff",
       "magic": 0,
       "mastery": false,
-      "item": "umqquqhg"
+      "item": "27663fmr"
     },
     {
       "name": "Bastón",
@@ -96,7 +113,7 @@
       "wpn": "quarterstaff",
       "magic": 0,
       "mastery": false,
-      "item": "15ggx6xe"
+      "item": "aad3sgfm"
     }
   ],
   "spellcasting": {
@@ -208,7 +225,28 @@
       "material": "",
       "desc": "",
       "ref": "prestidigitation",
-      "src": "Alto elfo"
+      "src": "Dote",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 0,
+      "name": "Rayo de escarcha",
+      "time": "A",
+      "range": "60 pies",
+      "dur": "Instantánea",
+      "conc": false,
+      "ritual": false,
+      "material": "",
+      "desc": "",
+      "ref": "ray-of-frost",
+      "src": "Dote",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
     },
     {
       "level": 1,
@@ -223,6 +261,23 @@
       "ref": "mage-armor",
       "src": "",
       "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 1,
+      "name": "Detectar magia",
+      "time": "A",
+      "range": "Personal",
+      "dur": "hasta 10 minutos",
+      "conc": true,
+      "ritual": true,
+      "material": "",
+      "desc": "",
+      "ref": "detect-magic",
+      "src": "Dote",
+      "free": "Conjuro de iniciado (gratis)",
       "atwill": false,
       "hd": "",
       "wpn": null
@@ -281,16 +336,6 @@
   ],
   "features": [
     {
-      "name": "Iniciado en la magia (mago)",
-      "source": "Dote de origen (Sabio)",
-      "text": "Aprendes dos trucos y un conjuro de nivel 1 de la lista de mago, siempre preparados. Lanzas el de nivel 1 sin espacio 1 vez por descanso largo (y también con espacios). Aptitud mágica: INT, SAB o CAR (eliges). Puedes repetir la dote con otra lista.",
-      "uses": {
-        "max": 0,
-        "used": 0,
-        "recover": ""
-      }
-    },
-    {
       "name": "Lanzamiento de conjuros",
       "source": "Mago 1",
       "text": "Lanzas conjuros de mago con INT. Tienes un libro de conjuros: preparas conjuros de él y añades 2 nuevos por nivel.",
@@ -314,6 +359,27 @@
       "name": "Recuperación arcana",
       "source": "Mago 1",
       "text": "Tras un descanso corto recuperas espacios cuyo nivel total sea la mitad de tu nivel de mago (ninguno de nivel 6+). 1 vez por descanso largo.",
+      "uses": {
+        "max": 1,
+        "used": 0,
+        "recover": "largo",
+        "pool": false
+      }
+    },
+    {
+      "name": "Iniciado en la magia (mago)",
+      "source": "Dote de origen (Sabio)",
+      "text": "Aprendes dos trucos y un conjuro de nivel 1 de la lista de mago, siempre preparados. Lanzas el de nivel 1 sin espacio 1 vez por descanso largo (y también con espacios). Aptitud mágica: INT, SAB o CAR (eliges). Puedes repetir la dote con otra lista.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Conjuro de iniciado (gratis)",
+      "source": "Dote",
+      "text": "",
       "uses": {
         "max": 1,
         "used": 0,
@@ -370,22 +436,11 @@
         "used": 0,
         "recover": ""
       }
-    },
-    {
-      "name": "Conjuro de iniciado (gratis)",
-      "source": "Elfo",
-      "text": "",
-      "uses": {
-        "max": 1,
-        "used": 0,
-        "recover": "largo",
-        "pool": false
-      }
     }
   ],
   "equipment": [
     {
-      "id": "74g8i3s9",
+      "id": "f6s11z2v",
       "name": "Daga",
       "qty": 2,
       "cat": "arma",
@@ -395,7 +450,7 @@
       "equipped": true
     },
     {
-      "id": "umqquqhg",
+      "id": "27663fmr",
       "name": "Bastón (canalizador arcano)",
       "qty": 1,
       "cat": "arma",
@@ -405,77 +460,77 @@
       "equipped": true
     },
     {
-      "id": "g0o9al89",
+      "id": "p8jl432y",
       "name": "Túnica",
       "qty": 2,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "rqhkn2ks",
+      "id": "jlbjte0a",
       "name": "Libro de conjuros",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "39ajnleh",
+      "id": "fptpjl9e",
       "name": "Mochila",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "wbnbhobq",
+      "id": "vfi7lem2",
       "name": "Libro",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "stzkat72",
+      "id": "4j7zp3y8",
       "name": "Tinta",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "nmktiuka",
+      "id": "ap6ahczv",
       "name": "Pluma",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "2mpcoy9f",
+      "id": "q6z1w8nc",
       "name": "Lámpara",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "h5y9hh1b",
+      "id": "m0vdukxr",
       "name": "Aceite (frasco)",
       "qty": 10,
       "cat": "consumible",
       "notes": ""
     },
     {
-      "id": "pk0kmvl1",
+      "id": "062ufwz6",
       "name": "Pergamino (hojas)",
       "qty": 18,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "aceynfes",
+      "id": "y2lbojhq",
       "name": "Yesquero",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "15ggx6xe",
+      "id": "aad3sgfm",
       "name": "Bastón",
       "qty": 1,
       "cat": "arma",
@@ -485,7 +540,7 @@
       "equipped": true
     },
     {
-      "id": "el5ur3nd",
+      "id": "5jragytk",
       "name": "Suministros de calígrafo",
       "qty": 1,
       "cat": "herramienta",
@@ -493,7 +548,7 @@
       "tool": "calligrapher"
     },
     {
-      "id": "0bcnr19a",
+      "id": "l98ah0c7",
       "name": "Libro (historia)",
       "qty": 1,
       "cat": "otro",

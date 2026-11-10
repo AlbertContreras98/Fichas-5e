@@ -69,8 +69,33 @@ function viewCombat(c) {
   const start = c.combat
     ? ''
     : `<section class="card cbstart"><div><h2>¿Empieza la pelea?</h2><p class="hint">Inicia el combate para llevar la cuenta de las rondas. Al terminarlo podrás quitar los efectos y estados que ya no tengan sentido.</p></div><button class="b pri" data-act="cb-start">Iniciar combate</button></section>`;
-  return `${c.hp.current <= 0 ? `<section class="card">${deathHTML(c)}</section>` : ''}${start}${viewTurn(c)}`;
+  return `${c.hp.current <= 0 ? `<section class="card">${deathHTML(c)}</section>` : ''}${start}${viewTurn(c)}${rulesCard()}`;
 }
+/* Reglas comunes para consultar en mitad del combate (cobertura, saltar, luz…) */
+const RULES_LIST = [
+  'r_cover',
+  'r_range',
+  'r_terrain',
+  'r_jump',
+  'r_climb',
+  'r_fall',
+  'r_light',
+  'r_surprise',
+  'r_stabilize',
+  'r_suffocate',
+  'r_restbreak',
+  'r_group',
+  'a_magic',
+  'crit',
+  'death',
+  'conc',
+];
+const rulesCard = () =>
+  `<section class="card"><details class="rules"><summary><b>Reglas útiles</b> <small>cobertura, saltar, luz, caídas…</small></summary><p class="hint">Toca una para ver qué dice.</p><div class="chips">${RULES_LIST.filter(
+    k => G[k]
+  )
+    .map(k => term(esc(G[k].t), k))
+    .join('')}</div></details></section>`;
 function viewPlay(c) {
   const p = pb(c),
     def = defOf(c),
@@ -80,14 +105,16 @@ function viewPlay(c) {
   const abil = `<section class="card"><h2>Características</h2><div class="abil">${ABIL.map(
     ([k, l]) => `<button class="ab" data-act="gloss" data-k="abil:${k}"><span class="lbl">${l}</span>
       <span class="mod">${sgn(M(c, k))}</span><span class="sc">${c.abilities[k]}</span>
-      <span class="sv ${c.saveProf.includes(k) ? 'p' : ''}">Salv. ${sgn(saveB(c, k))}</span></button>`
+      <span class="sv ${c.saveProf.includes(k) ? 'p' : ''}">Salv. ${sgn(saveB(c, k) + d20Pen(c))}</span></button>`
   ).join('')}</div>
     <div class="abil-extra">${irow('Bonificador de competencia', sgn(p), 'Lo sumas a todo aquello en lo que eres competente: ataques, habilidades, salvaciones, herramientas y conjuros. Sube con el nivel.')}${irow('Percepción pasiva', String(10 + skillB(c, SK.perception)), 'Lo que notas sin tirar dados: 10 + tu bonificador de Percepción. El máster la usa para ver si detectas enemigos escondidos, trampas o a quien te sigue.')}</div>
     <p class="hint" style="margin-top:.6rem">Toca una característica para ver qué tirar. ${term('¿Puntuación o modificador?', 'mod')} · ${term('¿Qué es una salvación?', 'save')}</p></section>`;
   const sk = `<section class="card"><h2>Habilidades</h2>${SKILLS.map(s => {
     const pv = +c.skills[s[0]] || 0;
-    return `<button class="skill" data-act="gloss" data-k="skill:${s[0]}"><span class="dot ${pv ? 'p' : ''}">${pv === 2 ? '◆' : pv ? '●' : '○'}</span><span>${s[1]}</span><span class="ak">${AB[s[2]][1]}</span><b>${sgn(skillB(c, s))}</b></button>`;
-  }).join('')}
+    return `<button class="skill" data-act="gloss" data-k="skill:${s[0]}"><span class="dot ${pv ? 'p' : ''}">${pv === 2 ? '◆' : pv ? '●' : '○'}</span><span>${s[1]}</span><span class="ak">${AB[s[2]][1]}</span><b>${sgn(skillB(c, s) + d20Pen(c))}</b></button>`;
+  }).join(
+    ''
+  )}${+c.exhaustion ? `<p class="hint warn">Agotamiento ${c.exhaustion}: las habilidades y salvaciones ya llevan restado el −${2 * c.exhaustion}.</p>` : ''}
     <p class="hint" style="margin-top:.5rem">Toca una habilidad para ver para qué sirve y qué tirar. ${term('● competente · ◆ pericia', 'prof')} · ${term('Ventaja y desventaja', 'adv')}</p></section>`;
   const atkBadges = a =>
     `<span class="badge">${sgn(+a.atk || 0)}</span>${a.dmg ? `<span class="badge">${esc(a.dmg)}</span>` : ''}`;
@@ -357,11 +384,20 @@ function afterCast(sp, how) {
   const used = spUseItem(c, sp) + csOnCast(c, sp);
   save();
   render();
+  const r = sp.ref || '',
+    L = Math.max(+sp.level || 0, lastCastL || 0),
+    roll =
+      cantripRoll(c, sp) ||
+      (r === 'searing-smite'
+        ? `<div class="t-parts">El ataque que acabas de impactar hace <b>${L}d6 de fuego</b> extra.</div>`
+        : r === 'shining-smite'
+          ? `<div class="t-parts">El ataque que acabas de impactar hace <b>${L}d6 radiante</b> extra.</div>`
+          : '');
   const extra =
-    spMod(c) !== null
+    roll ||
+    (spMod(c) !== null
       ? `<div class="t-parts">CD de salvación ${spDC(c)} · ataque de conjuro ${sgn(spAtk(c))}</div>`
-      : '';
-  const r = sp.ref || '';
+      : '');
   let cbtn = '';
   if (SUMMON_REF[r])
     cbtn = `<button class="b sm pri" data-act="crea-from-cast" data-k="summon" data-s="${SUMMON_REF[r]}" data-l="${lastCastL || sp.level}" data-spell="${esc(sp.name)}">Crear la criatura</button>`;

@@ -274,7 +274,7 @@ Object.assign(A, {
           '<div class="t-parts">Cazador implacable: el daño no rompe tu concentración en Marca del cazador.</div>';
       else if (c.concentration && n > 0 && c.hp.current > 0) {
         const dc = Math.min(30, Math.max(10, Math.floor(n / 2)));
-        acts = `<div class="t-parts">Concentración en ${esc(c.concentration)}: tira salvación de CON, CD <b>${dc}</b> (tu bonificador ${sgn(saveB(c, 'con'))}).</div><div class="t-actions"><button class="b sm" data-act="conc-keep">La supero</button><button class="b sm bad" data-act="conc-lose">La fallo</button></div>`;
+        acts = `<div class="t-parts">Concentración en ${esc(c.concentration)}: tira salvación de CON, CD <b>${dc}</b> (tu bonificador ${sgn(saveB(c, 'con') + d20Pen(c))}${+c.exhaustion ? ', con el agotamiento' : ''}).</div><div class="t-actions"><button class="b sm" data-act="conc-keep">La supero</button><button class="b sm bad" data-act="conc-lose">La fallo</button></div>`;
       } else if (c.concentration && c.hp.current === 0) c.concentration = '';
       toast(
         `<div class="t-label">Daño recibido</div><div class="t-big bad">−${n}</div>${why}<div class="t-parts">${fromTemp ? `${fromTemp} absorbidos por PG temporales · ` : ''}PG: ${c.hp.current} / ${c.hp.max}</div>${extra}${acts}`,

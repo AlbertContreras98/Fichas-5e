@@ -1,6 +1,6 @@
 {
   "formato": "fichas-dnd-2024/2",
-  "id": "t4etgodr",
+  "id": "o3ik6rxm",
   "name": "Tomás",
   "species": "Humano",
   "speciesKey": "human",
@@ -8,10 +8,27 @@
   "background": "Acólito",
   "backgroundKey": "acolyte",
   "featKeys": [
-    "magic-cleric",
-    "tough"
+    "tough",
+    "magic-cleric"
   ],
-  "featData": [],
+  "featData": [
+    {
+      "k": "magic-cleric",
+      "ab": "",
+      "opt": "",
+      "sk": [],
+      "save": false,
+      "prof": {},
+      "sp": [
+        "guidance",
+        "sacred-flame",
+        "healing-word"
+      ],
+      "spConv": [],
+      "src": "Dote de origen (Acólito)",
+      "feat": "Iniciado en la magia (clérigo)"
+    }
+  ],
   "class": "Paladín",
   "classKey": "paladin",
   "subclass": "",
@@ -73,7 +90,7 @@
       "wpn": "longsword",
       "magic": 0,
       "mastery": true,
-      "item": "8d4uvlxs"
+      "item": "mip9pmq1"
     },
     {
       "name": "Jabalina",
@@ -85,7 +102,7 @@
       "wpn": "javelin",
       "magic": 0,
       "mastery": true,
-      "item": "qxrbbgu6"
+      "item": "esqz7dpw"
     }
   ],
   "spellcasting": {
@@ -136,6 +153,40 @@
   },
   "spells": [
     {
+      "level": 0,
+      "name": "Llama sagrada",
+      "time": "A",
+      "range": "60 pies",
+      "dur": "Instantánea",
+      "conc": false,
+      "ritual": false,
+      "material": "",
+      "desc": "",
+      "ref": "sacred-flame",
+      "src": "Dote",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 0,
+      "name": "Orientación",
+      "time": "A",
+      "range": "Toque",
+      "dur": "hasta 1 minuto",
+      "conc": true,
+      "ritual": false,
+      "material": "",
+      "desc": "",
+      "ref": "guidance",
+      "src": "Dote",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
       "level": 1,
       "name": "Bendición",
       "time": "A",
@@ -168,19 +219,26 @@
       "atwill": false,
       "hd": "",
       "wpn": null
+    },
+    {
+      "level": 1,
+      "name": "Palabra de curación",
+      "time": "AA",
+      "range": "60 pies",
+      "dur": "Instantánea",
+      "conc": false,
+      "ritual": false,
+      "material": "",
+      "desc": "",
+      "ref": "healing-word",
+      "src": "Dote",
+      "free": "Conjuro de iniciado (gratis)",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
     }
   ],
   "features": [
-    {
-      "name": "Iniciado en la magia (clérigo)",
-      "source": "Dote de origen (Acólito)",
-      "text": "Aprendes dos trucos y un conjuro de nivel 1 de la lista de clérigo, siempre preparados. Lanzas el de nivel 1 sin espacio 1 vez por descanso largo (y también con espacios). Aptitud mágica: INT, SAB o CAR (eliges). Puedes repetir la dote con otra lista.",
-      "uses": {
-        "max": 0,
-        "used": 0,
-        "recover": ""
-      }
-    },
     {
       "name": "Duro",
       "source": "Dote de origen (Versátil)",
@@ -233,6 +291,27 @@
       }
     },
     {
+      "name": "Iniciado en la magia (clérigo)",
+      "source": "Dote de origen (Acólito)",
+      "text": "Aprendes dos trucos y un conjuro de nivel 1 de la lista de clérigo, siempre preparados. Lanzas el de nivel 1 sin espacio 1 vez por descanso largo (y también con espacios). Aptitud mágica: INT, SAB o CAR (eliges). Puedes repetir la dote con otra lista.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Conjuro de iniciado (gratis)",
+      "source": "Dote",
+      "text": "",
+      "uses": {
+        "max": 1,
+        "used": 0,
+        "recover": "largo",
+        "pool": false
+      }
+    },
+    {
       "name": "Ingenioso",
       "source": "Humano",
       "text": "Ganas Inspiración heroica al terminar cada descanso largo (la app la activa sola).",
@@ -261,22 +340,11 @@
         "used": 0,
         "recover": ""
       }
-    },
-    {
-      "name": "Conjuro de iniciado (gratis)",
-      "source": "Humano",
-      "text": "",
-      "uses": {
-        "max": 1,
-        "used": 0,
-        "recover": "largo",
-        "pool": false
-      }
     }
   ],
   "equipment": [
     {
-      "id": "b5qqta5n",
+      "id": "9iejvws6",
       "name": "Cota de mallas",
       "qty": 1,
       "cat": "armadura",
@@ -286,7 +354,7 @@
       "equipped": true
     },
     {
-      "id": "ebuhn096",
+      "id": "xpjqmsz0",
       "name": "Escudo",
       "qty": 1,
       "cat": "armadura",
@@ -296,7 +364,7 @@
       "equipped": true
     },
     {
-      "id": "8d4uvlxs",
+      "id": "mip9pmq1",
       "name": "Espada larga",
       "qty": 1,
       "cat": "arma",
@@ -306,7 +374,7 @@
       "equipped": true
     },
     {
-      "id": "qxrbbgu6",
+      "id": "esqz7dpw",
       "name": "Jabalina",
       "qty": 6,
       "cat": "arma",
@@ -316,28 +384,28 @@
       "equipped": true
     },
     {
-      "id": "0gawg47r",
+      "id": "ehy0w0ji",
       "name": "Símbolo sagrado",
       "qty": 2,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "8fnczxrj",
+      "id": "krcgeyta",
       "name": "Mochila",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "lpqub7v6",
+      "id": "wmgi19aa",
       "name": "Manta",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "n8zx2a4r",
+      "id": "c1sot0cf",
       "name": "Agua bendita",
       "qty": 1,
       "cat": "consumible",
@@ -345,14 +413,14 @@
       "gear": "holywater"
     },
     {
-      "id": "z6r384qy",
+      "id": "wopc0x7g",
       "name": "Lámpara",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "bxjmi0jz",
+      "id": "9i12yoow",
       "name": "Raciones (días)",
       "qty": 7,
       "cat": "comida",
@@ -360,21 +428,21 @@
       "gear": "rations"
     },
     {
-      "id": "q0p9a365",
+      "id": "tetcwlx0",
       "name": "Túnica",
       "qty": 2,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "a1ogvu5v",
+      "id": "w5nzmw0y",
       "name": "Yesquero",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "zkrlnaqw",
+      "id": "34xo9bo8",
       "name": "Suministros de calígrafo",
       "qty": 1,
       "cat": "herramienta",
@@ -382,14 +450,14 @@
       "tool": "calligrapher"
     },
     {
-      "id": "mbpiy1bj",
+      "id": "djyy31qx",
       "name": "Libro (oraciones)",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "tro3niek",
+      "id": "5cn0yv7s",
       "name": "Pergamino (hojas)",
       "qty": 10,
       "cat": "otro",

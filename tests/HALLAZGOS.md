@@ -52,6 +52,8 @@ Se ha cambiado la nota de un hallazgo antiguo: el **n.º 41** (golpe desarmado) 
 
 ### Las 10 primeras
 
+**Arregladas las 10 el 2026-11-10** (y resuelto el n.º 30). La siguiente tanda empieza por el puesto 11 de la tabla.
+
 1. **N.º 45 · Estallido arcano: qué tirar.** Es el ataque de Zyo en casi cada turno, y la app no dice ni el dado ni cuántos rayos.
 2. **N.º 49 · Daño extra de Maleficio y Marca del cazador.** Zyo y el explorador los usan en cada combate, y el +1d6 se olvida en cada impacto.
 3. **N.º 37 · Avisar de la ventaja, la desventaja y el agotamiento.** Lo que más tiene que recordar un novato; afecta a todos y a cada tirada.
@@ -171,7 +173,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: al crear, el asistente debería pedir los conjuros (y la característica) de la dote, como hace al cogerla a nivel 4, y dejarlos en Magia.
 - Propuesta: en el paso Trasfondo (o uno nuevo, «Dote de origen»), usar `ftPickerHTML`/`featApply` para las dotes de origen que tengan opciones.
 - Prioridad: frecuencia 2 + olvido 3 + coste 2 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-10): paso nuevo «Dote de origen» en el asistente de creación para las dotes con conjuros a elegir; se aplica con `featApply` y, si la clase no lanza conjuros, pregunta la aptitud mágica. `generar-fichas.js` lo recorre (el mago y el paladín ya traen sus conjuros de iniciado).
 
 ### 3. El arma de pacto (Pacto del Filo) no se convierte en un ataque con CAR
 - Origen: Base, reparto y prueba de humo
@@ -424,7 +426,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: lo que diga el máster de Albert.
 - Propuesta: si dice que dormir la rompe, terminar la concentración en el descanso largo (cambio pequeño).
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente (esperando la respuesta del máster)
+- Estado: arreglado (2026-11-10): el máster de Albert dice que dormir **sí** rompe la concentración. La app ya lo hace así (`js/actions/rest.js:144`); no hace falta cambiar nada.
 - Nota (prueba 1b, comprobado con `tests/reglas.js`): la app hace ya **lo contrario** de lo que dice «Qué pasa». `long-done` (`js/actions/rest.js:144`) pone `c.concentration = ''`, así que el descanso largo termina siempre la concentración: un efecto de concentración de 24 h desaparece al dormir. Lo que sí sigue (con 8 h menos) son los efectos de más de 8 h **sin** concentración. Si el máster dice que dormir **no** rompe la concentración, el cambio es quitar esa línea.
 
 ### 31. La reacción se recupera al terminar tu turno, no al empezar el siguiente
@@ -434,7 +436,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: la reacción se recupera al **empezar** tu turno.
 - Propuesta: al pulsar «Terminar turno», dejar libres la acción y la adicional, y la reacción solo si no se ha gastado en este turno (o recuperarla al empezar el turno siguiente). El botón ↺ ya permite arreglarlo a mano.
 - Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-10): «Terminar turno» deja la reacción como estaba y marca la espera; vuelve sola en cuanto usas tu acción o tu acción adicional del turno siguiente (o con ↺). Mientras, la pastilla dice «Vuelve en tu turno».
 
 ### 32. Daño a 0 PG: no mira la muerte instantánea ni deja marcar el crítico
 - Origen: 1b. Reglas generales
@@ -487,7 +489,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
   - **Munición:** dice que tras el combate recuperas la mitad; vuestro máster no usa esa regla. Se podría quitar o poner «si el máster lo permite».
 - Propuesta: corregir los textos (cambio pequeño, solo texto).
 - Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-10): textos corregidos de Derribado, Incapacitado, Inconsciente, Paralizado, Petrificado, Invisible, Inspiración heroica, Ayudar, Preparar, Hendir y Munición (ya no habla de recuperar la mitad).
 
 ### 37. La app no avisa de la ventaja o desventaja ni resta el agotamiento
 - Origen: 1b. Reglas generales
@@ -496,7 +498,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: que cada número que da la app (ataque, habilidad, salvación, iniciativa) diga «con ventaja» o «con desventaja» cuando toque y reste el agotamiento.
 - Propuesta: una función `d20Notes(c, tipo)` que mire los estados (Envenenado, Asustado, Cegado, Derribado, Apresado, Invisible…), el agotamiento y el arma, y que la usen el mensaje del ataque, la ventana de habilidades y características y la de iniciativa. Al empezar el combate, preguntar «¿Te han sorprendido?».
 - Prioridad: frecuencia 3 + olvido 3 + coste 2 = 8
-- Estado: pendiente
+- Estado: arreglado (2026-11-10): `d20Line()` y `d20Pen()` (`js/core/rules.js`). Ataques, trucos, habilidades, características, salvaciones, concentración e iniciativa avisan de ventaja o desventaja por estados y armas pesadas, y restan el agotamiento (también en las listas de habilidades y salvaciones). La sorpresa queda como aviso de texto al empezar el combate.
 
 ### 38. Los estados no bajan la velocidad a 0 ni dicen qué tirar
 - Origen: 1b. Reglas generales
@@ -536,7 +538,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: un ataque «Golpe desarmado» siempre disponible en Combate.
 - Propuesta: añadirlo junto a Agarrar y Empujar, calculado con FUE (o con lo del monje cuando se arregle el n.º 12).
 - Prioridad: frecuencia 3 + olvido 2 + coste 3 = 8 (revisada en la prueba 1c; antes 1 + 2 + 3 = 6: el monje del grupo da golpes desarmados en cada turno con su dado de artes marciales y DES, y ahora no tiene ningún ataque con números para ello. De paso, el estilo Combate sin armas, 1d6/1d8 + FUE, tampoco tiene ataque)
-- Estado: pendiente
+- Estado: arreglado (2026-11-10): botón «Golpe desarmado» en Otras acciones (FUE + competencia, 1 + FUE). El monje sin armadura usa su mejor entre FUE y DES y su dado de artes marciales; con Combate sin armas, 1d6/1d8.
 
 ### 42. Faltan reglas comunes en el glosario
 - Origen: 1b. Reglas generales
@@ -545,7 +547,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: poder consultarlas en la app, con los números del personaje cuando los haya (por ejemplo, «Salto de longitud: 8 pies con carrerilla; de altura: 2 pies»).
 - Propuesta: añadir entradas a `GLOSS` y una lista «Reglas» (en Ajustes o en Combate) que las enseñe. Solo texto, barato.
 - Prioridad: frecuencia 2 + olvido 3 + coste 3 = 8
-- Estado: pendiente
+- Estado: arreglado (2026-11-10): 13 entradas nuevas en `GLOSS` (cobertura, atacar a distancia, terreno difícil, saltar con los números del personaje, trepar y nadar, caídas, luz, sorpresa, estabilizar, asfixia, descanso interrumpido, pruebas de grupo y la acción Magia) y una tarjeta «Reglas útiles» al final de la pestaña Combate.
 
 ### 43. El ataque de oportunidad no dice con qué arma
 - Origen: 1b. Reglas generales
@@ -572,7 +574,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: al lanzarlo, «Haz N ataques de conjuro (1d20 + X). Cada rayo que impacte: 1d10 + CAR de fuerza», con lo que añadan las invocaciones que tenga.
 - Propuesta: un caso especial al lanzarlo (como el de Falsa vida) que mire el nivel y las invocaciones. Se puede hacer a la vez que el n.º 46.
 - Prioridad: frecuencia 3 + olvido 3 + coste 3 = 9
-- Estado: pendiente
+- Estado: arreglado (2026-11-10): al lanzarlo, la app dice cuántos rayos, el ataque y el daño de cada rayo, con Estallido agonizante, Estallido repulsor y Lanza arcana si los tiene.
 
 ### 46. Los trucos de daño no dicen qué tirar ni suben de dados con el nivel
 - Origen: 1c. Priorizar (candidata de 1a: conjuros)
@@ -581,7 +583,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: al lanzarlo, «Ataque de conjuro 1d20 + X (o salvación de DES CD Y). Si impacta: 2d10 de fuego», con los dados ya subidos según el nivel.
 - Propuesta: añadir a esos 14 trucos el dado, el tipo de daño y si es ataque o salvación, y una sola función que suba los dados en los niveles 5, 11 y 17.
 - Prioridad: frecuencia 3 + olvido 3 + coste 2 = 8
-- Estado: pendiente
+- Estado: arreglado (2026-11-10): `CANTRIP_DMG` y `cantripRoll()` (`js/core/rules.js`) para 12 trucos de daño, más Golpe certero y Garrote; los dados suben a nivel 5, 11 y 17.
 
 ### 47. Los conjuros de daño con espacio no dicen qué tirar ni cuánto suben con un espacio mayor
 - Origen: 1c. Priorizar (candidata de 1a: conjuros)
@@ -608,7 +610,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: «Si impactas: 1d8 + 3 perforante · +1d6 de fuerza si es tu presa (Marca del cazador)».
 - Propuesta: una pequeña lista «nombre del efecto → dado extra» que mire el mensaje del ataque (`t-atk`) mientras el efecto siga activo.
 - Prioridad: frecuencia 3 + olvido 3 + coste 3 = 9
-- Estado: pendiente
+- Estado: arreglado (2026-11-10): con Maleficio, Marca del cazador o Favor divino activos, los mensajes de ataque (armas, golpe desarmado y trucos de ataque) añaden «Al impactar: +1d6…». Castigo abrasador y Castigo resplandeciente dicen el daño extra al lanzarlos. Agrandar/reducir e Imponer maldición quedan pendientes.
 
 ### 50. No se recuerda la salvación que se repite cada turno
 - Origen: 1c. Priorizar (candidata de 1a: conjuros)
@@ -743,7 +745,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: el mismo aviso añade «Puedes usar ahora: Metabolismo asombroso».
 - Propuesta: una lista de rasgos «al tirar iniciativa» que se enseñan si tienen usos libres.
 - Prioridad: frecuencia 2 + olvido 3 + coste 3 = 8
-- Estado: pendiente
+- Estado: arreglado (2026-11-10): al empezar el combate, el aviso lista los rasgos cuyo texto habla de la iniciativa, con sus usos.
 
 ### 65. El mago no tiene libro de conjuros
 - Origen: 1c. Priorizar (candidata de 1a: clases)

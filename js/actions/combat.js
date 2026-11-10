@@ -18,7 +18,9 @@ Object.assign(A, {
   't-scroll': el => scrollModal(+el.dataset.i, el.dataset.eco),
   't-end': () => {
     const c = C();
-    c.turn = { a: false, aa: false, r: false, atk: 0 };
+    /* La reacción no vuelve al terminar tu turno, sino al empezar el siguiente (turnStart) */
+    const rSpent = !!c.turn.r;
+    c.turn = { a: false, aa: false, r: rSpent, atk: 0, wait: true };
     const rd = c.combat ? c.combat.round : null;
     if (c.combat) c.combat.round++;
     c.effects.forEach(e => {
@@ -44,7 +46,7 @@ Object.assign(A, {
     render();
     scrollTo(0, 0);
     toast(
-      `<div class="t-label">¡Combate!</div><div class="t-big">Iniciativa: 1d20 ${sgn(init(c))}</div><div class="t-parts">Tira y díselo al máster. Estás en la ronda 1.</div>`
+      `<div class="t-label">¡Combate!</div><div class="t-big">Iniciativa: 1d20 ${sgn(init(c) + d20Pen(c))}</div><div class="t-parts">Tira y díselo al máster. Estás en la ronda 1.</div>${d20Line(c, 'init') ? `<div class="t-parts">${d20Line(c, 'init')}</div>` : ''}<div class="t-parts">Si el máster dice que te han sorprendido, tira con <b>desventaja</b> (2d20, el más bajo).</div>${initFeats(c)}`
     );
   },
   'cb-end': () => {
@@ -95,7 +97,14 @@ Object.assign(A, {
     save();
     render();
     toast(
-      `<div class="t-label">Ataque con ${esc(a.name)}</div><div class="t-big">1d20 ${sgn(+a.atk || 0)}</div><div class="t-parts">Si impactas, daño: ${esc(a.dmg || '—')} ${esc(a.type || '')}${am ? ` · quedan ${am.qty} ${esc(am.name)}` : ''}${T.atk > 0 ? ` · te quedan ${T.atk} ataques` : ''}</div>${a.wpn && a.mastery && WEAPONS[a.wpn] ? `<div class="t-parts"><b>${MASTERY[WEAPONS[a.wpn].ms][0]}:</b> ${esc(MASTERY[WEAPONS[a.wpn].ms][1])}</div>` : ''}`
+      `<div class="t-label">Ataque con ${esc(a.name)}</div><div class="t-big">1d20 ${sgn((+a.atk || 0) + d20Pen(c))}</div>${d20Line(c, 'atk', a) ? `<div class="t-parts">${d20Line(c, 'atk', a)}</div>` : ''}<div class="t-parts">Si impactas, daño: ${esc(a.dmg || '—')} ${esc(a.type || '')}${am ? ` · quedan ${am.qty} ${esc(am.name)}` : ''}${T.atk > 0 ? ` · te quedan ${T.atk} ataques` : ''}</div>${hitExtras(
+        c,
+        false
+      )
+        .map(x => `<div class="t-parts">Al impactar: ${esc(x)}</div>`)
+        .join(
+          ''
+        )}${a.wpn && a.mastery && WEAPONS[a.wpn] ? `<div class="t-parts"><b>${MASTERY[WEAPONS[a.wpn].ms][0]}:</b> ${esc(MASTERY[WEAPONS[a.wpn].ms][1])}</div>` : ''}`
     );
   },
   't-reset': el => {
@@ -128,6 +137,27 @@ Object.assign(A, {
       `<div class="t-label">${grab ? 'Agarrar' : 'Empujar'}</div><div class="t-big">CD ${8 + M(c, 'str') + pb(c)}</div><div class="t-parts">Elige a una criatura a 5 pies que no sea más de un tamaño mayor que tú${grab ? ' (necesitas una mano libre)' : ''}. Hace una salvación de FUE o DES (elige ella). ${grab ? 'Si falla, queda agarrada: su velocidad es 0 y tiene desventaja al atacar a cualquiera que no seas tú. Para soltarse usa su acción en una prueba de FUE (Atletismo) o DES (Acrobacias) contra la misma CD.' : 'Si falla, la empujas 5 pies o la derribas (eliges tú).'}${T.atk > 0 ? ` · te quedan ${T.atk} ataques` : ''}</div>`
     );
   },
+  't-unarmed': () => {
+    const c = C(),
+      T = c.turn,
+      u = unarmedCalc(c),
+      dl = d20Line(c, 'atk');
+    if (!T.a) {
+      T.a = true;
+      T.atk = attacksPerAction(c) - 1;
+    } else T.atk = Math.max(0, T.atk - 1);
+    save();
+    render();
+    toast(
+      `<div class="t-label">Golpe desarmado</div><div class="t-big">1d20 ${sgn(u.atk + d20Pen(c))}</div><div class="t-parts">Si impactas, daño: ${esc(u.dmg)} contundente${T.atk > 0 ? ` · te quedan ${T.atk} ataques` : ''}</div>${dl ? `<div class="t-parts">${dl}</div>` : ''}${u.note ? `<div class="t-parts">${esc(u.note)}</div>` : ''}${hitExtras(
+        c,
+        false
+      )
+        .filter(x => !/Favor divino/.test(x))
+        .map(x => `<div class="t-parts">Al impactar: ${esc(x)}</div>`)
+        .join('')}`
+    );
+  },
   't-light': el => {
     const c = C(),
       a = c.attacks[+el.dataset.i];
@@ -135,7 +165,12 @@ Object.assign(A, {
     save();
     render();
     toast(
-      `<div class="t-label">Ataque con ${esc(a.name)} (acción adicional)</div><div class="t-big">1d20 ${sgn(+a.atk || 0)}</div><div class="t-parts">El ataque suma tu bonificador de competencia como siempre.</div><div class="t-parts">Daño: ${esc(lightDmg(c, a))}${featHas(c, 'twf') ? ' (con Combate con dos armas sumas tu modificador al daño)' : ' (sin tu modificador de característica, salvo que sea negativo)'}.</div>`
+      `<div class="t-label">Ataque con ${esc(a.name)} (acción adicional)</div><div class="t-big">1d20 ${sgn((+a.atk || 0) + d20Pen(c))}</div>${d20Line(c, 'atk', a) ? `<div class="t-parts">${d20Line(c, 'atk', a)}</div>` : ''}<div class="t-parts">El ataque suma tu bonificador de competencia como siempre.</div><div class="t-parts">Daño: ${esc(lightDmg(c, a))}${featHas(c, 'twf') ? ' (con Combate con dos armas sumas tu modificador al daño)' : ' (sin tu modificador de característica, salvo que sea negativo)'}.</div>${hitExtras(
+        c,
+        false
+      )
+        .map(x => `<div class="t-parts">Al impactar: ${esc(x)}</div>`)
+        .join('')}`
     );
   },
   't-cast': el => {
