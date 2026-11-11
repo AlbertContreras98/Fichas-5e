@@ -903,3 +903,39 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Propuesta: ninguna.
 - Prioridad: no se puntúa
 - Estado: descartado (choca con la idea de la app: no tira dados)
+
+### 82. Los PG máximos no suben cuando sube la Constitución
+- Origen: Prueba 2a
+- Tipo: Regla
+- Qué pasa: al subir de nivel, la app suma los PG con el modificador de CON que tenías **antes** de la mejora de ese nivel, y nunca repasa los niveles anteriores. Si con la Mejora de característica (o con una dote que da +1 a CON) el modificador sube, se pierden PG: 1 por cada nivel que tengas, incluido el de la mejora. Sale en las 48 tandas de `tests/clases.js` (816 de 960 niveles). Ejemplos: guerrero con CON 14 → 16 a nivel 4: 36 PG en la app y 40 según las reglas; clérigo de la Luz a nivel 19: 169 y 192. Tampoco cambian los PG si se cambia la CON a mano en «Editar ficha».
+- Qué debería pasar: cuando el modificador de CON sube 1, los PG máximos (y los actuales) suben 1 por nivel; si baja, bajan.
+- Propuesta: en `applyWizard()`, después de aplicar la mejora o la dote, comparar el modificador de CON de antes y de después y sumar la diferencia × nivel a `hp.max` y `hp.current` (lo mismo en `featApply()`/`featRemove()` fuera del asistente). En «Editar ficha», al cambiar la CON, avisar con un toast que ofrezca ajustar los PG.
+- Prioridad: frecuencia 2 + olvido 3 + coste 3 = 8
+- Estado: pendiente
+
+### 83. El mago tiene menos conjuros preparados de la cuenta desde el nivel 14
+- Origen: Prueba 2a
+- Tipo: Regla
+- Qué pasa: `data/classes.js` usa para el mago la misma tabla de conjuros preparados que para el bardo, el clérigo y el druida. La del mago es distinta desde el nivel 14: 18, 19, 21, 22, 23, 24 y 25 (niveles 14 a 20), y la app pone 17, 18, 18, 19, 20, 21 y 22. El contador «Conjuros preparados X/Y» y los avisos del asistente salen con hasta 3 de menos. Las demás tablas (trucos, preparados, espacios, magia de pacto, dados de golpe, niveles de mejora y usos de los recursos principales) coinciden con el manual.
+- Qué debería pasar: mago 14 → 18 preparados, 15 → 19, 16 → 21, 17 → 22, 18 → 23, 19 → 24, 20 → 25.
+- Propuesta: darle al mago su propia lista `prepared` en `data/classes.js`.
+- Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
+- Estado: pendiente
+
+### 84. Una invocación repetible se puede volver a elegir aunque no quede truco para ella
+- Origen: Prueba 2a
+- Tipo: Mejora
+- Qué pasa: Estallido agónico, Lanza arcana y las demás invocaciones que se aplican a un truco se pueden coger una vez por truco. Si el brujo solo tiene un truco que sirva (lo normal: Estallido arcano) y ya la tiene, el botón «Elegir» sigue activo: al pulsarlo se añade otra copia con el desplegable «Truco» vacío, y «Siguiente» se queda bloqueado con «elige el truco» hasta que la quitas. Visto al subir a nivel 15 con dos brujos.
+- Qué debería pasar: si no queda ningún truco libre para esa invocación, el botón sale apagado con el motivo («Ya la tienes en todos tus trucos»).
+- Propuesta: en `ivWhyNot()`, para las invocaciones repetibles con `need`, mirar si queda algún truco sin usar por otra copia.
+- Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
+- Estado: pendiente
+
+### 85. El asistente deja elegir conjuros que ya te da la especie, la subclase o una dote
+- Origen: Prueba 2a
+- Tipo: Mejora
+- Qué pasa: en el paso «Conjuros» se puede elegir un conjuro que el personaje va a tener gratis. Al confirmar, la app lo marca bien como de la especie o «Siempre preparado» y deja de contar en el límite, pero el jugador se queda con una elección de menos sin enterarse. Ejemplos: clérigo aasimar que elige Luz como truco (acaba con 3 trucos de 4); brujo del Primigenio que tenía Risa horrible y a nivel 3 pasa a tenerla siempre preparada (3 conjuros de 4).
+- Qué debería pasar: que el buscador del asistente no ofrezca (o marque como «ya lo tienes gratis») los conjuros de la especie, del linaje y de la subclase; y si un conjuro elegido pasa a ser gratis, avisar al confirmar de que queda un hueco para preparar otro.
+- Propuesta: en el paso «Conjuros», apagar en la lista los de `originSpellIds()` y `alwaysIds()` hasta ese nivel; al confirmar, un aviso «Te queda 1 conjuro por elegir» con el botón de preparar.
+- Prioridad: frecuencia 1 + olvido 2 + coste 2 = 5
+- Estado: pendiente

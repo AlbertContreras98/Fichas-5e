@@ -22,8 +22,8 @@ El objetivo es la lista completa de lo que la app **hace sola**, lo que **solo m
 
 Guiones automáticos que buscan fallos sin tener que pensar casos concretos. Después se pueden volver a pasar gratis.
 
-- [ ] **2a. Todas las clases y subclases del 1 al 20** (medio). Crear con el asistente cada clase y subclase, subirla nivel a nivel y comprobar en cada paso que no hay errores de consola y que las cuentas cuadran (PG, espacios, usos, competencia).
-- [ ] **2b. Botones al azar** (medio). Sobre las fichas del reparto, pulsar `data-act` al azar durante un buen rato (combate, descansos, efectos, inventario, deshacer, recargar la página) y vigilar las comprobaciones. Exportar e importar cada ficha y comprobar que queda igual.
+- [x] **2a. Todas las clases y subclases del 1 al 20** (medio). Crear con el asistente cada clase y subclase, subirla nivel a nivel y comprobar en cada paso que no hay errores de consola y que las cuentas cuadran (PG, espacios, usos, competencia). Guion: `tests/clases.js` (48 subclases, 960 niveles; tarda unos 10 minutos; `node tests/clases.js wizard/evoker` pasa solo una). `base.js` conoce ahora los espacios de los lanzadores de un tercio. (2026-11-11 · 4 hallazgos, n.º 82–85)
+- [ ] **2b. Botones al azar** (medio). Sobre las fichas del reparto, pulsar `data-act` al azar durante un buen rato (combate, descansos, efectos, inventario, deshacer, recargar la página) y vigilar las comprobaciones. Exportar e importar cada ficha y comprobar que queda igual. Incluir «Editar ficha» (cambiar características y nivel a mano, ver n.º 82) y las ventanas de dotes e invocaciones fuera del asistente (añadir y quitar).
 - [ ] **2c. Modo máster y compartir** (medio). Campañas, combate del máster con NPC del bestiario, y que cada código (`#pj`, `#cr`, `#tienda`, `#recibo`) llegue igual al otro lado y que un recibo no se aplique dos veces.
 
 ## Fase 3 · Partidas simuladas

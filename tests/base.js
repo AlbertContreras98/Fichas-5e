@@ -243,6 +243,9 @@ const TIPO = {
   ranger: 'half',
   warlock: 'pact',
 };
+/* Lanzadores de un tercio: la subclase es la que da los conjuros, desde el nivel 3 */
+const THIRD = L => (L < 3 ? [] : FULL[Math.ceil(L / 3) - 1]);
+const TIPO_SUB = { eldritch: 'third', arcanetrickster: 'third' };
 const pad9 = a => Array.from({ length: 9 }, (_, i) => a[i] || 0);
 
 /* Cuentas de la ficha: devuelve la lista de problemas */
@@ -280,8 +283,15 @@ async function cuentas(page) {
   )
     out.push(`Salvaciones contra muerte fuera de rango: ${JSON.stringify(c.deathSaves)}`);
   if (pbApp !== PB(L)) out.push(`Competencia +${pbApp} a nivel ${L} (debería ser +${PB(L)})`);
-  const t = TIPO[c.classKey];
-  const want = t === 'full' ? pad9(FULL[L - 1]) : t === 'half' ? pad9(HALF[L - 1]) : pad9([]);
+  const t = TIPO[c.classKey] || TIPO_SUB[c.subclassKey];
+  const want =
+    t === 'full'
+      ? pad9(FULL[L - 1])
+      : t === 'half'
+        ? pad9(HALF[L - 1])
+        : t === 'third'
+          ? pad9(THIRD(L))
+          : pad9([]);
   const got = c.slots.map(s => s.total);
   if (c.classKey && JSON.stringify(got) !== JSON.stringify(want))
     out.push(`Espacios ${JSON.stringify(got)} a nivel ${L} (deberían ser ${JSON.stringify(want)})`);
