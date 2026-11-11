@@ -119,20 +119,6 @@ function ftPickerHTML(fs, ctx, extra = [], lock = false) {
   const sel = `<label class="f"><span>Dote</span><select data-fs="k"><option value="">— Elige una dote —</option>${extra.map(([k, t]) => `<option value="${k}" ${fs.k === k ? 'selected' : ''}>${esc(t)}</option>`).join('')}${groups}</select></label>`;
   const f = FEATS[fs.k];
   if (!f) return sel;
-  if (lock) {
-    const rowsOnly = (f.spPick || []).flatMap((g, gi) =>
-      Array.from(
-        { length: ftCount(g, ctx.L) },
-        (_, i) =>
-          `<label class="f"><span>${g.lv ? `Conjuro de nivel ${g.lv}` : 'Truco'}${ftCount(g, ctx.L) > 1 ? ` ${i + 1}` : ''}</span>${ftSel(
-            `data-fs="sp" data-g="${gi}" data-i="${i}"`,
-            (fs.sp[gi] || [])[i] || '',
-            ftSpellOpts(fs, ctx, g, gi, i).map(s => [s.id, s.n])
-          )}</label>`
-      )
-    );
-    return `<div class="feat"><b>${esc(f.n)}</b><p>${esc(f.text)}</p></div><div class="grid">${rowsOnly.join('')}</div>`;
-  }
   const L = ctx.L,
     rows = [];
   if (f.ab && f.ab.length)
@@ -209,7 +195,7 @@ function ftPickerHTML(fs, ctx, extra = [], lock = false) {
     f.res && 'usos',
     (f.sp || f.spPick) && 'conjuros',
   ].filter((x, i, a) => x && a.indexOf(x) === i);
-  return `${sel}<div class="feat"><b>${esc(f.n)}</b><p>${esc(f.text)}</p>${auto.length ? `<p class="hint">La app actualiza sola: ${auto.join(', ')}.</p>` : ''}</div>${rows.length ? `<div class="grid">${rows.join('')}</div>` : ''}`;
+  return `${lock ? '' : sel}<div class="feat"><b>${esc(f.n)}</b><p>${esc(f.text)}</p>${auto.length ? `<p class="hint">La app actualiza sola: ${auto.join(', ')}.</p>` : ''}</div>${rows.length ? `<div class="grid">${rows.join('')}</div>` : ''}`;
 }
 /* Estado y repintado del desplegable activo (asistente o ventana propia) */
 const ftState = () => (W && W.ft) || FTS;
@@ -383,6 +369,15 @@ function ftModalBody() {
   const c = C(),
     ctx = ftCtx(c),
     own = ftOwned(c);
+  if (FTS.iv) {
+    /* Elecciones de la dote de «Lecciones de los Primeros»: la dote ya está elegida, faltan sus opciones */
+    const ictx = Object.assign({}, ctx, { keys: ctx.keys.filter(k => k !== FTS.k) }),
+      m = ftMissing(FTS, ictx);
+    return `<p>Tu invocación <b>Lecciones de los Primeros</b> te da esta dote de origen. Completa sus elecciones para que la app las apunte en la ficha.</p>
+      ${ftPickerHTML(FTS, ictx, [], true)}
+      ${m ? `<p class="hint warn">${esc(m)}</p>` : ''}
+      <div class="btns"><button class="b pri" data-act="iv-feat-ok" ${m ? 'disabled' : ''}>Guardar</button><button class="b" data-act="close-modal">Ahora no</button></div>`;
+  }
   const miss = ftMissing(FTS, ctx);
   return `<p class="hint">Normalmente ganas dotes con tu trasfondo, al subir de nivel (en vez de la Mejora de característica) o con rasgos como Estilo de combate; el asistente de subir de nivel te las ofrece. Aquí puedes añadir una si tu máster te la da o corregir tu ficha. Una dote casera añádela como rasgo en ⚙ Ajustes → Editar ficha.</p>
     <h3>Tus dotes</h3>${

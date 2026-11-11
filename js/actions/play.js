@@ -67,6 +67,18 @@ Object.assign(A, {
     if (!(r >= 1 && r <= max)) return $('#red-r').focus();
     dmgReactApply(c, R, +el.dataset.dmg, r + R[3](c));
   },
+  /* El golpe recibido a 0 PG era un crítico: segundo fallo de salvación contra muerte */
+  'crit-fail': el => {
+    const c = C();
+    c.deathSaves.fail = Math.min(3, c.deathSaves.fail + 1);
+    const t = el.closest('.toast');
+    if (t) t.remove();
+    save();
+    render();
+    toast(
+      `<div class="t-label">Crítico a 0 PG</div><div class="t-parts">Sumas otro fallo: llevas ${c.deathSaves.fail} de 3.</div>`
+    );
+  },
   /* Fuera de combate: pasa el tiempo y caducan los efectos (los de rondas acaban con 1 minuto o más) */
   'pass-time': el => {
     const c = C(),
@@ -359,9 +371,14 @@ Object.assign(A, {
       const was = c.hp.current;
       let extra = '';
       if (was <= 0 && rest > 0) {
-        c.deathSaves.fail = Math.min(3, c.deathSaves.fail + 1);
-        extra =
-          '<div class="t-parts">Recibir daño a 0 PG cuenta como un fallo de salvación contra muerte (dos si es crítico).</div>';
+        if (rest >= c.hp.max) {
+          c.deathSaves.fail = 3;
+          extra =
+            '<div class="t-parts"><b>Muerte instantánea:</b> estabas a 0 PG y el daño iguala o supera tus PG máximos.</div>';
+        } else {
+          c.deathSaves.fail = Math.min(3, c.deathSaves.fail + 1);
+          extra = `<div class="t-parts">Recibir daño a 0 PG cuenta como un fallo de salvación contra muerte. Si el golpe fue un crítico, son dos.</div>${c.deathSaves.fail < 3 ? '<div class="t-actions"><button class="b sm bad" data-act="crit-fail">Era un crítico (+1 fallo)</button></div>' : ''}`;
+        }
       }
       c.hp.current = Math.max(0, was - rest);
       if (was > 0 && c.hp.current === 0) {
@@ -390,7 +407,7 @@ Object.assign(A, {
       } else if (c.concentration && c.hp.current === 0) c.concentration = '';
       toast(
         `<div class="t-label">Daño recibido</div><div class="t-big bad">−${n}</div>${why}<div class="t-parts">${fromTemp ? `${fromTemp} absorbidos por PG temporales · ` : ''}PG: ${c.hp.current} / ${c.hp.max}</div>${extra}${acts}`,
-        !!acts
+        !!acts || /data-act="crit-fail"/.test(extra)
       );
     }
     $('#hpAmt').value = '';

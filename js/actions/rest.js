@@ -112,7 +112,8 @@ Object.assign(A, {
         r = c.equipment.find(e => e.gear === 'rations' && e.qty > 0);
       return `<label class="chk"><input type="checkbox" id="lr-eat" ${r ? 'checked' : ''}> ${r ? `Comer: gastar 1 ración (te quedan ${r.qty})` : 'He comido hoy (sin gastar raciones de la mochila)'}</label>${c.noFood ? `<p class="hint warn">Llevas ${c.noFood} día${c.noFood > 1 ? 's' : ''} sin comer.</p>` : ''}`;
     })()}
-    <div class="btns"><button class="b pri" data-act="long-done">Hacer descanso largo</button><button class="b" data-act="close-modal">Cancelar</button></div>`),
+    ${C().hp.current <= 0 ? '<p class="hint warn"><b>Estás a 0 PG.</b> Para aprovechar un descanso largo tienes que empezarlo con al menos 1 PG: antes te tienen que curar, o estabilizarte y esperar a recuperar 1 PG (1d4 horas). Si el máster lo permite, puedes hacerlo igualmente.</p>' : ''}
+    <div class="btns"><button class="b pri" data-act="long-done">${C().hp.current <= 0 ? 'Hacerlo igualmente' : 'Hacer descanso largo'}</button><button class="b" data-act="close-modal">Cancelar</button></div>`),
   'long-done': () => {
     const c = C(),
       ate = $('#lr-eat') ? $('#lr-eat').checked : true;

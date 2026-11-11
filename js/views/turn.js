@@ -44,6 +44,11 @@ const WHEN = {
   'Contactar con el patrón': 'none',
   'Arcano místico': 'none',
   'Recuperación arcana': 'none',
+  'Destello protector': 'R',
+  'Restaurar el equilibrio': 'R',
+  'Plenitud corporal': 'AA',
+  'Guerrero de los dioses (d12)': 'AA',
+  'Corcel fiel': 'none',
   'Restauración hechicera': 'none',
 };
 const whenOf = f => f.when || WHEN[f.name] || (/gratis/i.test(f.name) ? 'none' : 'free');
@@ -149,6 +154,7 @@ function turnStart(c) {
   if (!T || !T.wait || !(T.a || T.aa)) return false;
   T.wait = false;
   T.r = false;
+  T.ready = '';
   /* Lo que dura «hasta el principio de tu siguiente turno» (Esquivar, Escudo) */
   const gone = endEffects(c, e => e.st && (e.stw || (+e.stk || 0) < (+T.k || 0)));
   if (gone.length)
@@ -405,6 +411,14 @@ function viewTurn(c) {
   )
     .map(chip)
     .join('')}</div>`;
+  if (T0.ready)
+    cols.R.push(
+      row(
+        `Preparado: ${esc(T0.ready)}`,
+        'Si no ocurre antes de tu siguiente turno, se pierde',
+        `<button class="b sm pri" data-act="ready-go" ${dis(T.r)}>Hacerlo</button>`
+      )
+    );
   cols.R.push(
     row(
       term('Ataque de oportunidad', 'a_opp'),

@@ -98,6 +98,24 @@ Object.assign(A, {
     toast(
       `<div class="t-label">Invocaciones guardadas</div><div class="t-parts">Las tienes en «Rasgos y dotes»; las que dan un conjuro gratis salen en tu Magia.</div>`
     );
+    ivFeatAsk();
+  },
+  /* Guarda las elecciones de la dote de «Lecciones de los Primeros»: quita la dote apuntada como texto y la aplica con sus opciones */
+  'iv-feat-ok': () => {
+    const c = C();
+    if (!FTS || !FTS.iv) return;
+    const fs = FTS,
+      k = fs.k;
+    if (ftMissing(fs, Object.assign(ftCtx(c), { keys: (c.featKeys || []).filter(x => x !== k) }))) return;
+    featRemove(c, k, null);
+    featApply(c, fs, IV_FEAT_SRC);
+    closeModal();
+    save();
+    render();
+    toast(
+      `<div class="t-label">${esc(FEATS[k].n)}</div><div class="t-parts">Elecciones guardadas en la ficha.</div>`
+    );
+    ivFeatAsk();
   },
   'cs-new': () => csOpen(-1),
   'cs-edit': el => csOpen(+el.dataset.i),

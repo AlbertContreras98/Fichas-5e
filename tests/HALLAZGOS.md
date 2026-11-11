@@ -52,7 +52,7 @@ Se ha cambiado la nota de un hallazgo antiguo: el **n.º 41** (golpe desarmado) 
 
 ### Las 10 primeras
 
-**Arregladas las 30 primeras el 2026-11-10** (y resuelto el n.º 30). La siguiente tanda empieza por el puesto 31 de la tabla.
+**Arregladas las 41 primeras** (10 y 11 de noviembre de 2026; el n.º 30 quedó resuelto sin cambios). La siguiente tanda empieza por el puesto 42 de la tabla.
 
 1. **N.º 45 · Estallido arcano: qué tirar.** Es el ataque de Zyo en casi cada turno, y la app no dice ni el dado ni cuántos rayos.
 2. **N.º 49 · Daño extra de Maleficio y Marca del cazador.** Zyo y el explorador los usan en cada combate, y el +1d6 se olvida en cada impacto.
@@ -191,7 +191,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: el trasfondo propio debería poder completarse en el mismo asistente, como uno del manual.
 - Propuesta: en «Otro», mostrar los mismos campos que un trasfondo del manual: 3 características (para +2/+1 o +1/+1/+1), 2 habilidades, herramienta y dote de origen (catálogo o «Otra», con nombre y texto).
 - Prioridad: frecuencia 1 + olvido 3 + coste 2 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-11): con «Otro», el asistente deja elegir las 3 características y el reparto (+2/+1 o +1/+1/+1), 2 habilidades, la herramienta y la dote de origen (del catálogo o escrita a mano). Todo es opcional salvo el nombre.
 
 ### 5. Algunos recursos salen con un origen equivocado
 - Origen: Base, reparto y prueba de humo
@@ -326,7 +326,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: pedir las elecciones como al coger la dote a nivel 4.
 - Propuesta: usar `featApply` también aquí.
 - Prioridad: frecuencia 1 + olvido 3 + coste 2 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-11): tras guardar las invocaciones (o subir de nivel), si la dote de Lecciones de los Primeros tiene elecciones, se abre una ventana para hacerlas y se aplica con `featApply` (`ivFeatAsk()`); al quitar la invocación se deshace con `featRemove`.
 
 ### 20. Desde Combate, lanzar como ritual solo gasta la acción
 - Origen: 1a. Datos de la app (conjuros)
@@ -445,7 +445,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: con daño ≥ PG máximos estando a 0, avisar de la muerte; con un crítico, sumar dos fallos.
 - Propuesta: en `hp` (`js/actions/play.js:249-254`), comprobar `rest >= c.hp.max` y añadir un botón «Era un crítico» en el mensaje que sume el segundo fallo.
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-11): a 0 PG, un daño igual o mayor que tus PG máximos marca los 3 fallos y avisa de la muerte instantánea; si no, el aviso trae el botón «Era un crítico (+1 fallo)».
 
 ### 33. El descanso largo a 0 PG lo recupera todo
 - Origen: 1b. Reglas generales
@@ -454,7 +454,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: a 0 PG, avisar de que no recibe los beneficios (primero hay que curarse o estabilizarse y recuperar 1 PG).
 - Propuesta: aviso en `longModal` (`js/actions/rest.js`) si `c.hp.current <= 0`.
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-11): la ventana del descanso largo avisa si estás a 0 PG y el botón pasa a «Hacerlo igualmente» (por si el máster lo permite).
 
 ### 34. Escudo y armadura sin competencia
 - Origen: 1b. Reglas generales
@@ -556,7 +556,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: elegir el arma cuerpo a cuerpo (o golpe desarmado) y enseñar el ataque y el daño, como en «Atacar».
 - Propuesta: si solo hay un arma cuerpo a cuerpo, usarla directamente; si hay varias, preguntar.
 - Prioridad: frecuencia 2 + olvido 1 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-11): el ataque de oportunidad deja elegir el arma cuerpo a cuerpo equipada (o el golpe desarmado) y enseña el ataque, el daño, el crítico y la maestría, como «Atacar».
 
 ### 44. Las salvaciones contra la muerte no se piden en el turno
 - Origen: 1b. Reglas generales
@@ -646,7 +646,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: que los números de ataque, salvación y prueba digan «+1d4 (Bendición)» mientras dure el efecto.
 - Propuesta: aprovechar la función de avisos del n.º 37.
 - Prioridad: frecuencia 1 + olvido 3 + coste 2 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-11): con Bendición, Perdición u Orientación activos, los avisos de ataque, salvación y prueba recuerdan el ±1d4. Resistencia (el truco) en 2024 resta daño, no va en las tiradas: queda fuera.
 
 ### 54. Los rasgos que curan o devuelven puntos no lo hacen
 - Origen: 1c. Priorizar (candidata de 1a: clases y especies)
@@ -709,7 +709,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: al lanzarlos, aparece el ataque en Combate con sus números.
 - Propuesta: dar el mismo dato `wpn` a esos 5 conjuros del catálogo.
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-11): `CAT_WPN`: Arma espiritual, Hoja de fuego, Crear llama y Garrote crean su ataque en Combate con sus números (según el espacio o el nivel) y se quita al acabar el conjuro. Golpe certero ya dice qué tirar al lanzarlo.
 
 ### 61. Las maestrías de arma no dan sus números
 - Origen: 1c. Priorizar (candidata de 1a: objetos)
@@ -736,7 +736,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: cada uno con su contador y su recuperación; los lanzamientos gratis, enlazados.
 - Propuesta: solo datos en `data/classes.js` y `FREE_LINK` (`js/core/rules.js:73`).
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-11): contadores nuevos: Emboscador terrible, Destello protector, Restaurar el equilibrio, Plenitud corporal, Guerrero de los dioses (d12) y Corcel fiel; Encontrar montura y Contactar con otro plano quedan enlazados a su uso gratis. Los de nivel alto restantes, pendientes. Se crean al subir de nivel (las fichas ya subidas, a mano).
 
 ### 64. Al tirar iniciativa no se recuerdan los rasgos que se usan en ese momento
 - Origen: 1c. Priorizar (candidata de 1a: clases)
@@ -790,7 +790,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: sumar el +2 cuando se cumpla la condición (Duelo: un arma cuerpo a cuerpo en una mano y ninguna otra arma).
 - Propuesta: en `wpnCalc()`, como ya se hace con otros estilos.
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-11): `styleLines()`: el mensaje del ataque dice el daño ya sumado con Duelo («si no llevas otra arma en la otra mano») y con Armas arrojadizas («si la lanzas»). No se suma solo porque la app no sabe qué llevas en cada mano.
 
 ### 70. Las componentes verbal y somática no se ven
 - Origen: 1c. Priorizar (candidata de 1a y 1b: conjuros)
@@ -817,7 +817,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: al preparar, escribir el disparador («si se acerca, le ataco») y que salga un botón en Reacción para hacerlo; con un conjuro, gastar el espacio y pedir concentración.
 - Propuesta: guardar el disparador en el turno y mostrarlo en la columna de Reacción hasta el siguiente turno.
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-11): Preparar pide qué preparas y lo deja en la columna de Reacción con el botón «Hacerlo» (gasta la reacción); se pierde al empezar tu siguiente turno.
 
 ### 73. Más reglas que faltan en el glosario (segunda tanda)
 - Origen: 1c. Priorizar (candidatas de 1b)

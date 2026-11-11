@@ -359,6 +359,58 @@ function csOnCast(c, sp) {
   }
   return out.map(t => `<div class="t-parts">${t}</div>`).join('');
 }
+/* Conjuros del catálogo que te dan un ataque mientras duran (Arma espiritual, Hoja de fuego, Crear llama, Garrote) */
+const CAT_WPN = {
+  'spiritual-weapon': (c, L, t, m) => [
+    'Arma espiritual',
+    `${Math.max(1, L - 1)}d8`,
+    'de fuerza',
+    'Ataque de conjuro cuerpo a cuerpo. Con tu acción adicional puedes moverla 20 pies y atacar otra vez en turnos posteriores',
+  ],
+  'flame-blade': (c, L, t, m) => [
+    'Hoja de fuego',
+    `${Math.max(3, L + 1)}d6`,
+    'de fuego',
+    'Ataque de conjuro cuerpo a cuerpo con la acción Magia',
+  ],
+  'produce-flame': (c, L, t, m) => [
+    'Crear llama (lanzarla)',
+    `${t}d8`,
+    'de fuego',
+    'Ataque de conjuro a distancia, 60 pies, con la acción Magia',
+    true,
+  ],
+  shillelagh: (c, L, t, m) => [
+    'Garrote (conjuro)',
+    ['1d8', '1d10', '1d12', '2d6'][t - 1],
+    'contundente o de fuerza',
+    'Tu garrote o bastón usa tu aptitud mágica',
+  ],
+};
+function catWpnOnCast(c, sp) {
+  const f = CAT_WPN[sp.ref || ''],
+    mod = spMod(c);
+  if (!f || mod === null || !c.effects.some(e => e.name === sp.name)) return '';
+  const [n, dice, type, note, noMod] = f(
+      c,
+      Math.max(+sp.level || 0, lastCastL || 0),
+      cantripTier(+c.level || 1),
+      mod
+    ),
+    dmg = `${dice}${noMod || !mod ? '' : ` ${mod > 0 ? '+' : '−'} ${Math.abs(mod)}`}`;
+  c.attacks = c.attacks.filter(a => a.fxSpell !== sp.name);
+  c.attacks.push(
+    Object.assign(NEW.attacks(), {
+      name: n,
+      atk: spAtk(c),
+      dmg,
+      type,
+      notes: `${note} · Conjuro: ${sp.name}`,
+      fxSpell: sp.name,
+    })
+  );
+  return `<div class="t-parts">${esc(n)} aparece en tus ataques: ${sgn(spAtk(c))} al ataque, ${esc(dmg)} ${esc(type)}. Desaparece al acabar el conjuro.</div>`;
+}
 /* PG temporales de un conjuro: no se suman, te quedas con el valor más alto */
 function giveTemp(c, n, from) {
   const had = c.hp.temp;
@@ -462,6 +514,7 @@ function afterCast(sp, how) {
   const used =
     spUseItem(c, sp) +
     csOnCast(c, sp) +
+    catWpnOnCast(c, sp) +
     (SPELL_AC[sp.ref] && !(c.effects.find(e => e.name === sp.name) || {}).other
       ? `<div class="t-parts">Tu CA pasa a <b>${acOf(c)}</b>${sp.ref === 'shield' ? ' hasta el principio de tu siguiente turno (también contra el ataque que la provocó)' : ' mientras dure'}.</div>`
       : '');

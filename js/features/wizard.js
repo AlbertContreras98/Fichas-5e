@@ -88,10 +88,28 @@ function startWizard(mode) {
   }
   renderWizard();
 }
+/* Trasfondo del asistente: uno del manual o el propio, con los mismos campos (características, habilidades, herramienta y dote) */
+function wizCbg() {
+  return (W.cbg = W.cbg || { ab: ['', '', ''], skills: ['', ''], tool: '', feat: '', fn: '', ft: '' });
+}
+function wizBg() {
+  if (BG[W.bgKey]) return BG[W.bgKey];
+  if (W.bgKey || W.mode !== 'create') return null;
+  const cb = wizCbg(),
+    ab = cb.ab.filter((k, i, a) => k && a.indexOf(k) === i);
+  return {
+    n: W.background,
+    ab: ab.length === 3 ? ab : [],
+    skills: cb.skills.filter(Boolean),
+    tool: cb.tool.trim(),
+    feat: FEATS[cb.feat] ? cb.feat : '',
+    custom: true,
+  };
+}
 function bgBonus() {
   const o = {};
-  const bg = BG[W.bgKey];
-  if (!bg) return o;
+  const bg = wizBg();
+  if (!bg || !bg.ab.length) return o;
   if (W.bgMode === '111') bg.ab.forEach(k => (o[k] = 1));
   else {
     if (W.bg2) o[W.bg2] = 2;
@@ -106,7 +124,7 @@ function recomputeAb() {
 }
 const wizFeats = () =>
   W.mode === 'create'
-    ? [BG[W.bgKey] && BG[W.bgKey].feat, W.speciesKey === 'human' && W.humanFeat].filter(Boolean)
+    ? [wizBg() && wizBg().feat, W.speciesKey === 'human' && W.humanFeat].filter(Boolean)
     : C().featKeys || [];
 function extraSkills() {
   const sp = specOf(W.speciesKey);
@@ -115,7 +133,7 @@ function extraSkills() {
     wizFeats().reduce((t, k) => t + ((FEATS[k] && FEATS[k].skills) || 0), 0)
   );
 }
-const bgSkills = () => (BG[W.bgKey] ? BG[W.bgKey].skills : []);
+const bgSkills = () => (wizBg() ? wizBg().skills : []);
 const wizDef = () => CL[W.classKey];
 const wizSub = () => (W.subKey && wizDef() ? wizDef().subs[W.subKey] : null);
 function newFeatures() {
@@ -238,7 +256,9 @@ function wizBody(step) {
     }`;
     }
     case 'background': {
-      const bg = BG[W.bgKey];
+      const bg = BG[W.bgKey],
+        cb = wizCbg(),
+        cbg = wizBg() || { ab: [] };
       const abSel = (id, v, opts) =>
         `<select id="${id}">${[['', '—'], ...opts.map(k => [k, AB[k][2]])].map(([k, n]) => `<option value="${k}" ${v === k ? 'selected' : ''}>${n}</option>`).join('')}</select>`;
       return `<div class="f"><span>Trasfondo</span><select id="wz-bg">${[['', 'Otro (lo completo a mano)'], ...Object.entries(BG).map(([k, b]) => [k, b.n])].map(([k, n]) => `<option value="${k}" ${W.bgKey === k ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
@@ -257,7 +277,53 @@ function wizBody(step) {
           : ''
       }</span></label>
         <label><input type="radio" name="wz-bgmode" value="111" ${W.bgMode === '111' ? 'checked' : ''}><span><b>+1 a las tres</b></span></label></div>`
-        : `<label class="f"><span>Nombre del trasfondo</span><input id="wz-background" value="${esc(W.background)}"></label><p class="hint">Con un trasfondo propio, aplica tú los aumentos en el paso siguiente.</p>`
+        : `<label class="f"><span>Nombre del trasfondo</span><input id="wz-background" value="${esc(W.background)}"></label>
+      <p class="hint">Rellena lo que te haya dado tu máster. Lo que dejes en blanco lo puedes poner después en ⚙ Ajustes → Editar ficha.</p>
+      <h3>Aumento de características</h3><p class="hint">Un trasfondo deja subir tres características. Elígelas, o déjalas en blanco y suma tú los aumentos en el paso siguiente.</p>
+      <div class="grid">${[0, 1, 2]
+        .map(
+          n =>
+            `<label class="f"><span>Característica ${n + 1}</span>${abSel(
+              `wz-cbab-${n}`,
+              cb.ab[n],
+              ABIL.map(a => a[0]).filter(k => k === cb.ab[n] || !cb.ab.includes(k))
+            )}</label>`
+        )
+        .join('')}</div>
+      ${
+        cbg.ab.length
+          ? `<div class="choice"><label><input type="radio" name="wz-bgmode" value="21" ${W.bgMode === '21' ? 'checked' : ''}><span><b>+2 a una y +1 a otra</b>${
+              W.bgMode === '21'
+                ? `<div class="grid" style="margin-top:.4rem"><label class="f"><span>+2</span>${abSel('wz-bg2', W.bg2, cbg.ab)}</label><label class="f"><span>+1</span>${abSel(
+                    'wz-bg1',
+                    W.bg1,
+                    cbg.ab.filter(k => k !== W.bg2)
+                  )}</label></div>`
+                : ''
+            }</span></label>
+        <label><input type="radio" name="wz-bgmode" value="111" ${W.bgMode === '111' ? 'checked' : ''}><span><b>+1 a las tres</b></span></label></div>`
+          : ''
+      }
+      <h3>Habilidades y herramienta</h3>
+      <div class="grid">${[0, 1].map(n => `<label class="f"><span>Habilidad ${n + 1}</span><select id="wz-cbsk-${n}">${[['', '—'], ...SKILLS.filter(x => x[0] === cb.skills[n] || !cb.skills.includes(x[0])).map(x => [x[0], x[1]])].map(([k, t]) => `<option value="${k}" ${cb.skills[n] === k ? 'selected' : ''}>${t}</option>`).join('')}</select></label>`).join('')}
+        <label class="f wide"><span>Herramienta</span><input id="wz-cbtool" value="${esc(cb.tool)}" placeholder="Herramientas de ladrón, un juego…" autocomplete="off"></label></div>
+      <h3>Dote de origen</h3>
+      <div class="f"><span>Dote</span><select id="wz-cbfeat">${[
+        ['', '— Ninguna por ahora —'],
+        ['_custom', 'Otra (la escribo a mano)'],
+        ...Object.entries(FEATS)
+          .filter(([, f]) => f.cat === 'origin')
+          .map(([k, f]) => [k, f.n]),
+      ]
+        .map(([k, t]) => `<option value="${k}" ${cb.feat === k ? 'selected' : ''}>${esc(t)}</option>`)
+        .join('')}</select></div>
+      ${
+        cb.feat === '_custom'
+          ? `<div class="grid"><label class="f wide"><span>Nombre de la dote</span><input id="wz-cbfn" value="${esc(cb.fn)}" autocomplete="off"></label><label class="f wide"><span>Qué hace</span><textarea id="wz-cbft" rows="3">${esc(cb.ft)}</textarea></label></div><p class="hint">Si la dote tiene usos limitados, ponlos después en ⚙ Ajustes → Editar ficha.</p>`
+          : FEATS[cb.feat]
+            ? `<p class="hint">${esc(FEATS[cb.feat].text)}</p>`
+            : ''
+      }`
     }
     ${
       W.speciesKey === 'human'
@@ -274,7 +340,7 @@ function wizBody(step) {
     }
     case 'abil': {
       const b = bgBonus();
-      return `<p class="hint">Escribe las puntuaciones base (la matriz estándar es 15, 14, 13, 12, 10, 8). ${BG[W.bgKey] ? 'Los aumentos del trasfondo se suman solos.' : 'Incluye ya los aumentos de tu trasfondo.'}</p>
+      return `<p class="hint">Escribe las puntuaciones base (la matriz estándar es 15, 14, 13, 12, 10, 8). ${wizBg() && wizBg().ab.length ? 'Los aumentos del trasfondo se suman solos.' : 'Incluye ya los aumentos de tu trasfondo.'}</p>
     <div class="grid">${ABIL.map(([k, , n]) => `<label class="f"><span>${n}${b[k] ? ` +${b[k]}` : ''} → ${W.ab[k]} (${sgn(mod(W.ab[k]))})</span><input id="wz-ab-${k}" type="number" inputmode="numeric" min="1" max="20" value="${W.base[k]}" data-wab="${k}"></label>`).join('')}</div>`;
     }
     case 'lineage': {
@@ -532,7 +598,13 @@ function wizValid(step) {
   }
   if (step === 'background') {
     if (W.speciesKey === 'human' && !W.humanFeat) return false;
-    if (!W.bgKey) return !!W.background.trim();
+    if (!W.bgKey) {
+      const cb = wizCbg(),
+        n = cb.ab.filter(Boolean).length;
+      if (!W.background.trim() || (n && n < 3)) return false;
+      if (cb.feat === '_custom' && !cb.fn.trim()) return false;
+      return n < 3 || W.bgMode === '111' || (!!W.bg2 && !!W.bg1 && W.bg1 !== W.bg2);
+    }
     return W.bgMode === '111' || (!!W.bg2 && !!W.bg1 && W.bg1 !== W.bg2);
   }
   if (step.startsWith('ofeat:')) return !ftMissing(wizOfs(step.slice(6)), wizOfsCtx());
@@ -655,7 +727,7 @@ function applyWizard() {
     const sp = specOf(W.speciesKey),
       ln = linOf(W.speciesKey, W.lineageKey);
     c.species = sp ? sp.n + (ln ? ` (${ln.n})` : '') : W.species;
-    const bg = BG[W.bgKey];
+    const bg = wizBg();
     c.backgroundKey = W.bgKey;
     c.background = bg ? bg.n : W.background;
     c.saveProf = [...def.saves];
@@ -674,6 +746,8 @@ function applyWizard() {
           ? 'Dote de origen (Versátil)'
           : `Dote de origen (${bg ? bg.n : 'trasfondo'})`
       );
+    if (bg && bg.custom && wizCbg().feat === '_custom')
+      addFeature(c, wizCbg().fn.trim(), wizCbg().ft.trim(), `Dote de origen (${bg.n})`);
     c.hp.max = c.hp.current = hpGain();
     c.ac =
       10 +
@@ -754,7 +828,7 @@ function applyWizard() {
   if (W.style && FEATS[W.style.k]) featApply(c, W.style, 'Estilo de combate');
   // dotes de origen con conjuros (Iniciado en la magia), con los conjuros elegidos
   if (W.mode === 'create') {
-    const bg = BG[W.bgKey];
+    const bg = wizBg();
     wizFeats()
       .filter((k, i, a) => FEATS[k] && FEATS[k].spPick && a.indexOf(k) === i)
       .forEach(k =>
@@ -815,6 +889,7 @@ function applyWizard() {
       ? `<div class="t-label">Personaje creado</div><div class="t-big">${esc(name)}</div><div class="t-parts">${C().equipment.length ? 'Tu equipo ya está en la mochila. Puedes añadir más desde la pestaña Partida o con el botón de la mochila.' : 'Añade armas, armaduras y herramientas desde la pestaña Partida, y los demás objetos con el botón de la mochila.'}</div>`
       : `<div class="t-label">¡Subida de nivel!</div><div class="t-big">${esc(def.n)} ${L}</div><div class="t-parts">Rasgos, recursos y espacios actualizados.</div>`
   );
+  ivFeatAsk();
 }
 
 /* Aplica a la ficha todo lo automatizable de su especie y linaje (y los recursos de sus dotes) */

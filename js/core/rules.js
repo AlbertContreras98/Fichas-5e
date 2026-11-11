@@ -74,6 +74,8 @@ const FREE_LINK = {
   'hunters-mark': 'Marca del cazador gratis',
   'divine-smite': 'Castigo del paladín gratis',
   'misty-step': 'Pasos de las hadas',
+  'find-steed': 'Corcel fiel',
+  'contact-other-plane': 'Contactar con el patrón',
 };
 function addAlways(c, ids) {
   for (const id of ids)
@@ -382,6 +384,16 @@ function d20Line(c, kind, x) {
     out.push(`Con <b>desventaja</b> (${dis.join('; ')}): tira 2d20 y quédate el más bajo.`);
   if (+c.exhaustion)
     out.push(`Ya está restado el −${2 * c.exhaustion} del agotamiento (nivel ${c.exhaustion}).`);
+  /* Dados que se suman o restan mientras dura el conjuro */
+  const fx = id => {
+    const d = SPBY[id];
+    return d && c.effects.some(e => !e.other && [d.n, d.en].some(x => norm(x) === norm(e.name)));
+  };
+  if ((kind === 'atk' || kind === 'save') && fx('bless'))
+    out.push('Suma <b>1d4</b> si eres uno de los objetivos de Bendición.');
+  if ((kind === 'atk' || kind === 'save') && fx('bane')) out.push('Resta <b>1d4</b> si te afecta Perdición.');
+  if (kind === 'check' && fx('guidance'))
+    out.push('Suma <b>1d4</b> si es la habilidad elegida con Orientación.');
   return out.join(' ');
 }
 

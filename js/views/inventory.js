@@ -273,6 +273,28 @@ function wpnCalc(c, a) {
     mod,
   };
 }
+/* Suma un número fijo a un daño escrito como «1d8 + 3» */
+function dmgPlus(dmg, n) {
+  const base = String(dmg || '').split(' (')[0],
+    m = base.match(/^(\d*d\d+|\d+)(?:\s*([+−-])\s*(\d+))?$/);
+  if (!m) return `${base} + ${n}`;
+  if (!/d/.test(m[1])) return String(+m[1] + n);
+  const t = (m[2] ? (m[2] === '+' ? 1 : -1) * +m[3] : 0) + n;
+  return `${m[1]}${t ? ` ${t > 0 ? '+' : '−'} ${Math.abs(t)}` : ''}`;
+}
+/* Estilos de combate que suman +2 al daño según cómo uses el arma (Duelo, Armas arrojadizas) */
+function styleLines(c, a) {
+  const W = a.wpn && WEAPONS[a.wpn];
+  if (!W) return '';
+  const out = [];
+  if (!W.r && !W.p.includes('a dos manos') && featHas(c, 'duel'))
+    out.push(
+      `<b>Duelo:</b> si la empuñas con una mano y no llevas otra arma en la otra, el daño es <b>${esc(dmgPlus(a.dmg, 2))}</b>.`
+    );
+  if (W.th && featHas(c, 'thrown'))
+    out.push(`<b>Armas arrojadizas:</b> si la lanzas, el daño es <b>${esc(dmgPlus(a.dmg, 2))}</b>.`);
+  return out.map(x => `<div class="t-parts">${x}</div>`).join('');
+}
 /* La maestría del arma con sus números (Rozar, Derribar, Hendir…) para el mensaje del ataque */
 function masteryLine(c, a) {
   const W = a.wpn && WEAPONS[a.wpn];

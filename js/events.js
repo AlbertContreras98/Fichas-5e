@@ -122,6 +122,9 @@ document.addEventListener('input', e => {
     if (el.id === 'wz-name') W.name = el.value;
     else if (el.id === 'wz-species') W.species = el.value;
     else if (el.id === 'wz-background') W.background = el.value;
+    else if (el.id === 'wz-cbtool') wizCbg().tool = el.value;
+    else if (el.id === 'wz-cbfn') wizCbg().fn = el.value;
+    else if (el.id === 'wz-cbft') wizCbg().ft = el.value;
     else if (el.dataset.wab) {
       const k = el.dataset.wab;
       W.base[k] = clamp(parseInt(el.value) || 0, 1, 20);
@@ -398,6 +401,21 @@ document.addEventListener('change', e => {
     }
     if (el.name === 'wz-lin') {
       W.lineageKey = el.value;
+      W._keepScroll = true;
+      renderWizard();
+      return;
+    }
+    if (/^wz-cb(ab|sk)-\d$/.test(el.id) || el.id === 'wz-cbfeat') {
+      const cb = wizCbg(),
+        n = +el.id.slice(-1);
+      if (el.id === 'wz-cbfeat') cb.feat = el.value;
+      else if (el.id.startsWith('wz-cbab')) {
+        cb.ab[n] = el.value;
+        W.bg2 = '';
+        W.bg1 = '';
+      } else cb.skills[n] = el.value;
+      W.skills = W.skills.filter(k => !bgSkills().includes(k));
+      recomputeAb();
       W._keepScroll = true;
       renderWizard();
       return;

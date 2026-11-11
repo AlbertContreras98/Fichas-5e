@@ -20,7 +20,15 @@ Object.assign(A, {
     const c = C();
     /* La reacción no vuelve al terminar tu turno, sino al empezar el siguiente (turnStart) */
     const rSpent = !!c.turn.r;
-    c.turn = { a: false, aa: false, r: rSpent, atk: 0, wait: true, k: (+c.turn.k || 0) + 1 };
+    c.turn = {
+      a: false,
+      aa: false,
+      r: rSpent,
+      atk: 0,
+      wait: true,
+      k: (+c.turn.k || 0) + 1,
+      ready: rSpent ? '' : c.turn.ready || '',
+    };
     const rd = c.combat ? c.combat.round : null;
     if (c.combat) c.combat.round++;
     c.effects.forEach(e => {
@@ -104,7 +112,7 @@ Object.assign(A, {
         false
       )
         .map(x => `<div class="t-parts">Al impactar: ${esc(x)}</div>`)
-        .join('')}${masteryLine(c, a)}${pactExtras(c, a)}`,
+        .join('')}${styleLines(c, a)}${masteryLine(c, a)}${pactExtras(c, a)}`,
       !!(a.pact && pactSmiteOk(c))
     );
   },
@@ -367,6 +375,15 @@ Object.assign(A, {
     } else if (k === 'a_dash') {
       c.turn.dash = (+c.turn.dash || 0) + 1;
       more = `<div class="t-parts">Este turno puedes moverte hasta <b>${speedCalc(c).ft * (1 + c.turn.dash)} pies</b> en total. El contador de movimiento ya lo cuenta.</div>`;
+    } else if (k === 'a_ready') {
+      save();
+      render();
+      openModal(`<h2>Preparar</h2><p>Gastas tu acción ahora para actuar más tarde con tu reacción. Escribe qué harás y cuándo.</p>
+        <label class="f"><span>Qué preparas</span><input id="rd-t" placeholder="Si se acerca, le ataco con la lanza" autocomplete="off"></label>
+        <p class="hint">Si preparas un conjuro, lánzalo ahora desde Magia: gasta el espacio y lo mantienes con concentración hasta soltarlo.</p>
+        <div class="btns"><button class="b pri" data-act="ready-ok">Guardar</button><button class="b" data-act="close-modal">Sin apuntar</button></div>`);
+      setTimeout(() => $('#rd-t') && $('#rd-t').focus(), 0);
+      return;
     } else if (k === 'a_search') more = sk(['perception', 'insight', 'medicine', 'survival']);
     else if (k === 'a_study') more = sk(['investigation', 'arcana', 'history', 'nature', 'religion']);
     else if (k === 'a_influence')
@@ -398,6 +415,28 @@ Object.assign(A, {
       '<div class="t-label">Te levantas</div><div class="t-parts">Gastas la mitad de tu velocidad y dejas de estar derribado.</div>'
     );
   },
+  'ready-ok': () => {
+    const c = C(),
+      t = ($('#rd-t').value || '').trim();
+    c.turn.ready = t || 'Acción preparada';
+    closeModal();
+    save();
+    render();
+    toast(
+      '<div class="t-label">Preparado</div><div class="t-parts">Lo tienes en la columna de Reacción. Si no ocurre antes de tu siguiente turno, se pierde.</div>'
+    );
+  },
+  'ready-go': () => {
+    const c = C(),
+      t = c.turn.ready;
+    c.turn.r = true;
+    c.turn.ready = '';
+    save();
+    render();
+    toast(
+      `<div class="t-label">Usas lo preparado</div><div class="t-parts">${esc(t)}. Gastas tu reacción.</div>`
+    );
+  },
   'hide-ok': el => {
     const c = C();
     if (!c.conditions.includes('Invisible')) c.conditions.push('Invisible');
@@ -409,13 +448,37 @@ Object.assign(A, {
       '<div class="t-label">Escondido</div><div class="t-parts">Tienes el estado Invisible. Lo pierdes si haces ruido, atacas, lanzas un conjuro con componente verbal o te encuentran. Quítalo en Vida y estado cuando pase.</div>'
     );
   },
-  't-opp': () => {
-    const c = C();
+  /* Ataque de oportunidad: con un arma cuerpo a cuerpo equipada o un golpe desarmado. Si hay varias opciones, se elige */
+  't-opp': el => {
+    const c = C(),
+      melee = c.attacks
+        .map((a, i) => [a, i])
+        .filter(([a]) => atkReady(c, a) && !(a.wpn && WEAPONS[a.wpn] && WEAPONS[a.wpn].r));
+    if (el && el.dataset.i === undefined && melee.length) {
+      openModal(`<h2>Ataque de oportunidad</h2><p>Un enemigo que ves sale de tu alcance: le haces un ataque cuerpo a cuerpo con tu reacción. ¿Con qué?</p>
+        ${melee.map(([a, i]) => `<button class="b opt" data-act="t-opp" data-i="${i}"><span>${esc(a.name)}</span><small>${sgn(+a.atk || 0)} · ${esc(a.dmg || '')}</small></button>`).join('')}
+        <button class="b opt" data-act="t-opp" data-i="-1"><span>Golpe desarmado</span><small>${sgn(unarmedCalc(c).atk)} · ${esc(unarmedCalc(c).dmg)}</small></button>
+        <button class="b" data-act="close-modal">Cancelar</button>`);
+      return;
+    }
+    closeModal();
+    const i = el && el.dataset.i !== undefined ? +el.dataset.i : -1,
+      a = i >= 0 ? c.attacks[i] : null,
+      u = unarmedCalc(c),
+      atk = a ? +a.atk || 0 : u.atk,
+      dmg = a ? a.dmg || '—' : u.dmg,
+      dl = d20Line(c, 'atk', a);
     c.turn.r = true;
     save();
     render();
     toast(
-      `<div class="t-label">Ataque de oportunidad</div><div class="t-parts">Haz un ataque cuerpo a cuerpo con tu reacción.</div>`
+      `<div class="t-label">Ataque de oportunidad con ${esc(a ? a.name : 'golpe desarmado')}</div><div class="t-big">1d20 ${sgn(atk + d20Pen(c))}</div>${dl ? `<div class="t-parts">${dl}</div>` : ''}<div class="t-parts">Si impactas, daño: ${esc(dmg)} ${esc(a ? a.type || '' : 'contundente')}</div>${critLine(dmg, hitExtras(c, false).length)}${hitExtras(
+        c,
+        false
+      )
+        .filter(x => a || !/Favor divino/.test(x))
+        .map(x => `<div class="t-parts">Al impactar: ${esc(x)}</div>`)
+        .join('')}${a ? styleLines(c, a) + masteryLine(c, a) : ''}`
     );
   },
 });

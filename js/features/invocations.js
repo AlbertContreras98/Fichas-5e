@@ -172,6 +172,8 @@ function ivApply(c, st) {
   const featOf = e => !e.custom && IVBY[e.id].pick === 'feat' && FEATS[e.pick] && e.pick;
   const dropFeat = k => {
     if (!k || st.list.some(e => featOf(e) === k)) return;
+    const rec = (c.featData || []).find(r => r.k === k && r.src === IV_FEAT_SRC);
+    if (rec) return featRemove(c, k, rec);
     c.featKeys = (c.featKeys || []).filter(x => x !== k);
     const res = (FEATS[k].res || []).map(r => r.n);
     c.features = c.features.filter(
@@ -235,4 +237,30 @@ function ivApply(c, st) {
   for (const o of st.orig) if (st.list.includes(o) && o.featFrom !== featOf(o)) dropFeat(o.featFrom);
   upsertRes(c, originRes(c.speciesKey, c.lineageKey, c.featKeys || [], c.level), 'Dote');
   c.spells.sort((a, b) => a.level - b.level || a.name.localeCompare(b.name, 'es'));
+}
+
+/* Dotes de «Lecciones de los Primeros» con elecciones (conjuros, habilidades…) aún sin hacer */
+const ftHasOpts = f => !!(f.spPick || f.skills || f.opt || f.pe || f.exp);
+function ivFeatPending(c) {
+  return ivFromChar(c)
+    .map(e => e.featFrom)
+    .filter(
+      k =>
+        k &&
+        FEATS[k] &&
+        ftHasOpts(FEATS[k]) &&
+        (c.featKeys || []).includes(k) &&
+        !(c.featData || []).some(r => r.k === k && r.src === IV_FEAT_SRC)
+    );
+}
+/* Abre la ventana para completar la primera pendiente (si hay) */
+function ivFeatAsk() {
+  const c = C(),
+    k = c && ivFeatPending(c)[0];
+  if (!k) return;
+  FTS = Object.assign(ftNew(['origin']), { k, iv: true });
+  openModal(
+    `<div class="wz-head"><h2>${esc(FEATS[k].n)}</h2></div><div class="wz-body" id="ft-body">${ftModalBody()}</div>`,
+    true
+  );
 }
