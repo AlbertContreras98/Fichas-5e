@@ -403,16 +403,21 @@ function transformInto(c, x, opt) {
   } else if (x.via === 'poly') {
     const t = +x.hp.max || 0;
     c.hp.temp = Math.max(c.hp.temp, t);
-    if (opt.conc) c.effects.push({ id: uid(), name: opt.conc, m: 60, form: true, conc: true });
+    const had = opt.conc && c.effects.find(e => e.name === opt.conc && e.conc);
+    if (had) had.form = true;
+    else if (opt.conc) c.effects.push({ id: uid(), name: opt.conc, m: 60, form: true, conc: true });
     else c.effects.push({ id: uid(), name: `Polimorfado: ${x.name}`, m: 60, form: true, conc: false });
     msg = `Ganas ${t} PG temporales; la transformación termina cuando se te acaben.`;
   } else {
-    c.effects.push(
-      Object.assign(
-        { id: uid(), name: opt.conc || `Transformado: ${x.name}`, form: true, conc: !!opt.conc },
-        opt.conc ? { m: 60 } : { inf: true }
-      )
-    );
+    const had = opt.conc && c.effects.find(e => e.name === opt.conc && e.conc);
+    if (had) had.form = true;
+    else
+      c.effects.push(
+        Object.assign(
+          { id: uid(), name: opt.conc || `Transformado: ${x.name}`, form: true, conc: !!opt.conc },
+          opt.conc ? { m: 60 } : { inf: true }
+        )
+      );
   }
   return msg;
 }

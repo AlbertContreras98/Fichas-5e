@@ -125,6 +125,7 @@ Object.assign(A, {
     else {
       wpnEnsureAtk(c, e);
       e.equipped = true;
+      if (!(+e.qty > 0)) e.qty = 1;
       wpnProfWarn(c, e);
     }
     save();
@@ -446,6 +447,8 @@ Object.assign(A, {
       c.effects.push(
         Object.assign({ id: uid(), name: P.eff[0] + (ask ? ` (${ask})` : ''), conc: false }, P.eff[1])
       );
+    if (P.eff && P.eff[0] === 'Invisible' && !c.conditions.includes('Invisible'))
+      c.conditions.push('Invisible');
     const back = POT.back;
     closeModal();
     save();

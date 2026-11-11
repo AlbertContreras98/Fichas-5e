@@ -25,6 +25,9 @@ const DUR_UP = {
   ],
 };
 function spellDur(sp, L) {
+  /* Bayas nutritivas: las bayas duran 24 horas. Prestidigitación: casi todas sus opciones son instantáneas, así que no crea efecto */
+  if (sp.ref === 'goodberry') return { m: 1440 };
+  if (sp.ref === 'prestidigitation') return null;
   const d = parseDur(sp.dur),
     up = DUR_UP[sp.ref] && DUR_UP[sp.ref].find(([n]) => (L || 0) >= n);
   return up ? { m: up[1] } : d;

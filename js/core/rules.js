@@ -13,7 +13,9 @@ const attuned = c => c.equipment.filter(e => e.mi && e.mi.att && e.mi.on).length
 const saveB = (c, k) => M(c, k) + (c.saveProf.includes(k) ? pb(c) : 0) + miSave(c);
 const skillB = (c, s) => {
   const p = +c.skills[s[0]] || 0;
-  return M(c, s[2]) + (p === 2 ? 2 * pb(c) : p === 1 ? pb(c) : 0);
+  /* skillPlus: habilidades que suman otra característica (Taumaturgo, Mago del Orden primigenio: SAB, mínimo +1) */
+  const plus = c.skillPlus && c.skillPlus[s[0]] ? Math.max(1, M(c, c.skillPlus[s[0]])) : 0;
+  return M(c, s[2]) + (p === 2 ? 2 * pb(c) : p === 1 ? pb(c) : 0) + plus;
 };
 const featsOf = c => (c.featKeys || []).map(k => FEATS[k]).filter(Boolean);
 const featHas = (c, p) => featsOf(c).find(f => f[p]) || null;
@@ -297,6 +299,8 @@ function cantripRoll(c, sp) {
     return `<div class="t-parts">Ataca con tu arma usando tu aptitud mágica: <b>1d20 ${atk}</b>. Si impactas: el daño del arma + ${spMod(c) !== null ? spMod(c) : 'tu aptitud'}${t > 1 ? ` y <b>${t - 1}d6 radiante</b> extra` : ''}.</div>${dlh}`;
   if (r === 'shillelagh')
     return `<div class="t-parts">Con ese garrote o bastón atacas con <b>1d20 ${atk}</b> y su dado de daño pasa a ser <b>${['d8', 'd10', 'd12', '2d6'][t - 1]}</b> + ${spMod(c) !== null ? spMod(c) : 'tu aptitud'}.</div>${dlh}`;
+  if (r === 'spare-the-dying')
+    return `<div class="t-parts">La criatura a 0 PG queda estable. A tu nivel, el alcance es de <b>${15 * 2 ** (t - 1)} pies</b>.</div>`;
   const d = CANTRIP_DMG[r];
   if (!d) return '';
   const [die, type, how] = d,

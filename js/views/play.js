@@ -407,6 +407,22 @@ const CAT_WPN = {
     'Tu garrote o bastón usa tu aptitud mágica',
   ],
 };
+/* Bayas nutritivas: crea las 10 bayas en la mochila (se van al acabar el efecto de 24 horas) */
+function berriesOnCast(c, sp) {
+  if (sp.ref !== 'goodberry' || !c.effects.some(e => e.name === sp.name)) return '';
+  c.equipment = c.equipment.filter(e => !e.berry);
+  c.equipment.push(
+    Object.assign(NEW.equipment(), {
+      name: 'Bayas nutritivas',
+      qty: 10,
+      cat: 'consumible',
+      berry: true,
+      fxSpell: sp.name,
+      notes: 'Acción adicional: comer una cura 1 PG y alimenta un día entero. Desaparecen a las 24 horas.',
+    })
+  );
+  return '<div class="t-parts">Tienes <b>10 bayas nutritivas</b> en la mochila y en Combate (acción adicional: comer una cura 1 PG). Sirven de comida en el descanso largo. Desaparecen a las 24 horas.</div>';
+}
 function catWpnOnCast(c, sp) {
   const f = CAT_WPN[sp.ref || ''],
     mod = spMod(c);
@@ -535,6 +551,7 @@ function afterCast(sp, how) {
     spUseItem(c, sp) +
     csOnCast(c, sp) +
     catWpnOnCast(c, sp) +
+    berriesOnCast(c, sp) +
     (SPELL_AC[sp.ref] && !(c.effects.find(e => e.name === sp.name) || {}).other
       ? `<div class="t-parts">Tu CA pasa a <b>${acOf(c)}</b>${sp.ref === 'shield' ? ' hasta el principio de tu siguiente turno (también contra el ataque que la provocó)' : ' mientras dure'}.</div>`
       : '');

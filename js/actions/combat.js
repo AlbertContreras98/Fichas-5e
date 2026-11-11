@@ -105,10 +105,22 @@ Object.assign(A, {
       if (am.qty <= 0) return;
       am.qty--;
     }
+    /* Lanzar un arma arrojadiza: deja de estar en la mano, como la munición (recogerla la suma el jugador) */
+    const thrown = el.dataset.throw && atkItem(c, a);
+    let thrownMsg = '';
+    if (thrown) {
+      const W = WEAPONS[a.wpn],
+        left = Math.max(0, (+thrown.qty || 1) - 1);
+      thrown.qty = left;
+      if (!left) thrown.equipped = false;
+      thrownMsg = `<div class="t-parts"><b>La lanzas</b> (alcance ${esc(W.th)} pies; más allá del primero, con desventaja). ${left ? `Te quedan ${left}.` : 'Ya no la tienes: deja de salir en Combate.'} Si la recoges, súmala o equípala otra vez en Partida.</div>${featHas(c, 'thrown') ? `<div class="t-parts"><b>Armas arrojadizas:</b> al lanzarla, el daño es <b>${esc(dmgPlus(a.dmg, 2))}</b>.</div>` : ''}`;
+    }
     if (!T.a) {
       T.a = true;
       T.atk = attacksPerAction(c) - 1;
     } else T.atk = Math.max(0, T.atk - 1);
+    if (/ligera/i.test(a.notes || '')) T.light = true;
+    T.rl = [...(T.rl || []), +el.dataset.i];
     save();
     render();
     toast(
@@ -117,7 +129,7 @@ Object.assign(A, {
         false
       )
         .map(x => `<div class="t-parts">Al impactar: ${esc(x)}</div>`)
-        .join('')}${styleLines(c, a)}${masteryLine(c, a)}${pactExtras(c, a)}`,
+        .join('')}${thrownMsg}${thrown ? '' : styleLines(c, a)}${masteryLine(c, a)}${pactExtras(c, a)}`,
       !!(a.pact && pactSmiteOk(c))
     );
   },
@@ -352,6 +364,22 @@ Object.assign(A, {
       e = c.equipment[+el.dataset.i];
     if (e.qty <= 0) return;
     if (e.potion && POTIONS[e.potion] && e.potion !== 'other') return potModal(+el.dataset.i, el.dataset.eco);
+    if (e.berry) {
+      const was = c.hp.current;
+      e.qty--;
+      c.hp.current = Math.min(c.hp.max, c.hp.current + 1);
+      if (was <= 0 && c.hp.current > 0) {
+        c.deathSaves = { success: 0, fail: 0 };
+        c.conditions = c.conditions.filter(x => x !== 'Inconsciente');
+      }
+      spendEco(c, el.dataset.eco);
+      save();
+      render();
+      toast(
+        `<div class="t-label">Comes una baya nutritiva</div><div class="t-parts">${c.hp.current > was ? 'Recuperas 1 PG' : 'Ya tenías todos los PG'} (${c.hp.current} / ${c.hp.max}). Te alimenta todo el día. Te quedan ${e.qty}.</div>`
+      );
+      return;
+    }
     e.qty--;
     spendEco(c, el.dataset.eco);
     save();

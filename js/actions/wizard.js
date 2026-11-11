@@ -49,6 +49,15 @@ Object.assign(A, {
     W._keepScroll = true;
     renderWizard();
   },
+  'wz-exp': el => {
+    const k = el.dataset.k,
+      l = (W.exp = W.exp || []),
+      i = l.indexOf(k);
+    if (i >= 0) l.splice(i, 1);
+    else if (l.length < wizExpN()) l.push(k);
+    W._keepScroll = true;
+    renderWizard();
+  },
   'wz-sp-del': el => {
     W.spells.splice(+el.dataset.i, 1);
     W._keepScroll = true;

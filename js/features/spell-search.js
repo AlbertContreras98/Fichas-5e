@@ -121,7 +121,7 @@ function prepCounts() {
   const c = C(),
     ca = casterOf(defOf(c), subOf(c));
   if (!ca) return '';
-  const can = ca.cantrips ? ca.cantrips[c.level - 1] : 0,
+  const can = (ca.cantrips ? ca.cantrips[c.level - 1] : 0) + (+c.cantripPlus || 0),
     prep = ca.prepared ? ca.prepared[c.level - 1] : 0;
   return countsHTML({
     can,

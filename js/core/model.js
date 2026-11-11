@@ -251,6 +251,9 @@ function syncEffects(c) {
   c.effects = c.effects.filter(e => !e.conc || e.name === c.concentration);
   if (Array.isArray(c.attacks))
     c.attacks = c.attacks.filter(a => !a.fxSpell || c.effects.some(e => e.name === a.fxSpell));
+  /* Objetos creados por un conjuro (bayas nutritivas): desaparecen con su efecto */
+  if (Array.isArray(c.equipment))
+    c.equipment = c.equipment.filter(e => !e.fxSpell || c.effects.some(x => x.name === e.fxSpell));
   if (c.form && !c.effects.some(e => e.form)) c.form = null;
   c.companions = c.companions.filter(x => !x.conc || x.spell === c.concentration);
 }

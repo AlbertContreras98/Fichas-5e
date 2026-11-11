@@ -192,6 +192,8 @@ function linkGear(c) {
     if (gk) e.gear = gk;
   });
 }
+/* Arma a dos manos (también «a dos manos (salvo montado)») */
+const twoH = W => W.p.some(x => /^a dos manos/.test(x));
 const MASTERY_CLS = new Set(['barbarian', 'fighter', 'paladin', 'ranger', 'rogue']);
 /* Cuántos tipos de arma pueden usar su maestría: los de la clase (bárbaro y guerrero según el nivel; paladín, explorador y pícaro, 2) + 1 con la dote Maestro de armas */
 function masteryMax(c) {
@@ -255,12 +257,10 @@ function wpnCalc(c, a) {
     prof ? '' : 'sin competencia',
     arch ? `${arch.n}: +${arch.rangedAtk} al ataque` : '',
     gwm ? `${gwm.n}: +${pb(c)} al daño` : '',
-    !W.r && !W.p.includes('a dos manos') && featHas(c, 'duel') ? 'Duelo: +2 al daño si es tu única arma' : '',
+    !W.r && !twoH(W) && featHas(c, 'duel') ? 'Duelo: +2 al daño si es tu única arma' : '',
     W.th && featHas(c, 'thrown') ? '+2 al daño si la lanzas' : '',
     W.p.includes('ligera') && featHas(c, 'twf') ? 'ataque extra (Ligera): suma tu modificador al daño' : '',
-    !W.r && (W.p.includes('a dos manos') || W.v) && featHas(c, 'gwf')
-      ? 'a dos manos: los 1 y 2 de daño cuentan como 3'
-      : '',
+    !W.r && (twoH(W) || W.v) && featHas(c, 'gwf') ? 'a dos manos: los 1 y 2 de daño cuentan como 3' : '',
   ]
     .filter(Boolean)
     .join(' · ');
@@ -287,7 +287,7 @@ function styleLines(c, a) {
   const W = a.wpn && WEAPONS[a.wpn];
   if (!W) return '';
   const out = [];
-  if (!W.r && !W.p.includes('a dos manos') && featHas(c, 'duel'))
+  if (!W.r && !twoH(W) && featHas(c, 'duel'))
     out.push(
       `<b>Duelo:</b> si la empuñas con una mano y no llevas otra arma en la otra, el daño es <b>${esc(dmgPlus(a.dmg, 2))}</b>.`
     );
@@ -458,6 +458,8 @@ function acCalc(c) {
     if (A.str && c.abilities.str < A.str) warn.push(`Necesitas FUE ${A.str}: tu velocidad baja 10 pies.`);
     if (A.st) warn.push('Desventaja en pruebas de DES (Sigilo).');
   }
+  if (shield && c.attacks.some(a => a.wpn && WEAPONS[a.wpn] && twoH(WEAPONS[a.wpn]) && atkReady(c, a)))
+    warn.push('Llevas escudo y un arma a dos manos equipada: no puedes usar las dos cosas a la vez.');
   if (shield && !shieldOk) warn.push('No eres competente con escudos: llevarlo no te sube la CA.');
   return {
     ac,

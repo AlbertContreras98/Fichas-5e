@@ -408,7 +408,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
   - Polimorfar deja dos efectos con el mismo nombre.
 - Propuesta: arreglarlos de uno en uno cuando se toque cada parte.
 - Prioridad: frecuencia 1 + olvido 1 + coste 3 = 5
-- Estado: pendiente
+- Estado: arreglado (2026-11-11): arreglados seis de siete: el ataque extra con arma ligera pide haber atacado antes con un arma ligera; la Lanza de caballería ya no sale con Duelo; Sentidos agudos del elfo obliga a elegir de su lista; el tamaño «M o P» se elige en el asistente; la poción de invisibilidad pone Invisible; Polimorfar deja un solo efecto. Queda pendiente la aptitud mágica propia de cada dote (la ficha solo tiene una aptitud).
 
 ### 29. Astucia mágica no devuelve los espacios de pacto
 - Origen: 1a. Datos de la app (clases)
@@ -727,7 +727,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: al crear o subir de nivel, el asistente pide las habilidades con pericia (o la opción de orden) y las aplica.
 - Propuesta: un paso nuevo en el asistente y al subir de nivel.
 - Prioridad: frecuencia 1 + olvido 3 + coste 2 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-11): pasos nuevos en el asistente (al crear y al subir de nivel): «Pericia» (pícaro, bardo, Explorador hábil, Erudito del mago con su lista) y «Orden divino»/«Orden primigenio», que apuntan las competencias, el truco extra y el bonificador de SAB a las habilidades (`skillPlus`). Los idiomas de Explorador hábil siguen a mano.
 
 ### 63. Faltan contadores de subclase y algunos lanzamientos gratis sin enlazar
 - Origen: 1c. Priorizar (candidata de 1a: clases)
@@ -853,7 +853,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: descontarla al lanzarla, como la munición. Recogerla después la suma el jugador (como la munición, ver n.º 80).
 - Propuesta: tratar las armas arrojadizas apiladas (varias dagas) como la munición al elegir «lanzar».
 - Prioridad: frecuencia 1 + olvido 2 + coste 2 = 5
-- Estado: pendiente
+- Estado: arreglado (2026-11-11): las armas arrojadizas cuerpo a cuerpo (daga, jabalina, hacha de mano…) tienen botón «Lanzar» en Combate: descuenta una y, si era la última, deja de salir en Combate. Recogerla la suma el jugador.
 
 ### 77. Bayas nutritivas no crea las bayas
 - Origen: 1c. Priorizar (candidata de 1a: conjuros)
@@ -862,7 +862,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: 10 bayas en el inventario como consumible, que curan 1 PG al comerlas y sirven de comida en el descanso largo.
 - Propuesta: crear el objeto al lanzarlo y quitarlo al acabar el efecto.
 - Prioridad: frecuencia 1 + olvido 2 + coste 2 = 5
-- Estado: pendiente
+- Estado: arreglado (2026-11-11): al lanzar Bayas nutritivas aparecen 10 bayas en la mochila y en Combate (acción adicional: comer una cura 1 PG), sirven de comida en el descanso largo y desaparecen con el efecto de 24 horas.
 
 ### 78. Los conjuros de invocar criaturas que no están en el SRD no se enlazan con su ficha
 - Origen: 1c. Priorizar (candidata de 1a: conjuros)
@@ -884,7 +884,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
   - La propiedad Recarga no limita a un disparo por acción con Ataque adicional.
 - Propuesta: arreglarlos de uno en uno cuando se toque cada parte.
 - Prioridad: frecuencia 1 + olvido 1 + coste 3 = 5
-- Estado: pendiente
+- Estado: arreglado (2026-11-11): Prestidigitación ya no crea efecto; Piedad con los moribundos dice su alcance según el nivel; al druida de la Luna transformado solo le salen los conjuros de su círculo; escudo + arma a dos manos equipados avisan; Recarga limita a un disparo por acción con esa arma (salvo Experto en ballestas).
 
 ### 80. Recuperar la munición y las armas lanzadas automáticamente
 - Origen: 1c. Priorizar (candidata de 1a: objetos, y 1b)

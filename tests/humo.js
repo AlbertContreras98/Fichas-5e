@@ -63,6 +63,12 @@ async function subirNivel(page, clase) {
           await b.elegir(page, `select[data-iv-pick="${await s.getAttribute('data-iv-pick')}"]`, op[0]);
       }
     }
+    /* Pericia: las primeras habilidades que ofrezca, hasta completar. Orden: la primera opción */
+    if (st === 'expert') {
+      const n = await page.evaluate(() => Math.min(wizExpN(), wizExpOpts().length));
+      for (let i = 0; i < n; i++) await page.locator('[data-act="wz-exp"]:not(.on)').first().click();
+    }
+    if (st === 'order') await page.locator('input[name="wz-order"]').first().check({ force: true });
     if (st === 'asi') throw new Error('mejora de característica sin preparar en el guion');
     const ok = await page.locator('[data-act="wz-next"]').isEnabled();
     if (!ok)

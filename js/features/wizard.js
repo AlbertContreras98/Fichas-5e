@@ -27,6 +27,8 @@ function wizSteps() {
     if (W.mode === 'level' && def.asi.includes(W.L)) st.push(['asi', W.L === 19 ? 'Don épico' : 'Mejora']);
     if (newFeatures().some(f => norm(f[0]).startsWith(norm('Estilo de combate'))))
       st.push(['style', 'Estilo de combate']);
+    if (wizOrder()) st.push(['order', wizOrder().n]);
+    if (wizExpN()) st.push(['expert', 'Pericia']);
     const ca = casterOf(def, W.subKey ? def.subs[W.subKey] : null);
     if (ca && ((ca.cantrips && ca.cantrips[W.L - 1]) || (ca.prepared && ca.prepared[W.L - 1])))
       st.push(['spells', 'Conjuros']);
@@ -164,12 +166,74 @@ function hpGain() {
   g += hpPerLevel(W.mode === 'create' ? W.speciesKey : c.speciesKey, wizFeats());
   return g;
 }
+/* Órdenes de nivel 1 (clérigo y druida): opciones y lo que da cada una */
+const ORDERS = {
+  'Orden divino': {
+    n: 'Orden divino',
+    opts: [
+      [
+        'protector',
+        'Protector',
+        'Competencia con armas marciales y entrenamiento con armadura pesada.',
+        { w: 'armas marciales', a: 'armaduras pesadas' },
+      ],
+      [
+        'thaumaturge',
+        'Taumaturgo',
+        'Un truco de clérigo más, y sumas tu modificador de SAB (mínimo +1) a las pruebas de Conocimiento arcano y Religión.',
+        { cantrip: 1, sk: ['arcana', 'religion'] },
+      ],
+    ],
+  },
+  'Orden primigenio': {
+    n: 'Orden primigenio',
+    opts: [
+      [
+        'magician',
+        'Mago',
+        'Un truco de druida más, y sumas tu modificador de SAB (mínimo +1) a las pruebas de Conocimiento arcano y Naturaleza.',
+        { cantrip: 1, sk: ['arcana', 'nature'] },
+      ],
+      [
+        'warden',
+        'Guardián',
+        'Competencia con armas marciales y entrenamiento con armadura media.',
+        { w: 'armas marciales', a: 'armaduras intermedias' },
+      ],
+    ],
+  },
+};
+const wizOrder = () => {
+  const f = newFeatures().find(f => ORDERS[f[0]]);
+  return f ? ORDERS[f[0]] : null;
+};
+const wizOrderOpt = () => (wizOrder() && wizOrder().opts.find(o => o[0] === W.order)) || null;
+/* Pericia que se elige este nivel: cuántas habilidades y de qué lista (null = cualquiera en la que seas competente) */
+const EXPERT_F = {
+  Pericia: [2, null],
+  'Explorador hábil': [1, null],
+  Erudito: [1, ['arcana', 'history', 'investigation', 'medicine', 'nature', 'religion']],
+};
+const wizExpF = () => newFeatures().find(f => EXPERT_F[f[0]]);
+const wizExpN = () => (wizExpF() ? EXPERT_F[wizExpF()[0]][0] : 0);
+/* Habilidades en las que se puede coger pericia ahora: competente y sin pericia todavía */
+function wizExpOpts() {
+  const from = wizExpF() ? EXPERT_F[wizExpF()[0]][1] : null,
+    prof =
+      W.mode === 'create'
+        ? [...bgSkills(), ...W.skills]
+        : SKILLS.map(x => x[0]).filter(k => +C().skills[k] === 1);
+  return prof.filter((k, i, a) => a.indexOf(k) === i && (!from || from.includes(k)));
+}
 function wizSpellLimits() {
   const def = wizDef(),
     ca = casterOf(def, wizSub());
   if (!ca) return null;
   const L = W.L,
-    can = ca.cantrips ? ca.cantrips[L - 1] : 0,
+    can =
+      (ca.cantrips ? ca.cantrips[L - 1] : 0) +
+      ((wizOrderOpt() && wizOrderOpt()[3].cantrip) || 0) +
+      (W.mode === 'level' ? +C().cantripPlus || 0 : 0),
     prep = ca.prepared ? ca.prepared[L - 1] : 0;
   const cur = {
     c: W.spells.filter(s => !s.src && +s.level === 0).length,
@@ -210,6 +274,19 @@ function wizBody(step) {
       }`;
   }
   switch (step) {
+    case 'order': {
+      const o = wizOrder();
+      return `<p>Tu rasgo <b>${esc(o.n)}</b> te deja elegir una de estas dos opciones. La app apunta lo que da.</p>
+      <div class="choice">${o.opts.map(([k, n, d]) => `<label><input type="radio" name="wz-order" value="${k}" ${W.order === k ? 'checked' : ''}><span><b>${esc(n)}</b><br><small>${esc(d)}</small></span></label>`).join('')}</div>`;
+    }
+    case 'expert': {
+      const n = wizExpN(),
+        opts = wizExpOpts();
+      W.exp = (W.exp || []).filter(k => opts.includes(k));
+      return `<p>Tu rasgo <b>${esc(wizExpF()[0])}</b> te da <b>pericia</b> en ${n === 1 ? 'una habilidad' : `${n} habilidades`} en las que ya seas competente: sumas el doble de tu bonificador de competencia.</p>
+      <div class="chips">${opts.map(k => `<button class="chip ${W.exp.includes(k) ? 'on' : ''}" data-act="wz-exp" data-k="${k}">${SK[k][1]}</button>`).join('')}</div>
+      <p class="hint">Llevas ${W.exp.length} de ${Math.min(n, opts.length)}.</p>`;
+    }
     case 'style': {
       W.style = W.style || ftNew(['style']);
       W.ft = W.style;
@@ -244,6 +321,11 @@ function wizBody(step) {
         )
         .join('')}
       <label><input type="radio" name="wz-spec" value="" ${W.speciesKey === '' && W.species ? 'checked' : ''}><span><b>Otra</b><br><small>La completas tú a mano.</small>${W.speciesKey === '' ? `<br><input id="wz-species" class="inline-num" style="width:100%;margin-top:.4rem" value="${esc(W.species)}" placeholder="Nombre de la especie">` : ''}</span></label></div>
+    ${
+      sp && / o /.test(sp.size || '')
+        ? `<h3>Tamaño</h3><div class="choice"><label><input type="radio" name="wz-size" value="M" ${W.size !== 'P' ? 'checked' : ''}><span><b>Mediano</b><br><small>Entre 4 y 7 pies de alto (1,20 a 2,10 m).</small></span></label><label><input type="radio" name="wz-size" value="P" ${W.size === 'P' ? 'checked' : ''}><span><b>Pequeño</b><br><small>Entre 2 y 4 pies (0,60 a 1,20 m).</small></span></label></div>`
+        : ''
+    }
     ${
       sp && sp.lin
         ? `<h3>${esc(sp.linLabel || 'Linaje')}</h3><div class="choice">${Object.entries(sp.lin)
@@ -587,11 +669,16 @@ function wizValid(step) {
   const def = wizDef();
   if (step === 'pickclass') return !!W.classKey;
   if (step === 'basics') return !!(W.name.trim() && W.classKey);
-  if (step === 'skills')
+  if (step === 'skills') {
+    const sp = specOf(W.speciesKey),
+      from = sp && sp.extraSkill && sp.extraSkill.from,
+      cls = l => l.filter(k => def.skills.from.includes(k)).length >= def.skills.n;
+    /* Si la especie obliga a elegir de una lista (Sentidos agudos del elfo), una de las elegidas tiene que ser de ella, aparte de las de clase */
     return (
       W.skills.length >= def.skills.n + extraSkills() &&
-      W.skills.filter(k => def.skills.from.includes(k)).length >= def.skills.n
+      (from ? W.skills.some(k => from.includes(k) && cls(W.skills.filter(x => x !== k))) : cls(W.skills))
     );
+  }
   if (step === 'species') {
     const sp = specOf(W.speciesKey);
     return sp ? !sp.lin || !!W.lineageKey : !!W.species.trim();
@@ -608,6 +695,8 @@ function wizValid(step) {
     return W.bgMode === '111' || (!!W.bg2 && !!W.bg1 && W.bg1 !== W.bg2);
   }
   if (step.startsWith('ofeat:')) return !ftMissing(wizOfs(step.slice(6)), wizOfsCtx());
+  if (step === 'order') return !!wizOrderOpt();
+  if (step === 'expert') return (W.exp || []).length === Math.min(wizExpN(), wizExpOpts().length);
   if (step === 'lineage') return !!W.lineageKey;
   if (step === 'invoc') {
     const st = wizIv();
@@ -636,11 +725,14 @@ const STEP_HELP = {
   lineage: 'Elige una opción.',
   pickclass: 'Elige una clase.',
   basics: 'Escribe un nombre y elige una clase.',
-  skills: 'Elige las habilidades que faltan.',
+  skills:
+    'Elige las habilidades que faltan. Si tu especie te da una de una lista, tiene que ser de esa lista.',
   hp: 'Escribe un resultado válido del dado.',
   sub: 'Elige una subclase.',
   asi: 'Completa la mejora (máximo 20 por característica) o elige la dote y sus opciones.',
   style: 'Elige un estilo de combate.',
+  order: 'Elige una de las dos opciones.',
+  expert: 'Elige las habilidades con pericia.',
   invoc: 'Elige tantas invocaciones como indica el contador y completa sus opciones.',
 };
 /* Datos que miran los requisitos de las dotes dentro del asistente */
@@ -820,6 +912,19 @@ function applyWizard() {
     c.pact.used = Math.min(c.pact.used, c.pact.total);
     c.spells = W.spells.map(s => Object.assign(NEW.spells(), s));
   }
+  // pericia y órdenes elegidas en el asistente
+  if (wizExpN()) (W.exp || []).forEach(k => (c.skills[k] = 2));
+  if (wizOrderOpt()) {
+    const [, on, , g] = wizOrderOpt(),
+      f = c.features.find(x => x.name === wizOrder().n);
+    if (f && !/Elegido:/.test(f.text)) f.text += `\n\nElegido: ${on}.`;
+    if (g.w && !norm(c.proficiencies.weapons || '').includes('marcial'))
+      c.proficiencies.weapons = [c.proficiencies.weapons, g.w].filter(Boolean).join(', ');
+    if (g.a) c.proficiencies.armor = [c.proficiencies.armor, g.a].filter(Boolean).join(', ');
+    if (g.cantrip) c.cantripPlus = (+c.cantripPlus || 0) + g.cantrip;
+    if (g.sk) c.skillPlus = Object.assign({}, c.skillPlus, Object.fromEntries(g.sk.map(k => [k, 'wis'])));
+    syncWeapons(c);
+  }
   // invocaciones del brujo
   if (W.classKey === 'warlock') ivApply(c, wizIv());
   // dotes del catálogo (mejora de nivel y estilo de combate)
@@ -847,8 +952,10 @@ function applyWizard() {
     ...alwaysIds('', c.subclassKey, W.mode === 'level' && !W.origSub ? 1 : L, L),
   ]);
   // especie, linaje y dotes de origen
-  if (W.mode === 'create') applyOrigin(c);
-  else {
+  if (W.mode === 'create') {
+    applyOrigin(c);
+    if (/ o /.test(c.size || '')) c.size = W.size || 'M';
+  } else {
     if (W.lineageKey && !c.lineageKey) {
       c.lineageKey = W.lineageKey;
       const sp = specOf(c.speciesKey),

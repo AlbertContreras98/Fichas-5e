@@ -451,6 +451,16 @@ document.addEventListener('change', e => {
       refreshWizFoot();
       return;
     }
+    if (el.name === 'wz-order') {
+      W.order = el.value;
+      W._keepScroll = true;
+      renderWizard();
+      return;
+    }
+    if (el.name === 'wz-size') {
+      W.size = el.value;
+      return;
+    }
     if (el.id === 'wz-ofab') {
       W.ofsAb = el.value;
       return;

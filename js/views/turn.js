@@ -269,6 +269,13 @@ function viewTurn(c) {
       )
     );
   });
+  /* Recarga: un solo disparo por acción con esa arma, salvo con Experto en ballestas */
+  const reloaded = (i, a) =>
+    (T0.rl || []).includes(i) &&
+    a.wpn &&
+    WEAPONS[a.wpn] &&
+    WEAPONS[a.wpn].p.includes('recarga') &&
+    !(c.featKeys || []).includes('crossbow-expert');
   if (!fm)
     c.attacks.forEach((a, i) => {
       if (!atkReady(c, a)) return;
@@ -278,7 +285,7 @@ function viewTurn(c) {
         row(
           `${esc(a.name)}`,
           `${sgn(+a.atk || 0)} · ${esc(a.dmg || '')}${am ? ` · quedan ${am.qty}` : ''}`,
-          `<button class="b sm pri" data-act="t-atk" data-i="${i}" ${dis(!atkOn || noAmmo)}>Atacar</button>`
+          `${a.wpn && WEAPONS[a.wpn] && WEAPONS[a.wpn].th && !WEAPONS[a.wpn].r && atkItem(c, a) ? `<button class="b sm" data-act="t-atk" data-i="${i}" data-throw="1" ${dis(!atkOn)} title="Ataque a distancia lanzando el arma (${WEAPONS[a.wpn].th} pies)">Lanzar</button>` : ''}<button class="b sm pri" data-act="t-atk" data-i="${i}" ${dis(!atkOn || noAmmo || reloaded(i, a))} title="${reloaded(i, a) ? 'Recarga: solo un disparo con esta arma por acción' : ''}">Atacar</button>`
         )
       );
     });
@@ -298,10 +305,13 @@ function viewTurn(c) {
         )
       );
     });
+  /* Druida de la Luna transformado: solo los conjuros de su círculo */
+  const moonOnly = fm && !beast && ws && ws.moon ? alwaysIds('', c.subclassKey, 1, c.level) : null;
   if (!noSpells)
     c.spells.forEach((sp, i) => {
       const t = sp.time === 'BA' ? 'AA' : sp.time;
       if (!['A', 'AA', 'R'].includes(t)) return;
+      if (moonOnly && !moonOnly.includes(sp.ref)) return;
       const busy = t === 'A' ? !aFree : t === 'AA' ? T.aa : T.r;
       const ok = canCast(c, sp);
       mag[t].push(
@@ -354,7 +364,7 @@ function viewTurn(c) {
           featHas(c, 'twf')
             ? 'Ataque extra: Combate con dos armas te deja sumar tu modificador al daño'
             : 'Ataque extra: sin tu modificador al daño',
-          `<button class="b sm" data-act="t-light" data-i="${i}" ${dis(T.aa)}>Atacar</button>`
+          `<button class="b sm" data-act="t-light" data-i="${i}" ${dis(T.aa || !T0.light)} title="${T0.light ? '' : 'Primero ataca con un arma ligera en tu acción'}">Atacar</button>`
         )
       )
     );
@@ -375,13 +385,13 @@ function viewTurn(c) {
       return;
     }
     if (e.cat !== 'pocion' && e.cat !== 'consumible') return;
-    const k = e.cat === 'pocion' ? 'AA' : 'A';
+    const k = e.cat === 'pocion' || e.berry ? 'AA' : 'A';
     const busy = k === 'A' ? !aFree : T.aa;
     cols[k].push(
       row(
         esc(e.name),
         `quedan ${e.qty}`,
-        `<button class="b sm" data-act="t-item" data-i="${i}" data-eco="${k}" ${dis(busy || e.qty <= 0)}>${e.cat === 'pocion' ? 'Beber' : 'Usar'}</button>`
+        `<button class="b sm" data-act="t-item" data-i="${i}" data-eco="${k}" ${dis(busy || e.qty <= 0)}>${e.cat === 'pocion' ? 'Beber' : e.berry ? 'Comer' : 'Usar'}</button>`
       )
     );
   });

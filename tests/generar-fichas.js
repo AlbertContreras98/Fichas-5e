@@ -153,6 +153,12 @@ async function crear(page, f) {
           await b.elegir(page, sel, val);
         }
         break;
+      case 'expert':
+        for (const k of f.pericia || []) await b.act(page, 'wz-exp', { k });
+        break;
+      case 'order':
+        await b.radio(page, 'wz-order', f.orden);
+        break;
       case 'invoc':
         for (const id of f.invocaciones || []) await b.act(page, 'iv-add', { id });
         break;
