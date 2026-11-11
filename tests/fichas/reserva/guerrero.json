@@ -1,6 +1,6 @@
 {
   "formato": "fichas-dnd-2024/2",
-  "id": "2u4r39lf",
+  "id": "rvu88hs0",
   "name": "Brunilda",
   "species": "Enano",
   "speciesKey": "dwarf",
@@ -85,7 +85,7 @@
       "wpn": "greatsword",
       "magic": 0,
       "mastery": true,
-      "item": "wmuaek7y"
+      "item": "29uzpvan"
     },
     {
       "name": "Mayal",
@@ -97,7 +97,7 @@
       "wpn": "flail",
       "magic": 0,
       "mastery": true,
-      "item": "08dsaruf"
+      "item": "l8jky3xo"
     },
     {
       "name": "Jabalina",
@@ -109,7 +109,7 @@
       "wpn": "javelin",
       "magic": 0,
       "mastery": true,
-      "item": "k26x82jb"
+      "item": "bs7oj0q1"
     },
     {
       "name": "Lanza",
@@ -121,7 +121,7 @@
       "wpn": "spear",
       "magic": 0,
       "mastery": false,
-      "item": "hx0r0j8p"
+      "item": "ie5x5kwx"
     },
     {
       "name": "Arco corto",
@@ -129,11 +129,11 @@
       "dmg": "1d6 + 1",
       "type": "perforante",
       "notes": "A dos manos, munición (80/320)",
-      "ammo": "4tc5ob0q",
+      "ammo": "d1n21329",
       "wpn": "shortbow",
       "magic": 0,
       "mastery": false,
-      "item": "gyzz58zp"
+      "item": "4i633yyz"
     }
   ],
   "spellcasting": {
@@ -237,7 +237,7 @@
     },
     {
       "name": "Afinidad con la piedra",
-      "source": "Dote",
+      "source": "Enano",
       "text": "Acción adicional: ganas sentido de la vibración a 60 pies durante 10 minutos si estás sobre piedra. Usos: tu bonificador de competencia por descanso largo.",
       "uses": {
         "max": 2,
@@ -279,7 +279,7 @@
   ],
   "equipment": [
     {
-      "id": "91cvya5t",
+      "id": "zzfhgmdm",
       "name": "Cota de mallas",
       "qty": 1,
       "cat": "armadura",
@@ -289,7 +289,7 @@
       "equipped": true
     },
     {
-      "id": "wmuaek7y",
+      "id": "29uzpvan",
       "name": "Espadón",
       "qty": 1,
       "cat": "arma",
@@ -299,7 +299,7 @@
       "equipped": true
     },
     {
-      "id": "08dsaruf",
+      "id": "l8jky3xo",
       "name": "Mayal",
       "qty": 1,
       "cat": "arma",
@@ -309,7 +309,7 @@
       "equipped": true
     },
     {
-      "id": "k26x82jb",
+      "id": "bs7oj0q1",
       "name": "Jabalina",
       "qty": 8,
       "cat": "arma",
@@ -319,14 +319,14 @@
       "equipped": true
     },
     {
-      "id": "73ixsxcz",
+      "id": "rxp1k43c",
       "name": "Mochila",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "rhzy9cel",
+      "id": "o1wuzx4e",
       "name": "Abrojos",
       "qty": 1,
       "cat": "consumible",
@@ -334,21 +334,21 @@
       "gear": "caltrops"
     },
     {
-      "id": "1adnigih",
+      "id": "ef9ho1wy",
       "name": "Palanca",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "ipl5f9gm",
+      "id": "bow1fapx",
       "name": "Aceite (frasco)",
       "qty": 2,
       "cat": "consumible",
       "notes": ""
     },
     {
-      "id": "w18pza45",
+      "id": "5n1qc9ru",
       "name": "Raciones (días)",
       "qty": 10,
       "cat": "comida",
@@ -356,21 +356,21 @@
       "gear": "rations"
     },
     {
-      "id": "jkwfv4wu",
+      "id": "ubn1xjt9",
       "name": "Cuerda",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "f3gkm22l",
+      "id": "dcqofnlh",
       "name": "Yesquero",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "cmdjn5fw",
+      "id": "a2gx6h1i",
       "name": "Antorchas",
       "qty": 10,
       "cat": "consumible",
@@ -378,7 +378,7 @@
       "gear": "torch"
     },
     {
-      "id": "khcg37ej",
+      "id": "1wjbg0qz",
       "name": "Odre",
       "qty": 1,
       "cat": "comida",
@@ -386,7 +386,7 @@
       "gear": "waterskin"
     },
     {
-      "id": "hx0r0j8p",
+      "id": "ie5x5kwx",
       "name": "Lanza",
       "qty": 1,
       "cat": "arma",
@@ -396,7 +396,7 @@
       "equipped": true
     },
     {
-      "id": "gyzz58zp",
+      "id": "4i633yyz",
       "name": "Arco corto",
       "qty": 1,
       "cat": "arma",
@@ -406,7 +406,7 @@
       "equipped": true
     },
     {
-      "id": "4tc5ob0q",
+      "id": "d1n21329",
       "name": "Flechas",
       "qty": 20,
       "cat": "municion",
@@ -414,7 +414,7 @@
       "ammoKind": "arrow"
     },
     {
-      "id": "xuwagso4",
+      "id": "p31szbdx",
       "name": "Juego",
       "qty": 1,
       "cat": "herramienta",
@@ -422,7 +422,7 @@
       "tool": "gaming"
     },
     {
-      "id": "ab5ai0n4",
+      "id": "hlcg60az",
       "name": "Kit de sanador",
       "qty": 10,
       "cat": "consumible",
@@ -430,14 +430,14 @@
       "gear": "healerkit"
     },
     {
-      "id": "710sm8zy",
+      "id": "02e1jy0k",
       "name": "Carcaj",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "v0zucvr9",
+      "id": "kr0i3vt1",
       "name": "Ropa de viajero",
       "qty": 1,
       "cat": "otro",

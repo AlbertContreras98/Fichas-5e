@@ -38,6 +38,7 @@ function render() {
     renderWelcome();
     return;
   }
+  usesSync(C());
   renderTop();
   renderView();
   refreshVida();

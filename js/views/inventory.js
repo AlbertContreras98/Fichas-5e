@@ -424,7 +424,10 @@ function acCalc(c) {
     [base, src] = o[0];
   }
   let ac = base;
-  if (shield) {
+  const prof = norm(c.proficiencies.armor || ''),
+    has = k => /todas/.test(prof) || prof.includes(k),
+    shieldOk = !shield || has('escud');
+  if (shield && shieldOk) {
     const mg = +shield.magic || 0;
     ac += 2 + mg;
     src += ` + escudo ${2 + mg}`;
@@ -444,24 +447,22 @@ function acCalc(c) {
     src += ` + objetos mágicos ${mac}`;
   }
   const warn = [];
-  const prof = norm(c.proficiencies.armor || ''),
-    has = k => /todas/.test(prof) || prof.includes(k);
+  let noProf = false;
   if (body) {
     const A = ARMORS[body.armor];
     if (!(A.t === 'm' ? has('media') || has('intermed') : has({ l: 'liger', h: 'pesad' }[A.t])))
-      warn.push(
-        `No eres competente con armadura ${ARMOR_T[A.t].toLowerCase()}: desventaja en pruebas, salvaciones y ataques de FUE y DES, y no puedes lanzar conjuros.`
-      );
+      ((noProf = true),
+        warn.push(
+          `No eres competente con armadura ${ARMOR_T[A.t].toLowerCase()}: desventaja en pruebas, salvaciones y ataques de FUE y DES, y no puedes lanzar conjuros.`
+        ));
     if (A.str && c.abilities.str < A.str) warn.push(`Necesitas FUE ${A.str}: tu velocidad baja 10 pies.`);
     if (A.st) warn.push('Desventaja en pruebas de DES (Sigilo).');
   }
-  if (shield && !has('escud'))
-    warn.push(
-      'No eres competente con escudos: desventaja en pruebas, salvaciones y ataques de FUE y DES, y no puedes lanzar conjuros.'
-    );
+  if (shield && !shieldOk) warn.push('No eres competente con escudos: llevarlo no te sube la CA.');
   return {
     ac,
     src,
+    noProf,
     warn,
     slow: !!(body && ARMORS[body.armor].str && c.abilities.str < ARMORS[body.armor].str),
   };

@@ -178,7 +178,8 @@ function ivApply(c, st) {
     const res = (FEATS[k].res || []).map(r => r.n);
     c.features = c.features.filter(
       f =>
-        !(f.name === FEATS[k].n && f.source === IV_FEAT_SRC) && !(res.includes(f.name) && f.source === 'Dote')
+        !(f.name === FEATS[k].n && f.source === IV_FEAT_SRC) &&
+        !(res.includes(f.name) && String(f.source || '').startsWith('Dote'))
     );
     if (FEATS[k].hpPerLevel) {
       c.hp.max -= FEATS[k].hpPerLevel * c.level;

@@ -44,6 +44,11 @@ Object.assign(A, {
       toast(
         `<div class="t-label">Efecto terminado</div><div class="t-parts">${gone.map(esc).join(', ')} ${gone.length > 1 ? 'han' : 'ha'} terminado.</div>`
       );
+    /* A 0 PG y sin estar estable ni muerto: recordar la salvación contra muerte del turno */
+    if (c.hp.current <= 0 && !isDead(c) && c.deathSaves.success < 3)
+      openModal(
+        `<h2 id="ds-ask">Salvación contra muerte</h2><p>Estás a 0 PG. Al empezar tu turno tira un d20, sin sumar nada. ¿Qué has sacado?</p>${DS_BTNS}<div class="btns"><button class="b" data-act="close-modal">Ya la había apuntado</button></div>`
+      );
     const rs = repeatSaves(c);
     if (rs) toast(`<div class="t-label">Recuerda al máster</div>${rs}`, true);
   },

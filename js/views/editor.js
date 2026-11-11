@@ -91,7 +91,8 @@ function viewEdit(c) {
     <div class="stack">${c.features
       .map(
         (f, i) => `<div class="row-ed">
-    ${inp('Nombre', `features.${i}.name`, f.name)}${inp('Origen', `features.${i}.source`, f.source, { ph: 'Clase, especie, dote…' })}${inp('Usos (0 = ilimitado)', `features.${i}.uses.max`, f.uses.max, { num: 1 })}
+    ${inp('Nombre', `features.${i}.name`, f.name)}${inp('Origen', `features.${i}.source`, f.source, { ph: 'Clase, especie, dote…' })}${f.uses.by ? `<label class="f"><span>Usos</span><input value="${usesBy(c, f.uses.by)}" readonly title="Se calcula solo"></label>` : inp('Usos (0 = ilimitado)', `features.${i}.uses.max`, f.uses.max, { num: 1 })}
+    ${sel('Los usos son', `features.${i}.uses.by`, f.uses.by || '', [['', 'Un número fijo'], ['pb', 'Tu bonificador de competencia'], ...ABIL.map(([k, , n]) => [k, `Tu modificador de ${n} (mínimo 1)`])], { rr: 1 })}
     ${sel('Se recupera con', `features.${i}.uses.recover`, f.uses.recover, [
       ['', '—'],
       ['corto', 'Descanso corto o largo'],

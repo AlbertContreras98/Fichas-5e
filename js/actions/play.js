@@ -67,6 +67,34 @@ Object.assign(A, {
     if (!(r >= 1 && r <= max)) return $('#red-r').focus();
     dmgReactApply(c, R, +el.dataset.dmg, r + R[3](c));
   },
+  /* Salvación contra muerte: el jugador dice qué ha sacado y la app suma el éxito o el fallo */
+  'ds-roll': el => {
+    const c = C(),
+      r = el.dataset.r;
+    if (c.hp.current > 0) return;
+    const t = el.closest('.toast');
+    if (t) t.remove();
+    if ($('#modal') && !$('#modal').hidden && $('#ds-ask')) closeModal();
+    if (r === '20') return A.nat20();
+    if (r === 'ok') c.deathSaves.success = Math.min(3, c.deathSaves.success + 1);
+    else c.deathSaves.fail = Math.min(3, c.deathSaves.fail + (r === '1' ? 2 : 1));
+    save();
+    render();
+    const s3 = c.deathSaves.success >= 3,
+      f3 = c.deathSaves.fail >= 3;
+    toast(
+      `<div class="t-label">Salvación contra muerte</div><div class="t-parts">${r === 'ok' ? 'Éxito' : r === '1' ? 'Un 1: dos fallos' : 'Fallo'}. Llevas ${c.deathSaves.success} ${c.deathSaves.success === 1 ? 'éxito' : 'éxitos'} y ${c.deathSaves.fail} ${c.deathSaves.fail === 1 ? 'fallo' : 'fallos'}.${f3 ? ' <b>Tu personaje muere.</b>' : s3 ? ' <b>Estás estable:</b> ya no tiras más. Sin curación, recuperas 1 PG en 1d4 horas.' : ''}</div>`,
+      f3 || s3
+    );
+  },
+  /* Corregir una muerte marcada por error */
+  undead: () => {
+    const c = C();
+    c.deathSaves.fail = Math.min(2, c.deathSaves.fail);
+    if (+c.exhaustion >= 6) c.exhaustion = 5;
+    save();
+    render();
+  },
   /* El golpe recibido a 0 PG era un crítico: segundo fallo de salvación contra muerte */
   'crit-fail': el => {
     const c = C();
@@ -171,6 +199,11 @@ Object.assign(A, {
       sp = c.spells[+el.dataset.i],
       L = +sp.level || 0;
     castFree = false;
+    if (!el.dataset.who && !el.dataset.force && armorAuto(c) && acCalc(c).noProf)
+      toast(
+        '<div class="t-label">Ojo</div><div class="t-parts">Llevas una armadura con la que no eres competente: con ella puesta no puedes lanzar conjuros. Quítatela desde el inventario.</div>',
+        true
+      );
     /* Armadura de mago: sobre quién se lanza; sobre ti no funciona si llevas armadura */
     if (!el.dataset.who && sp.ref === 'mage-armor') {
       const ar =
@@ -371,6 +404,8 @@ Object.assign(A, {
       const was = c.hp.current;
       let extra = '';
       if (was <= 0 && rest > 0) {
+        /* Si estabas estable, el daño te hace volver a tirar */
+        if (c.deathSaves.success >= 3) c.deathSaves.success = 0;
         if (rest >= c.hp.max) {
           c.deathSaves.fail = 3;
           extra =
@@ -382,6 +417,7 @@ Object.assign(A, {
       }
       c.hp.current = Math.max(0, was - rest);
       if (was > 0 && c.hp.current === 0) {
+        if (rest - was >= c.hp.max) c.deathSaves.fail = 3;
         extra =
           rest - was >= c.hp.max
             ? '<div class="t-parts"><b>Muerte instantánea:</b> el daño sobrante iguala o supera tus PG máximos.</div>'

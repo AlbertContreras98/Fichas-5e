@@ -17,14 +17,23 @@ function resRow(f, i) {
       : pips('feat', i, u.max, left);
   return `<div class="slotrow"><span>${esc(f.name)}<br><small>${esc(REC[u.recover] || 'sin recuperación automática')}</small></span>${ctl}</div>`;
 }
+/* Muerto: tres fallos de salvación contra muerte a 0 PG (también la muerte instantánea) o agotamiento 6 */
+const isDead = c => (c.hp.current <= 0 && c.deathSaves.fail >= 3) || +c.exhaustion >= 6;
+const DS_BTNS = `<div class="btns"><button class="b sm good" data-act="ds-roll" data-r="20">Un 20</button><button class="b sm" data-act="ds-roll" data-r="ok">De 10 a 19</button><button class="b sm" data-act="ds-roll" data-r="ko">De 2 a 9</button><button class="b sm bad" data-act="ds-roll" data-r="1">Un 1</button></div>`;
 function deathHTML(c) {
+  if (isDead(c))
+    return `<div class="death"><div class="dl">Tu personaje ha muerto</div>
+    <p class="hint">${+c.exhaustion >= 6 ? 'Has llegado al nivel 6 de agotamiento.' : 'Tres fallos de salvación contra muerte (o un golpe que te mata en el acto).'} No todo está perdido: conjuros como Revivir o Alzar a los muertos pueden devolverte la vida. Habla con tu máster.</p>
+    <div class="btns"><button class="b sm" data-act="undead">No está muerto (corregir)</button></div></div>`;
   return c.hp.current <= 0
     ? `<div class="death"><div class="dl">A 0 PG: ${term('salvaciones contra muerte', 'death')}</div>
-    <p class="hint">En tu turno tira un d20: 10 o más es éxito, menos es fallo. Un 1 cuenta como dos fallos y un 20 te devuelve 1 PG.</p>
+    ${
+      c.deathSaves.success >= 3
+        ? '<p class="hint">Tres éxitos: estás <b>estable</b>. Sigues inconsciente, pero ya no tiras más. Si nadie te cura, recuperas 1 PG al cabo de 1d4 horas. Si recibes daño, vuelves a tirar.</p>'
+        : `<p class="hint">Al empezar cada turno tuyo tira un d20 (sin sumar nada) y pulsa lo que has sacado: 10 o más es un éxito, menos es un fallo, un 1 son dos fallos y un 20 te devuelve 1 PG.</p>${DS_BTNS}`
+    }
     <div class="dsrow"><span>Éxitos</span>${pips('ds', 0, 3, c.deathSaves.success)}</div>
-    <div class="dsrow"><span>Fallos</span>${pips('df', 0, 3, c.deathSaves.fail)}</div>
-    <div class="btns"><button class="b sm" data-act="nat20">He sacado un 20</button><button class="b sm" data-act="nat1">He sacado un 1</button></div>
-    ${c.deathSaves.fail >= 3 ? '<p class="hint warn">Tres fallos: tu personaje muere.</p>' : c.deathSaves.success >= 3 ? '<p class="hint">Tres éxitos: estás estable, inconsciente pero sin tirar más.</p>' : ''}</div>`
+    <div class="dsrow"><span>Fallos</span>${pips('df', 0, 3, c.deathSaves.fail)}</div></div>`
     : '';
 }
 /* Dados de golpe como rombos: lleno = disponible (tócalo para gastarlo), vacío = gastado (tócalo para recuperarlo) */
@@ -81,7 +90,17 @@ function viewCombat(c) {
   const start = c.combat
     ? ''
     : `<section class="card cbstart"><div><h2>¿Empieza la pelea?</h2><p class="hint">Inicia el combate para llevar la cuenta de las rondas. Al terminarlo podrás quitar los efectos y estados que ya no tengan sentido.</p></div><button class="b pri" data-act="cb-start">Iniciar combate</button></section>`;
+  if (isDead(c)) return `<section class="card">${deathHTML(c)}</section>${rulesCard()}`;
   return `${c.hp.current <= 0 ? `<section class="card">${deathHTML(c)}</section>` : ''}${start}${viewTurn(c)}${rulesCard()}`;
+}
+/* Componentes del conjuro en palabras: «voz y gestos» (V = hablar, S = mover una mano, M = un material) */
+function spComp(sp) {
+  const v = (sp.ref && SPBY[sp.ref] && SPBY[sp.ref].v) || '';
+  if (!v) return '';
+  return (
+    'necesita ' +
+    [/V/.test(v) && 'voz', /S/.test(v) && 'gestos', /M/.test(v) && 'material'].filter(Boolean).join(', ')
+  );
 }
 /* Reglas comunes para consultar en mitad del combate (cobertura, saltar, luz…) */
 const RULES_LIST = [
@@ -97,6 +116,7 @@ const RULES_LIST = [
   'r_suffocate',
   'r_restbreak',
   'r_group',
+  'r_food',
   'r_object',
   'r_improv',
   'r_immune',
@@ -231,7 +251,7 @@ function viewPlay(c) {
               const desc = sp.desc || (d ? d.de + (d.hl ? '\n\nA niveles superiores: ' + d.hl : '') : '');
               return `<div class="it"><div class="it-head"><span class="it-name">${esc(sp.name)}${tags}</span>
           <button class="b sm ${ok ? 'pri' : ''}" data-act="cast" data-i="${i}" ${ok ? '' : 'disabled'}>${+sp.level === 0 ? 'Usar' : ok ? 'Lanzar' : 'Sin espacios'}</button></div>
-          <div class="meta">${esc([TIME[sp.time] || sp.time, sp.range, sp.dur, sp.material && `M: ${sp.material}`, sp.hd && (sp.hd === 'lvl' ? 'gasta dados de golpe según el nivel' : `gasta ${sp.hd} ${+sp.hd === 1 ? 'dado' : 'dados'} de golpe`), sp.wpn && `crea: ${sp.wpn.n}`].filter(Boolean).join(' · '))}</div>
+          <div class="meta">${esc([TIME[sp.time] || sp.time, sp.range, sp.dur, spComp(sp), sp.material && `M: ${sp.material}`, sp.hd && (sp.hd === 'lvl' ? 'gasta dados de golpe según el nivel' : `gasta ${sp.hd} ${+sp.hd === 1 ? 'dado' : 'dados'} de golpe`), sp.wpn && `crea: ${sp.wpn.n}`].filter(Boolean).join(' · '))}</div>
           ${desc || csOwn(sp) ? `<details><summary>Qué hace</summary>${desc ? `<p>${esc(desc)}</p>` : ''}${csOwn(sp) ? `<div class="btns"><button class="b sm" data-act="cs-edit" data-i="${i}">Editar conjuro</button></div>` : ''}</details>` : ''}</div>`;
             }).join('')}</div>`
         )
@@ -536,8 +556,10 @@ function afterCast(sp, how) {
         ? `<div class="t-parts">CD de salvación ${spDC(c)} · ataque de conjuro ${sgn(spAtk(c) + d20Pen(c))}</div>`
         : '');
   let cbtn = '';
-  if (SUMMON_REF[r])
-    cbtn = `<button class="b sm pri" data-act="crea-from-cast" data-k="summon" data-s="${SUMMON_REF[r]}" data-l="${lastCastL || sp.level}" data-spell="${esc(sp.name)}">Crear la criatura</button>`;
+  /* Un conjuro propio que se llame como una invocación del catálogo de criaturas se enlaza con su ficha */
+  const sumK = SUMMON_REF[r] || (!r && Object.keys(SUMMONS).find(k => norm(SUMMONS[k].n) === norm(sp.name)));
+  if (sumK)
+    cbtn = `<button class="b sm pri" data-act="crea-from-cast" data-k="summon" data-s="${sumK}" data-l="${lastCastL || sp.level}" data-spell="${esc(sp.name)}">Crear la criatura</button>`;
   else if (r === 'find-steed')
     cbtn = `<button class="b sm pri" data-act="crea-from-cast" data-k="steed" data-l="${lastCastL || sp.level}" data-spell="${esc(sp.name)}">Crear la montura</button>`;
   else if (r === 'find-familiar')

@@ -140,7 +140,8 @@ Object.assign(A, {
     c.features.forEach(f => {
       if (f.uses.recover) f.uses.used = 0;
     });
-    c.exhaustion = Math.max(0, (+c.exhaustion || 0) - 1);
+    const exBefore = +c.exhaustion || 0;
+    c.exhaustion = Math.max(0, exBefore - 1);
     c.deathSaves = { success: 0, fail: 0 };
     c.concentration = '';
     c.conditions = c.conditions.filter(x => x !== 'Inconsciente');
@@ -154,13 +155,13 @@ Object.assign(A, {
       }
       c.noFood = 0;
     } else {
+      /* Reglas de 2024 (Desnutrición): sin comer nada, 1 nivel de agotamiento al final del quinto día y otro cada día después; ese agotamiento no se quita hasta comer un día entero */
       c.noFood = (+c.noFood || 0) + 1;
-      const lim = Math.max(1, 3 + M(c, 'con'));
-      if (c.noFood > lim) {
-        c.exhaustion = Math.min(6, (+c.exhaustion || 0) + 1);
-        food = ` Llevas ${c.noFood} días sin comer (aguantas ${lim}): ganas 1 nivel de agotamiento.`;
+      if (c.noFood >= 5) {
+        c.exhaustion = Math.min(6, exBefore + 1);
+        food = ` Llevas ${c.noFood} días sin comer: ganas 1 nivel de agotamiento, y no se te quitará hasta que comas un día entero.`;
       } else
-        food = ` Llevas ${c.noFood} día${c.noFood > 1 ? 's' : ''} sin comer; aguantas ${lim} sin consecuencias.`;
+        food = ` Llevas ${c.noFood} día${c.noFood > 1 ? 's' : ''} sin comer. Al quinto día sin comer nada ganarás 1 nivel de agotamiento por día.`;
     }
     closeModal();
     save();

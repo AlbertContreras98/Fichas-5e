@@ -34,14 +34,15 @@ function originRes(sk, lk, feats, L) {
   const out = [],
     sp = specOf(sk),
     ln = linOf(sk, lk);
-  for (const r of [
-    ...((sp && sp.res) || []),
-    ...((ln && ln.res) || []),
-    ...feats.flatMap(k => (FEATS[k] && FEATS[k].res) || []),
+  /* Cada recurso lleva su origen (especie, linaje o dote), para que la ficha diga de dónde viene */
+  for (const [r, src] of [
+    ...((sp && sp.res) || []).map(r => [r, sp.n]),
+    ...((ln && ln.res) || []).map(r => [r, ln.n]),
+    ...feats.flatMap(k => ((FEATS[k] && FEATS[k].res) || []).map(r => [r, `Dote: ${FEATS[k].n}`])),
   ]) {
     if (L < (r.from || 1)) continue;
     const max = r.by === 'pb' ? pbAt(L) : r.by;
-    if (max > 0) out.push({ n: r.n, max, rec: r.rec, pool: !!r.pool });
+    if (max > 0) out.push({ n: r.n, max, rec: r.rec, pool: !!r.pool, src });
   }
   return out;
 }
@@ -103,7 +104,7 @@ function upsertRes(c, list, source) {
   for (const r of list) {
     let f = c.features.find(x => x.name === r.n);
     if (!f) {
-      f = { name: r.n, source, text: '', uses: { max: 0, used: 0, recover: '' } };
+      f = { name: r.n, source: r.src || source, text: '', uses: { max: 0, used: 0, recover: '' } };
       c.features.push(f);
     }
     f.uses.max = r.max;
@@ -377,6 +378,13 @@ function d20Line(c, kind, x) {
     if (has('Invisible')) adv.push('Invisible');
     if (has('Incapacitado') || fail.length) dis.push(has('Incapacitado') ? 'Incapacitado' : fail[0]);
   }
+  /* Armadura puesta sin competencia: desventaja en todo lo que use FUE o DES */
+  if (armorAuto(c) && acCalc(c).noProf) {
+    if (kind === 'atk' || kind === 'check') dis.push('armadura sin competencia, si usas FUE o DES');
+    else if (kind === 'save' && (x === 'str' || x === 'dex') && !fail.length)
+      dis.push('armadura sin competencia');
+    else if (kind === 'init') dis.push('armadura sin competencia');
+  }
   if (adv.length && dis.length)
     out.push(`Ventaja (${adv.join(', ')}) y desventaja (${dis.join(', ')}) se anulan: tira un solo d20.`);
   else if (adv.length) out.push(`Con <b>ventaja</b> (${adv.join(', ')}): tira 2d20 y quédate el más alto.`);
@@ -610,4 +618,20 @@ function pactExtras(c, a) {
       `<div class="t-parts"><b>Golpe arcano</b> (una vez por turno): si impactas, puedes gastar un espacio de pacto para hacer ${1 + c.pact.level}d8 de fuerza extra.</div><div class="t-actions"><button class="b sm pri" data-act="smite-ok">Usar Golpe arcano</button></div>`
     );
   return out.join('');
+}
+
+/* Rasgos cuyos usos dependen de la competencia o de una característica (uses.by): se recalculan solos al subir de nivel o cambiar la ficha */
+const usesBy = (c, by) => (by === 'pb' ? pb(c) : AB[by] ? Math.max(1, M(c, by)) : 0);
+function usesSync(c) {
+  let ch = false;
+  for (const f of c.features) {
+    if (!f.uses || !f.uses.by) continue;
+    const max = usesBy(c, f.uses.by);
+    if (max && f.uses.max !== max) {
+      f.uses.max = max;
+      f.uses.used = clamp(+f.uses.used || 0, 0, max);
+      ch = true;
+    }
+  }
+  return ch;
 }

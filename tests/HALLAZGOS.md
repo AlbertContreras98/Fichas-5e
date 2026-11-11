@@ -200,7 +200,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: cada recurso debería decir de dónde viene (especie, linaje o dote).
 - Propuesta: que `originRes` devuelva también el origen de cada recurso y `upsertRes` lo use.
 - Prioridad: frecuencia 1 + olvido 1 + coste 3 = 5
-- Estado: pendiente
+- Estado: arreglado (2026-11-11): `originRes()` devuelve el origen de cada recurso (especie, linaje o «Dote: nombre») y `upsertRes()` lo usa. Solo para fichas nuevas; las ya creadas conservan el que tenían.
 
 ### 6. No reconoce la competencia con armadura media
 - Origen: 1a. Datos de la app (clases)
@@ -463,7 +463,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: escudo sin competencia → sin +2 a la CA. Armadura sin competencia → no dejar lanzar (o avisar al lanzar).
 - Propuesta: en `acCalc()` (`js/views/inventory.js:376-380`), no sumar el escudo sin competencia y cambiar el aviso; en `canCast()` o al lanzar, avisar si hay armadura sin competencia.
 - Prioridad: frecuencia 1 + olvido 1 + coste 3 = 5
-- Estado: pendiente
+- Estado: arreglado (2026-11-11): un escudo sin competencia ya no suma a la CA (aviso nuevo). Con armadura sin competencia, al lanzar un conjuro sale un aviso y las tiradas de FUE y DES avisan de la desventaja. No se bloquea el lanzamiento.
 
 ### 35. Días sin comer: la app usa la regla de 2014 (por confirmar)
 - Origen: 1b. Reglas generales
@@ -472,7 +472,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: lo que diga el manual de 2024 (conviene confirmarlo antes de cambiar nada).
 - Propuesta: confirmarlo con el manual y ajustar el texto y la cuenta.
 - Prioridad: frecuencia 1 + olvido 1 + coste 3 = 5
-- Estado: pendiente
+- Estado: arreglado (2026-11-11): comprobado con las reglas de 2024 (Desnutrición y Deshidratación): sin comer nada, 1 nivel de agotamiento al final del quinto día y otro cada día después, y el descanso no lo quita. Entrada nueva «Comida y agua» en Reglas útiles. La salvación CD 10 por comer menos de la mitad y el agua quedan como texto.
 
 ### 36. Textos de estados y del glosario incompletos o de 2014
 - Origen: 1b. Reglas generales
@@ -565,7 +565,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: al terminar el turno a 0 PG (o al empezar el siguiente), preguntar «¿Qué has sacado?» con botones (10 o más / menos de 10 / 1 / 20) y sumar solo el éxito o el fallo.
 - Propuesta: en `t-end`, si `c.hp.current <= 0` y no está estable, abrir esa pregunta.
 - Prioridad: frecuencia 1 + olvido 2 + coste 2 = 5
-- Estado: pendiente
+- Estado: arreglado (2026-11-11): al terminar el turno a 0 PG se abre «Salvación contra muerte» con botones (20 / 10 a 19 / 2 a 9 / 1) que suman el éxito o el fallo; los mismos botones están en la tarjeta de 0 PG. Estable explica lo de 1 PG en 1d4 horas y el daño hace volver a tirar.
 
 ### 45. Estallido arcano no dice qué tirar
 - Origen: 1c. Priorizar (candidata de 1a: conjuros e invocaciones)
@@ -700,7 +700,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: poder elegir «usos = bonificador de competencia» (o «= modificador de…»), como las dotes del catálogo.
 - Propuesta: añadir esa opción al formulario de rasgo. Cuando Albert pase el texto de la dote, ver si necesita algo más.
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-11): en Editar ficha, cada rasgo tiene «Los usos son»: un número fijo, tu bonificador de competencia o tu modificador de una característica (mínimo 1). Se recalcula solo al subir de nivel (`usesSync()`). Subir características, PG, CA o velocidad desde un rasgo propio sigue a mano.
 
 ### 60. Los conjuros del catálogo que crean un arma no crean el ataque
 - Origen: 1c. Priorizar (candidata de 1a: conjuros)
@@ -799,7 +799,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: ver «V, S, M» en cada conjuro y un aviso si un estado te impide lanzarlo.
 - Propuesta: copiar el campo al añadir el conjuro y enseñarlo en Magia.
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-11): cada conjuro del catálogo dice en Magia «necesita voz, gestos, material». Sin aviso automático por estados: Silencio y las manos ocupadas no se pueden saber.
 
 ### 71. No hay estado «Muerto»
 - Origen: 1c. Priorizar (candidata de 1b)
@@ -808,7 +808,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: marcar al personaje como muerto (bloquear Combate y explicar qué hacer: conjuros que devuelven la vida, hablar con el máster).
 - Propuesta: un estado «Muerto» que se ponga solo en esos casos y se pueda quitar a mano.
 - Prioridad: frecuencia 1 + olvido 1 + coste 3 = 5
-- Estado: pendiente
+- Estado: arreglado (2026-11-11): `isDead()`: con tres fallos a 0 PG, muerte instantánea o agotamiento 6, Combate enseña «Tu personaje ha muerto» en vez del turno, con la explicación y un botón para corregirlo.
 
 ### 72. Preparar no reserva la reacción
 - Origen: 1c. Priorizar (candidata de 1b)
@@ -871,7 +871,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: un conjuro propio con ese nombre se enlaza solo con su ficha de criatura.
 - Propuesta: buscar la plantilla por nombre al lanzar un conjuro propio.
 - Prioridad: frecuencia 1 + olvido 1 + coste 3 = 5
-- Estado: pendiente
+- Estado: arreglado (2026-11-11): un conjuro propio que se llame como una invocación del catálogo de criaturas (Invocar bestia, feérico…) saca el botón «Crear la criatura».
 
 ### 79. Fallos menores (segunda tanda)
 - Origen: 1c. Priorizar (vistos de paso en 1a y 1b)
