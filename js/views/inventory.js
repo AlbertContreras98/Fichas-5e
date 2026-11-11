@@ -978,7 +978,8 @@ function invHTML(c) {
   const att = attuned(c),
     anyAtt = c.equipment.some(e => e.mi && e.mi.att);
   return `<div class="btns" style="margin-bottom:.4rem"><button class="b sm pri" data-act="item-new">Añadir objeto</button>${anyAtt ? `<span class="badge" style="${att > 3 ? 'color:var(--bad)' : ''}">Sintonización ${att}/3</span>` : ''}</div>${items}
-    <p class="hint" style="margin-top:.6rem">Toca un objeto para ver qué hace, usarlo, cambiarle el nombre o borrarlo. Las armas, armaduras y herramientas están en la pestaña Partida.${c.equipment.some(inBelt) ? ' Los mapas, las pociones, el kit de sanador, las raciones y la munición están en el cinturón de abajo.' : ''}</p>${beltHTML(c)}`;
+    <p class="hint" style="margin-top:.6rem">${(ci => `${term('Peso', 'r_carry')}: llevas unas <b>${ci.total} libras</b> de las ${ci.cap} que puedes cargar${ci.total > ci.cap ? ' <b>(te pasas: pregunta al máster)</b>' : ''}.${ci.unknown ? ` Sin contar ${ci.unknown} ${ci.unknown === 1 ? 'objeto' : 'objetos'} de peso desconocido.` : ''} Solo importa si tu máster usa la carga.`)(carryInfo(c))}</p>
+    <p class="hint">Toca un objeto para ver qué hace, usarlo, cambiarle el nombre o borrarlo. Las armas, armaduras y herramientas están en la pestaña Partida.${c.equipment.some(inBelt) ? ' Los mapas, las pociones, el kit de sanador, las raciones y la munición están en el cinturón de abajo.' : ''}</p>${beltHTML(c)}`;
 }
 function refreshInv() {
   const b = $('#inv-body');

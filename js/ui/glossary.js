@@ -37,6 +37,10 @@ function showGloss(el) {
     if (!g) return;
     t = g.t;
     d = g.d;
+    if (k === 'r_carry') {
+      const ci = carryInfo(c);
+      roll = `Tú: puedes llevar <b>${ci.cap} libras</b> y empujar, arrastrar o levantar <b>${ci.push}</b>. Ahora llevas unas ${ci.total}${ci.unknown ? ` (sin contar ${ci.unknown} de peso desconocido)` : ''}.`;
+    }
     if (k === 'r_jump') {
       const str = +c.abilities.str || 10,
         hi = Math.max(0, 3 + M(c, 'str'));

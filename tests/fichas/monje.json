@@ -1,6 +1,6 @@
 {
   "formato": "fichas-dnd-2024/2",
-  "id": "go4gp8zm",
+  "id": "5qz6y44i",
   "name": "Bruno",
   "species": "Humano",
   "speciesKey": "human",
@@ -40,7 +40,7 @@
   "ac": 15,
   "acBonus": 0,
   "speedFt": 30,
-  "size": "M o P",
+  "size": "M",
   "initiativeBonus": 0,
   "hp": {
     "max": 10,
@@ -73,7 +73,7 @@
       "wpn": "spear",
       "magic": 0,
       "mastery": false,
-      "item": "wyiop4qi"
+      "item": "m2udzuw1"
     },
     {
       "name": "Daga",
@@ -85,7 +85,7 @@
       "wpn": "dagger",
       "magic": 0,
       "mastery": false,
-      "item": "5qlegbes"
+      "item": "y4hsim1h"
     },
     {
       "name": "Bastón",
@@ -97,7 +97,7 @@
       "wpn": "quarterstaff",
       "magic": 0,
       "mastery": false,
-      "item": "gxam702t"
+      "item": "aft5pubm"
     }
   ],
   "spellcasting": {
@@ -221,7 +221,7 @@
   ],
   "equipment": [
     {
-      "id": "wyiop4qi",
+      "id": "m2udzuw1",
       "name": "Lanza",
       "qty": 1,
       "cat": "arma",
@@ -231,7 +231,7 @@
       "equipped": true
     },
     {
-      "id": "5qlegbes",
+      "id": "y4hsim1h",
       "name": "Daga",
       "qty": 5,
       "cat": "arma",
@@ -241,7 +241,7 @@
       "equipped": true
     },
     {
-      "id": "x7le9dk1",
+      "id": "32i8xo3t",
       "name": "Instrumento musical",
       "qty": 1,
       "cat": "herramienta",
@@ -249,28 +249,28 @@
       "tool": "instrument"
     },
     {
-      "id": "417pvdi9",
+      "id": "cj89ebwd",
       "name": "Mochila",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "c43mcg6t",
+      "id": "9b34rsmu",
       "name": "Saco de dormir",
       "qty": 2,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "7bkxlebe",
+      "id": "t7evbva0",
       "name": "Aceite (frasco)",
       "qty": 5,
       "cat": "consumible",
       "notes": ""
     },
     {
-      "id": "h0yp5g6y",
+      "id": "vp4l2mem",
       "name": "Raciones (días)",
       "qty": 10,
       "cat": "comida",
@@ -278,21 +278,21 @@
       "gear": "rations"
     },
     {
-      "id": "tc5seru8",
+      "id": "tyg54bpn",
       "name": "Cuerda",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "wxo5uk80",
+      "id": "1y0ppzaq",
       "name": "Yesquero",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "60r09e1x",
+      "id": "l51jyjq1",
       "name": "Antorchas",
       "qty": 10,
       "cat": "consumible",
@@ -300,7 +300,7 @@
       "gear": "torch"
     },
     {
-      "id": "yubb3cp9",
+      "id": "ghkuoq0p",
       "name": "Odre",
       "qty": 1,
       "cat": "comida",
@@ -308,7 +308,7 @@
       "gear": "waterskin"
     },
     {
-      "id": "gxam702t",
+      "id": "aft5pubm",
       "name": "Bastón",
       "qty": 1,
       "cat": "arma",
@@ -318,7 +318,7 @@
       "equipped": true
     },
     {
-      "id": "4b3cs2uh",
+      "id": "n2jgyfkt",
       "name": "Útiles de herborista",
       "qty": 1,
       "cat": "herramienta",
@@ -326,21 +326,21 @@
       "tool": "herbalism"
     },
     {
-      "id": "jf7j5npx",
+      "id": "7bmqzhwv",
       "name": "Libro (filosofía)",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "t0h2rq0h",
+      "id": "150b0keo",
       "name": "Lámpara",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "r0hrg0qp",
+      "id": "mksyi33d",
       "name": "Ropa de viajero",
       "qty": 1,
       "cat": "otro",

@@ -10,12 +10,20 @@ const miAC = c =>
   c.equipment.reduce((t, e) => t + (miOn(e) && +e.mi.ac && !(e.mi.noarm && wearsArmor(c)) ? +e.mi.ac : 0), 0);
 const miSave = c => c.equipment.reduce((t, e) => t + (miOn(e) ? +e.mi.sv || 0 : 0), 0);
 const attuned = c => c.equipment.filter(e => e.mi && e.mi.att && e.mi.on).length;
-const saveB = (c, k) => M(c, k) + (c.saveProf.includes(k) ? pb(c) : 0) + miSave(c);
+const hasFeat = (c, n) => c.features.some(f => norm(f.name) === norm(n));
+/* Aura de protección (paladín 6): tu modificador de CAR (mínimo +1) a todas tus salvaciones */
+const saveB = (c, k) =>
+  M(c, k) +
+  (c.saveProf.includes(k) ? pb(c) : 0) +
+  miSave(c) +
+  (c.classKey === 'paladin' && hasFeat(c, 'Aura de protección') ? Math.max(1, M(c, 'cha')) : 0);
 const skillB = (c, s) => {
   const p = +c.skills[s[0]] || 0;
   /* skillPlus: habilidades que suman otra característica (Taumaturgo, Mago del Orden primigenio: SAB, mínimo +1) */
   const plus = c.skillPlus && c.skillPlus[s[0]] ? Math.max(1, M(c, c.skillPlus[s[0]])) : 0;
-  return M(c, s[2]) + (p === 2 ? 2 * pb(c) : p === 1 ? pb(c) : 0) + plus;
+  /* Aprendiz de todo (bardo 2): la mitad de la competencia a las habilidades sin competencia */
+  const jack = !p && hasFeat(c, 'Aprendiz de todo') ? Math.floor(pb(c) / 2) : 0;
+  return M(c, s[2]) + (p === 2 ? 2 * pb(c) : p === 1 ? pb(c) : 0) + plus + jack;
 };
 const featsOf = c => (c.featKeys || []).map(k => FEATS[k]).filter(Boolean);
 const featHas = (c, p) => featsOf(c).find(f => f[p]) || null;
@@ -285,7 +293,17 @@ function hitExtras(c, spell) {
     const d = SPBY[id];
     return d && c.effects.some(e => [d.n, d.en].some(x => norm(x) === norm(e.name)));
   };
-  return HIT_EXTRA.filter(([id, , , any]) => (any || !spell) && on(id)).map(([, d, w]) => `+${d} ${w}`);
+  const out = HIT_EXTRA.filter(([id, , , any]) => (any || !spell) && on(id)).map(([, d, w]) => `+${d} ${w}`);
+  if (!spell) {
+    const info = infoFor(defOf(c), subOf(c), c.level);
+    if (c.effects.some(e => e.name === 'Furia') && info['Daño de furia'])
+      out.push(`${info['Daño de furia']} de daño de Furia si atacas con FUE`);
+    if (info['Ataque furtivo'] && hasFeat(c, 'Ataque furtivo'))
+      out.push(
+        `+${info['Ataque furtivo']} de Ataque furtivo, una vez por turno, con arma sutil o a distancia si tienes ventaja o un aliado a 5 pies del objetivo`
+      );
+  }
+  return out;
 }
 /* Qué tirar al lanzar un truco de daño (o '' si no lo es) */
 function cantripRoll(c, sp) {
@@ -382,6 +400,10 @@ function d20Line(c, kind, x) {
     if (has('Invisible')) adv.push('Invisible');
     if (has('Incapacitado') || fail.length) dis.push(has('Incapacitado') ? 'Incapacitado' : fail[0]);
   }
+  if (kind === 'save' && ['int', 'wis', 'cha'].includes(x) && hasFeat(c, 'Astucia gnómica'))
+    adv.push('Astucia gnómica');
+  if ((kind === 'save' && x === 'str') || kind === 'check')
+    if (c.effects.some(e => e.name === 'Furia')) adv.push(kind === 'check' ? 'Furia, si es de FUE' : 'Furia');
   /* Armadura puesta sin competencia: desventaja en todo lo que use FUE o DES */
   if (armorAuto(c) && acCalc(c).noProf) {
     if (kind === 'atk' || kind === 'check') dis.push('armadura sin competencia, si usas FUE o DES');
@@ -452,9 +474,16 @@ function critDmg(s) {
   s = String(s || '');
   return /\d*d\d+/.test(s) ? s.replace(/(\d*)d(\d+)/g, (m, n, d) => `${2 * (+n || 1)}d${d}`) : '';
 }
+/* Con qué sale un crítico: 20, o 19–20 / 18–20 con Crítico mejorado o superior (guerrero Campeón) */
+const critOn = c =>
+  hasFeat(c, 'Crítico superior')
+    ? 'un 18, 19 o 20 natural'
+    : hasFeat(c, 'Crítico mejorado')
+      ? 'un 19 o 20 natural'
+      : 'un 20 natural';
 const critLine = (dmg, extra) =>
   critDmg(dmg)
-    ? `<div class="t-parts">Con un 20 natural (crítico): <b>${esc(critDmg(dmg))}</b>${extra ? ' (los dados extra al impactar también se doblan)' : ''}.</div>`
+    ? `<div class="t-parts">Con ${critOn(C())} (crítico): <b>${esc(critDmg(dmg))}</b>${extra ? ' (los dados extra al impactar también se doblan)' : ''}.</div>`
     : '';
 
 /* Velocidad que se ve arriba: base, dotes, rasgos de clase, armadura, agotamiento y estados que la dejan en 0 */
@@ -638,4 +667,102 @@ function usesSync(c) {
     }
   }
   return ch;
+}
+
+/* Peso (en libras) de lo que hay en el catálogo: armas, armaduras, equipo, pociones, munición y monedas (50 = 1 libra) */
+const WEIGHT = {
+  w: {
+    club: 2,
+    dagger: 1,
+    greatclub: 10,
+    handaxe: 2,
+    javelin: 2,
+    lighthammer: 2,
+    mace: 4,
+    quarterstaff: 4,
+    sickle: 2,
+    spear: 3,
+    dart: 0.25,
+    lightcrossbow: 5,
+    shortbow: 2,
+    sling: 0,
+    battleaxe: 4,
+    flail: 2,
+    glaive: 6,
+    greataxe: 7,
+    greatsword: 6,
+    halberd: 6,
+    lance: 6,
+    longsword: 3,
+    maul: 10,
+    morningstar: 4,
+    pike: 18,
+    rapier: 2,
+    scimitar: 3,
+    shortsword: 2,
+    trident: 4,
+    warhammer: 5,
+    warpick: 2,
+    whip: 3,
+    blowgun: 1,
+    handcrossbow: 3,
+    heavycrossbow: 18,
+    longbow: 2,
+    musket: 10,
+    pistol: 3,
+  },
+  a: {
+    padded: 8,
+    leather: 10,
+    studded: 13,
+    hide: 12,
+    chainshirt: 20,
+    scale: 45,
+    breastplate: 20,
+    halfplate: 40,
+    ring: 40,
+    chainmail: 55,
+    splint: 60,
+    plate: 65,
+    shield: 6,
+  },
+  g: {
+    healerkit: 3,
+    antitoxin: 0,
+    acid: 1,
+    alchfire: 1,
+    holywater: 1,
+    caltrops: 2,
+    ballbearings: 2,
+    climberkit: 12,
+    torch: 1,
+    rations: 2,
+    waterskin: 5,
+  },
+  am: { arrow: 0.05, bolt: 0.075, slingbullet: 0.075, firebullet: 0.2, needle: 0.02 },
+};
+/* Peso de un objeto (por unidad) o null si no se sabe. e.w lo fija el jugador */
+function itemWeight(e) {
+  if (e.w != null && e.w !== '') return +e.w || 0;
+  if (e.weapon && WEIGHT.w[e.weapon] != null) return WEIGHT.w[e.weapon];
+  if (e.armor && WEIGHT.a[e.armor] != null) return WEIGHT.a[e.armor];
+  if (e.gear && WEIGHT.g[e.gear] != null) return WEIGHT.g[e.gear];
+  if (e.ammoKind && WEIGHT.am[e.ammoKind] != null) return WEIGHT.am[e.ammoKind];
+  if (e.potion) return 0.5;
+  if (e.berry) return 0;
+  return null;
+}
+/* Carga: lo que llevas, lo que puedes llevar (FUE × 15) y cuántos objetos no tienen peso conocido */
+function carryInfo(c) {
+  let total = 0,
+    unknown = 0;
+  for (const e of c.equipment) {
+    const w = itemWeight(e);
+    if (w == null) unknown += +e.qty > 0 ? 1 : 0;
+    else total += w * (e.cat === 'mapa' ? 1 : Math.max(0, +e.qty || 0));
+  }
+  const coins = Object.values(c.coins || {}).reduce((t, n) => t + (+n || 0), 0);
+  total += coins / 50;
+  const str = +c.abilities.str || 10;
+  return { total: Math.round(total * 10) / 10, cap: str * 15, push: str * 30, unknown };
 }

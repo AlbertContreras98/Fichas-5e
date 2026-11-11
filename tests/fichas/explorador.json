@@ -1,6 +1,6 @@
 {
   "formato": "fichas-dnd-2024/2",
-  "id": "jy9ap6ha",
+  "id": "puu263wr",
   "name": "Vhaeryn",
   "species": "Elfo (Drow)",
   "speciesKey": "elf",
@@ -73,7 +73,7 @@
       "wpn": "scimitar",
       "magic": 0,
       "mastery": true,
-      "item": "1gil7leh"
+      "item": "0nsi37b6"
     },
     {
       "name": "Espada corta",
@@ -85,7 +85,7 @@
       "wpn": "shortsword",
       "magic": 0,
       "mastery": true,
-      "item": "i2f0ni83"
+      "item": "ji2db3iy"
     },
     {
       "name": "Arco largo",
@@ -93,11 +93,11 @@
       "dmg": "1d8 + 3",
       "type": "perforante",
       "notes": "Pesada, a dos manos, munición (150/600)",
-      "ammo": "sqdip76u",
+      "ammo": "bkiynme4",
       "wpn": "longbow",
       "magic": 0,
       "mastery": false,
-      "item": "8cdbi5el"
+      "item": "31zikj4a"
     },
     {
       "name": "Daga",
@@ -109,7 +109,7 @@
       "wpn": "dagger",
       "magic": 0,
       "mastery": false,
-      "item": "5lch22if"
+      "item": "59roczdh"
     }
   ],
   "spellcasting": {
@@ -337,7 +337,7 @@
   ],
   "equipment": [
     {
-      "id": "43wkb5ec",
+      "id": "k8wn1nos",
       "name": "Armadura de cuero tachonado",
       "qty": 1,
       "cat": "armadura",
@@ -347,7 +347,7 @@
       "equipped": true
     },
     {
-      "id": "1gil7leh",
+      "id": "0nsi37b6",
       "name": "Cimitarra",
       "qty": 1,
       "cat": "arma",
@@ -357,7 +357,7 @@
       "equipped": true
     },
     {
-      "id": "i2f0ni83",
+      "id": "ji2db3iy",
       "name": "Espada corta",
       "qty": 1,
       "cat": "arma",
@@ -367,7 +367,7 @@
       "equipped": true
     },
     {
-      "id": "8cdbi5el",
+      "id": "31zikj4a",
       "name": "Arco largo",
       "qty": 1,
       "cat": "arma",
@@ -377,7 +377,7 @@
       "equipped": true
     },
     {
-      "id": "sqdip76u",
+      "id": "bkiynme4",
       "name": "Flechas",
       "qty": 20,
       "cat": "municion",
@@ -385,42 +385,42 @@
       "ammoKind": "arrow"
     },
     {
-      "id": "vg31rea7",
+      "id": "8hdkqd0v",
       "name": "Carcaj",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "pnpq85md",
+      "id": "voe1xlfp",
       "name": "Ramita de muérdago (canalizador druídico)",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "n8h4fwru",
+      "id": "vpru7zs9",
       "name": "Mochila",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "x8nbdgzb",
+      "id": "204zi350",
       "name": "Saco de dormir",
       "qty": 2,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "07edtguv",
+      "id": "wmaxo5o1",
       "name": "Aceite (frasco)",
       "qty": 2,
       "cat": "consumible",
       "notes": ""
     },
     {
-      "id": "31liml1b",
+      "id": "4vh25it0",
       "name": "Raciones (días)",
       "qty": 10,
       "cat": "comida",
@@ -428,21 +428,21 @@
       "gear": "rations"
     },
     {
-      "id": "3194cqyk",
+      "id": "nrqknu0d",
       "name": "Cuerda",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "4iysmrl6",
+      "id": "h2vnx1gp",
       "name": "Yesquero",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "9irjr6zd",
+      "id": "u6tupjq6",
       "name": "Antorchas",
       "qty": 10,
       "cat": "consumible",
@@ -450,7 +450,7 @@
       "gear": "torch"
     },
     {
-      "id": "1r2knojn",
+      "id": "9t2k4xeh",
       "name": "Odre",
       "qty": 1,
       "cat": "comida",
@@ -458,7 +458,7 @@
       "gear": "waterskin"
     },
     {
-      "id": "5lch22if",
+      "id": "59roczdh",
       "name": "Daga",
       "qty": 2,
       "cat": "arma",
@@ -468,7 +468,7 @@
       "equipped": true
     },
     {
-      "id": "gzhb9w6y",
+      "id": "ncuvnpzk",
       "name": "Herramientas de ladrón",
       "qty": 1,
       "cat": "herramienta",
@@ -476,7 +476,7 @@
       "tool": "thieves"
     },
     {
-      "id": "j8p08chw",
+      "id": "x1g77pc9",
       "name": "Juego",
       "qty": 1,
       "cat": "herramienta",
@@ -484,14 +484,14 @@
       "tool": "gaming"
     },
     {
-      "id": "sgvrsi2n",
+      "id": "19raezgk",
       "name": "Bolsa",
       "qty": 2,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "r9mbchub",
+      "id": "f6bu4m7e",
       "name": "Ropa de viajero",
       "qty": 1,
       "cat": "otro",

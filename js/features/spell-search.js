@@ -30,7 +30,47 @@ function spFiltered() {
       (P.lvl === '' || s.l === +P.lvl) &&
       (P.max == null || s.l <= P.max) &&
       (P.min == null || s.l >= P.min) &&
+      (!P.only || P.only.includes(s.id)) &&
       (!q || norm(s.n).includes(q) || norm(s.en).includes(q))
+  );
+}
+/* Libro de conjuros del mago: c.book guarda los conjuros de nivel 1 o más que tiene apuntados. Prepara de ahí y lanza sus rituales sin prepararlos */
+const bookNeed = c => 6 + 2 * (Math.max(1, +c.level || 1) - 1);
+function bookOf(c) {
+  if (c.classKey !== 'wizard') return null;
+  if (!Array.isArray(c.book)) c.book = [];
+  /* Lo que ya tiene preparado está en el libro por fuerza (fichas anteriores al libro, o recién creadas) */
+  c.spells
+    .filter(sp => sp.ref && !sp.src && +sp.level >= 1 && SPBY[sp.ref] && SPBY[sp.ref].c.includes('wizard'))
+    .forEach(sp => c.book.some(b => b.ref === sp.ref) || c.book.push(spellObj(SPBY[sp.ref])));
+  c.book.sort((a, b) => a.level - b.level || a.name.localeCompare(b.name, 'es'));
+  return c.book;
+}
+const bookCount = () => {
+  const c = C(),
+    n = bookOf(c).length,
+    need = bookNeed(c);
+  return `<span class="badge" style="${n < need ? 'color:var(--bad)' : ''}">En tu libro: ${n}</span> <small>a nivel ${c.level} tienes al menos ${need} (6 al empezar y 2 más por nivel), más los que copies</small>`;
+};
+function openBookModal() {
+  const c = C(),
+    ca = casterOf(defOf(c), subOf(c));
+  if (!bookOf(c) || !ca) return;
+  P = {
+    target: 'book',
+    q: '',
+    lvl: '',
+    cls: 'wizard',
+    open: '',
+    list: c.book,
+    max: maxSpellLevel(ca.type, c.level),
+    min: 1,
+  };
+  openModal(
+    `<div class="wz-head"><h2>Libro de conjuros</h2><button class="b sm" data-act="sp-close">Hecho</button></div>
+    <p class="hint">Apunta aquí los conjuros de mago que tienes en tu libro. Preparas de entre ellos, y los que son ritual (R) los puedes lanzar como ritual aunque no los tengas preparados. Copiar uno nuevo que encuentres cuesta 2 horas y 50 po por cada nivel del conjuro.</p>
+    <div id="book-count" style="margin:.3rem 0 .6rem">${bookCount()}</div><div class="wz-body">${spPickerHTML()}</div>`,
+    true
   );
 }
 /* Conjuros propios de todas las fichas de este dispositivo (sin repetir nombre y nivel) */
@@ -116,6 +156,8 @@ function refreshPicker() {
   if (W) renderWizCounts();
   const pc = $('#prep-counts');
   if (pc && P && P.target === 'prep') pc.innerHTML = prepCounts();
+  const bc = $('#book-count');
+  if (bc && P && P.target === 'book') bc.innerHTML = bookCount();
 }
 function prepCounts() {
   const c = C(),
@@ -147,6 +189,8 @@ function openPrepModal() {
     list: c.spells,
     max: maxSpellLevel(ca.type, c.level),
     min: 1,
+    /* El mago solo prepara lo que tiene en su libro */
+    only: bookOf(c) && c.book.length ? c.book.map(b => b.ref) : null,
   };
   openModal(
     `<div class="wz-head"><h2>Cambiar conjuros preparados</h2><button class="b sm" data-act="sp-close">Hecho</button></div>

@@ -95,6 +95,22 @@ Object.assign(A, {
     save();
     render();
   },
+  relentless: el => {
+    const c = C(),
+      f = c.features.find(x => x.name === 'Aguante incansable' && x.uses.max - x.uses.used > 0);
+    if (!f || c.hp.current > 0) return;
+    f.uses.used++;
+    c.hp.current = 1;
+    c.deathSaves = { success: 0, fail: 0 };
+    c.conditions = c.conditions.filter(x => x !== 'Inconsciente');
+    const t = el.closest('.toast');
+    if (t) t.remove();
+    save();
+    render();
+    toast(
+      '<div class="t-label">Aguante incansable</div><div class="t-parts">En vez de caer, te quedas a 1 PG.</div>'
+    );
+  },
   /* El golpe recibido a 0 PG era un crítico: segundo fallo de salvación contra muerte */
   'crit-fail': el => {
     const c = C();
@@ -423,6 +439,11 @@ Object.assign(A, {
             ? '<div class="t-parts"><b>Muerte instantánea:</b> el daño sobrante iguala o supera tus PG máximos.</div>'
             : '<div class="t-parts"><b>Caes inconsciente.</b> En tus turnos tira salvaciones contra muerte.</div>';
         if (!c.conditions.includes('Inconsciente')) c.conditions.push('Inconsciente');
+        /* Aguante incansable (orco): si le queda el uso y no es muerte instantánea, puede quedarse a 1 PG */
+        const ri = c.features.find(f => f.name === 'Aguante incansable' && f.uses.max - f.uses.used > 0);
+        if (ri && c.deathSaves.fail < 3)
+          extra +=
+            '<div class="t-actions"><button class="b sm pri" data-act="relentless">Usar Aguante incansable (quedo a 1 PG)</button></div>';
       }
       if (c.form) {
         const fx = formOf(c);
@@ -443,7 +464,7 @@ Object.assign(A, {
       } else if (c.concentration && c.hp.current === 0) c.concentration = '';
       toast(
         `<div class="t-label">Daño recibido</div><div class="t-big bad">−${n}</div>${why}<div class="t-parts">${fromTemp ? `${fromTemp} absorbidos por PG temporales · ` : ''}PG: ${c.hp.current} / ${c.hp.max}</div>${extra}${acts}`,
-        !!acts || /data-act="crit-fail"/.test(extra)
+        !!acts || /data-act="(crit-fail|relentless)"/.test(extra)
       );
     }
     $('#hpAmt').value = '';

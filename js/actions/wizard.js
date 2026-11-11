@@ -171,6 +171,18 @@ Object.assign(A, {
   'cs-exp': csExportOpen,
   'cs-exp-ok': csExport,
   'sp-open': openSpellModal,
+  'book-open': openBookModal,
+  /* Ritualista: lanzar como ritual un conjuro del libro que no está preparado */
+  'book-ritual': el => {
+    const c = C(),
+      d = SPBY[el.dataset.id];
+    if (!d || c.combat) return;
+    lastCastL = d.l;
+    afterCast(
+      Object.assign(NEW.spells(), spellObj(d)),
+      'Como ritual, desde tu libro · tarda 10 minutos más y no gasta espacio'
+    );
+  },
   'prep-open': el => {
     const t = el.closest('.toast');
     if (t) t.remove();

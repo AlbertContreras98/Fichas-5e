@@ -116,6 +116,7 @@ const RULES_LIST = [
   'r_suffocate',
   'r_restbreak',
   'r_group',
+  'r_carry',
   'r_food',
   'r_object',
   'r_improv',
@@ -226,11 +227,19 @@ function viewPlay(c) {
     c.spells.forEach((sp, i) => {
       (groups[+sp.level || 0] ??= []).push([sp, i]);
     });
+    const book = bookOf(c),
+      bookRit = (book || []).filter(b => b.ritual && !c.spells.some(sp => sp.ref === b.ref));
     const head =
       spMod(c) !== null
         ? `<div class="spellhead"><span>Aptitud: <b>${AB[c.spellcasting.ability][2]}</b></span><span>${term('CD de salvación', 'dc')}: <b>${spDC(c)}</b></span><span>${term('Ataque de conjuro', 'spatk')}: <b>${sgn(spAtk(c))}</b></span></div>`
         : '';
-    mag = `<section class="card"><div class="card-head"><h2>Magia</h2><div class="btns"><button class="b sm" data-act="cs-new">Crear conjuro</button><button class="b sm" data-act="sp-open">Buscar conjuros</button></div></div>${head}
+    mag = `<section class="card"><div class="card-head"><h2>Magia</h2><div class="btns"><button class="b sm" data-act="cs-new">Crear conjuro</button><button class="b sm" data-act="sp-open">Buscar conjuros</button>${book ? `<button class="b sm" data-act="book-open">Libro (${book.length})</button>` : ''}</div></div>${head}
+      ${book && book.length < bookNeed(c) ? `<p class="hint warn">A tu libro de conjuros le faltan ${bookNeed(c) - book.length}: a nivel ${c.level} tienes al menos ${bookNeed(c)}. Apúntalos en «Libro».</p>` : ''}
+      ${
+        bookRit.length
+          ? `<details class="rules"><summary><b>Rituales de tu libro</b> <small>${bookRit.length} sin preparar</small></summary><p class="hint">Como mago puedes lanzarlos como ritual aunque no los tengas preparados: tardan 10 minutos más y no gastan espacio.${c.combat ? ' En combate no da tiempo.' : ''}</p><div class="list">${bookRit.map(b => `<div class="it"><div class="it-head"><span class="it-name">${esc(b.name)} <span class="tag">R</span></span><button class="b sm" data-act="book-ritual" data-id="${b.ref}" ${c.combat ? 'disabled' : ''}>Lanzar como ritual</button></div></div>`).join('')}</div></details>`
+          : ''
+      }
       ${Object.keys(groups)
         .sort((a, b) => a - b)
         .map(

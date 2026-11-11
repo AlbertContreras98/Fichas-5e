@@ -259,6 +259,13 @@ Object.assign(A, {
         +maD.slice(1) || 6
       );
     }
+    if (f.name === 'Arma de aliento') {
+      const n = cantripTier(c.level);
+      toast(
+        `<div class="t-label">Arma de aliento</div><div class="t-big">${n}d10</div><div class="t-parts">Cono de 15 pies o línea de 30 pies. Cada criatura hace una salvación de DES <b>CD ${8 + M(c, 'con') + pb(c)}</b>: si falla recibe todo el daño; si la supera, la mitad. Sustituye uno de tus ataques.</div>`,
+        true
+      );
+    }
     if (f.name === 'Furia') {
       const was = c.concentration;
       if (was) endEffects(c, e => e.conc);

@@ -52,7 +52,7 @@ Se ha cambiado la nota de un hallazgo antiguo: el **n.º 41** (golpe desarmado) 
 
 ### Las 10 primeras
 
-**Arregladas las 41 primeras** (10 y 11 de noviembre de 2026; el n.º 30 quedó resuelto sin cambios). La siguiente tanda empieza por el puesto 42 de la tabla.
+**Toda la lista está hecha** (10 y 11 de noviembre de 2026): los 57 puestos están arreglados, salvo los dos descartados (n.º 80 y 81). Algunos quedaron a medias a propósito; lo que falta está en la nota de «Estado» de cada uno (sobre todo los n.º 28, 49, 54, 63, 67, 68 y 75).
 
 1. **N.º 45 · Estallido arcano: qué tirar.** Es el ataque de Zyo en casi cada turno, y la app no dice ni el dado ni cuántos rayos.
 2. **N.º 49 · Daño extra de Maleficio y Marca del cazador.** Zyo y el explorador los usan en cada combate, y el +1d6 se olvida en cada impacto.
@@ -754,7 +754,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: el mago tiene su libro (6 conjuros a nivel 1, +2 por nivel y los que copie) y prepara de ahí.
 - Propuesta: una lista «Libro» en Magia para el mago; preparar y los rituales salen de ella. Es un cambio grande.
 - Prioridad: frecuencia 2 + olvido 2 + coste 1 = 5
-- Estado: pendiente
+- Estado: arreglado (2026-11-11): el mago tiene «Libro» en Magia (`c.book`): se apuntan sus conjuros, avisa si faltan (6 al empezar y 2 por nivel), preparar solo ofrece los del libro y los rituales del libro sin preparar se lanzan desde «Rituales de tu libro». Copiar conjuros (tiempo y oro) queda como texto: el oro lo resta el jugador.
 
 ### 66. Golpe arcano y Bebedor de vida no dicen qué tirar
 - Origen: 1c. Priorizar (candidata de 1a: invocaciones)
@@ -772,7 +772,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: cada uno, sus números en el momento de usarlo.
 - Propuesta: dejarlo para cuando alguien del grupo juegue una de esas clases o especies (o el monje elija la Misericordia), y hacerlos de uno en uno.
 - Prioridad: frecuencia 1 + olvido 3 + coste 1 = 5
-- Estado: pendiente
+- Estado: arreglado (2026-11-11): hechos los que se resuelven con un número en el momento: Ataque furtivo y daño de Furia en el mensaje del ataque, ventaja de la Furia en FUE, Aura de protección sumada a las salvaciones, Aprendiz de todo sumado a las habilidades, CD y daño del Arma de aliento, Aguante incansable al caer a 0 PG, Astucia gnómica en las salvaciones mentales y Crítico mejorado o superior en el aviso del crítico. Pendientes (cuando alguien juegue esas clases): Hechicería innata, Canalizar divinidad, Bendición del oscuro, maniobras del Maestro de batalla, monje de la Misericordia, Voto de enemistad, Apuntar con calma y Portento.
 
 ### 68. No hay reacciones que resten daño
 - Origen: 1c. Priorizar (candidata de 1a: clases y dotes)
@@ -844,7 +844,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: si el máster usa la carga, ver el peso total y el límite.
 - Propuesta: añadir pesos a los objetos y un total en el inventario. Solo si el máster usa esta regla (muchas mesas no).
 - Prioridad: frecuencia 1 + olvido 1 + coste 1 = 3
-- Estado: pendiente
+- Estado: arreglado (2026-11-11): `WEIGHT` y `carryInfo()`: la ventana de Objetos dice el peso que llevas frente a lo que puedes cargar (FUE × 15), contando armas, armaduras, equipo del catálogo, pociones, munición y monedas, y cuántos objetos no tienen peso conocido. Entrada «Peso y carga» en Reglas útiles con los números del personaje. Los demás objetos no tienen peso (no hay campo para escribirlo todavía).
 
 ### 76. Las armas arrojadizas no se descuentan al lanzarlas
 - Origen: 1c. Priorizar (candidata de 1a: objetos)

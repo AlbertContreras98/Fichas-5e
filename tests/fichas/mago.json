@@ -1,6 +1,6 @@
 {
   "formato": "fichas-dnd-2024/2",
-  "id": "654bajku",
+  "id": "d63l4c1y",
   "name": "Elarion",
   "species": "Elfo (Alto elfo)",
   "speciesKey": "elf",
@@ -89,7 +89,7 @@
       "wpn": "dagger",
       "magic": 0,
       "mastery": false,
-      "item": "dfpn73ug"
+      "item": "j0oaqyai"
     },
     {
       "name": "Bastón (canalizador arcano)",
@@ -101,7 +101,7 @@
       "wpn": "quarterstaff",
       "magic": 0,
       "mastery": false,
-      "item": "pguktv94"
+      "item": "msx2iq89"
     },
     {
       "name": "Bastón",
@@ -113,7 +113,7 @@
       "wpn": "quarterstaff",
       "magic": 0,
       "mastery": false,
-      "item": "ulfunc09"
+      "item": "kw5anhrz"
     }
   ],
   "spellcasting": {
@@ -440,7 +440,7 @@
   ],
   "equipment": [
     {
-      "id": "dfpn73ug",
+      "id": "j0oaqyai",
       "name": "Daga",
       "qty": 2,
       "cat": "arma",
@@ -450,7 +450,7 @@
       "equipped": true
     },
     {
-      "id": "pguktv94",
+      "id": "msx2iq89",
       "name": "Bastón (canalizador arcano)",
       "qty": 1,
       "cat": "arma",
@@ -460,77 +460,77 @@
       "equipped": true
     },
     {
-      "id": "1h7n7v9h",
+      "id": "t8i8063v",
       "name": "Túnica",
       "qty": 2,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "4cuqh5t2",
+      "id": "z9hvk5o3",
       "name": "Libro de conjuros",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "w0iqkaeg",
+      "id": "atixwzl8",
       "name": "Mochila",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "rgsmejo4",
+      "id": "totn4hsy",
       "name": "Libro",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "giotyriz",
+      "id": "p6buezsb",
       "name": "Tinta",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "gtgcntv3",
+      "id": "r9h5bzq0",
       "name": "Pluma",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "gkbssgj4",
+      "id": "0est4a71",
       "name": "Lámpara",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "rgn4ofsz",
+      "id": "ns282o4r",
       "name": "Aceite (frasco)",
       "qty": 10,
       "cat": "consumible",
       "notes": ""
     },
     {
-      "id": "q9hvmift",
+      "id": "2oavv031",
       "name": "Pergamino (hojas)",
       "qty": 18,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "pztrlqu1",
+      "id": "4o1s1clc",
       "name": "Yesquero",
       "qty": 1,
       "cat": "otro",
       "notes": ""
     },
     {
-      "id": "ulfunc09",
+      "id": "kw5anhrz",
       "name": "Bastón",
       "qty": 1,
       "cat": "arma",
@@ -540,7 +540,7 @@
       "equipped": true
     },
     {
-      "id": "a5xoy175",
+      "id": "hlaqtekr",
       "name": "Suministros de calígrafo",
       "qty": 1,
       "cat": "herramienta",
@@ -548,7 +548,7 @@
       "tool": "calligrapher"
     },
     {
-      "id": "sc6i7t6k",
+      "id": "zorgarr8",
       "name": "Libro (historia)",
       "qty": 1,
       "cat": "otro",
@@ -586,5 +586,55 @@
   "combat": null,
   "diary": {
     "items": []
-  }
+  },
+  "book": [
+    {
+      "level": 1,
+      "name": "Armadura de mago",
+      "time": "A",
+      "range": "Toque",
+      "dur": "8 horas",
+      "conc": false,
+      "ritual": false,
+      "material": "un trozo de cuero curtido",
+      "desc": "",
+      "ref": "mage-armor"
+    },
+    {
+      "level": 1,
+      "name": "Dormir",
+      "time": "A",
+      "range": "60 pies",
+      "dur": "hasta 1 minuto",
+      "conc": true,
+      "ritual": false,
+      "material": "una pizca de arena o pétalos de rosa",
+      "desc": "",
+      "ref": "sleep"
+    },
+    {
+      "level": 1,
+      "name": "Escudo",
+      "time": "R",
+      "range": "Personal",
+      "dur": "1 asalto",
+      "conc": false,
+      "ritual": false,
+      "material": "",
+      "desc": "",
+      "ref": "shield"
+    },
+    {
+      "level": 1,
+      "name": "Proyectil mágico",
+      "time": "A",
+      "range": "120 pies",
+      "dur": "Instantánea",
+      "conc": false,
+      "ritual": false,
+      "material": "",
+      "desc": "",
+      "ref": "magic-missile"
+    }
+  ]
 }
