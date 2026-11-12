@@ -702,7 +702,7 @@ async function combate(m, j) {
   const r = await compartirPj(j, 'volver a compartir');
   await pegarJugador(m, r.code);
   await b.act(page, 'm-tab', { t: 'combat' });
-  if (!tras.on) await b.act(page, 'm-pjs');
+  await b.act(page, 'm-pjs');
 
   /* Volver a compartir tras cambiar la ficha: se actualiza en la mesa y en el combate */
   await usarFicha(j, 'Zyo');
@@ -1067,7 +1067,13 @@ async function tiendas(m, j, c1, c2) {
 
   /* «Deshacer» después del recibo y luego «Anular»: el recibo siguiente ya no cuadra con el máster */
   await b.cerrarModal(j.page);
-  await b.act(j.page, 'undo'); // quita la marca «ya en un recibo» de la última línea
+  /* Desde el n.º 94, generar el recibo no se puede deshacer: «Deshacer» queda desactivado */
+  const undoOff = await j.page.evaluate(() => {
+    const u = document.querySelector('[data-act="undo"]');
+    return !u || u.disabled;
+  });
+  regla('tienda · «Deshacer» tras el recibo', undoOff, '«Deshacer» sigue activo tras generar el recibo');
+  if (!undoOff) await b.act(j.page, 'undo'); // quita la marca «ya en un recibo» de la última línea
   const trasU = await b.ficha(j.page);
   const libre = trasU.shop.log.findIndex(l => !l.r);
   if (libre >= 0) {

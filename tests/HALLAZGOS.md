@@ -947,7 +947,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: el paquete se añade, sale el aviso con su nombre y «Deshacer» lo quita.
 - Propuesta: en `item-add`, guardar el nombre antes de vaciar `NI` (`PACKS[NI.pack || 'explorer'].n`) y usarlo en el aviso en vez de `P.n`.
 - Prioridad: frecuencia 1 + olvido 3 + coste 3 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-12): el aviso usa el nombre del paquete; ya no da error y se puede deshacer.
 
 ### 87. Un nivel de conjuro negativo o con decimales deja en blanco «Partida» y «Combate»
 - Origen: Prueba 2b
@@ -956,7 +956,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: el nivel de un conjuro solo puede ser un entero de 0 a 9; lo demás se corrige solo.
 - Propuesta: en el manejador de `data-path` de `events.js`, redondear y limitar `spells.N.level` a 0–9 (y lo mismo en `normalize()`); además, que `slotOptions()` no falle si el nivel no existe.
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-12): el nivel de un conjuro se redondea y se limita a 0–9 al escribirlo y al cargar la ficha.
 
 ### 88. Un número enorme de espacios o de dados de golpe cuelga la app
 - Origen: Prueba 2b
@@ -965,7 +965,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: esos campos tienen un tope razonable (9 espacios por nivel bastan; 20 dados de golpe) y un número mayor se recorta.
 - Propuesta: limitar `slots.N.total`, `pact.total`, `pact.level` (0–9), `hitDice.total` (0–20) y `features.N.uses.max` al escribirlos y en `normalize()`; y que las funciones que pintan casillas no pinten más de, por ejemplo, 30.
 - Prioridad: frecuencia 1 + olvido 1 + coste 3 = 5
-- Estado: pendiente
+- Estado: arreglado (2026-11-12): espacios y espacios de pacto se limitan a 9, el nivel de pacto a 0–9 y los dados de golpe a 20, al escribirlos y al cargar la ficha; las casillas no pasan de 30.
 
 ### 89. «Editar ficha» acepta números imposibles sin avisar
 - Origen: Prueba 2b
@@ -1010,7 +1010,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: el turno pasa al siguiente de la lista y la ronda sigue igual, como al quitarlo con la «×».
 - Propuesta: en `m-del-ok`, antes de filtrar la lista, hacer lo mismo que `m-rm` con el turno (o llamar a una función común).
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-12): al quitar al jugador que tiene el turno, el turno pasa al siguiente y la ronda sigue igual.
 
 ### 94. «Deshacer» tras generar el recibo descuadra la tienda del máster
 - Origen: Prueba 2c
@@ -1019,7 +1019,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: lo que ya está en un recibo no se puede anular, ni siquiera con «Deshacer»; o, si se anula, el siguiente recibo lo deshace en el máster.
 - Propuesta: dar a cada línea del registro su propio id y que el máster guarde los ids aplicados (`applied[sesión] = [ids]`); y que generar el recibo no se pueda deshacer (vaciar `UNDO` al generarlo, como al escribir en «Editar ficha»).
 - Prioridad: frecuencia 1 + olvido 2 + coste 2 = 5
-- Estado: pendiente
+- Estado: arreglado (2026-11-12): generar el recibo no se puede deshacer (se vacía «Deshacer»), así que lo que ya está en un recibo no se puede anular. Queda como mejora opcional que el máster guarde qué líneas ha aplicado y no cuántas.
 
 ### 95. Anular la venta de toda la munición deja el arma sin munición
 - Origen: Prueba 2c
