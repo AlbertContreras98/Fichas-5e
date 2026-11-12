@@ -366,7 +366,8 @@ async function crear(page, r) {
       await b.radio(page, 'wz-cls', r.clase);
     } else if (st === 'species') {
       await b.radio(page, 'wz-spec', r.especie);
-      if (await page.locator('input[name="wz-lin"]').count()) await radioN(page, 'wz-lin', r.n);
+      if (r.linaje) await b.radio(page, 'wz-lin', r.linaje);
+      else if (await page.locator('input[name="wz-lin"]').count()) await radioN(page, 'wz-lin', r.n);
     } else if (st === 'background') {
       await b.elegir(page, '#wz-bg', r.trasfondo);
       if (r.n % 3 === 2) await b.radio(page, 'wz-bgmode', '111');
@@ -671,7 +672,15 @@ async function tanda(ctx, r) {
   }
 }
 
-(async () => {
+/* Otros guiones (generar-rincones.js) usan el asistente de crear y subir de nivel de aquí */
+module.exports = { crear, subir };
+if (require.main === module)
+  main().catch(e => {
+    console.error(e);
+    process.exit(1);
+  });
+
+async function main() {
   const primero = await b.abrir();
   const datos = await primero.page.evaluate(() => ({
     clases: Object.fromEntries(Object.entries(CL).map(([k, d]) => [k, Object.keys(d.subs)])),
@@ -731,7 +740,4 @@ async function tanda(ctx, r) {
   bloque('Límites de conjuros sin llenar', [...R.limites].slice(0, 12));
   bloque('Notas', [...R.notas].slice(0, 30));
   process.exit(fin || (R.rotas.length ? 1 : 0));
-})().catch(e => {
-  console.error(e);
-  process.exit(1);
-});
+}

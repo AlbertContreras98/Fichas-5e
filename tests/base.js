@@ -107,6 +107,27 @@ async function escribir(page, sel, valor) {
   await page.locator(sel).first().fill(String(valor));
 }
 
+/* Imagen PNG pequeña (un mapa de mentira), dibujada en la propia página, para los <input type="file"> */
+async function imagenPNG(page) {
+  const d = await page.evaluate(() => {
+    const cv = document.createElement('canvas');
+    cv.width = 64;
+    cv.height = 48;
+    const x = cv.getContext('2d');
+    x.fillStyle = '#6a8';
+    x.fillRect(0, 0, 64, 48);
+    x.fillStyle = '#353';
+    x.fillRect(10, 10, 20, 14);
+    x.strokeStyle = '#a33';
+    x.beginPath();
+    x.moveTo(0, 40);
+    x.lineTo(64, 8);
+    x.stroke();
+    return cv.toDataURL('image/png');
+  });
+  return { name: 'mapa.png', mimeType: 'image/png', buffer: Buffer.from(d.split(',')[1], 'base64') };
+}
+
 /* ---------- Estado ---------- */
 
 const estado = page => page.evaluate(() => JSON.parse(JSON.stringify({ S, c: C() || null })));
@@ -413,6 +434,7 @@ module.exports = {
   elegir,
   radio,
   escribir,
+  imagenPNG,
   estado,
   ficha,
   limpia,

@@ -1,8 +1,10 @@
-/* Prueba 2b: botones al azar sobre las fichas del reparto, con semilla para poder repetir un fallo.
+/* Pruebas 2b y 2d: botones al azar sobre las fichas del reparto y las de los rincones (tests/fichas/rincones/, nivel 5
+   con objetos, mapas, criaturas y formas), con semilla para poder repetir un fallo.
    Uso: node tests/azar.js [--semilla=N | --semillas=1,2,3] [--pasos=N] [--ficha=zyo] [--hilos=N] [--rastro] [--solo=azar|aparte] */
 'use strict';
 
 const fs = require('fs');
+const path = require('path');
 const b = require('./base');
 
 const ARG = Object.fromEntries(
@@ -16,14 +18,25 @@ const SEMILLAS = ARG.semilla
   : ARG.semillas
     ? ARG.semillas.split(',').map(Number)
     : [1, 2, 3, 4, 5];
+/* Las fichas de los rincones son más grandes y cada tanda tarda más: sin --semilla(s), solo las 3 primeras semillas */
+const SEMILLAS_RINCONES = ARG.semilla || ARG.semillas ? SEMILLAS : SEMILLAS.slice(0, 3);
 const PASOS = +ARG.pasos || 400;
 const HILOS = +ARG.hilos || 4;
 const RASTRO = !!ARG.rastro;
-const FICHAS = fs
-  .readdirSync(b.FICHAS)
+/* Las del reparto y, desde la prueba 2d, las de los rincones (nivel 5, con objetos, mapas, criaturas y formas) */
+const RINCONES = 'rincones/';
+const FICHAS = [
+  ...fs.readdirSync(b.FICHAS).sort(),
+  ...fs
+    .readdirSync(path.join(b.FICHAS, RINCONES))
+    .sort()
+    .map(f => RINCONES + f),
+]
   .filter(f => f.endsWith('.json'))
-  .filter(f => !ARG.ficha || f.startsWith(ARG.ficha))
-  .sort();
+  .filter(f => !ARG.ficha || nombreDe(f).startsWith(ARG.ficha));
+function nombreDe(f) {
+  return path.basename(f, '.json');
+}
 
 /* ---------- Azar con semilla ---------- */
 
@@ -158,7 +171,7 @@ function inyectado(semilla) {
         act: el.dataset.act,
         d: desc(el),
         id: el.dataset.id || '',
-        k: `${el.dataset.act}:${el.dataset.t || el.dataset.m || el.dataset.kind || el.dataset.list || ''}`,
+        k: `${el.dataset.act}:${el.dataset.t || el.dataset.m || el.dataset.kind || el.dataset.list || (/^(belt|hp-red)$/.test(el.dataset.act) ? el.dataset.k : '') || ''}`,
         aviso: !!el.closest('#toasts'),
         cierra: !!el.closest('#toasts') && el.dataset.act === 'close-toast',
       }));
@@ -247,6 +260,8 @@ function inyectado(semilla) {
         modal: !document.getElementById('modal').hidden,
         tab: S.tab,
         n: S.chars.length,
+        activo: S.active,
+        ids: S.chars.map(c => c.id),
         hay: !!C(),
         master: typeof MST === 'object' && !!MST.on,
         raro: raro ? txt.slice(Math.max(0, raro.index - 50), raro.index + 40).replace(/\s+/g, ' ') : '',
@@ -318,6 +333,36 @@ const PESO = {
   delchar: 0.5,
   undo: 0.6,
 };
+/* Prueba 2d: los botones de los rincones (objetos, mapas, criaturas, formas, reacciones y recursos) pesan más */
+for (const a of [
+  'pot',
+  'scroll',
+  'mi-ch',
+  'mi-att',
+  'gear',
+  'belt',
+  'map-view',
+  'map-open',
+  'map-zoom',
+  'map-zone',
+  'crea-transform',
+  'crea-revert',
+  'crea-hp',
+  'crea-edit',
+  'form-go',
+  't-fatk',
+  't-pcmd',
+  't-mi',
+  't-scroll',
+  't-gear',
+  't-feat',
+  't-pool',
+  'hp-red',
+  'hp-red-ok',
+  'sorc-rest',
+  'res-d',
+])
+  PESO[a] = 3;
 function peso(c, est, run) {
   if (NUNCA.has(c.act)) return 0;
   if (c.cierra) return 0.25;
@@ -417,7 +462,31 @@ async function pulsar(page, run, r, est) {
 }
 
 /* Rellena campos de la ventana abierta (o de la pestaña, si no hay ventana) */
+/* Imagen para los <input type="file"> (se hace una vez) */
+let PNG = null;
+/* Los <input type="file"> de imágenes que se pueden usar ahora (mapa nuevo, imagen de un mapa, retrato) */
+const FICHEROS = ['ni-img', 'map-file', 'story-img'];
 async function rellenar(page, run, r, est) {
+  const fich = await page.evaluate(ids => {
+    const modal = !document.getElementById('modal').hidden;
+    return ids.filter(id => {
+      const el = document.getElementById(id);
+      if (!el || (modal && !el.closest('#modal'))) return false;
+      const l = el.closest('label') || el;
+      const q = l.getBoundingClientRect();
+      return q.width > 2 && q.height > 2;
+    });
+  }, FICHEROS);
+  if (fich.length && r() < 0.4) {
+    const id = r.de(fich);
+    PNG = PNG || (await b.imagenPNG(page));
+    await page.evaluate(() => __az.pre());
+    log(run, `elegir una imagen en #${id}`);
+    await page.setInputFiles('#' + id, PNG);
+    /* La app lee y reduce la imagen por su cuenta (FileReader e Image) */
+    await page.waitForTimeout(150);
+    return true;
+  }
   const fs0 = await page.evaluate(() => __az.fields());
   let idx = fs0
     .map((f, i) => i)
@@ -480,6 +549,8 @@ async function exportarImportar(ctx, run) {
     const txt = await b.exportar(page);
     await b.limpiar(page);
     const desp = await b.importar(page, txt);
+    /* Solo queda la ficha importada: pasa a ser la de la tanda */
+    run.orig = desp.id;
     /* El libro del mago se completa solo con lo preparado al pintar la pestaña: no es un cambio de la importación */
     const d = b
       .difs(b.limpia(antes), b.limpia(desp))
@@ -494,13 +565,14 @@ async function exportarImportar(ctx, run) {
 
 async function tanda(archivo, semilla) {
   const json = b.leerFicha(archivo);
-  const nombre = `${archivo.replace('.json', '')} semilla ${semilla}`;
+  const nombre = `${nombreDe(archivo)} semilla ${semilla}`;
   const { ctx, page, run } = await preparar(nombre, semilla);
   const r = azar(semilla * 1000003 + hash(archivo));
   /* Las semillas pares también cambian a mano el nivel, la clase y la subclase en «Editar ficha» */
   run.aMano = semilla % 2 === 0;
+  run.rincon = archivo.startsWith(RINCONES);
   try {
-    await b.importar(page, json);
+    run.orig = (await b.importar(page, json)).id;
     await page.evaluate(() => __az.pre());
     let est = await revisar(ctx, run, { siempre: true });
     let enModal = 0,
@@ -514,7 +586,18 @@ async function tanda(archivo, semilla) {
           );
         else apunta(run, 'la app se ha quedado sin ficha: se vuelve a importar');
         await b.limpiar(page);
-        await b.importar(page, json);
+        run.orig = (await b.importar(page, json)).id;
+        est = await revisar(ctx, run, { siempre: true });
+        continue;
+      }
+      /* Si se ha pasado a otra ficha (una vacía, una creada con el asistente…), al rato se vuelve a la de la tanda,
+         para no gastar la mayor parte de los pasos en una ficha sin nada */
+      run.fuera = est.activo !== run.orig ? (run.fuera || 0) + 1 : 0;
+      if (run.fuera > 15 && !est.modal && est.ids.includes(run.orig)) {
+        log(run, 'Personajes → volver a la ficha de la tanda');
+        await page.evaluate(() => __az.pre());
+        if (await b.actSi(page, 'chars')) await b.actSi(page, 'use', { id: run.orig });
+        await b.cerrarModal(page);
         est = await revisar(ctx, run, { siempre: true });
         continue;
       }
@@ -523,7 +606,38 @@ async function tanda(archivo, semilla) {
       let clic = null;
       if (run.i % 150 === 0) await exportarImportar(ctx, run);
       else if (run.i % 40 === 0) await recarga(ctx, run, true);
-      else if (x < 0.015) await recarga(ctx, run, false);
+      else if (run.rincon && run.i % 20 === 10 && !est.modal) {
+        /* Fichas de los rincones: cada 20 pasos se entra por una de sus puertas (Criaturas, Objetos, el cinturón o
+           Combate), porque entre tantos botones el azar llega poco */
+        const k = r.n(4);
+        await page.evaluate(() => __az.pre());
+        /* Primero se cierra lo que haya abierto (el menú de descanso, un aviso…) */
+        await page.keyboard.press('Escape');
+        await b.cerrarToasts(page);
+        const clic = async (n, d) => {
+          const loc = page.locator(b.selAct(n, d)).filter({ visible: true }).first();
+          if (!(await loc.count())) return false;
+          await loc.click({ timeout: 3000 }).catch(() => log(run, `(no se puede pulsar ${n})`));
+          return true;
+        };
+        if (k === 0) {
+          log(run, 'ir a «Criaturas»');
+          await clic('tab', { t: 'crea' });
+        } else if (k === 1) {
+          log(run, 'ir a «Combate»');
+          await clic('tab', { t: 'combat' });
+        } else if (k === 2) {
+          log(run, 'abrir «Objetos»');
+          await clic('inv');
+        } else {
+          const ks = await page.evaluate(() => beltData(C()).map(x => x[0]));
+          if (ks.length) {
+            const kk = r.de(ks);
+            log(run, `abrir «Objetos» y el cinturón «${kk}»`);
+            if (await clic('inv')) await clic('belt', { k: kk });
+          }
+        }
+      } else if (x < 0.015) await recarga(ctx, run, false);
       else if (enModal > tope || x < 0.03) {
         log(run, 'tecla Escape');
         await page.evaluate(() => __az.pre());
@@ -1054,10 +1168,336 @@ async function aparteBorrar(ctx, run) {
   est = await revisar(ctx, run, { siempre: true });
 }
 
+/* Rincones (prueba 2d): reacciones que restan daño, formas, concentración, pociones, pergaminos y cargas, con números conocidos */
+async function aparteRincones(ctx, run) {
+  const { page } = ctx;
+  const P = t => {
+    run.i++;
+    log(run, t);
+  };
+  const c0 = await b.ficha(page);
+  const tiene = n => c0.features.some(f => f.name === n);
+  const pg = () => page.evaluate(() => ({ cur: C().hp.current, temp: C().hp.temp, max: C().hp.max }));
+  const uso = n => page.evaluate(k => (C().features.find(f => f.name === k) || { uses: {} }).uses.used, n);
+  const sinAvisos = () => page.evaluate(() => document.querySelectorAll('.toast').forEach(t => t.remove()));
+  /* Escribe el daño en «Vida y estado» y pulsa «Daño» o una reacción */
+  const dano = async (n, k) => {
+    await b.cerrarModal(page);
+    await sinAvisos();
+    await b.act(page, 'vida');
+    await b.escribir(page, '#hpAmt', n);
+    if (k) await b.act(page, 'hp-red', { k });
+    else await b.act(page, 'hp', { m: 'dmg' });
+  };
+  const curar = async () => {
+    await b.cerrarModal(page);
+    await page.evaluate(() => __az.pre());
+    await b.act(page, 'vida');
+    await b.escribir(page, '#hpAmt', 999);
+    await b.act(page, 'hp', { m: 'heal' });
+    await b.cerrarModal(page);
+    await sinAvisos();
+  };
+  const mira = async () => {
+    await page.evaluate(() => __az.pre());
+    await revisar(ctx, run, { siempre: true });
+  };
+  const con = await page.evaluate(() => M(C(), 'con'));
+  /* «Reacción: Gastada ↺» de la pestaña Combate */
+  const liberar = async (k = 'r') => {
+    await b.cerrarModal(page);
+    await sinAvisos();
+    await b.act(page, 'tab', { t: 'combat' });
+    await b.actSi(page, 't-reset', { k });
+  };
+
+  /* Esquiva asombrosa: la mitad del daño, redondeando hacia abajo */
+  if (tiene('Esquiva asombrosa')) {
+    P('Vida: 21 de daño y «Esquiva asombrosa»');
+    const a = await pg();
+    await dano(21, 'uncanny');
+    const d = await pg();
+    if (a.cur - d.cur !== 10)
+      apunta(run, `Esquiva asombrosa con 21 de daño quita ${a.cur - d.cur} PG (debería quitar 10)`);
+    else b.sola('Esquiva asombrosa: recibes la mitad del daño, redondeando hacia abajo');
+    await mira();
+    await curar();
+    /* Fuera de combate no hay turnos: ¿cuándo vuelve la reacción? */
+    P('Fuera de combate, tras la reacción: ¿vuelve con un descanso largo?');
+    await b.act(page, 'rest-menu');
+    await b.act(page, 'long');
+    await b.act(page, 'long-done');
+    await b.cerrarModal(page);
+    await sinAvisos();
+    if (await page.evaluate(() => !!(C().turn && C().turn.r)))
+      apunta(
+        run,
+        'fuera de combate, tras usar una reacción que resta daño, la reacción queda «ya gastada» y no vuelve ni con un descanso largo ni al recargar (solo con el ↺ de «Reacción» en Combate)'
+      );
+    await liberar();
+  }
+  /* Aguante de piedra: 1d12 + CON, con usos */
+  if (tiene('Aguante de piedra')) {
+    const usos = await page.evaluate(() => C().features.find(f => f.name === 'Aguante de piedra').uses);
+    P(
+      `Vida: 20 de daño y «Aguante de piedra» con un 13 en el d12 (no vale) y luego un 5 (CON ${con >= 0 ? '+' : ''}${con})`
+    );
+    const a = await pg();
+    await dano(20, 'stone');
+    await b.escribir(page, '#red-r', 13);
+    await b.act(page, 'hp-red-ok');
+    if ((await pg()).cur !== a.cur) apunta(run, 'Aguante de piedra acepta un 13 en el d12');
+    await b.escribir(page, '#red-r', 5);
+    await b.act(page, 'hp-red-ok');
+    const d = await pg();
+    const want = Math.max(0, 20 - 5 - con);
+    if (a.cur - d.cur !== want)
+      apunta(
+        run,
+        `Aguante de piedra (20 de daño, 5 en el d12, CON ${con}) quita ${a.cur - d.cur} PG (deberían ser ${want})`
+      );
+    else b.sola('Aguante de piedra: resta 1d12 + CON del daño y gasta un uso');
+    if ((await uso('Aguante de piedra')) !== usos.used + 1) apunta(run, 'Aguante de piedra no gasta un uso');
+    await mira();
+    /* Hasta gastar todos los usos: después, el botón no se puede pulsar */
+    for (let k = usos.used + 1; k < usos.max; k++) {
+      await liberar();
+      await dano(3, 'stone');
+      await b.escribir(page, '#red-r', 12);
+      await b.act(page, 'hp-red-ok');
+    }
+    await liberar();
+    await b.cerrarModal(page);
+    await b.act(page, 'vida');
+    const on = await page.locator('[data-act="hp-red"][data-k="stone"]').isEnabled();
+    if (on) apunta(run, `Aguante de piedra se puede pulsar sin usos (${usos.max} de ${usos.max} gastados)`);
+    await curar();
+    await liberar();
+  }
+  /* En combate, una sola reacción por ronda: después de una, las demás se apagan hasta tu turno */
+  if (tiene('Esquiva asombrosa') && tiene('Aguante de piedra')) {
+    P('Combate: «Esquiva asombrosa» y después mirar si «Aguante de piedra» sigue disponible');
+    await b.cerrarModal(page);
+    await b.act(page, 'tab', { t: 'combat' });
+    await b.act(page, 'cb-start');
+    await dano(10, 'uncanny');
+    await b.cerrarModal(page);
+    await b.act(page, 'vida');
+    if (await page.locator('[data-act="hp-red"][data-k="stone"]').isEnabled())
+      apunta(
+        run,
+        'en combate, tras usar Esquiva asombrosa, Aguante de piedra sigue disponible en la misma ronda'
+      );
+    await mira();
+    await b.cerrarModal(page);
+    await b.act(page, 'cb-end');
+    await b.act(page, 'cb-end-ok');
+    await curar();
+  }
+
+  /* Puntos de hechicería y Restauración hechicera (la mitad del nivel, hacia abajo) */
+  if (tiene('Restauración hechicera')) {
+    P('Gastar 4 puntos de hechicería y usar «Restauración hechicera»');
+    await b.cerrarModal(page);
+    await b.act(page, 'tab', { t: 'play' });
+    const i = await page.evaluate(() => C().features.findIndex(f => f.name === 'Puntos de hechicería'));
+    for (let k = 0; k < 4; k++) {
+      const loc = page.locator(`[data-act="pip"][data-kind="feat"][data-a="${i}"].full`).first();
+      if (await loc.count()) await loc.click();
+    }
+    const antes = await uso('Puntos de hechicería');
+    await b.act(page, 'sorc-rest');
+    const desp = await uso('Puntos de hechicería');
+    const L = c0.level;
+    if (antes - desp !== Math.min(Math.floor(L / 2), antes))
+      apunta(
+        run,
+        `Restauración hechicera a nivel ${L} con ${antes} puntos gastados devuelve ${antes - desp} (deberían ser ${Math.min(Math.floor(L / 2), antes)})`
+      );
+    else b.sola('Restauración hechicera devuelve la mitad del nivel en puntos de hechicería');
+    await mira();
+  }
+
+  /* Formas: Forma salvaje del Círculo de la Luna (PG temporales = 3 × nivel de druida) y Polimorfar */
+  const formas = c0.companions.filter(x => x.kind === 'form');
+  const salvaje = formas.find(x => x.via === 'wild');
+  if (salvaje) {
+    P(`Criaturas: transformarse en «${salvaje.name}» con Forma salvaje y recibir 20 de daño`);
+    const ws = await page.evaluate(() => wsInfo(C()));
+    const u0 = await uso('Forma salvaje');
+    await b.cerrarModal(page);
+    await b.act(page, 'tab', { t: 'crea' });
+    await b.act(page, 'crea-transform', { id: salvaje.id });
+    const a = await pg();
+    const want = c0.subclassKey === 'moon' ? 3 * c0.level : c0.level;
+    if (a.temp !== want)
+      apunta(
+        run,
+        `Forma salvaje (${c0.subclass}, nivel ${c0.level}) da ${a.temp} PG temporales (deberían ser ${want})`
+      );
+    if ((await uso('Forma salvaje')) !== u0 + 1)
+      apunta(run, 'transformarse con Forma salvaje no gasta un uso');
+    const ef = await page.evaluate(() => C().effects.find(e => e.form));
+    if (!ef || ef.m !== 60 * Math.floor(c0.level / 2))
+      apunta(
+        run,
+        `el efecto de Forma salvaje dura ${ef ? ef.m + ' min' : '(no hay efecto)'} (debería durar ${Math.floor(c0.level / 2)} h)`
+      );
+    const conc = await page.evaluate(() => C().concentration);
+    await dano(20);
+    const d = await pg();
+    if (d.temp !== Math.max(0, a.temp - 20) || d.cur !== a.cur - Math.max(0, 20 - a.temp))
+      apunta(
+        run,
+        `en Forma salvaje, 20 de daño con ${a.temp} PG temporales deja ${d.cur} PG y ${d.temp} temporales`
+      );
+    if (conc) {
+      const t = await page.evaluate(() =>
+        [...document.querySelectorAll('.toast')].map(x => x.innerText).join(' ')
+      );
+      if (!/CD\s*10/.test(t))
+        apunta(run, `con 20 de daño y concentración, el aviso no pide CD 10: ${t.slice(0, 160)}`);
+      else
+        b.sola(
+          'Al recibir daño concentrado, pide la salvación de CON con su CD (la mitad del daño, mínimo 10)'
+        );
+      /* Fallar la salvación: se pierde la concentración y desaparece la invocación ligada a ella */
+      P('Fallar la salvación de concentración');
+      const nInv = await page.evaluate(() => C().companions.filter(x => x.conc).length);
+      if (await b.actSi(page, 'conc-lose')) {
+        const st = await page.evaluate(() => ({
+          conc: C().concentration,
+          inv: C().companions.filter(x => x.conc).length,
+        }));
+        if (st.conc) apunta(run, 'tras «La fallo», sigue la concentración');
+        if (nInv && st.inv)
+          apunta(run, `al perder la concentración siguen ${st.inv} invocaciones ligadas a ella`);
+        else if (nInv) b.sola('Al perder la concentración desaparece la invocación de ese conjuro');
+      } else apunta(run, 'con concentración y daño, el aviso no tiene «La fallo»');
+    }
+    await mira();
+    /* Transformarse gasta la acción adicional, y volver a tu forma también: se libera antes con «↺» */
+    P('Volver a tu forma (Combate: «Acción adicional ↺» y «Volver a tu forma»)');
+    await liberar('aa');
+    await b.act(page, 'crea-revert');
+    const fin = await page.evaluate(() => ({ form: C().form, ef: C().effects.filter(e => e.form).length }));
+    if (fin.form || fin.ef) apunta(run, `tras volver a tu forma sigue la forma (${JSON.stringify(fin)})`);
+    await mira();
+    await curar();
+    if (ws && ws.temp !== want) apunta(run, `wsInfo da ${ws.temp} PG temporales`);
+  }
+  const poli = formas.find(x => x.via === 'poly');
+  if (poli) {
+    P(`Criaturas: transformarse en «${poli.name}» (Polimorfar) y recibir más daño que sus PG`);
+    await page.evaluate(() => {
+      C().hp.temp = 0;
+    });
+    await b.cerrarModal(page);
+    await b.act(page, 'tab', { t: 'crea' });
+    await b.act(page, 'crea-transform', { id: poli.id });
+    const a = await pg();
+    if (a.temp !== +poli.hp.max)
+      apunta(run, `Polimorfar en «${poli.name}» da ${a.temp} PG temporales (deberían ser ${poli.hp.max})`);
+    await dano(a.temp + 2);
+    const d = await page.evaluate(() => ({ form: C().form, cur: C().hp.current }));
+    if (d.form) apunta(run, 'Polimorfar: al acabarse los PG temporales de la forma, sigue transformado');
+    if (d.cur !== a.cur - 2)
+      apunta(run, `Polimorfar: el daño que sobra de la forma quita ${a.cur - d.cur} PG (deberían ser 2)`);
+    await mira();
+    await curar();
+  }
+
+  /* Pociones: curación (el jugador tira) y heroísmo (10 PG temporales y efecto) */
+  /* Los objetos se buscan por su id: al gastar el último, la app lo quita de la mochila y los demás cambian de sitio */
+  const idx = id => page.evaluate(x => C().equipment.findIndex(e => e.id === x), id);
+  const pot = k => c0.equipment.find(e => e.potion === k && e.qty > 0);
+  if (pot('healing')) {
+    const e0 = pot('healing'),
+      i = await idx(e0.id);
+    P('Recibir 8 de daño y beber una «Poción de curación» con un 11 (no vale) y un 7');
+    await dano(8);
+    await b.cerrarModal(page);
+    await sinAvisos();
+    const a = await pg();
+    await page.evaluate(j => A.pot({ dataset: { i: j } }), i);
+    await b.escribir(page, '#pot-roll', 11);
+    await b.act(page, 'pot-heal');
+    if ((await pg()).cur !== a.cur) apunta(run, 'la poción de curación (2d4 + 2) acepta un 11');
+    await b.escribir(page, '#pot-roll', 7);
+    await b.act(page, 'pot-heal');
+    const d = await page.evaluate(
+      x => ({ hp: C().hp.current, e: C().equipment.find(e => e.id === x) }),
+      e0.id
+    );
+    if (d.hp !== Math.min(a.max, a.cur + 7))
+      apunta(run, `beber la poción con un 7 deja ${d.hp} PG (deberían ser ${Math.min(a.max, a.cur + 7)})`);
+    if ((d.e ? d.e.qty : 0) !== e0.qty - 1) apunta(run, 'beber la poción no la descuenta');
+    await mira();
+  }
+  if (pot('heroism')) {
+    const i = await idx(pot('heroism').id);
+    P('Beber una «Poción de heroísmo»');
+    await b.cerrarModal(page);
+    await page.evaluate(() => {
+      C().hp.temp = 0;
+    });
+    await page.evaluate(j => A.pot({ dataset: { i: j } }), i);
+    await b.act(page, 'pot-fx');
+    const d = await page.evaluate(() => ({ t: C().hp.temp, e: C().effects.map(e => e.name + ':' + e.m) }));
+    if (d.t !== 10 || !d.e.some(x => /^Heroísmo:60$/.test(x)))
+      apunta(run, `la poción de heroísmo deja ${d.t} PG temporales y los efectos ${d.e.join(', ')}`);
+    await mira();
+  }
+  /* Pergaminos: uno de su lista que puede lanzar, uno de nivel alto (prueba) y uno que no es de su lista */
+  for (const e of c0.equipment) {
+    if (!e.scroll || !(e.qty > 0)) continue;
+    const j = await idx(e.id);
+    P(`Lanzar el pergamino «${e.name}»`);
+    await b.cerrarModal(page);
+    await sinAvisos();
+    await page.evaluate(k => A.scroll({ dataset: { i: k } }), j);
+    const txt = await page.locator('#modal').innerText();
+    const fallar = await page.locator('#modal [data-act="scr-fail"]').count();
+    await b.act(page, fallar ? 'scr-fail' : 'scr-cast');
+    await b.cerrarModal(page);
+    const q = await page.evaluate(x => (C().equipment.find(y => y.id === x) || { qty: 0 }).qty, e.id);
+    if (q !== e.qty - 1) apunta(run, `lanzar el pergamino «${e.name}» lo deja con ${q} (tenía ${e.qty})`);
+    if (/no está en la lista/.test(txt))
+      b.sola('Avisa si el conjuro del pergamino no es de tu lista de clase');
+    if (fallar) b.sola('Pergamino de nivel mayor que tus espacios: pide la prueba y deja fallarla');
+    await mira();
+  }
+  /* Objetos con cargas: gastar todas, una de más, y recuperar con el descanso largo */
+  for (const e of c0.equipment) {
+    if (!e.mi || !(+e.mi.ch > 0)) continue;
+    const j = await idx(e.id);
+    P(`Gastar ${+e.mi.ch + 1} cargas de «${e.name}» y descansar (largo) con un 4 en ${e.mi.rec}`);
+    for (let k = 0; k <= +e.mi.ch; k++) await page.evaluate(x => A['mi-ch']({ dataset: { i: x, d: 1 } }), j);
+    const u = await page.evaluate(x => C().equipment[x].mi.used, j);
+    if (u !== +e.mi.ch) apunta(run, `«${e.name}»: tras gastar de más, ${u} cargas gastadas de ${e.mi.ch}`);
+    await b.cerrarModal(page);
+    await b.act(page, 'rest-menu');
+    await b.act(page, 'long');
+    const inp = page.locator(`#lr-ch-${e.id}`);
+    if (await inp.count()) await inp.fill('4');
+    else apunta(run, `el descanso largo no pregunta por las cargas de «${e.name}»`);
+    await b.act(page, 'long-done');
+    await b.cerrarModal(page);
+    const u2 = await page.evaluate(x => C().equipment[x].mi.used, j);
+    if (u2 !== Math.max(0, +e.mi.ch - 4))
+      apunta(
+        run,
+        `«${e.name}»: tras el descanso largo con un 4, ${u2} cargas gastadas (deberían ser ${+e.mi.ch - 4})`
+      );
+    else b.sola('Objetos con cargas: el descanso largo pregunta cuántas recuperan');
+    await mira();
+  }
+}
+
 const CONTADO = { dotes: 0, invoc: 0 };
 async function aparte(archivo) {
   const json = b.leerFicha(archivo);
-  const nombre = `${archivo.replace('.json', '')} aparte`;
+  const nombre = `${nombreDe(archivo)} aparte`;
   const { ctx, page, run } = await preparar(nombre, 99);
   const parte = async (t, fn) => {
     try {
@@ -1079,6 +1519,12 @@ async function aparte(archivo) {
     }
   };
   try {
+    /* Las fichas de los rincones (2d) ya pasan por «Editar ficha» y las dotes en las del reparto: aquí, solo lo suyo */
+    if (archivo.startsWith(RINCONES)) {
+      await parte('Rincones', () => aparteRincones(ctx, run));
+      await parte('Borrar personaje', () => aparteBorrar(ctx, run));
+      return;
+    }
     await parte('Editar ficha', () => aparteEditar(ctx, run, json));
     CONTADO.dotes += (await parte('Dotes', () => aparteDotes(ctx, run))) || 0;
     /* Con más nivel (puesto a mano) hay más dotes para probar */
@@ -1124,9 +1570,11 @@ async function aparte(archivo) {
     for (const f of FICHAS) tareas.push({ t: `${f} · casos aparte`, fn: () => aparte(f) });
   if (ARG.solo !== 'aparte')
     for (const s of SEMILLAS)
-      for (const f of FICHAS) tareas.push({ t: `${f} · semilla ${s}`, fn: () => tanda(f, s) });
+      for (const f of FICHAS)
+        if (!f.startsWith(RINCONES) || SEMILLAS_RINCONES.includes(s))
+          tareas.push({ t: `${f} · semilla ${s}`, fn: () => tanda(f, s) });
   console.log(
-    `Botones al azar: ${FICHAS.join(', ')} · semillas ${SEMILLAS.join(', ')} · ${PASOS} pasos por tanda · ${HILOS} navegadores a la vez`
+    `Botones al azar: ${FICHAS.join(', ')} · semillas ${SEMILLAS.join(', ')} (rincones: ${SEMILLAS_RINCONES.join(', ')}) · ${PASOS} pasos por tanda · ${HILOS} navegadores a la vez`
   );
   let k = 0;
   await Promise.all(
@@ -1151,13 +1599,13 @@ async function aparte(archivo) {
     })
   );
 
-  console.log('\n===== Botones al azar (prueba 2b) =====');
+  console.log('\n===== Botones al azar (pruebas 2b y 2d) =====');
   console.log(`Fichas: ${FICHAS.join(', ')}`);
   console.log(
-    `Semillas: ${SEMILLAS.join(', ')} · ${PASOS} pasos por tanda · comprobaciones hechas: ${b.INF.pasos}`
+    `Semillas: ${SEMILLAS.join(', ')} (rincones: ${SEMILLAS_RINCONES.join(', ')}) · ${PASOS} pasos por tanda · comprobaciones hechas: ${b.INF.pasos}`
   );
   console.log(
-    `Casos aparte: «Editar ficha», ${CONTADO.dotes} dotes y ${CONTADO.invoc} invocaciones añadidas y quitadas, duplicar y borrar personaje`
+    `Casos aparte: «Editar ficha», ${CONTADO.dotes} dotes y ${CONTADO.invoc} invocaciones añadidas y quitadas, duplicar y borrar personaje; en los rincones, reacciones, formas, pociones, pergaminos y cargas`
   );
   console.log(`Tiempo: ${Math.round((Date.now() - t0) / 1000)} s`);
   if (PULSADOS.size) {

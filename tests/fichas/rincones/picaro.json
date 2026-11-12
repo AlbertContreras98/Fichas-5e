@@ -1,0 +1,575 @@
+{
+  "formato": "fichas-dnd-2024/2",
+  "id": "2j0uyfo5",
+  "name": "Kava",
+  "species": "Goliat (Gigante de piedra)",
+  "speciesKey": "goliath",
+  "lineageKey": "stone",
+  "background": "Criminal",
+  "backgroundKey": "criminal",
+  "featKeys": [
+    "alert"
+  ],
+  "featData": [],
+  "class": "Pícaro",
+  "classKey": "rogue",
+  "subclass": "Ladrón",
+  "subclassKey": "thief",
+  "level": 5,
+  "xp": 0,
+  "abilities": {
+    "str": 8,
+    "dex": 17,
+    "con": 15,
+    "int": 15,
+    "wis": 10,
+    "cha": 12
+  },
+  "saveProf": [
+    "dex",
+    "int"
+  ],
+  "skills": {
+    "sleight": 2,
+    "stealth": 2,
+    "athletics": 1,
+    "deception": 1,
+    "insight": 1,
+    "intimidation": 1
+  },
+  "ac": 13,
+  "acBonus": 0,
+  "speedFt": 35,
+  "size": "M",
+  "initiativeBonus": 0,
+  "hp": {
+    "max": 41,
+    "current": 41,
+    "temp": 0
+  },
+  "hitDice": {
+    "die": "d8",
+    "total": 5,
+    "spent": 0
+  },
+  "deathSaves": {
+    "success": 0,
+    "fail": 0
+  },
+  "inspiration": false,
+  "exhaustion": 0,
+  "conditions": [],
+  "concentration": "",
+  "effects": [],
+  "companions": [],
+  "attacks": [
+    {
+      "name": "Daga",
+      "atk": 6,
+      "dmg": "1d4 + 3",
+      "type": "perforante",
+      "notes": "Sutil, ligera, arrojadiza (20/60) · Maestría: mellar",
+      "ammo": "",
+      "wpn": "dagger",
+      "magic": 0,
+      "mastery": true,
+      "item": "0u2z71ff"
+    },
+    {
+      "name": "Espada corta",
+      "atk": 6,
+      "dmg": "1d6 + 3",
+      "type": "perforante",
+      "notes": "Sutil, ligera · Maestría: molestar",
+      "ammo": "",
+      "wpn": "shortsword",
+      "magic": 0,
+      "mastery": true,
+      "item": "wp6etidy"
+    },
+    {
+      "name": "Arco corto",
+      "atk": 6,
+      "dmg": "1d6 + 3",
+      "type": "perforante",
+      "notes": "A dos manos, munición (80/320)",
+      "ammo": "k61dzy3o",
+      "wpn": "shortbow",
+      "magic": 0,
+      "mastery": false,
+      "item": "zxa8xg3b"
+    },
+    {
+      "name": "Daga",
+      "atk": 6,
+      "dmg": "1d4 + 3",
+      "type": "perforante",
+      "notes": "Sutil, ligera, arrojadiza (20/60) · Maestría: mellar",
+      "ammo": "",
+      "wpn": "dagger",
+      "magic": 0,
+      "mastery": true,
+      "item": "m7bwxzek"
+    }
+  ],
+  "spellcasting": {
+    "ability": ""
+  },
+  "slots": [
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    }
+  ],
+  "pact": {
+    "level": 0,
+    "total": 0,
+    "used": 0
+  },
+  "spells": [],
+  "features": [
+    {
+      "name": "Alerta",
+      "source": "Dote de origen (Criminal)",
+      "text": "Sumas tu bonificador de competencia a la iniciativa (la app lo suma sola). Justo después de tirar iniciativa puedes intercambiarla con un aliado dispuesto que no esté incapacitado.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Pericia",
+      "source": "Pícaro 1",
+      "text": "Pericia en dos habilidades en las que seas competente.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Ataque furtivo",
+      "source": "Pícaro 1",
+      "text": "Una vez por turno haces daño extra con un arma Sutil o a distancia si tienes ventaja, o si un aliado está a 5 pies del objetivo y no tienes desventaja.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Jerga de ladrones",
+      "source": "Pícaro 1",
+      "text": "Conoces la jerga de ladrones y otro idioma.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Maestría con armas",
+      "source": "Pícaro 1",
+      "text": "Usas la propiedad de maestría de dos tipos de armas; puedes cambiarlas al terminar un descanso largo.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Complexión poderosa",
+      "source": "Goliat",
+      "text": "Ventaja para acabar con el estado agarrado y cuentas como una talla más para cargar peso.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Aguante de piedra",
+      "source": "Gigante de piedra",
+      "text": "Reacción al recibir daño: tiras 1d12 + CON y reduces el daño en esa cantidad. Usos: tu bonificador de competencia por descanso largo.",
+      "uses": {
+        "max": 3,
+        "used": 0,
+        "recover": "largo",
+        "pool": false
+      }
+    },
+    {
+      "name": "Acción astuta",
+      "source": "Pícaro 2",
+      "text": "Acción adicional para Correr, Destrabarse o Esconderse.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Apuntar con calma",
+      "source": "Pícaro 3",
+      "text": "Acción adicional: ventaja en tu siguiente ataque del turno si no te has movido (tu velocidad pasa a 0).",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Manos rápidas",
+      "source": "Ladrón 3",
+      "text": "Con Acción astuta puedes hacer Juego de manos, usar herramientas de ladrón o la acción de Usar objeto.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Trabajo en las alturas",
+      "source": "Ladrón 3",
+      "text": "Velocidad de trepar igual a tu velocidad y saltos más largos (usas DES).",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Golpe astuto",
+      "source": "Pícaro 5",
+      "text": "Renuncias a dados de Ataque furtivo para aplicar efectos: Veneno, Zancadilla, Retirada…",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Esquiva asombrosa",
+      "source": "Pícaro 5",
+      "text": "Reacción: reduces a la mitad el daño de un ataque que veas.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Forma grande",
+      "source": "Goliat",
+      "text": "Acción adicional, 10 minutos: te vuelves Grande, con ventaja en pruebas de FUE y +10 pies de velocidad. 1 vez por descanso largo.",
+      "uses": {
+        "max": 1,
+        "used": 0,
+        "recover": "largo",
+        "pool": false
+      }
+    }
+  ],
+  "equipment": [
+    {
+      "id": "a44r8p34",
+      "name": "Armadura de cuero",
+      "qty": 1,
+      "cat": "armadura",
+      "notes": "",
+      "armor": "leather",
+      "magic": 0,
+      "equipped": true
+    },
+    {
+      "id": "0u2z71ff",
+      "name": "Daga",
+      "qty": 2,
+      "cat": "arma",
+      "notes": "",
+      "weapon": "dagger",
+      "magic": 0,
+      "equipped": true
+    },
+    {
+      "id": "wp6etidy",
+      "name": "Espada corta",
+      "qty": 1,
+      "cat": "arma",
+      "notes": "",
+      "weapon": "shortsword",
+      "magic": 0,
+      "equipped": true
+    },
+    {
+      "id": "zxa8xg3b",
+      "name": "Arco corto",
+      "qty": 1,
+      "cat": "arma",
+      "notes": "",
+      "weapon": "shortbow",
+      "magic": 0,
+      "equipped": true
+    },
+    {
+      "id": "k61dzy3o",
+      "name": "Flechas",
+      "qty": 20,
+      "cat": "municion",
+      "notes": "",
+      "ammoKind": "arrow"
+    },
+    {
+      "id": "2k0zayyx",
+      "name": "Carcaj",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "3c5tumbz",
+      "name": "Herramientas de ladrón",
+      "qty": 1,
+      "cat": "herramienta",
+      "notes": "",
+      "tool": "thieves"
+    },
+    {
+      "id": "bqwlvia1",
+      "name": "Mochila",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "549qeqxm",
+      "name": "Bolas de rodamiento",
+      "qty": 1,
+      "cat": "consumible",
+      "notes": "",
+      "gear": "ballbearings"
+    },
+    {
+      "id": "b7f2hzcs",
+      "name": "Campana",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "w017x1wi",
+      "name": "Velas",
+      "qty": 10,
+      "cat": "consumible",
+      "notes": ""
+    },
+    {
+      "id": "ix88q3qm",
+      "name": "Palanca",
+      "qty": 2,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "uqd3zjmn",
+      "name": "Linterna sorda",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "4hcen8f5",
+      "name": "Aceite (frasco)",
+      "qty": 7,
+      "cat": "consumible",
+      "notes": ""
+    },
+    {
+      "id": "lslm18mk",
+      "name": "Raciones (días)",
+      "qty": 5,
+      "cat": "comida",
+      "notes": "",
+      "gear": "rations"
+    },
+    {
+      "id": "htv24uvr",
+      "name": "Cuerda",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "2o0topka",
+      "name": "Yesquero",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "v0h8q8zf",
+      "name": "Odre",
+      "qty": 1,
+      "cat": "comida",
+      "notes": "",
+      "gear": "waterskin"
+    },
+    {
+      "id": "m7bwxzek",
+      "name": "Daga",
+      "qty": 2,
+      "cat": "arma",
+      "notes": "",
+      "weapon": "dagger",
+      "magic": 0,
+      "equipped": true
+    },
+    {
+      "id": "0vda14u3",
+      "name": "Herramientas de ladrón",
+      "qty": 1,
+      "cat": "herramienta",
+      "notes": "",
+      "tool": "thieves"
+    },
+    {
+      "id": "q6hyoir8",
+      "name": "Bolsa",
+      "qty": 2,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "t6m3we2c",
+      "name": "Ropa de viajero",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "2j0vmhc7",
+      "name": "Poción de curación",
+      "qty": 3,
+      "cat": "pocion",
+      "notes": "",
+      "potion": "healing"
+    },
+    {
+      "id": "kn1asu8l",
+      "name": "Poción de heroísmo",
+      "qty": 1,
+      "cat": "pocion",
+      "notes": "",
+      "potion": "heroism"
+    },
+    {
+      "id": "uttxoqjl",
+      "name": "Pergamino de escudo",
+      "qty": 1,
+      "cat": "pergamino",
+      "notes": "",
+      "scroll": "shield"
+    },
+    {
+      "id": "tv0vf236",
+      "name": "Varita de proyectiles mágicos",
+      "qty": 1,
+      "cat": "otro",
+      "notes": "",
+      "mi": {
+        "att": 0,
+        "ac": 0,
+        "sv": 0,
+        "ch": 7,
+        "rec": "1d6 + 1",
+        "d": "Gasta 1 carga para lanzar Proyectil mágico de nivel 1; cada carga extra sube un nivel el conjuro. Si gastas la última, tira 1d20: con un 1 se deshace.",
+        "noarm": 0,
+        "on": 0,
+        "used": 0
+      }
+    },
+    {
+      "id": "apcmf6p1",
+      "name": "Anillo de protección",
+      "qty": 1,
+      "cat": "otro",
+      "notes": "",
+      "mi": {
+        "att": 1,
+        "ac": 1,
+        "sv": 1,
+        "ch": 0,
+        "rec": "",
+        "d": "+1 a la CA y a las tiradas de salvación.",
+        "noarm": 0,
+        "on": 0,
+        "used": 0
+      }
+    }
+  ],
+  "coins": {
+    "cp": 0,
+    "sp": 0,
+    "ep": 0,
+    "gp": 24,
+    "pp": 0
+  },
+  "languages": "Común y dos idiomas a elegir",
+  "proficiencies": {
+    "armor": "Ligera",
+    "weapons": "Sencillas y marciales con Sutil o Ligera",
+    "tools": "Herramientas de ladrón"
+  },
+  "notes": "",
+  "story": {
+    "img": "",
+    "alignment": "",
+    "age": "",
+    "appearance": "",
+    "personality": "",
+    "history": ""
+  },
+  "turn": {
+    "a": false,
+    "aa": false,
+    "r": false,
+    "atk": 0
+  },
+  "combat": null,
+  "diary": {
+    "items": []
+  }
+}

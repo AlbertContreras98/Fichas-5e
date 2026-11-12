@@ -1078,3 +1078,21 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Propuesta: en `rcptParse()`, quedarse solo con las líneas que sean listas; en `sheetParse()`, exigir 6 salvaciones; en `masterHash()`, si el `#pj` no es válido, llamar a `qrRun(null)`; en el manejador de `data-mf`, no dejar PG por debajo de 0.
 - Prioridad: frecuencia 1 + olvido 1 + coste 3 = 5
 - Estado: pendiente
+
+### 101. Fuera de combate, la reacción gastada no vuelve nunca
+- Origen: Prueba 2d
+- Tipo: Fallo
+- Qué pasa: fuera de combate, si recibes daño y usas en «Vida y estado» una reacción que resta daño (Esquiva asombrosa, Aguante de piedra, Desviar ataques), la reacción queda marcada como gastada: en «Vida y estado» sale «Con tu reacción (ya gastada)» y los botones se apagan. No vuelve con un descanso corto ni largo, ni al recargar la página. Solo vuelve con el «↺» de «Reacción» en la pestaña Combate, con «Terminar turno» seguido de gastar una acción, o al empezar y terminar un combate; nada de eso se le ocurre a un novato desde «Vida y estado». Lo mismo pasa con la acción adicional: transformarse con Forma salvaje desde «Criaturas» fuera de combate gasta la acción adicional, y «Volver a tu forma» (que también la gasta) sale apagado hasta que se libera a mano. Cómo se repite: importar `tests/fichas/rincones/picaro.json` → «Vida y estado» → daño 21 → «Esquiva asombrosa» → volver a «Vida y estado»: «(ya gastada)» → Descansar → Descanso largo → sigue gastada. Con el guion: `node tests/azar.js --ficha=picaro --solo=aparte`.
+- Qué debería pasar: fuera de combate no hay turnos, así que la reacción (y la acción adicional) no deberían quedarse gastadas; como mínimo, los descansos deberían dejar el turno limpio.
+- Propuesta: en `dmgReactApply()` y en `spendEco()`, no marcar nada si no hay `c.combat`; y en los descansos corto y largo, poner `c.turn = { a: false, aa: false, r: false, atk: 0 }`, como ya hace «Terminar combate».
+- Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
+- Estado: pendiente
+
+### 102. Elegir «Otra» en la especie, el trasfondo o la clase de «Editar ficha» no se conserva
+- Origen: Prueba 2d
+- Tipo: Fallo
+- Qué pasa: en «Editar ficha», el desplegable «Especie» tiene la opción «Otra (escribe abajo)». Si la eliges y dejas el texto como estaba («Humano»), la ficha guarda la especie sin enlazar, pero al recargar la página o al exportar e importar, `normalize()` la vuelve a enlazar con la del catálogo por el nombre (`js/core/model.js:179`): vuelve a «Humano» sola. Lo mismo pasa con el trasfondo (visto con el pícaro, «Criminal») y, por el código, con la clase. Es el mismo caso que el conjuro hecho a mano con el nombre de uno del catálogo (n.º 91). Cómo se repite: importar `monje.json` → Ajustes → Editar ficha → Especie: «Otra (escribe abajo)» → recargar → Especie: Humano. Con el guion: `node tests/azar.js --ficha=monje --semilla=1 --solo=azar --rastro` (paso 165) y `--ficha=picaro --semilla=1` (paso 303).
+- Qué debería pasar: si el jugador elige «Otra», se respeta; si la app la va a volver a enlazar, que no ofrezca la opción con ese texto o que avise.
+- Propuesta: solo deducir `speciesKey`, `backgroundKey` y `classKey` del texto cuando la ficha no tiene ese campo (fichas antiguas o importadas de fuera), no cuando está vacío a propósito; por ejemplo, comprobando `c.speciesKey === undefined` en vez de `!c.speciesKey`.
+- Prioridad: frecuencia 1 + olvido 1 + coste 3 = 5
+- Estado: pendiente

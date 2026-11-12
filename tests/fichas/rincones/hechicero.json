@@ -1,0 +1,905 @@
+{
+  "formato": "fichas-dnd-2024/2",
+  "id": "z7qv0xdh",
+  "name": "Brasa",
+  "species": "Goliat (Gigante de piedra)",
+  "speciesKey": "goliath",
+  "lineageKey": "stone",
+  "background": "Sabio",
+  "backgroundKey": "sage",
+  "featKeys": [
+    "magic-wizard"
+  ],
+  "featData": [
+    {
+      "k": "magic-wizard",
+      "ab": "",
+      "opt": "",
+      "sk": [],
+      "save": false,
+      "prof": {},
+      "sp": [
+        "true-strike",
+        "minor-illusion",
+        "alarm"
+      ],
+      "spConv": [],
+      "src": "Dote de origen (Sabio)",
+      "feat": "Iniciado en la magia (mago)"
+    }
+  ],
+  "class": "Hechicero",
+  "classKey": "sorcerer",
+  "subclass": "Hechicería Dracónica",
+  "subclassKey": "draconic",
+  "level": 5,
+  "xp": 0,
+  "abilities": {
+    "str": 8,
+    "dex": 13,
+    "con": 17,
+    "int": 11,
+    "wis": 13,
+    "cha": 15
+  },
+  "saveProf": [
+    "con",
+    "cha"
+  ],
+  "skills": {
+    "arcana": 1,
+    "history": 1,
+    "intimidation": 1,
+    "persuasion": 1
+  },
+  "ac": 11,
+  "acBonus": 0,
+  "speedFt": 35,
+  "size": "M",
+  "initiativeBonus": 0,
+  "hp": {
+    "max": 41,
+    "current": 41,
+    "temp": 0
+  },
+  "hitDice": {
+    "die": "d6",
+    "total": 5,
+    "spent": 0
+  },
+  "deathSaves": {
+    "success": 0,
+    "fail": 0
+  },
+  "inspiration": false,
+  "exhaustion": 0,
+  "conditions": [],
+  "concentration": "",
+  "effects": [],
+  "companions": [
+    {
+      "kind": "familiar",
+      "name": "Babuino",
+      "attacks": [
+        {
+          "n": "Mordisco",
+          "hit": "+1",
+          "dmg": "1d4 - 1 perforante"
+        }
+      ],
+      "notes": "Bestia pequeño · VD 0\nFUE 8 (−1) · DES 14 (+2) · CON 11 (+0) · INT 4 (−3) · SAB 12 (+1) · CAR 6 (−2)\nPercepción pasiva 11\nTácticas de manada: Ventaja al atacar a una criatura si un aliado suyo no incapacitado está a 5 pies de ella.",
+      "hp": {
+        "max": 3,
+        "current": 3
+      },
+      "ac": 12,
+      "speed": "30 pies, trepar 30 pies",
+      "cat": "baboon",
+      "cr": "0",
+      "id": "pnodix06"
+    }
+  ],
+  "attacks": [
+    {
+      "name": "Lanza",
+      "atk": 2,
+      "dmg": "1d6 − 1 (1d8 − 1 a dos manos)",
+      "type": "perforante",
+      "notes": "Arrojadiza (20/60), versátil (1d8)",
+      "ammo": "",
+      "wpn": "spear",
+      "magic": 0,
+      "mastery": false,
+      "item": "3odvvumf"
+    },
+    {
+      "name": "Daga",
+      "atk": 4,
+      "dmg": "1d4 + 1",
+      "type": "perforante",
+      "notes": "Sutil, ligera, arrojadiza (20/60)",
+      "ammo": "",
+      "wpn": "dagger",
+      "magic": 0,
+      "mastery": false,
+      "item": "5h1g0h0b"
+    },
+    {
+      "name": "Bastón",
+      "atk": 2,
+      "dmg": "1d6 − 1 (1d8 − 1 a dos manos)",
+      "type": "contundente",
+      "notes": "Versátil (1d8)",
+      "ammo": "",
+      "wpn": "quarterstaff",
+      "magic": 0,
+      "mastery": false,
+      "item": "fd2tn0dz"
+    }
+  ],
+  "spellcasting": {
+    "ability": "cha"
+  },
+  "slots": [
+    {
+      "total": 4,
+      "used": 0
+    },
+    {
+      "total": 3,
+      "used": 0
+    },
+    {
+      "total": 2,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    }
+  ],
+  "pact": {
+    "level": 0,
+    "total": 0,
+    "used": 0
+  },
+  "spells": [
+    {
+      "level": 0,
+      "name": "Agarre electrizante",
+      "time": "A",
+      "range": "Toque",
+      "dur": "Instantánea",
+      "conc": false,
+      "ritual": false,
+      "material": "",
+      "desc": "",
+      "ref": "shocking-grasp",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 0,
+      "name": "Descarga de fuego",
+      "time": "A",
+      "range": "120 pies",
+      "dur": "Instantánea",
+      "conc": false,
+      "ritual": false,
+      "material": "",
+      "desc": "",
+      "ref": "fire-bolt",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 0,
+      "name": "Elementalismo",
+      "time": "A",
+      "range": "30 pies",
+      "dur": "Instantánea",
+      "conc": false,
+      "ritual": false,
+      "material": "",
+      "desc": "",
+      "ref": "elementalism",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 0,
+      "name": "Estallido hechicero",
+      "time": "A",
+      "range": "120 pies",
+      "dur": "Instantánea",
+      "conc": false,
+      "ritual": false,
+      "material": "",
+      "desc": "",
+      "ref": "sorcerous-burst",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 0,
+      "name": "Golpe certero",
+      "time": "A",
+      "range": "Personal",
+      "dur": "Instantánea",
+      "conc": false,
+      "ritual": false,
+      "material": "un arma con la que seas competente y que valga 1+ PC",
+      "desc": "",
+      "ref": "true-strike",
+      "src": "Dote",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 0,
+      "name": "Ilusión menor",
+      "time": "A",
+      "range": "30 pies",
+      "dur": "1 minuto",
+      "conc": false,
+      "ritual": false,
+      "material": "un poco de vellón",
+      "desc": "",
+      "ref": "minor-illusion",
+      "src": "Dote",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 0,
+      "name": "Luces danzantes",
+      "time": "A",
+      "range": "120 pies",
+      "dur": "hasta 1 minuto",
+      "conc": true,
+      "ritual": false,
+      "material": "un poco de fósforo",
+      "desc": "",
+      "ref": "dancing-lights",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 1,
+      "name": "Alarma",
+      "time": "1 minuto",
+      "range": "30 pies",
+      "dur": "8 horas",
+      "conc": false,
+      "ritual": true,
+      "material": "una campanilla y un hilo de plata",
+      "desc": "",
+      "ref": "alarm",
+      "src": "Dote",
+      "free": "Conjuro de iniciado (gratis)",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 1,
+      "name": "Armadura de mago",
+      "time": "A",
+      "range": "Toque",
+      "dur": "8 horas",
+      "conc": false,
+      "ritual": false,
+      "material": "un trozo de cuero curtido",
+      "desc": "",
+      "ref": "mage-armor",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 1,
+      "name": "Caída de pluma",
+      "time": "R",
+      "range": "60 pies",
+      "dur": "1 minuto",
+      "conc": false,
+      "ritual": false,
+      "material": "una pluma pequeña o un poco de plumón",
+      "desc": "",
+      "ref": "feather-fall",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 1,
+      "name": "Comprensión idiomática",
+      "time": "A",
+      "range": "Personal",
+      "dur": "1 hora",
+      "conc": false,
+      "ritual": true,
+      "material": "una pizca de hollín y sal",
+      "desc": "",
+      "ref": "comprehend-languages",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 1,
+      "name": "Cuchillo de hielo",
+      "time": "A",
+      "range": "60 pies",
+      "dur": "Instantánea",
+      "conc": false,
+      "ritual": false,
+      "material": "una gota de agua o un trozo de hielo",
+      "desc": "",
+      "ref": "ice-knife",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 1,
+      "name": "Escudo",
+      "time": "R",
+      "range": "Personal",
+      "dur": "1 asalto",
+      "conc": false,
+      "ritual": false,
+      "material": "",
+      "desc": "",
+      "ref": "shield"
+    },
+    {
+      "level": 1,
+      "name": "Orbe cromático",
+      "time": "A",
+      "range": "90 pies",
+      "dur": "Instantánea",
+      "conc": false,
+      "ritual": false,
+      "material": "un diamante por valor de 50+ PO",
+      "desc": "",
+      "ref": "chromatic-orb",
+      "src": "Siempre preparado",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 1,
+      "name": "Orden imperiosa",
+      "time": "A",
+      "range": "60 pies",
+      "dur": "Instantánea",
+      "conc": false,
+      "ritual": false,
+      "material": "",
+      "desc": "",
+      "ref": "command",
+      "src": "Siempre preparado",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 2,
+      "name": "Agrandar/reducir",
+      "time": "A",
+      "range": "30 pies",
+      "dur": "hasta 1 minuto",
+      "conc": true,
+      "ritual": false,
+      "material": "una pizca de hierro en polvo",
+      "desc": "",
+      "ref": "enlarge-reduce",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 2,
+      "name": "Aliento de dragón",
+      "time": "AA",
+      "range": "Toque",
+      "dur": "hasta 1 minuto",
+      "conc": true,
+      "ritual": false,
+      "material": "un pimiento picante",
+      "desc": "",
+      "ref": "dragons-breath",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 2,
+      "name": "Alterar el propio aspecto",
+      "time": "A",
+      "range": "Personal",
+      "dur": "hasta 1 hora",
+      "conc": true,
+      "ritual": false,
+      "material": "",
+      "desc": "",
+      "ref": "alter-self",
+      "src": "Siempre preparado",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 2,
+      "name": "Apertura",
+      "time": "A",
+      "range": "60 pies",
+      "dur": "Instantánea",
+      "conc": false,
+      "ritual": false,
+      "material": "",
+      "desc": "",
+      "ref": "knock",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 3,
+      "name": "Acelerar",
+      "time": "A",
+      "range": "30 pies",
+      "dur": "hasta 1 minuto",
+      "conc": true,
+      "ritual": false,
+      "material": "una viruta de raíz de regaliz",
+      "desc": "",
+      "ref": "haste",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 3,
+      "name": "Bola de fuego",
+      "time": "A",
+      "range": "150 pies",
+      "dur": "Instantánea",
+      "conc": false,
+      "ritual": false,
+      "material": "una bola de guano de murciélago y azufre",
+      "desc": "",
+      "ref": "fireball",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 3,
+      "name": "Miedo",
+      "time": "A",
+      "range": "Personal",
+      "dur": "hasta 1 minuto",
+      "conc": true,
+      "ritual": false,
+      "material": "una pluma blanca",
+      "desc": "",
+      "ref": "fear",
+      "src": "Siempre preparado"
+    },
+    {
+      "level": 3,
+      "name": "Volar",
+      "time": "A",
+      "range": "Toque",
+      "dur": "hasta 10 minutos",
+      "conc": true,
+      "ritual": false,
+      "material": "una pluma",
+      "desc": "",
+      "ref": "fly",
+      "src": "Siempre preparado"
+    }
+  ],
+  "features": [
+    {
+      "name": "Hechicería innata",
+      "source": "Hechicero 1",
+      "text": "Acción adicional, 1 minuto: la CD de tus conjuros de hechicero sube 1 y tienes ventaja en sus tiradas de ataque.",
+      "uses": {
+        "max": 2,
+        "used": 0,
+        "recover": "largo",
+        "pool": false
+      }
+    },
+    {
+      "name": "Lanzamiento de conjuros",
+      "source": "Hechicero 1",
+      "text": "Lanzas conjuros de hechicero con CAR. Puedes cambiar un conjuro preparado al subir de nivel.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Iniciado en la magia (mago)",
+      "source": "Dote de origen (Sabio)",
+      "text": "Aprendes dos trucos y un conjuro de nivel 1 de la lista de mago, siempre preparados. Lanzas el de nivel 1 sin espacio 1 vez por descanso largo (y también con espacios). Aptitud mágica: INT, SAB o CAR (eliges). Puedes repetir la dote con otra lista.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Aguante de piedra",
+      "source": "Gigante de piedra",
+      "text": "Reacción al recibir daño: tiras 1d12 + CON y reduces el daño en esa cantidad. Usos: tu bonificador de competencia por descanso largo.",
+      "uses": {
+        "max": 3,
+        "used": 0,
+        "recover": "largo",
+        "pool": false
+      }
+    },
+    {
+      "name": "Conjuro de iniciado (gratis)",
+      "source": "Dote: Iniciado en la magia (mago)",
+      "text": "",
+      "uses": {
+        "max": 1,
+        "used": 0,
+        "recover": "largo",
+        "pool": false
+      }
+    },
+    {
+      "name": "Complexión poderosa",
+      "source": "Goliat",
+      "text": "Ventaja para acabar con el estado agarrado y cuentas como una talla más para cargar peso.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Fuente de magia",
+      "source": "Hechicero 2",
+      "text": "Puntos de hechicería: puedes convertirlos en espacios de conjuro y viceversa.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Metamagia",
+      "source": "Hechicero 2",
+      "text": "Conoces 2 opciones de metamagia para modificar tus conjuros gastando puntos de hechicería.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Puntos de hechicería",
+      "source": "Hechicero",
+      "text": "",
+      "uses": {
+        "max": 5,
+        "used": 0,
+        "recover": "largo",
+        "pool": false
+      }
+    },
+    {
+      "name": "Resistencia dracónica",
+      "source": "Hechicería Dracónica 3",
+      "text": "Tus PG máximos aumentan 1 por nivel de hechicero; sin armadura, CA de 10 + DES + CAR.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Conjuros dracónicos",
+      "source": "Hechicería Dracónica 3",
+      "text": "Conjuros siempre preparados según tu nivel.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Restauración hechicera",
+      "source": "Hechicero 5",
+      "text": "Al terminar un descanso corto recuperas puntos de hechicería hasta la mitad de tu nivel. 1 vez por descanso largo.",
+      "uses": {
+        "max": 1,
+        "used": 0,
+        "recover": "largo",
+        "pool": false
+      }
+    },
+    {
+      "name": "Forma grande",
+      "source": "Goliat",
+      "text": "Acción adicional, 10 minutos: te vuelves Grande, con ventaja en pruebas de FUE y +10 pies de velocidad. 1 vez por descanso largo.",
+      "uses": {
+        "max": 1,
+        "used": 0,
+        "recover": "largo",
+        "pool": false
+      }
+    }
+  ],
+  "equipment": [
+    {
+      "id": "3odvvumf",
+      "name": "Lanza",
+      "qty": 1,
+      "cat": "arma",
+      "notes": "",
+      "weapon": "spear",
+      "magic": 0,
+      "equipped": true
+    },
+    {
+      "id": "5h1g0h0b",
+      "name": "Daga",
+      "qty": 2,
+      "cat": "arma",
+      "notes": "",
+      "weapon": "dagger",
+      "magic": 0,
+      "equipped": true
+    },
+    {
+      "id": "ms1cixfu",
+      "name": "Cristal (canalizador arcano)",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "g53g5htn",
+      "name": "Mochila",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "gkt19g0p",
+      "name": "Abrojos",
+      "qty": 1,
+      "cat": "consumible",
+      "notes": "",
+      "gear": "caltrops"
+    },
+    {
+      "id": "95r6zvst",
+      "name": "Palanca",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "bi66m8fd",
+      "name": "Aceite (frasco)",
+      "qty": 2,
+      "cat": "consumible",
+      "notes": ""
+    },
+    {
+      "id": "nx8aooj3",
+      "name": "Raciones (días)",
+      "qty": 10,
+      "cat": "comida",
+      "notes": "",
+      "gear": "rations"
+    },
+    {
+      "id": "ef0upmv9",
+      "name": "Cuerda",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "s2vmu1a8",
+      "name": "Yesquero",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "m4qriagy",
+      "name": "Antorchas",
+      "qty": 10,
+      "cat": "consumible",
+      "notes": "",
+      "gear": "torch"
+    },
+    {
+      "id": "gw3wede8",
+      "name": "Odre",
+      "qty": 1,
+      "cat": "comida",
+      "notes": "",
+      "gear": "waterskin"
+    },
+    {
+      "id": "fd2tn0dz",
+      "name": "Bastón",
+      "qty": 1,
+      "cat": "arma",
+      "notes": "",
+      "weapon": "quarterstaff",
+      "magic": 0,
+      "equipped": true
+    },
+    {
+      "id": "jdpw1upt",
+      "name": "Suministros de calígrafo",
+      "qty": 1,
+      "cat": "herramienta",
+      "notes": "",
+      "tool": "calligrapher"
+    },
+    {
+      "id": "24hzb8j2",
+      "name": "Libro (historia)",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "hp7g9bvl",
+      "name": "Pergamino (hojas)",
+      "qty": 8,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "z7e612wj",
+      "name": "Túnica",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "5fbrkw80",
+      "name": "Poción de curación",
+      "qty": 3,
+      "cat": "pocion",
+      "notes": "",
+      "potion": "healing"
+    },
+    {
+      "id": "i8nhl2v3",
+      "name": "Pergamino de bola de fuego",
+      "qty": 1,
+      "cat": "pergamino",
+      "notes": "",
+      "scroll": "fireball"
+    },
+    {
+      "id": "241vtjpx",
+      "name": "Varita de proyectiles mágicos",
+      "qty": 1,
+      "cat": "otro",
+      "notes": "",
+      "mi": {
+        "att": 0,
+        "ac": 0,
+        "sv": 0,
+        "ch": 7,
+        "rec": "1d6 + 1",
+        "d": "Gasta 1 carga para lanzar Proyectil mágico de nivel 1; cada carga extra sube un nivel el conjuro. Si gastas la última, tira 1d20: con un 1 se deshace.",
+        "noarm": 0,
+        "on": 0,
+        "used": 0
+      }
+    }
+  ],
+  "coins": {
+    "cp": 0,
+    "sp": 0,
+    "ep": 0,
+    "gp": 36,
+    "pp": 0
+  },
+  "languages": "Común y dos idiomas a elegir",
+  "proficiencies": {
+    "armor": "Ninguna",
+    "weapons": "Sencillas",
+    "tools": "Suministros de calígrafo"
+  },
+  "notes": "",
+  "story": {
+    "img": "",
+    "alignment": "",
+    "age": "",
+    "appearance": "",
+    "personality": "",
+    "history": ""
+  },
+  "turn": {
+    "a": false,
+    "aa": false,
+    "r": false,
+    "atk": 0
+  },
+  "combat": null,
+  "diary": {
+    "items": []
+  }
+}

@@ -1,0 +1,1114 @@
+{
+  "formato": "fichas-dnd-2024/2",
+  "id": "uaow442o",
+  "name": "Musgo",
+  "species": "Elfo (Elfo silvano)",
+  "speciesKey": "elf",
+  "lineageKey": "wood",
+  "background": "Ermitaño",
+  "backgroundKey": "hermit",
+  "featKeys": [
+    "healer"
+  ],
+  "featData": [],
+  "class": "Druida",
+  "classKey": "druid",
+  "subclass": "Círculo de la Luna",
+  "subclassKey": "moon",
+  "level": 5,
+  "xp": 0,
+  "abilities": {
+    "str": 8,
+    "dex": 13,
+    "con": 17,
+    "int": 12,
+    "wis": 17,
+    "cha": 10
+  },
+  "saveProf": [
+    "int",
+    "wis"
+  ],
+  "skills": {
+    "medicine": 1,
+    "religion": 1,
+    "arcana": 1,
+    "animal": 1,
+    "insight": 1
+  },
+  "ac": 11,
+  "acBonus": 0,
+  "speedFt": 35,
+  "size": "M",
+  "initiativeBonus": 0,
+  "hp": {
+    "max": 40,
+    "current": 40,
+    "temp": 0
+  },
+  "hitDice": {
+    "die": "d8",
+    "total": 5,
+    "spent": 0
+  },
+  "deathSaves": {
+    "success": 0,
+    "fail": 0
+  },
+  "inspiration": false,
+  "exhaustion": 0,
+  "conditions": [],
+  "concentration": "Invocar bestia",
+  "effects": [
+    {
+      "id": "7h2fdsto",
+      "name": "Invocar bestia",
+      "conc": true,
+      "m": 60
+    }
+  ],
+  "companions": [
+    {
+      "kind": "form",
+      "name": "Alce",
+      "attacks": [
+        {
+          "n": "Embestida",
+          "hit": "+5",
+          "dmg": "1d6 + 3 contundente. Carga: si se movió 20+ pies en línea recta hacia un objetivo Grande o menor justo antes, +1d6 contundente y queda derribado."
+        }
+      ],
+      "notes": "Bestia grande · VD 1/4\nFUE 16 (+3) · DES 10 (+0) · CON 11 (+0) · INT 2 (−4) · SAB 10 (+0) · CAR 6 (−2)\nvisión en la oscuridad 60 pies, Percepción pasiva 12",
+      "hp": {
+        "max": 11,
+        "current": 11
+      },
+      "via": "wild",
+      "cr": "1/4",
+      "ac": 10,
+      "speed": "50 pies",
+      "cat": "elk",
+      "id": "z99obx0l"
+    },
+    {
+      "kind": "form",
+      "name": "Araña lobo gigante",
+      "attacks": [
+        {
+          "n": "Mordisco",
+          "hit": "+5",
+          "dmg": "1d4 + 3 perforante + 2d4 de veneno"
+        }
+      ],
+      "notes": "Bestia mediano · VD 1/4\nFUE 12 (+1) · DES 16 (+3) · CON 13 (+1) · INT 3 (−4) · SAB 12 (+1) · CAR 4 (−3)\nvisión en la oscuridad 60 pies, vista ciega 10 pies, Percepción pasiva 13\nTrepar cual arácnido: Trepa por superficies difíciles, incluso por el techo, sin hacer pruebas.",
+      "hp": {
+        "max": 11,
+        "current": 11
+      },
+      "via": "wild",
+      "cr": "1/4",
+      "ac": 13,
+      "speed": "40 pies, trepar 40 pies",
+      "cat": "giant-wolf-spider",
+      "id": "9gn4x6oq"
+    },
+    {
+      "kind": "form",
+      "name": "Búho",
+      "attacks": [
+        {
+          "n": "Garras",
+          "hit": "+3",
+          "dmg": "1 cortante"
+        }
+      ],
+      "notes": "Bestia diminuto · VD 0\nFUE 3 (−4) · DES 13 (+1) · CON 8 (−1) · INT 2 (−4) · SAB 12 (+1) · CAR 7 (−2)\nvisión en la oscuridad 120 pies, Percepción pasiva 15\nPasada en vuelo: No provoca ataques de oportunidad al salir volando del alcance de un enemigo.",
+      "hp": {
+        "max": 1,
+        "current": 1
+      },
+      "via": "poly",
+      "cr": "0",
+      "ac": 11,
+      "speed": "5 pies, volar 60 pies",
+      "cat": "owl",
+      "id": "9yaha13u"
+    },
+    {
+      "kind": "familiar",
+      "name": "Araña",
+      "attacks": [
+        {
+          "n": "Mordisco",
+          "hit": "+4",
+          "dmg": "1 perforante + 1d4 de veneno"
+        }
+      ],
+      "notes": "Bestia diminuto · VD 0\nFUE 2 (−4) · DES 14 (+2) · CON 8 (−1) · INT 1 (−5) · SAB 10 (+0) · CAR 2 (−4)\nvisión en la oscuridad 30 pies, Percepción pasiva 10\nTrepar cual arácnido: Trepa por superficies difíciles, incluso por el techo, sin hacer pruebas.\nCaminante de telarañas: Ignora el movimiento restringido por telarañas y sabe dónde está cualquier criatura que toque la misma telaraña.",
+      "hp": {
+        "max": 1,
+        "current": 1
+      },
+      "ac": 12,
+      "speed": "20 pies, trepar 20 pies",
+      "cat": "spider",
+      "cr": "0",
+      "id": "zj8q1wol"
+    },
+    {
+      "kind": "steed",
+      "name": "Montura",
+      "attacks": [],
+      "notes": "",
+      "hp": {
+        "max": 25,
+        "current": 25
+      },
+      "v": "celestial",
+      "L": 2,
+      "id": "xof1gsaw"
+    },
+    {
+      "kind": "summon",
+      "name": "Bestia",
+      "attacks": [],
+      "notes": "",
+      "hp": {
+        "max": 30,
+        "current": 30
+      },
+      "s": "beast",
+      "L": 2,
+      "v": "land",
+      "conc": true,
+      "spell": "Invocar bestia",
+      "id": "jbvc8w6j"
+    },
+    {
+      "kind": "summon",
+      "name": "Elemental",
+      "attacks": [],
+      "notes": "",
+      "hp": {
+        "max": 50,
+        "current": 50
+      },
+      "s": "elemental",
+      "L": 4,
+      "v": "air",
+      "id": "vppqi87o"
+    },
+    {
+      "kind": "primal",
+      "name": "Compañero primigenio",
+      "attacks": [],
+      "notes": "",
+      "hp": {
+        "max": 30,
+        "current": 30
+      },
+      "v": "land",
+      "dtype": "perforante",
+      "id": "qr50vjbr"
+    },
+    {
+      "kind": "other",
+      "name": "Alce",
+      "attacks": [
+        {
+          "n": "Embestida",
+          "hit": "+5",
+          "dmg": "1d6 + 3 contundente. Carga: si se movió 20+ pies en línea recta hacia un objetivo Grande o menor justo antes, +1d6 contundente y queda derribado."
+        }
+      ],
+      "notes": "Bestia grande · VD 1/4\nFUE 16 (+3) · DES 10 (+0) · CON 11 (+0) · INT 2 (−4) · SAB 10 (+0) · CAR 6 (−2)\nvisión en la oscuridad 60 pies, Percepción pasiva 12",
+      "hp": {
+        "max": 11,
+        "current": 11
+      },
+      "ac": 10,
+      "speed": "50 pies",
+      "label": "",
+      "cat": "elk",
+      "cr": "1/4",
+      "id": "9bjxkks4"
+    }
+  ],
+  "attacks": [
+    {
+      "name": "Hoz",
+      "atk": 2,
+      "dmg": "1d4 − 1",
+      "type": "cortante",
+      "notes": "Ligera",
+      "ammo": "",
+      "wpn": "sickle",
+      "magic": 0,
+      "mastery": false,
+      "item": "3ui0vx70"
+    },
+    {
+      "name": "Bastón (canalizador druídico)",
+      "atk": 2,
+      "dmg": "1d6 − 1 (1d8 − 1 a dos manos)",
+      "type": "contundente",
+      "notes": "Versátil (1d8)",
+      "ammo": "",
+      "wpn": "quarterstaff",
+      "magic": 0,
+      "mastery": false,
+      "item": "gni4uwab"
+    },
+    {
+      "name": "Bastón",
+      "atk": 2,
+      "dmg": "1d6 − 1 (1d8 − 1 a dos manos)",
+      "type": "contundente",
+      "notes": "Versátil (1d8)",
+      "ammo": "",
+      "wpn": "quarterstaff",
+      "magic": 0,
+      "mastery": false,
+      "item": "h5dpc867"
+    }
+  ],
+  "spellcasting": {
+    "ability": "wis"
+  },
+  "slots": [
+    {
+      "total": 4,
+      "used": 0
+    },
+    {
+      "total": 3,
+      "used": 0
+    },
+    {
+      "total": 2,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    },
+    {
+      "total": 0,
+      "used": 0
+    }
+  ],
+  "pact": {
+    "level": 0,
+    "total": 0,
+    "used": 0
+  },
+  "spells": [
+    {
+      "level": 0,
+      "name": "Crear llama",
+      "time": "AA",
+      "range": "Personal",
+      "dur": "10 minutos",
+      "conc": false,
+      "ritual": false,
+      "material": "",
+      "desc": "",
+      "ref": "produce-flame",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 0,
+      "name": "Druidismo",
+      "time": "A",
+      "range": "30 pies",
+      "dur": "Instantánea",
+      "conc": false,
+      "ritual": false,
+      "material": "",
+      "desc": "",
+      "ref": "druidcraft",
+      "src": "Elfo silvano",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 0,
+      "name": "Elementalismo",
+      "time": "A",
+      "range": "30 pies",
+      "dur": "Instantánea",
+      "conc": false,
+      "ritual": false,
+      "material": "",
+      "desc": "",
+      "ref": "elementalism",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 0,
+      "name": "Fuego fatuo estelar",
+      "time": "A",
+      "range": "60 pies",
+      "dur": "Instantánea",
+      "conc": false,
+      "ritual": false,
+      "material": "",
+      "desc": "",
+      "ref": "starry-wisp",
+      "src": "Siempre preparado",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 0,
+      "name": "Garrote",
+      "time": "AA",
+      "range": "Personal",
+      "dur": "1 minuto",
+      "conc": false,
+      "ritual": false,
+      "material": "muérdago",
+      "desc": "",
+      "ref": "shillelagh",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 1,
+      "name": "Amistad con los animales",
+      "time": "A",
+      "range": "30 pies",
+      "dur": "24 horas",
+      "conc": false,
+      "ritual": false,
+      "material": "un bocado de comida",
+      "desc": "",
+      "ref": "animal-friendship",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 1,
+      "name": "Bayas nutritivas",
+      "time": "A",
+      "range": "Personal",
+      "dur": "24 horas",
+      "conc": false,
+      "ritual": false,
+      "material": "una ramita de muérdago",
+      "desc": "",
+      "ref": "goodberry",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 1,
+      "name": "Crear o destruir agua",
+      "time": "A",
+      "range": "30 pies",
+      "dur": "Instantánea",
+      "conc": false,
+      "ritual": false,
+      "material": "una mezcla de agua y arena",
+      "desc": "",
+      "ref": "create-or-destroy-water",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 1,
+      "name": "Cuchillo de hielo",
+      "time": "A",
+      "range": "60 pies",
+      "dur": "Instantánea",
+      "conc": false,
+      "ritual": false,
+      "material": "una gota de agua o un trozo de hielo",
+      "desc": "",
+      "ref": "ice-knife",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 1,
+      "name": "Curar heridas",
+      "time": "A",
+      "range": "Toque",
+      "dur": "Instantánea",
+      "conc": false,
+      "ritual": false,
+      "material": "",
+      "desc": "",
+      "ref": "cure-wounds",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 1,
+      "name": "Hablar con los animales",
+      "time": "A",
+      "range": "Personal",
+      "dur": "10 minutos",
+      "conc": false,
+      "ritual": true,
+      "material": "",
+      "desc": "",
+      "ref": "speak-with-animals",
+      "src": "Siempre preparado",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 1,
+      "name": "Zancada prodigiosa",
+      "time": "A",
+      "range": "Toque",
+      "dur": "1 hora",
+      "conc": false,
+      "ritual": false,
+      "material": "una pizca de tierra",
+      "desc": "",
+      "ref": "longstrider",
+      "src": "Elfo silvano",
+      "free": "Zancada prodigiosa (gratis)",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 2,
+      "name": "Agrandar/reducir",
+      "time": "A",
+      "range": "30 pies",
+      "dur": "hasta 1 minuto",
+      "conc": true,
+      "ritual": false,
+      "material": "una pizca de hierro en polvo",
+      "desc": "",
+      "ref": "enlarge-reduce",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 2,
+      "name": "Augurio",
+      "time": "1 minuto",
+      "range": "Personal",
+      "dur": "Instantánea",
+      "conc": false,
+      "ritual": true,
+      "material": "palillos, huesos, cartas u otros objetos adivinatorios marcados especialmente, por valor de 25+ PO",
+      "desc": "",
+      "ref": "augury",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 2,
+      "name": "Pasar sin dejar rastro",
+      "time": "A",
+      "range": "Personal",
+      "dur": "hasta 1 hora",
+      "conc": true,
+      "ritual": false,
+      "material": "cenizas de muérdago quemado",
+      "desc": "",
+      "ref": "pass-without-trace",
+      "src": "Elfo silvano",
+      "free": "Pasar sin dejar rastro (gratis)"
+    },
+    {
+      "level": 2,
+      "name": "Rayo de luna",
+      "time": "A",
+      "range": "120 pies",
+      "dur": "hasta 1 minuto",
+      "conc": true,
+      "ritual": false,
+      "material": "una hoja de menisperma",
+      "desc": "",
+      "ref": "moonbeam",
+      "src": "Siempre preparado",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 3,
+      "name": "Caminar sobre el agua",
+      "time": "A",
+      "range": "30 pies",
+      "dur": "1 hora",
+      "conc": false,
+      "ritual": true,
+      "material": "un trozo de corcho",
+      "desc": "",
+      "ref": "water-walk",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    },
+    {
+      "level": 3,
+      "name": "Conjurar animales",
+      "time": "A",
+      "range": "60 pies",
+      "dur": "hasta 10 minutos",
+      "conc": true,
+      "ritual": false,
+      "material": "",
+      "desc": "",
+      "ref": "conjure-animals",
+      "src": "",
+      "free": "",
+      "atwill": false,
+      "hd": "",
+      "wpn": null
+    }
+  ],
+  "features": [
+    {
+      "name": "Sanador",
+      "source": "Dote de origen (Ermitaño)",
+      "text": "Con un kit de sanador, usas la acción de Usar un objeto y gastas un uso del kit para atender a una criatura a 5 pies: puede gastar uno de sus dados de golpe, lo tiras tú y recupera ese resultado más tu bonificador de competencia. Además, al tirar dados para curar con un conjuro o con esta dote, repites los 1.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Druídico",
+      "source": "Druida 1",
+      "text": "Conoces el idioma secreto de los druidas y siempre tienes preparado Hablar con los animales.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Orden primigenio",
+      "source": "Druida 1",
+      "text": "Eliges Mago (un truco extra y bonificador de SAB a Conocimiento arcano y Naturaleza) o Guardián (armas marciales y armadura media).\n\nElegido: Guardián.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Lanzamiento de conjuros",
+      "source": "Druida 1",
+      "text": "Lanzas conjuros de druida con SAB. Cambias tus conjuros preparados al terminar un descanso largo.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Visión en la oscuridad",
+      "source": "Elfo",
+      "text": "Ves en la oscuridad hasta 60 pies como si fuera luz tenue (sin colores).",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Ascendencia feérica",
+      "source": "Elfo",
+      "text": "Ventaja en salvaciones para evitar o acabar con el estado hechizado.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Sentidos agudos",
+      "source": "Elfo",
+      "text": "Competencia en Perspicacia, Percepción o Supervivencia.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Trance",
+      "source": "Elfo",
+      "text": "No necesitas dormir; un descanso largo te lleva 4 horas de trance.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Magia de elfo silvano",
+      "source": "Elfo silvano",
+      "text": "Velocidad de 35 pies. Conoces Druidismo; a nivel 3 Zancada prodigiosa y a nivel 5 Pasar sin dejar rastro (1 vez cada uno por descanso largo sin espacio). Aptitud: INT, SAB o CAR.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Forma salvaje",
+      "source": "Druida 2",
+      "text": "Acción adicional: te transformas en una bestia que conozcas (más formas y mayor VD con el nivel). Ganas PG temporales iguales a tu nivel de druida.",
+      "uses": {
+        "max": 2,
+        "used": 0,
+        "recover": "corto1",
+        "pool": false
+      }
+    },
+    {
+      "name": "Compañero salvaje",
+      "source": "Druida 2",
+      "text": "Gastas un espacio o un uso de Forma salvaje para lanzar Encontrar familiar sin componentes materiales.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Formas del círculo",
+      "source": "Círculo de la Luna 3",
+      "text": "En forma salvaje puedes usar bestias de VD hasta tu nivel de druida ÷ 3, tu CA mínima es 13 + SAB y los PG temporales son el triple de tu nivel.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Conjuros del círculo",
+      "source": "Círculo de la Luna 3",
+      "text": "Conjuros siempre preparados según tu nivel; puedes lanzarlos en forma salvaje.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Zancada prodigiosa (gratis)",
+      "source": "Elfo silvano",
+      "text": "",
+      "uses": {
+        "max": 1,
+        "used": 0,
+        "recover": "largo",
+        "pool": false
+      }
+    },
+    {
+      "name": "Resurgir salvaje",
+      "source": "Druida 5",
+      "text": "Si no te quedan usos de Forma salvaje, gastas un espacio para recuperar uno; una vez por descanso largo puedes gastar un uso para recuperar un espacio de nivel 1.",
+      "uses": {
+        "max": 0,
+        "used": 0,
+        "recover": ""
+      }
+    },
+    {
+      "name": "Pasar sin dejar rastro (gratis)",
+      "source": "Elfo silvano",
+      "text": "",
+      "uses": {
+        "max": 1,
+        "used": 0,
+        "recover": "largo",
+        "pool": false
+      }
+    }
+  ],
+  "equipment": [
+    {
+      "id": "tf5ftpru",
+      "name": "Armadura de cuero",
+      "qty": 1,
+      "cat": "armadura",
+      "notes": "",
+      "armor": "leather",
+      "magic": 0,
+      "equipped": true
+    },
+    {
+      "id": "lhtqiiaw",
+      "name": "Escudo",
+      "qty": 1,
+      "cat": "armadura",
+      "notes": "",
+      "armor": "shield",
+      "magic": 0,
+      "equipped": true
+    },
+    {
+      "id": "3ui0vx70",
+      "name": "Hoz",
+      "qty": 1,
+      "cat": "arma",
+      "notes": "",
+      "weapon": "sickle",
+      "magic": 0,
+      "equipped": true
+    },
+    {
+      "id": "gni4uwab",
+      "name": "Bastón (canalizador druídico)",
+      "qty": 1,
+      "cat": "arma",
+      "notes": "",
+      "weapon": "quarterstaff",
+      "magic": 0,
+      "equipped": true
+    },
+    {
+      "id": "6f1dgj7r",
+      "name": "Mochila",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "4vtt8zhg",
+      "name": "Saco de dormir",
+      "qty": 2,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "hn2t2yht",
+      "name": "Aceite (frasco)",
+      "qty": 5,
+      "cat": "consumible",
+      "notes": ""
+    },
+    {
+      "id": "65zcuxzu",
+      "name": "Raciones (días)",
+      "qty": 10,
+      "cat": "comida",
+      "notes": "",
+      "gear": "rations"
+    },
+    {
+      "id": "aq03pmmj",
+      "name": "Cuerda",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "0zcbg1cm",
+      "name": "Yesquero",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "5absr1zd",
+      "name": "Antorchas",
+      "qty": 10,
+      "cat": "consumible",
+      "notes": "",
+      "gear": "torch"
+    },
+    {
+      "id": "2k6qnqiu",
+      "name": "Odre",
+      "qty": 1,
+      "cat": "comida",
+      "notes": "",
+      "gear": "waterskin"
+    },
+    {
+      "id": "2winslwh",
+      "name": "Útiles de herborista",
+      "qty": 1,
+      "cat": "herramienta",
+      "notes": "",
+      "tool": "herbalism"
+    },
+    {
+      "id": "h5dpc867",
+      "name": "Bastón",
+      "qty": 1,
+      "cat": "arma",
+      "notes": "",
+      "weapon": "quarterstaff",
+      "magic": 0,
+      "equipped": true
+    },
+    {
+      "id": "ctvbf4jx",
+      "name": "Útiles de herborista",
+      "qty": 1,
+      "cat": "herramienta",
+      "notes": "",
+      "tool": "herbalism"
+    },
+    {
+      "id": "ob8smenb",
+      "name": "Libro (filosofía)",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "hqidm3yh",
+      "name": "Lámpara",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "jtkrbj7p",
+      "name": "Ropa de viajero",
+      "qty": 1,
+      "cat": "otro",
+      "notes": ""
+    },
+    {
+      "id": "he34c936",
+      "name": "Poción de curación",
+      "qty": 3,
+      "cat": "pocion",
+      "notes": "",
+      "potion": "healing"
+    },
+    {
+      "id": "kjzi6f85",
+      "name": "Poción de heroísmo",
+      "qty": 1,
+      "cat": "pocion",
+      "notes": "",
+      "potion": "heroism"
+    },
+    {
+      "id": "y7dqja4j",
+      "name": "Poción de invisibilidad",
+      "qty": 1,
+      "cat": "pocion",
+      "notes": "",
+      "potion": "invisibility"
+    },
+    {
+      "id": "q8mhxgpk",
+      "name": "Poción de resistencia",
+      "qty": 1,
+      "cat": "pocion",
+      "notes": "",
+      "potion": "resistance"
+    },
+    {
+      "id": "ssm0l7re",
+      "name": "Pergamino de curar heridas",
+      "qty": 2,
+      "cat": "pergamino",
+      "notes": "",
+      "scroll": "cure-wounds"
+    },
+    {
+      "id": "urdk88w5",
+      "name": "Pergamino de muro de fuego",
+      "qty": 1,
+      "cat": "pergamino",
+      "notes": "",
+      "scroll": "wall-of-fire"
+    },
+    {
+      "id": "rqbn9rn2",
+      "name": "Pergamino de bola de fuego",
+      "qty": 1,
+      "cat": "pergamino",
+      "notes": "",
+      "scroll": "fireball"
+    },
+    {
+      "id": "phqjpkx1",
+      "name": "Varita de proyectiles mágicos",
+      "qty": 1,
+      "cat": "otro",
+      "notes": "",
+      "mi": {
+        "att": 0,
+        "ac": 0,
+        "sv": 0,
+        "ch": 7,
+        "rec": "1d6 + 1",
+        "d": "Gasta 1 carga para lanzar Proyectil mágico de nivel 1; cada carga extra sube un nivel el conjuro. Si gastas la última, tira 1d20: con un 1 se deshace.",
+        "noarm": 0,
+        "on": 0,
+        "used": 0
+      }
+    },
+    {
+      "id": "yzeu3fgo",
+      "name": "Anillo de protección",
+      "qty": 1,
+      "cat": "otro",
+      "notes": "",
+      "mi": {
+        "att": 1,
+        "ac": 1,
+        "sv": 1,
+        "ch": 0,
+        "rec": "",
+        "d": "+1 a la CA y a las tiradas de salvación.",
+        "noarm": 0,
+        "on": 0,
+        "used": 0
+      }
+    },
+    {
+      "id": "xlt5wtw5",
+      "name": "Capa de protección",
+      "qty": 1,
+      "cat": "otro",
+      "notes": "",
+      "mi": {
+        "att": 1,
+        "ac": 1,
+        "sv": 1,
+        "ch": 0,
+        "rec": "",
+        "d": "+1 a la CA y a las tiradas de salvación.",
+        "noarm": 0,
+        "on": 0,
+        "used": 0
+      }
+    },
+    {
+      "id": "y06visol",
+      "name": "Brazales de defensa",
+      "qty": 1,
+      "cat": "otro",
+      "notes": "",
+      "mi": {
+        "att": 1,
+        "ac": 2,
+        "sv": 0,
+        "ch": 0,
+        "rec": "",
+        "d": "+2 a la CA si no llevas armadura ni escudo.",
+        "noarm": 1,
+        "on": 0,
+        "used": 0
+      }
+    },
+    {
+      "id": "i5i8brnm",
+      "name": "Mapa: Bosque de Neverwinter",
+      "qty": 1,
+      "cat": "mapa",
+      "notes": "",
+      "img": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAYEBAUEBAYFBQUGBgYHCQ4JCQgICRINDQoOFRIWFhUSFBQXGiEcFxgfGRQUHScdHyIjJSUlFhwpLCgkKyEkJST/2wBDAQYGBgkICREJCREkGBQYJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCT/wAARCAAwAEADASIAAhEBAxEB/8QAGAABAAMBAAAAAAAAAAAAAAAAAAQFBwb/xAArEAABAgQGAQIHAQAAAAAAAAABABECAwSBBhITIUFSBTFRFiI2VIKjstH/xAAZAQADAQEBAAAAAAAAAAAAAAAAAQMCBAb/xAAiEQACAQEJAQEAAAAAAAAAAAAAAREDAhITIUFRYZHRBLH/2gAMAwEAAhEDEQA/ALhEXD4kxJ5Wg81UU1NVacqDLlh04Szwg+pHuVzNweZp03bcI7hFmnxh5z779UH+Kzw3iTytf5qnpqmq1JUebNDpwh2hJ9QPcJXkUfz2kpO4REJADnYLRAISAHOwUU1pmnLSS9Y93aAX5s6CiM05quZrHozQC3N3SnYvgXc6rjjXr2CUs0xh9R1f4fxCtLQkAOdghqTFKpccwY2rnCBAxFSE7D5/4iWgmtM05aSXrHu7QC/NnQURmnNVzNY9GaAW5u6wrOx22rUJqrl+9ewDWmactJL1j3doBfmzoKIzTmq5msejNALc3dSgAAw2CLcbnLj3cqSjnXvyAAAGGwRETIEU1pmnLSS9Y93aAX5s6CiM05quZrHozQC3N3UoAAMNgiUbl8e7lSUc69+QAAAw2CIiZAIiIAIiIA//2Q=="
+    },
+    {
+      "id": "4do3efe0",
+      "name": "Mapa: La cripta",
+      "qty": 1,
+      "cat": "mapa",
+      "notes": ""
+    }
+  ],
+  "coins": {
+    "cp": 0,
+    "sp": 0,
+    "ep": 0,
+    "gp": 25,
+    "pp": 0
+  },
+  "languages": "Común y dos idiomas a elegir",
+  "proficiencies": {
+    "armor": "Ligera, escudos, armaduras intermedias",
+    "weapons": "Sencillas, armas marciales",
+    "tools": "Útiles de herborista"
+  },
+  "notes": "",
+  "story": {
+    "img": "",
+    "alignment": "",
+    "age": "",
+    "appearance": "",
+    "personality": "",
+    "history": ""
+  },
+  "turn": {
+    "a": false,
+    "aa": false,
+    "r": false,
+    "atk": 0
+  },
+  "combat": null,
+  "diary": {
+    "items": []
+  }
+}
