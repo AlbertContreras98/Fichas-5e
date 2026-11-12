@@ -911,7 +911,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: cuando el modificador de CON sube 1, los PG máximos (y los actuales) suben 1 por nivel; si baja, bajan.
 - Propuesta: en `applyWizard()`, después de aplicar la mejora o la dote, comparar el modificador de CON de antes y de después y sumar la diferencia × nivel a `hp.max` y `hp.current` (lo mismo en `featApply()`/`featRemove()` fuera del asistente). En «Editar ficha», al cambiar la CON, avisar con un toast que ofrezca ajustar los PG.
 - Prioridad: frecuencia 2 + olvido 3 + coste 3 = 8
-- Estado: pendiente
+- Estado: arreglado (2026-11-12): al subir la CON con una mejora o una dote, los PG suben 1 por nivel (y bajan si se quita la dote); el resumen del asistente lo muestra. En «Editar ficha», al cambiar la CON sale un aviso que ofrece ajustar los PG.
 
 ### 83. El mago tiene menos conjuros preparados de la cuenta desde el nivel 14
 - Origen: Prueba 2a
@@ -920,7 +920,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: mago 14 → 18 preparados, 15 → 19, 16 → 21, 17 → 22, 18 → 23, 19 → 24, 20 → 25.
 - Propuesta: darle al mago su propia lista `prepared` en `data/classes.js`.
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-12): el mago tiene su propia tabla de conjuros preparados.
 
 ### 84. Una invocación repetible se puede volver a elegir aunque no quede truco para ella
 - Origen: Prueba 2a
