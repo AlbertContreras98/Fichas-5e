@@ -1002,3 +1002,79 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Propuesta: apuntar en el registro de la dote (`rec`) que fijó la aptitud (`rec.cast = true`) y, en `featRemove()`, vaciarla si no quedan conjuros ni otra dote que la necesite.
 - Prioridad: frecuencia 1 + olvido 1 + coste 3 = 5
 - Estado: pendiente
+
+### 93. Quitar de la mesa al jugador al que le toca para el combate del máster
+- Origen: Prueba 2c
+- Tipo: Fallo
+- Qué pasa: en el modo máster, si se quita un jugador («Quitar jugador» en su pestaña) justo cuando le toca, sale de la lista de combate pero nadie pasa a tener el turno (`m-del-ok` no mueve `MST.fight.cur`, a diferencia de la «×» de la lista, que sí lo hace). El combate deja de contar como empezado: desaparece «Siguiente turno», vuelve a salir «Empezar combate», y al pulsarlo la ronda vuelve a 1 (en la prueba estaba en la 6). Cómo se repite: modo máster con 2 jugadores y un NPC → Combate → «Añadir jugadores», iniciativas, «Empezar combate» → «Siguiente turno» hasta que le toque a un jugador → pestaña de ese jugador → «Quitar jugador» → Combate. Con el guion: `node tests/master.js` (paso «combate · quitar de la mesa al jugador del turno»).
+- Qué debería pasar: el turno pasa al siguiente de la lista y la ronda sigue igual, como al quitarlo con la «×».
+- Propuesta: en `m-del-ok`, antes de filtrar la lista, hacer lo mismo que `m-rm` con el turno (o llamar a una función común).
+- Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
+- Estado: pendiente
+
+### 94. «Deshacer» tras generar el recibo descuadra la tienda del máster
+- Origen: Prueba 2c
+- Tipo: Fallo
+- Qué pasa: al generar el recibo, las líneas se marcan «ya en un recibo» y eso se apunta en «Deshacer». Si el jugador pulsa «Deshacer» después (por ejemplo, para cerrar algo o por error), las líneas pierden la marca y vuelven a tener «Anular». Si anula una compra que el máster ya ha aplicado y luego compra otra cosa, el recibo nuevo tiene el mismo número de líneas que el anterior y el máster lo rechaza («Recibo ya aplicado»): `rcptApply()` solo cuenta cuántas líneas de esa visita ha aplicado (`applied[sesión] = n`), no cuáles. La tienda del máster se queda con la compra anulada y sin la nueva, y el dinero del vendedor no cuadra (en la prueba, 5350 pc en el máster y 4950 en el jugador); el jugador recupera el dinero de lo anulado aunque el máster lo tenga cobrado. Cómo se repite: Zyo entra en una tienda → compra un kit de sanador → «Generar recibo» → el máster lo aplica → Zyo pulsa «Deshacer» → «Anular» el kit → compra flechas → «Generar recibo» → el máster lo pega: «Recibo ya aplicado».
+- Qué debería pasar: lo que ya está en un recibo no se puede anular, ni siquiera con «Deshacer»; o, si se anula, el siguiente recibo lo deshace en el máster.
+- Propuesta: dar a cada línea del registro su propio id y que el máster guarde los ids aplicados (`applied[sesión] = [ids]`); y que generar el recibo no se pueda deshacer (vaciar `UNDO` al generarlo, como al escribir en «Editar ficha»).
+- Prioridad: frecuencia 1 + olvido 2 + coste 2 = 5
+- Estado: pendiente
+
+### 95. Anular la venta de toda la munición deja el arma sin munición
+- Origen: Prueba 2c
+- Tipo: Fallo
+- Qué pasa: al vender todas las unidades de una munición (por ejemplo, las 20 flechas del explorador), la app quita el enlace de munición del arco (`shTake()`). Al anular la venta, las flechas vuelven a la mochila, pero el arco sigue sin munición enlazada (solo se recuperan los ataques que son ese mismo objeto, no los que la usaban como munición), y al disparar ya no se descuentan. No se arregla al recargar. Cómo se repite: importar `explorador.json` → entrar en una tienda → Vender «Flechas» ×20 → «Anular» → Combate: el Arco largo no tiene munición.
+- Qué debería pasar: anular la venta deja todo como estaba, también el enlace del arco con sus flechas.
+- Propuesta: en `shTake()`, guardar los ids de los ataques cuya munición era ese objeto y, en `sh-undo`, volver a ponérsela.
+- Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
+- Estado: pendiente
+
+### 96. Un código de criatura sin el «#cr=» entra como un jugador nuevo
+- Origen: Prueba 2c
+- Tipo: Fallo
+- Qué pasa: «Copiar código» de una criatura copia el enlace entero (`…#cr=…`) y así funciona. Pero si se pega solo el código (por ejemplo, porque el jugador lo recorta o lo pasa por un chat que corta el enlace), `qrKind()` prueba primero `sheetParse()`, que acepta cualquier cosa con id, 6 características y salvaciones, y la criatura se añade a la mesa como si fuera un jugador más (con pestaña propia), en vez de ir con su dueño. Pasa en «+ Jugador → O pega su código» y en «Escanear → Pega el código». Cómo se repite: mago con un familiar → Criaturas → «QR para el máster» → «Copiar código» → pegar en «+ Jugador» solo lo que va después de `#cr=` → «Jugador añadido: Plumas».
+- Qué debería pasar: el código se reconoce como criatura y va a su jugador.
+- Propuesta: que `sheetParse()` rechace los códigos con `t` (las criaturas llevan `t: 'c'`, las tiendas `'s'` y los recibos `'r'`), o que `qrKind()` mire `t` antes.
+- Prioridad: frecuencia 1 + olvido 1 + coste 3 = 5
+- Estado: pendiente
+
+### 97. Comprar un objeto que la app del jugador no conoce cobra y no da el objeto
+- Origen: Prueba 2c
+- Tipo: Fallo
+- Qué pasa: los objetos del catálogo viajan en la tienda solo con su código (`w:dagger`, `p:healing`…). Si la app del jugador no conoce el código (por ejemplo, el máster ya tiene una versión nueva con objetos nuevos y el móvil del jugador aún no se ha actualizado), la tienda lo enseña como «Objeto» y, al comprarlo, la app da un error (`shGive()`, `js/features/shop.js:140`, en armas; con otros tipos puede pasar algo parecido) **después** de cobrar: el dinero se descuenta, pero el objeto no llega a la mochila ni al registro, y no sale en el recibo. Cómo se repite (con un código hecho a mano): abrir la app del jugador con `#tienda=` de una tienda que tenga el objeto `w:noexiste` → Comprar (consola: `Cannot read properties of undefined (reading 'am')`).
+- Qué debería pasar: el objeto se compra como uno inventado (con su nombre) o no deja comprarlo; nunca cobrar sin dar el objeto.
+- Propuesta: que `shopPayload()` mande también el nombre y el tipo de los objetos del catálogo, y que `shopParse()` convierta en `x` (inventado) los códigos que no existan; en `shBuy()`, cobrar después de `shGive()`.
+- Prioridad: frecuencia 1 + olvido 1 + coste 3 = 5
+- Estado: pendiente
+
+### 98. Pegar un recibo en «+ Jugador» dice que el código no es válido
+- Origen: Prueba 2c
+- Tipo: Mejora
+- Qué pasa: el máster tiene dos sitios para pegar códigos: «+ Jugador → O pega su código» y «Escanear o importar recibo → ¿No se lee? Pega el código». El primero solo acepta jugadores y criaturas: con un recibo (o una tienda) dice «Ese código no es válido. Pídele al jugador que lo copie de nuevo (⚙ Ajustes → Compartir con el máster)», que despista (el código está bien). El aviso del jugador al copiar el recibo («Código copiado. Pásaselo al máster») no dice dónde se pega.
+- Qué debería pasar: cualquier código de Fichas 5e pegado en cualquiera de los dos sitios hace lo que toca (como ya hace el escáner).
+- Propuesta: en `m-paste`, si `qrKind()` reconoce el código, llamar a `qrRun()` sea del tipo que sea; y que el aviso del recibo diga «lo pega en Tiendas → Escanear o importar recibo».
+- Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
+- Estado: pendiente
+
+### 99. La iniciativa de los monstruos del bestiario es solo la Destreza (por confirmar)
+- Origen: Prueba 2c
+- Tipo: Regla
+- Qué pasa: al añadir un NPC del bestiario, la app le pone como bonificador de iniciativa el modificador de DES (`bestIni()`), y lo mismo enseña la ficha del monstruo. En las fichas de 2024 (SRD 5.2) cada criatura trae su iniciativa, y muchas suman su competencia una o dos veces: por ejemplo, el Aboleth (DES 9) tiene +7 y la app dice −1; el Dragón rojo adulto (DES 10), +12 y la app dice +0. Para los monstruos de nivel bajo (goblins, lobos, bandidos) suele coincidir. Hay que confirmarlo con el JSON del SRD de 5e-database (si trae la iniciativa).
+- Qué debería pasar: la iniciativa de cada criatura la de su ficha de 2024.
+- Propuesta: que `tools/bestiario/gen.py` guarde la iniciativa del SRD en cada criatura (`ini`) y que `bestIni()` la use si existe (y la DES si no).
+- Prioridad: frecuencia 1 + olvido 3 + coste 2 = 6
+- Estado: pendiente
+
+### 100. Fallos menores del modo máster y de los códigos
+- Origen: Prueba 2c
+- Tipo: Fallo
+- Qué pasa (todos poco probables en la mesa; salen con códigos hechos a mano, cortados o de otra versión):
+  - Un recibo con una línea que no es una lista (`l: [5]` o `[null]`) da un error en `rcptApply()` y no avisa de nada.
+  - Una ficha `#pj` con menos de 6 salvaciones se añade a la mesa y su ventana enseña «Salv. NaN».
+  - Abrir un enlace `#pj=` roto (cortado, mal copiado) en un dispositivo que no está en modo máster no avisa de nada: la app se abre como si no hubiera enlace. Los demás tipos (`#cr`, `#tienda`, `#recibo`) y el modo máster sí avisan («Ese código no es de Fichas 5e»).
+  - En la lista de combate del máster, los PG de un NPC pueden quedar negativos (−4) si se escribe así; en las reglas los PG no bajan de 0.
+- Qué debería pasar: los códigos raros se rechazan con un aviso; los PG se quedan en 0.
+- Propuesta: en `rcptParse()`, quedarse solo con las líneas que sean listas; en `sheetParse()`, exigir 6 salvaciones; en `masterHash()`, si el `#pj` no es válido, llamar a `qrRun(null)`; en el manejador de `data-mf`, no dejar PG por debajo de 0.
+- Prioridad: frecuencia 1 + olvido 1 + coste 3 = 5
+- Estado: pendiente
