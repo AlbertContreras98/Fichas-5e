@@ -132,9 +132,18 @@ Object.assign(A, {
       <div class="btns"><button class="b bad" data-act="m-del-ok" data-id="${esc(p.id)}">Quitar</button><button class="b" data-act="close-modal">Cancelar</button></div>`);
   },
   'm-del-ok': el => {
-    const id = el.dataset.id;
+    const id = el.dataset.id,
+      F = MST.fight;
     MST.players = MST.players.filter(x => x.id !== id);
-    MST.fight.list = MST.fight.list.filter(f => f.pid !== id);
+    const gone = F.list.filter(f => f.pid === id).map(f => f.id);
+    if (gone.includes(F.cur)) {
+      /* le tocaba a él: el turno pasa al siguiente que sigue en la mesa, como con la «×» */
+      const L = fightSorted(),
+        i = L.findIndex(f => f.id === F.cur),
+        nx = [...L.slice(i + 1), ...L.slice(0, i)].find(f => !gone.includes(f.id));
+      F.cur = nx ? nx.id : '';
+    }
+    F.list = F.list.filter(f => f.pid !== id);
     MST.tab = 'combat';
     masterSave();
     closeModal();

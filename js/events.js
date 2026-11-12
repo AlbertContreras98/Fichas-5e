@@ -38,7 +38,10 @@ document.addEventListener('click', e => {
     save();
     render();
   }
-  if (JSON.stringify(S.chars) !== before) {
+  if (undoCut) {
+    undoCut = false;
+    UNDO.length = 0;
+  } else if (JSON.stringify(S.chars) !== before) {
     UNDO.push({ chars: before, active: act });
     if (UNDO.length > 40) UNDO.shift();
     if (C()) renderTop();
@@ -170,6 +173,7 @@ document.addEventListener('input', e => {
     conEdit = { id: c.id, from: mod(c.abilities.con) };
   t[ks[ks.length - 1]] = v;
   if (el.dataset.path === 'level') c.level = clamp(+v || 1, 1, 20);
+  if (/^(slots|pact|hitDice|spells\.\d+\.level)/.test(el.dataset.path)) sane(c);
   if (el.dataset.path === 'classKey') {
     c.class = v ? CL[v].n : c.class;
     c.subclassKey = '';

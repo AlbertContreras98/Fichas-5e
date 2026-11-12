@@ -199,6 +199,7 @@ Object.assign(A, {
     niCollect();
     const c = C();
     if (NI.cat === 'paquete') {
+      const pk = PACKS[NI.pack || 'explorer'];
       packGive(c, NI.pack || 'explorer', Math.max(1, parseInt(NI.qty) || 1));
       NI = null;
       closeModal();
@@ -206,7 +207,7 @@ Object.assign(A, {
       render();
       openInv();
       toast(
-        `<div class="t-label">${esc(P.n)}</div><div class="t-parts">Añadido todo su contenido a la mochila.</div>`
+        `<div class="t-label">${esc(pk.n)}</div><div class="t-parts">Añadido todo su contenido a la mochila.</div>`
       );
       return;
     }

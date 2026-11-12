@@ -352,6 +352,8 @@ function shSellOpen(c, i) {
 function shRcptOpen(c) {
   const sh = c.shop;
   sh.log.forEach(l => (l.r = 1));
+  /* lo que entra en un recibo ya lo ve el máster: no se puede anular ni deshacer */
+  undoCut = true;
   save();
   render();
   const rc = {

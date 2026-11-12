@@ -187,6 +187,22 @@ function normalize(src) {
   if (c.subclassKey && !(c.classKey && CL[c.classKey].subs[c.subclassKey])) c.subclassKey = '';
   if (!c.id) c.id = uid();
   c.formato = 'fichas-dnd-2024/2';
+  return sane(c);
+}
+/* Recorta los números que se pintan como casillas o que buscan un nivel de espacio: un valor imposible
+   (negativo, con decimales o enorme, p. ej. escrito a mano en «Editar ficha») no puede romper ni colgar la app */
+function sane(c) {
+  const int = (v, lo, hi) => clamp(Math.round(+v || 0), lo, hi);
+  c.slots.forEach(s => {
+    s.total = int(s.total, 0, 9);
+    s.used = int(s.used, 0, s.total);
+  });
+  c.pact.level = int(c.pact.level, 0, 9);
+  c.pact.total = int(c.pact.total, 0, 9);
+  c.pact.used = int(c.pact.used, 0, c.pact.total);
+  c.hitDice.total = int(c.hitDice.total, 0, 20);
+  c.hitDice.spent = int(c.hitDice.spent, 0, c.hitDice.total);
+  c.spells.forEach(s => (s.level = int(s.level, 0, 9)));
   return c;
 }
 

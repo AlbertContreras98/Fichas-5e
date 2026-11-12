@@ -91,3 +91,5 @@ function effectsBar(c, inModal) {
   return pills.length ? `<div class="effrow">${pills.join('')}</div>` : '';
 }
 const UNDO = [];
+/* Una acción lo pone a true para que no se pueda deshacer ni ella ni lo anterior (p. ej. generar un recibo) */
+let undoCut = false;

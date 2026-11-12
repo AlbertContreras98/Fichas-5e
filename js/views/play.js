@@ -41,7 +41,7 @@ function hdHTML(c) {
   const T = +c.hitDice.total || 0,
     left = Math.max(0, T - (+c.hitDice.spent || 0));
   let p = '';
-  for (let k = 0; k < T; k++)
+  for (let k = 0; k < Math.min(T, 30); k++)
     p += `<button class="pip${k < left ? ' full' : ''}" data-act="hd-pip" data-i="${k}" aria-label="${k < left ? `Gastar un dado de golpe (quedan ${left})` : 'Recuperar un dado de golpe'}"></button>`;
   return `<div class="vida-hd"><div class="hd-head"><span>Dados de golpe <small>(${esc(c.hitDice.die)})</small></span><b>${left} / ${T}</b></div>
     ${T ? `<span class="pips">${p}</span>` : ''}
@@ -322,7 +322,7 @@ function slotOptions(c, L) {
     o.push({ kind: 'pact', level: c.pact.level, avail: c.pact.total - c.pact.used });
   for (let l = L; l <= 9; l++) {
     const s = c.slots[l - 1];
-    if (s.total > 0) o.push({ kind: 'slot', level: l, avail: s.total - s.used });
+    if (s && s.total > 0) o.push({ kind: 'slot', level: l, avail: s.total - s.used });
   }
   return o;
 }

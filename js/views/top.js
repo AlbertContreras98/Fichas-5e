@@ -3,7 +3,7 @@
 
 function pips(kind, a, T, filled) {
   let h = '<span class="pips">';
-  for (let k = 0; k < T; k++)
+  for (let k = 0; k < Math.min(T, 30); k++)
     h += `<button class="pip${k < filled ? ' full' : ''}" data-act="pip" data-kind="${kind}" data-a="${a}" data-i="${k}" aria-label="Casilla ${k + 1} de ${T}"></button>`;
   return h + '</span>';
 }
