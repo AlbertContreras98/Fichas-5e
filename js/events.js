@@ -44,6 +44,8 @@ document.addEventListener('click', e => {
     if (C()) renderTop();
   }
 });
+/* Modificador de CON antes de editarla en «Editar ficha», para ofrecer el ajuste de PG */
+let conEdit = null;
 document.addEventListener('input', e => {
   const el = e.target;
   if (el.id === 'she-f' && SHE) {
@@ -164,6 +166,8 @@ document.addEventListener('input', e => {
   const ks = el.dataset.path.split('.');
   let t = c;
   for (let i = 0; i < ks.length - 1; i++) t = t[ks[i]];
+  if (el.dataset.path === 'abilities.con' && (!conEdit || conEdit.id !== c.id))
+    conEdit = { id: c.id, from: mod(c.abilities.con) };
   t[ks[ks.length - 1]] = v;
   if (el.dataset.path === 'level') c.level = clamp(+v || 1, 1, 20);
   if (el.dataset.path === 'classKey') {
@@ -196,6 +200,17 @@ document.addEventListener('input', e => {
 });
 document.addEventListener('change', e => {
   const el = e.target;
+  if (el.dataset && el.dataset.path === 'abilities.con' && conEdit) {
+    const c = C(),
+      d = c && c.id === conEdit.id ? mod(c.abilities.con) - conEdit.from : 0;
+    if (d)
+      toast(
+        `<div class="t-label">Has cambiado la Constitución</div><div class="t-parts">Tu modificador pasa de ${sgn(conEdit.from)} a ${sgn(mod(c.abilities.con))}. Según las reglas, tus PG máximos cambian 1 por nivel: <b>${sgn(d * c.level)} PG</b> (de ${c.hp.max} a ${Math.max(1, c.hp.max + d * c.level)}).</div><div class="t-actions"><button class="b sm pri" data-act="con-hp" data-from="${conEdit.from}">Ajustar los PG</button><button class="b sm" data-act="close-toast">Ya los pongo yo</button></div>`,
+        true
+      );
+    conEdit = null;
+    return;
+  }
   if (el.id === 'cs-wpn') {
     $('#cs-wpn-f').hidden = !el.checked;
     return;

@@ -2,6 +2,18 @@
 'use strict';
 
 Object.assign(A, {
+  'con-hp': el => {
+    const c = C(),
+      was = c.hp.max;
+    c.abilities.con = +c.abilities.con || 10;
+    conHpAdj(c, +el.dataset.from);
+    el.closest('.toast').remove();
+    save();
+    render();
+    toast(
+      `<div class="t-label">PG ajustados</div><div class="t-parts">PG máximos: de ${was} a <b>${c.hp.max}</b>.</div>`
+    );
+  },
   'tog-save': el => {
     const c = C(),
       k = el.dataset.k,

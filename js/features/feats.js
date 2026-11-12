@@ -227,6 +227,14 @@ function ftSet(el) {
   ftRefresh();
 }
 
+/* Si el modificador de CON ha cambiado respecto a `before`, ajusta los PG: 1 por nivel (reglas de 2024) */
+function conHpAdj(c, before, lvl) {
+  const d = (mod(c.abilities.con) - before) * (lvl || c.level || 1);
+  if (!d) return 0;
+  c.hp.max = Math.max(1, c.hp.max + d);
+  c.hp.current = clamp(c.hp.current + d, d < 0 && c.hp.current > 0 ? 1 : 0, c.hp.max);
+  return d;
+}
 /* Aplica la dote a la ficha y guarda en c.featData lo necesario para deshacerla */
 function featApply(c, fs, src) {
   const f = FEATS[fs.k],
@@ -236,9 +244,11 @@ function featApply(c, fs, src) {
   rec.feat = name;
   const notes = [];
   if (fs.ab && c.abilities[fs.ab] < ftCap(f)) {
+    const con0 = mod(c.abilities.con);
     c.abilities[fs.ab] = Math.min(ftCap(f), c.abilities[fs.ab] + 1);
     rec.ab = fs.ab;
     notes.push(`${AB[fs.ab][2]} +1`);
+    conHpAdj(c, con0);
   }
   if (f.save && fs.ab && !c.saveProf.includes(fs.ab)) {
     c.saveProf.push(fs.ab);
@@ -317,7 +327,11 @@ function featApply(c, fs, src) {
 function featRemove(c, k, rec) {
   const f = FEATS[k];
   if (rec) {
-    if (rec.ab) c.abilities[rec.ab] = Math.max(1, c.abilities[rec.ab] - 1);
+    if (rec.ab) {
+      const con0 = mod(c.abilities.con);
+      c.abilities[rec.ab] = Math.max(1, c.abilities[rec.ab] - 1);
+      conHpAdj(c, con0);
+    }
     if (rec.save) c.saveProf = c.saveProf.filter(x => x !== rec.ab);
     [...rec.sk].reverse().forEach(([s, prev]) => (c.skills[s] = prev));
     for (const field in rec.prof) {

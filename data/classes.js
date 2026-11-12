@@ -400,7 +400,7 @@ warlock:{n:'Brujo',en:'Warlock',hd:8,saves:['wis','cha'],cast:'pact',ab:'cha',
 
 wizard:{n:'Mago',en:'Wizard',hd:6,saves:['int','wis'],cast:'full',ab:'int',
   armor:'Ninguna',weapons:'Sencillas',skills:{n:2,from:['arcana','history','insight','investigation','medicine','nature','religion']},
-  cantrips:rep([[3,3],[4,9],[5,20]]),prepared:PREP_FULL,
+  cantrips:rep([[3,3],[4,9],[5,20]]),prepared:[4,5,6,7,9,10,11,12,14,15,16,16,17,18,19,21,22,23,24,25],
   asi:[4,8,12,16,19],subLv:[3,6,10,14],sub:'Tradición',
   res:[{n:'Recuperación arcana',by:rep([[1,20]]),rec:'largo'}],
   info:{},

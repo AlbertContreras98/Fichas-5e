@@ -155,6 +155,19 @@ function newFeatures() {
   }
   return out;
 }
+/* PG extra al subir de nivel si la mejora de este nivel sube el modificador de CON: 1 por nivel */
+function hpConUp() {
+  const def = wizDef(),
+    a = W.asi;
+  if (W.mode !== 'level' || !def || !a || !def.asi.includes(W.L)) return 0;
+  const con = +C().abilities.con || 0;
+  let up = 0;
+  if (a.mode === '2') up = a.a === 'con' ? 2 : 0;
+  else if (a.mode === '11') up = a.a === 'con' || a.b === 'con' ? 1 : 0;
+  else if (a.mode === 'feat' && a.fs && FEATS[a.fs.k] && a.fs.ab === 'con' && con < ftCap(FEATS[a.fs.k]))
+    up = 1;
+  return (mod(Math.min(a.mode === 'feat' ? ftCap(FEATS[a.fs.k]) : 20, con + up)) - mod(con)) * W.L;
+}
 function hpGain() {
   const def = wizDef(),
     c = C();
@@ -641,7 +654,7 @@ function wizBody(step) {
           );
       }
       return `<p>Todo listo para subir a <b>${esc(c.name)}</b> a ${def.n} ${L}${sub ? ` (${sub.n})` : ''}.</p>
-      <div class="diff"><span>PG máximos</span><b>${c.hp.max} → <span class="up">${c.hp.max + hpGain()}</span></b><span>Rasgos nuevos</span><b>${newFeatures().length}</b>${W.iv ? `<span>Invocaciones</span><b>${W.iv.list.length}</b>` : ''}${W.style && FEATS[W.style.k] ? `<span>Estilo de combate</span><b>${esc(FEATS[W.style.k].n)}</b>` : ''}${
+      <div class="diff"><span>PG máximos</span><b>${c.hp.max} → <span class="up">${c.hp.max + hpGain() + hpConUp()}</span></b>${hpConUp() ? `<span>Por subir la CON</span><b>+${hpConUp()} PG (1 por nivel)</b>` : ''}<span>Rasgos nuevos</span><b>${newFeatures().length}</b>${W.iv ? `<span>Invocaciones</span><b>${W.iv.list.length}</b>` : ''}${W.style && FEATS[W.style.k] ? `<span>Estilo de combate</span><b>${esc(FEATS[W.style.k].n)}</b>` : ''}${
         W.asi && def.asi.includes(L)
           ? `<span>${L === 19 ? 'Don épico' : 'Mejora'}</span><b>${esc(
               W.asi.mode === 'feat'
@@ -864,10 +877,14 @@ function applyWizard() {
         });
       else if (a.mode === 'feat') {
         /* la dote del catálogo se aplica más abajo, con el nivel y los conjuros ya puestos */
-      } else if (a.mode === '2') c.abilities[a.a] = Math.min(20, c.abilities[a.a] + 2);
-      else {
-        c.abilities[a.a] = Math.min(20, c.abilities[a.a] + 1);
-        c.abilities[a.b] = Math.min(20, c.abilities[a.b] + 1);
+      } else {
+        const con0 = mod(c.abilities.con);
+        if (a.mode === '2') c.abilities[a.a] = Math.min(20, c.abilities[a.a] + 2);
+        else {
+          c.abilities[a.a] = Math.min(20, c.abilities[a.a] + 1);
+          c.abilities[a.b] = Math.min(20, c.abilities[a.b] + 1);
+        }
+        conHpAdj(c, con0, L);
       }
     }
   }
