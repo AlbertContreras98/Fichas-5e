@@ -939,3 +939,66 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Propuesta: en el paso «Conjuros», apagar en la lista los de `originSpellIds()` y `alwaysIds()` hasta ese nivel; al confirmar, un aviso «Te queda 1 conjuro por elegir» con el botón de preparar.
 - Prioridad: frecuencia 1 + olvido 2 + coste 2 = 5
 - Estado: pendiente
+
+### 86. Añadir un «Paquete de equipo» da error y no se puede deshacer
+- Origen: Prueba 2b
+- Tipo: Fallo
+- Qué pasa: en Objetos → «Añadir objeto» → Tipo «Paquete de equipo (añade su contenido)» → «Añadir», el contenido del paquete se añade a la mochila, pero la app da un error por dentro (`js/actions/inventory.js:209` usa `P.n`, y `P` es el buscador de conjuros, que está vacío). Por ese error no sale el aviso «Añadido todo su contenido a la mochila» y el cambio **no se apunta en «Deshacer»**: si pulsas «Deshacer» para quitar el paquete, se deshace lo anterior que hubieras hecho. Con una ficha recién importada o creada, lo anterior es la propia importación y la ficha desaparece (ver n.º 90). Sale con cualquier ficha y cualquier paquete. Cómo se repite: importar `monje.json` → Objetos → «Añadir objeto» → Tipo: Paquete de equipo → «Añadir» (consola: `TypeError: Cannot read properties of null (reading 'n')`). Con el guion: `node tests/azar.js --ficha=monje --semilla=3 --solo=azar` (paso 255).
+- Qué debería pasar: el paquete se añade, sale el aviso con su nombre y «Deshacer» lo quita.
+- Propuesta: en `item-add`, guardar el nombre antes de vaciar `NI` (`PACKS[NI.pack || 'explorer'].n`) y usarlo en el aviso en vez de `P.n`.
+- Prioridad: frecuencia 1 + olvido 3 + coste 3 = 7
+- Estado: pendiente
+
+### 87. Un nivel de conjuro negativo o con decimales deja en blanco «Partida» y «Combate»
+- Origen: Prueba 2b
+- Tipo: Fallo
+- Qué pasa: en «Editar ficha», el campo «Nivel (0 = truco)» de un conjuro acepta cualquier número. Con uno negativo (−1, −5) o con decimales (2.5), las pestañas «Partida» y «Combate» dejan de pintarse (error en `slotOptions()`, `js/views/play.js:325`: busca un espacio de un nivel que no existe). Queda guardado: al recargar, la app arranca con la pantalla en blanco bajo la cabecera, y hay que volver a Ajustes → «Editar ficha» para corregir el número. Un nivel mayor que 9 no da error. Cómo se repite: importar `monje.json` → Ajustes → Editar ficha → «Añadir conjuro a mano» → Nivel = −1 → «Partida». También pasa con un conjuro del catálogo (Zyo, primer conjuro, nivel −5).
+- Qué debería pasar: el nivel de un conjuro solo puede ser un entero de 0 a 9; lo demás se corrige solo.
+- Propuesta: en el manejador de `data-path` de `events.js`, redondear y limitar `spells.N.level` a 0–9 (y lo mismo en `normalize()`); además, que `slotOptions()` no falle si el nivel no existe.
+- Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
+- Estado: pendiente
+
+### 88. Un número enorme de espacios o de dados de golpe cuelga la app
+- Origen: Prueba 2b
+- Tipo: Fallo
+- Qué pasa: los espacios de conjuro, los espacios de pacto y los dados de golpe se pintan con una casilla por cada uno. «Editar ficha» acepta cualquier número: con 3000 espacios de nivel 1 la pestaña «Partida» tiene más de 4000 elementos; con 999999 (un dedo que se queda en el 9, o pegar un número en el campo equivocado) la pestaña del navegador se queda colgada más de 20 segundos y puede romperse por falta de memoria. Como el número queda guardado y «Partida» es la primera pantalla, la app se cuelga también al volver a abrirla. Con 999999 dados de golpe se cuelga al abrir «Vida y estado». Cómo se repite: importar `zyo.json` → Ajustes → Editar ficha → «Espacios de pacto» = 999999 → «Partida» (o «Nº dados de golpe» = 999999 → pulsar los PG).
+- Qué debería pasar: esos campos tienen un tope razonable (9 espacios por nivel bastan; 20 dados de golpe) y un número mayor se recorta.
+- Propuesta: limitar `slots.N.total`, `pact.total`, `pact.level` (0–9), `hitDice.total` (0–20) y `features.N.uses.max` al escribirlos y en `normalize()`; y que las funciones que pintan casillas no pinten más de, por ejemplo, 30.
+- Prioridad: frecuencia 1 + olvido 1 + coste 3 = 5
+- Estado: pendiente
+
+### 89. «Editar ficha» acepta números imposibles sin avisar
+- Origen: Prueba 2b
+- Tipo: Mejora
+- Qué pasa: los campos numéricos de «Editar ficha» guardan lo que se escriba, sin límites. No dan error (salvo los n.º 87 y 88), pero dejan la ficha con datos imposibles que luego confunden: PG actuales por encima del máximo (999999 de 10) o negativos; PG máximos vacíos, negativos o con decimales; dados de golpe negativos o con decimales; espacios y usos negativos; cantidades de objetos negativas; características negativas o de 999999 (la app calcula con ellas modificadores de +499994). El nivel sí se limita a 1–20, pero admite decimales: con 2.5, Ajustes dice «Asistente para pasar a nivel 3.5». Además, al vaciar la Constitución o ponerla a 0, el aviso de ajustar los PG calcula con 0 (−5) pero «Ajustar los PG» la pone a 10. La lista completa sale en las notas del informe de `tests/azar.js` (casos aparte).
+- Qué debería pasar: cada campo se queda dentro de lo que tiene sentido: características 1–30, nivel entero 1–20, PG actuales entre 0 y el máximo, PG máximos de 1 o más, cantidades y usos de 0 o más, todo sin decimales.
+- Propuesta: una tabla de límites por `data-path` en el manejador de `input` de `events.js` (redondear y recortar al salir del campo, no mientras se escribe), con `min`, `max` y `step` en los `<input>`; y los mismos límites en `normalize()` para lo importado.
+- Prioridad: frecuencia 1 + olvido 2 + coste 2 = 5
+- Estado: pendiente
+
+### 90. «Deshacer» puede quitar la ficha recién importada o creada
+- Origen: Prueba 2b
+- Tipo: Mejora
+- Qué pasa: importar una ficha, crear una (con el asistente o vacía) y borrar un personaje se apuntan en «Deshacer» como cualquier otro cambio. Si después de importar o crear pulsas «Deshacer» una vez de más (o lo pulsas porque algo no se deshizo, como en el n.º 86), la ficha entera desaparece; si era la única, la app vuelve a la pantalla de bienvenida, y queda guardado así (al recargar no vuelve). No hay «Rehacer». Al revés, la ventana de borrar un personaje dice «No se puede deshacer», pero el botón «Deshacer» sí lo recupera mientras no se recargue la página. Cómo se repite: importar `monje.json` → «Deshacer» → pantalla de bienvenida, 0 fichas. O: Personajes → «Crear ficha vacía» → «Deshacer» → la ficha nueva desaparece.
+- Qué debería pasar: «Deshacer» sirve para los cambios dentro de una ficha; importar y crear una ficha no deberían poder perderse con un toque. El texto de borrar debería decir lo que pasa de verdad.
+- Propuesta: vaciar la pila `UNDO` al importar, al crear y al cambiar de ficha (como ya se hace al escribir en «Editar ficha»). Para borrar, o se vacía también (y el texto es cierto), o se cambia el texto por «Puedes recuperarla con Deshacer hasta que cierres la app».
+- Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
+- Estado: pendiente
+
+### 91. En «Editar ficha», los cambios en un conjuro del catálogo no se conservan
+- Origen: Prueba 2b
+- Tipo: Mejora
+- Qué pasa: los conjuros añadidos desde el buscador enseñan en «Editar ficha» los mismos campos que los hechos a mano (nivel, tiempo, alcance, duración, material, concentración, ritual), y se pueden cambiar. Pero la app los vuelve a poner como en el catálogo sin avisar: el material, al recargar la página (`normalize()`); el nivel, y la concentración o el ritual si se desmarcan, y el alcance o la duración si se vacían, al exportar e importar la ficha (`fillFromRef()`). Hasta entonces la ficha guarda el valor cambiado. Algo parecido pasa con los objetos: si cambias el «Tipo» de un objeto a «arma», al recargar aparece además como equipado. Y un conjuro hecho a mano que se llame igual que uno del catálogo queda enlazado con él al recargar. Cómo se repite: Zyo → Editar ficha → Maleficio → Material = «Prueba» y desmarcar Concentración → recargar (vuelve el material) → exportar e importar (vuelve la concentración).
+- Qué debería pasar: o los campos que manda el catálogo no se pueden tocar (solo las «Notas propias»), o lo que el jugador cambie se respeta.
+- Propuesta: en `viewEdit()`, para los conjuros con `ref`, enseñar esos datos como texto fijo y dejar editables solo el nombre y las notas, con una pista: «Para cambiar sus datos, crea un conjuro propio».
+- Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
+- Estado: pendiente
+
+### 92. Quitar una dote con conjuros no quita la aptitud mágica que puso
+- Origen: Prueba 2b
+- Tipo: Fallo
+- Qué pasa: si un personaje que no lanza conjuros (el monje) coge en la ventana «Dotes» una dote con conjuros (visto con Lanzador de rituales; por el código, lo mismo con cualquier dote con conjuros que suba Inteligencia, Sabiduría o Carisma, como Toque feérico), la app le pone como aptitud mágica la característica elegida. Al quitar la dote se van los conjuros y los usos, pero la aptitud mágica se queda («int»). La app sigue tratándolo como lanzador (`ftCtx().caster`), lo que puede cambiar qué dotes le deja coger después, y «Editar ficha» enseña una aptitud mágica que no usa. En el resto de las 119 pruebas de añadir y quitar una dote (las cuatro fichas, a nivel 1 y a nivel 8), no se ha visto ninguna otra diferencia. Cómo se repite: monje a nivel 4 o más → Dotes → Lanzador de rituales (Inteligencia y los dos primeros conjuros) → «Añadir dote» → «Quitar» → Editar ficha → Aptitud mágica: Inteligencia.
+- Qué debería pasar: al quitar la dote, la aptitud mágica vuelve a «Ninguna» si la puso esa dote.
+- Propuesta: apuntar en el registro de la dote (`rec`) que fijó la aptitud (`rec.cast = true`) y, en `featRemove()`, vaciarla si no quedan conjuros ni otra dote que la necesite.
+- Prioridad: frecuencia 1 + olvido 1 + coste 3 = 5
+- Estado: pendiente
