@@ -1087,6 +1087,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Propuesta: en `dmgReactApply()` y en `spendEco()`, no marcar nada si no hay `c.combat`; y en los descansos corto y largo, poner `c.turn = { a: false, aa: false, r: false, atk: 0 }`, como ya hace «Terminar combate».
 - Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
 - Estado: pendiente
+- Ampliación (Partida simulada: Zyo, 2026-11-12): pasa también con un **conjuro de reacción** lanzado desde Combate sin haber iniciado el combate (la pestaña Combate enseña «Tu turno» aunque no haya combate). Zyo, en una pelea de taberna, recibe 2 de daño y lanza Represión infernal desde la columna Reacción: la reacción queda «Gastada ↺» y sigue así tras un descanso largo, hasta el siguiente «Iniciar combate» o el ↺. Cómo se repite: importar `zyo.json` → «Vida y estado» → daño 2 → Combate → Magia (Reacción) → Represión infernal → Descansar → Descanso largo → Combate: «Reacción: Gastada ↺». Con el guion: `node tests/partida-zyo.js` (escena 6). La propuesta de no marcar nada sin `c.combat` (en `spendEco()`) lo arregla también.
 
 ### 102. Elegir «Otra» en la especie, el trasfondo o la clase de «Editar ficha» no se conserva
 - Origen: Prueba 2d
@@ -1095,4 +1096,80 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: si el jugador elige «Otra», se respeta; si la app la va a volver a enlazar, que no ofrezca la opción con ese texto o que avise.
 - Propuesta: solo deducir `speciesKey`, `backgroundKey` y `classKey` del texto cuando la ficha no tiene ese campo (fichas antiguas o importadas de fuera), no cuando está vacío a propósito; por ejemplo, comprobando `c.speciesKey === undefined` en vez de `!c.speciesKey`.
 - Prioridad: frecuencia 1 + olvido 1 + coste 3 = 5
+- Estado: pendiente
+
+### 103. Aviso falso de «un solo espacio por turno» después de una reacción en el turno del enemigo
+- Origen: Partida simulada: Zyo
+- Tipo: Fallo
+- Qué pasa: al gastar un espacio en combate, `consume()` (`js/views/play.js:349`) marca `c.turn.slot`. «Terminar turno» lo limpia, pero si después, en el turno de un enemigo, lanzas una reacción con espacio (Represión infernal), la marca se queda puesta y `turnStart()` (`js/views/turn.js:152`) no la quita al empezar tu turno. Resultado: el primer conjuro con espacio de tu turno siguiente sale con «Ojo: Solo puedes gastar un espacio de conjuro por turno», aunque es otro turno. Un novato puede creer que no puede lanzarlo. Le pasará a Zyo en cuanto tenga 2 espacios de pacto (nivel 2) y use Represión infernal. Cómo se repite: brujo de nivel 2 o más → Combate → «Iniciar combate» → «Terminar turno» → Magia (Reacción) → Represión infernal → Magia (Acción adicional) → Maleficio → sale el aviso. Con el guion: `node tests/partida-zyo.js` (escena 5, «Maleficio con espacio de nivel 2»).
+- Qué debería pasar: el aviso solo sale si gastas dos espacios en el mismo turno (por ejemplo, Maleficio y Represión infernal en tu propio turno).
+- Propuesta: en `turnStart()`, poner `T.slot = false`; o no marcar `slot` en `consume()` mientras `c.turn.wait` esté puesto (el conjuro se lanza fuera de tu turno).
+- Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
+- Estado: pendiente
+
+### 104. Maleficio y Marca del cazador no se pueden pasar a otro objetivo
+- Origen: Partida simulada: Zyo
+- Tipo: Automatizar
+- Qué pasa: si el objetivo de Maleficio (o de Marca del cazador) cae a 0 PG mientras dura el conjuro, en un turno posterior puedes pasarlo a otra criatura con una acción adicional y **sin gastar espacio** (lo dicen los datos de los dos conjuros). La app no tiene ningún botón para eso, y en Combate la fila de Maleficio sale apagada con «Sin espacios» (o, si quedan, gasta otro espacio). En la partida pasó 3 veces en dos combates (la sombra, el esqueleto y los bandidos): el jugador tiene que saber la regla y marcar la acción adicional a mano. Al explorador del grupo le pasará igual con Marca del cazador.
+- Qué debería pasar: mientras Maleficio o Marca del cazador estén activos, en la columna de acción adicional sale «Pasar Maleficio a otro objetivo» (gasta la acción adicional, no el espacio; Maleficio pregunta otra vez la característica).
+- Propuesta: una fila derivada en `viewTurn()` (como «Invocar arma de pacto») que salga si hay un efecto activo de `hex` o `hunters-mark`, gaste `AA` y dé un aviso corto.
+- Prioridad: frecuencia 3 + olvido 3 + coste 3 = 9
+- Estado: pendiente
+
+### 105. Al recibir daño no se ofrece Represión infernal
+- Origen: Partida simulada: Zyo
+- Tipo: Automatizar
+- Qué pasa: Represión infernal es la reacción de Zyo «cuando te daña una criatura que puedas ver a 60 pies». La ventana de «Vida y estado» ya ofrece las reacciones que restan daño (n.º 68), pero no esta: hay que acordarse, cerrar la ventana, ir a Combate, abrir el desplegable «Magia» de Reacción y lanzarla. En la partida salió 4 veces: en la cripta, con los bandidos y en la taberna se lanzó; a nivel 1 no se pudo, porque el único espacio de pacto estaba gastado en Maleficio.
+- Qué debería pasar: tras apuntar el daño, si tienes Represión infernal preparada, la reacción libre y algún espacio, el aviso de daño trae el botón «Responder con Represión infernal».
+- Propuesta: en el aviso de daño (`hp`, `js/actions/play.js`), un botón que haga lo mismo que «Lanzar» desde Combate con `data-eco="R"`. Se puede generalizar a los conjuros de reacción «al recibir daño» (Represión infernal; Escudo se usa antes del daño).
+- Prioridad: frecuencia 2 + olvido 3 + coste 3 = 8
+- Estado: pendiente
+
+### 106. Bendición del oscuro (Patrón Infernal) no da los PG temporales
+- Origen: Partida simulada: Zyo
+- Tipo: Automatizar
+- Qué pasa: el brujo del Patrón Infernal, desde nivel 3, gana PG temporales iguales a su modificador de CAR + su nivel de brujo cada vez que deja a un enemigo a 0 PG (en 2024, también si lo deja otro a 10 pies de él; esto último, de memoria, por confirmar: los datos solo dicen «cerca de ti»). La app solo lo tiene como texto. En la partida de prueba (Zyo Infernal a nivel 3) cayeron 3 bandidos: 3 veces hay que acordarse y 3 veces calcular «3 + 3 = 6» y escribirlo en «PG temporales». Solo afecta a Zyo si Albert elige este patrón.
+- Qué debería pasar: un botón «Ha caído un enemigo» en Combate (sin gastar acción) que dé los PG temporales con la regla de siempre (no se suman: te quedas con el mayor).
+- Propuesta: fila en la columna «Sin gastar acción» si tiene el rasgo `Bendición del oscuro`, que llame a `giveTemp(c, max(1, CAR + nivel), 'Bendición del oscuro')`.
+- Prioridad: frecuencia 2 + olvido 3 + coste 3 = 8
+- Estado: pendiente
+
+### 107. El aviso al lanzar Maleficio, Represión infernal y Toque gélido dice cosas que no tocan y le faltan las que sí
+- Origen: Partida simulada: Zyo
+- Tipo: Mejora
+- Qué pasa (`afterCast()`, `js/views/play.js:582`):
+  - **Maleficio:** el aviso dice «CD de salvación 13 · ataque de conjuro +5», que no sirven para este conjuro (no hay ni tirada de ataque ni salvación). No pregunta ni recuerda que hay que **elegir una característica** (el objetivo tiene desventaja en sus pruebas) ni dice que cada impacto hace +1d6 necrótico (eso sí sale después, en cada ataque).
+  - **Represión infernal:** dice «Daño: 2d10 de daño de fuego» y «CD de salvación 13 · ataque de conjuro +5». Falta que el objetivo hace una **salvación de Destreza** y que, si la supera, recibe **la mitad**; el «ataque de conjuro +5» despista (no se tira ataque).
+  - **Toque gélido:** falta que el objetivo no puede recuperar PG hasta el final de tu siguiente turno.
+  En la partida, el jugador tuvo que ir al menos 4 veces a la descripción del conjuro en Magia.
+- Qué debería pasar: el aviso enseña solo lo que se usa: la CD **con la característica de la salvación** y lo que pasa si la supera, o el ataque de conjuro, según el conjuro; y las elecciones del conjuro («Elige una característica: FUE, DES…»).
+- Propuesta: en `upcastLine()`/`afterCast()`, leer de la descripción «salvación de (Fuerza|Destreza|…)» y «la mitad» y enseñar solo esa línea; si no hay salvación ni «ataque de conjuro» en el texto, no enseñar la línea de CD y ataque. Para Maleficio, un desplegable o una línea «Elige la característica (desventaja en sus pruebas)».
+- Prioridad: frecuencia 3 + olvido 2 + coste 2 = 7
+- Estado: pendiente
+
+### 108. Al caer inconsciente no se marca Derribado (y se queda el arma en la mano)
+- Origen: Partida simulada: Zyo
+- Tipo: Regla
+- Qué pasa: al bajar a 0 PG la app pone «Inconsciente» (`js/actions/play.js:441`), pero no «Derribado», aunque el propio texto del estado dice «Incapacitado y derribado; sueltas lo que llevas». Al curarte se quita «Inconsciente» y la app te deja de pie: el jugador tiene que acordarse de que sigue en el suelo (levantarse cuesta la mitad de la velocidad, y mientras tanto ataca con desventaja y le atacan con ventaja a 5 pies). En 2024, al terminar Inconsciente sigues Derribado (de memoria, por confirmar; lo de quedar derribado sí está en el texto de la app). Además, el arma de pacto (y cualquier arma) se suelta, pero sigue saliendo en Combate como si la tuvieras en la mano.
+- Qué debería pasar: al caer a 0 PG se ponen Inconsciente y Derribado; al curarte se quita solo Inconsciente. El aviso de caer dice «Sueltas lo que llevas en las manos».
+- Propuesta: en `hp`, añadir también `Derribado` al poner `Inconsciente`, y una línea en el aviso: «Has soltado tu arma: recógela (interactuar con un objeto) o, si es tu arma de pacto, invócala otra vez».
+- Prioridad: frecuencia 1 + olvido 3 + coste 3 = 7
+- Estado: pendiente
+
+### 109. A 0 PG la salvación contra muerte se puede apuntar dos veces por turno
+- Origen: Partida simulada: Zyo
+- Tipo: Mejora
+- Qué pasa: a 0 PG, la tarjeta de Combate dice «Al empezar cada turno tuyo tira un d20… y pulsa lo que has sacado» con sus botones. Si el jugador lo hace así, al pulsar «Terminar turno» la app abre otra ventana «Salvación contra muerte… Al empezar tu turno tira un d20. ¿Qué has sacado?» con los mismos botones. No sabe si es la misma tirada o la del turno siguiente: si la vuelve a apuntar, lleva dos salvaciones en un turno. Solo le salva el botón «Ya la había apuntado», que hay que entender. Cómo se repite: Zyo a 0 PG → Combate → «De 10 a 19» en la tarjeta → «Terminar turno» → vuelve a preguntar.
+- Qué debería pasar: una sola forma de apuntar la salvación de cada turno.
+- Propuesta: guardar en el turno que ya se ha apuntado la salvación (`c.turn.ds = true` en `ds-roll`) y no abrir la ventana de `t-end` si está puesta; o que la ventana diga «para tu próximo turno» y la tarjeta se apague hasta entonces.
+- Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
+- Estado: pendiente
+
+### 110. «Terminar combate» no ofrece quitar Asustado ni los otros estados
+- Origen: Partida simulada: Zyo
+- Tipo: Mejora
+- Qué pasa: la ventana de «Terminar combate» (`js/actions/combat.js:71`) solo ofrece quitar Derribado, Agarrado y Apresado. Zyo acabó el combate de la cripta Asustado (por Causar miedo) y el estado se quedó puesto: sus pruebas y ataques siguen saliendo «con desventaja» hasta que alguien se acuerda de quitarlo en «Vida y estado». Lo mismo pasaría con Envenenado, Cegado, Hechizado o Invisible.
+- Qué debería pasar: la ventana enseña todos los estados activos, con los de combate marcados para quitar y los demás sin marcar.
+- Propuesta: en `cb-end`, listar `c.conditions` (salvo Inconsciente) con la casilla marcada solo para los tres de ahora.
+- Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
 - Estado: pendiente
