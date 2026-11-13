@@ -309,7 +309,8 @@ function featApply(c, fs, src) {
       if (!ex.src) {
         Object.assign(ex, { src: FT_SRC_SP, free });
         rec.spConv.push(id);
-      }
+      } else if (free && ex.free && ex.free !== free) ex.free2 = free;
+      else if (free && !ex.free) ex.free = free;
       return;
     }
     c.spells.push(Object.assign(NEW.spells(), spellObj(d), { src: FT_SRC_SP, free }));

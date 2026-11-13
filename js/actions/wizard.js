@@ -172,16 +172,44 @@ Object.assign(A, {
   'cs-exp-ok': csExport,
   'sp-open': openSpellModal,
   'book-open': openBookModal,
+  'book-pay': el => {
+    const c = C(),
+      d = SPBY[el.dataset.id],
+      b = (c.book || []).find(x => x.ref === el.dataset.id),
+      t = el.closest('.toast');
+    if (t) t.remove();
+    if (!d || !b || b.copied) return;
+    if (!pay(c, 50 * d.l, 'gp')) {
+      toast(`<div class="t-parts">No te llega: necesitas ${50 * d.l} po.</div>`);
+      return;
+    }
+    b.copied = true;
+    save();
+    render();
+    const bc = $('#book-count');
+    if (bc) bc.innerHTML = bookCount();
+    toast(
+      `<div class="t-label">Copiado</div><div class="t-parts">Pagas ${50 * d.l} po. No cuenta para los conjuros que ganas al subir de nivel.</div>`
+    );
+  },
   /* Ritualista: lanzar como ritual un conjuro del libro que no está preparado */
   'book-ritual': el => {
     const c = C(),
       d = SPBY[el.dataset.id];
     if (!d || c.combat) return;
+    const sp = Object.assign(NEW.spells(), spellObj(d)),
+      need = !el.dataset.force && spConsume(c, sp);
+    if (need && !need.has) {
+      openModal(`<h2>${esc(d.n)}</h2><p class="hint">Este conjuro gasta: ${esc(need.what)}. No lo encuentro en tu inventario.</p>
+        <button class="b opt" data-act="book-ritual" data-id="${d.id}" data-force="1"><span>Lanzarlo igualmente (lo apunto yo)</span></button>
+        <button class="b" data-act="close-modal">Cancelar</button>`);
+      return;
+    }
+    closeModal();
+    spPendingUse = need && need.has ? Object.assign({ sp }, need) : null;
     lastCastL = d.l;
-    afterCast(
-      Object.assign(NEW.spells(), spellObj(d)),
-      'Como ritual, desde tu libro · tarda 10 minutos más y no gasta espacio'
-    );
+    const t = TIME[d.t] ? '' : `${d.t} + `;
+    afterCast(sp, `Como ritual, desde tu libro · tarda ${t}10 minutos y no gasta espacio`);
   },
   'prep-open': el => {
     const t = el.closest('.toast');
@@ -208,7 +236,15 @@ Object.assign(A, {
       const d = SPBY[el.dataset.id],
         i = P.list.findIndex(s => s.ref === d.id);
       if (i >= 0) P.list.splice(i, 1);
-      else P.list.push(spellObj(d));
+      else {
+        P.list.push(spellObj(d));
+        /* Libro del mago: ¿lo gana al subir de nivel o lo copia (2 h y 50 po por nivel)? */
+        if (P.target === 'book')
+          toast(
+            `<div class="t-label">${esc(d.n)} en tu libro</div><div class="t-parts">Si lo has copiado de un pergamino u otro libro, cuesta 2 horas y <b>${50 * d.l} po</b>.</div><div class="t-actions"><button class="b sm pri" data-act="book-pay" data-id="${d.id}">Lo he copiado: pagar ${50 * d.l} po</button><button class="b sm" data-act="close-toast">Es de subir de nivel</button></div>`,
+            true
+          );
+      }
     }
     P.list.sort((a, b) => a.level - b.level || a.name.localeCompare(b.name, 'es'));
     if (P.target === 'wizard') {

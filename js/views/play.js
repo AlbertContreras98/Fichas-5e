@@ -47,12 +47,20 @@ function hdHTML(c) {
     ${T ? `<span class="pips">${p}</span>` : ''}
     <details><summary>¿Para qué sirven?</summary><p class="hint">Sirven para curarte: tiras el dado y sumas tu CON (${sgn(M(c, 'con'))}). Se gastan sobre todo en el descanso corto, pero algunas dotes y rasgos también los usan. Toca un rombo lleno para gastar uno y uno vacío para recuperarlo. Tienes tantos como tu nivel y los recuperas en el descanso largo.</p></details></div>`;
 }
+/* Escudo: si te van a impactar, recordarlo antes de apuntar el daño */
+function shieldHint(c) {
+  const i = c.spells.findIndex(s => s.ref === 'shield');
+  if (i < 0 || !c.combat || (c.turn && c.turn.r) || c.hp.current <= 0 || !canCast(c, c.spells[i])) return '';
+  if (c.effects.some(e => e.name === c.spells[i].name)) return '';
+  return `<div class="hpctl2"><small>¿Te impacta un ataque? Con <b>Escudo</b> tu CA pasa de ${acOf(c)} a ${acOf(c) + 5} (y anula Proyectil mágico).</small><button class="b sm" data-act="t-cast" data-i="${i}" data-eco="R">Lanzar Escudo</button></div>`;
+}
 function vidaHTML(c) {
   const active = CONDS.filter(x => c.conditions.includes(x[0]));
   return `<div class="vida-top"><p class="vida-hp">PG <b>${c.hp.current}</b> / ${c.hp.max}${c.hp.temp ? ` · <span class="tmp">+${c.hp.temp} temporales</span>` : ''}</p></div>
     ${hdHTML(c)}
     <div class="hpctl"><input id="hpAmt" type="number" inputmode="numeric" min="0" placeholder="0" aria-label="Cantidad de PG">
       <button class="b bad" data-act="hp" data-m="dmg">Daño</button><button class="b good" data-act="hp" data-m="heal">Curar</button><button class="b" data-act="hp" data-m="temp">PG temporales</button><button class="b sm help" data-act="gloss" data-k="temp" aria-label="Qué son los PG temporales">?</button></div>
+    ${shieldHint(c)}
     <div class="hpctl2"><small>Daño con</small><button class="b sm bad" data-act="hp" data-m="half">Resistencia (½)</button><button class="b sm bad" data-act="hp" data-m="double">Vulnerabilidad (×2)</button></div>
     ${dmgReactions(c)}
     ${resistOf(c).length ? `<p class="hint warn"><b>Resistes:</b> ${esc(resistOf(c).join(', '))}. Si el daño es de ese tipo, pulsa «Resistencia (½)».</p>` : ''}
@@ -234,7 +242,7 @@ function viewPlay(c) {
         ? `<div class="spellhead"><span>Aptitud: <b>${AB[c.spellcasting.ability][2]}</b></span><span>${term('CD de salvación', 'dc')}: <b>${spDC(c)}</b></span><span>${term('Ataque de conjuro', 'spatk')}: <b>${sgn(spAtk(c))}</b></span></div>`
         : '';
     mag = `<section class="card"><div class="card-head"><h2>Magia</h2><div class="btns"><button class="b sm" data-act="cs-new">Crear conjuro</button><button class="b sm" data-act="sp-open">Buscar conjuros</button>${book ? `<button class="b sm" data-act="book-open">Libro (${book.length})</button>` : ''}</div></div>${head}
-      ${book && book.length < bookNeed(c) ? `<p class="hint warn">A tu libro de conjuros le faltan ${bookNeed(c) - book.length}: a nivel ${c.level} tienes al menos ${bookNeed(c)}. Apúntalos en «Libro».</p>` : ''}
+      ${book && book.filter(b => !b.copied).length < bookNeed(c) ? `<p class="hint warn">A tu libro de conjuros le faltan ${bookNeed(c) - book.filter(b => !b.copied).length}: a nivel ${c.level} tienes al menos ${bookNeed(c)} sin contar los que copies. Apúntalos en «Libro».</p>` : ''}
       ${
         bookRit.length
           ? `<details class="rules"><summary><b>Rituales de tu libro</b> <small>${bookRit.length} sin preparar</small></summary><p class="hint">Como mago puedes lanzarlos como ritual aunque no los tengas preparados: tardan 10 minutos más y no gastan espacio.${c.combat ? ' En combate no da tiempo.' : ''}</p><div class="list">${bookRit.map(b => `<div class="it"><div class="it-head"><span class="it-name">${esc(b.name)} <span class="tag">R</span></span><button class="b sm" data-act="book-ritual" data-id="${b.ref}" ${c.combat ? 'disabled' : ''}>Lanzar como ritual</button></div></div>`).join('')}</div></details>`
@@ -332,7 +340,10 @@ const freeUse = (c, sp) => {
   if (!free) return null;
   const f = c.features.find(x => x.name === free);
   if (f && sp.atwill) return { atwill: true };
-  return f && f.uses.max - f.uses.used > 0 ? f : null;
+  if (f && f.uses.max - f.uses.used > 0) return f;
+  /* Un segundo uso gratis del mismo conjuro (por ejemplo, de la especie y de una dote) */
+  const f2 = sp.free2 && c.features.find(x => x.name === sp.free2);
+  return f2 && f2.uses.max - f2.uses.used > 0 ? f2 : null;
 };
 const canCast = (c, sp) => {
   const L = +sp.level || 0;
@@ -538,6 +549,43 @@ function healRoll(title, text, bonus, max) {
     <div class="btns"><button class="b" data-act="close-modal">Ahora no</button></div>`);
   setTimeout(() => $('#hr-r') && $('#hr-r').focus(), 0);
 }
+/* Qué tira el objetivo (o tú) según el texto del conjuro: salvación y su característica, o ataque de conjuro */
+function spellUse(c, sp) {
+  if (spMod(c) === null) return '';
+  const d = (sp.ref && SPBY[sp.ref] && SPBY[sp.ref].de) || sp.desc || '',
+    m = d.match(/salvaci[oó]n de (Fuerza|Destreza|Constituci[oó]n|Inteligencia|Sabidur[ií]a|Carisma)/i),
+    atk = /ataque de conjuro/i.test(d),
+    out = [];
+  if (atk) out.push(`Haz un ataque de conjuro: <b>1d20 ${sgn(spAtk(c) + d20Pen(c))}</b>.`);
+  if (m)
+    out.push(
+      `El objetivo hace una salvación de <b>${m[1]}</b> contra tu <b>CD ${spDC(c)}</b>${/la mitad/i.test(d) ? '; si la supera, recibe la mitad del daño' : ''}.`
+    );
+  return out.length ? `<div class="t-parts">${out.join(' ')}</div>` : '';
+}
+/* Lo que más se olvida de algunos conjuros */
+const SPELL_TIP = {
+  hex: 'Elige una característica: el objetivo tiene desventaja en sus pruebas de ella. Cada vez que le impactas, +1d6 necrótico. Si cae a 0 PG, en Combate puedes pasarlo a otra criatura con la acción adicional, sin gastar espacio.',
+  'hunters-mark':
+    'Cada vez que le impactas, +1d6 de fuerza. Tienes ventaja en Percepción y Supervivencia para encontrarla. Si cae a 0 PG, en Combate puedes pasar la marca a otra criatura con la acción adicional, sin gastar espacio.',
+  'chill-touch': 'Si impacta, el objetivo no puede recuperar PG hasta el final de tu siguiente turno.',
+  'faerie-fire':
+    'Las criaturas que fallen quedan perfiladas: los ataques contra ellas tienen ventaja y no pueden ser invisibles.',
+  'ensnaring-strike':
+    'Si falla, queda apresada mientras dure el conjuro: los ataques contra ella tienen ventaja y recibe daño perforante al principio de cada uno de sus turnos. Puede gastar su acción en una prueba de FUE (Atletismo) contra tu CD para soltarse.',
+  darkness: 'La visión en la oscuridad (también la del drow) no ve a través de esta oscuridad.',
+  sleep: 'Al final de su siguiente turno repite la salvación: si vuelve a fallar, queda inconsciente.',
+  shield: 'Tampoco recibes daño de Proyectil mágico mientras dure.',
+};
+function spellTip(c, sp) {
+  const t = SPELL_TIP[sp.ref || ''];
+  let out = t ? `<div class="t-parts">${esc(t)}</div>` : '';
+  /* Saber del cazador (explorador Cazador) */
+  if (sp.ref === 'hunters-mark' && c.subclassKey === 'hunter' && c.level >= 3)
+    out +=
+      '<div class="t-parts"><b>Saber del cazador:</b> pregunta al máster si tu presa tiene inmunidades, resistencias o vulnerabilidades: lo sabes.</div>';
+  return out;
+}
 function afterCast(sp, how) {
   const c = C();
   let note = '';
@@ -583,12 +631,7 @@ function afterCast(sp, how) {
         : r === 'shining-smite'
           ? `<div class="t-parts">El ataque que acabas de impactar hace <b>${L}d6 radiante</b> extra.</div>`
           : '');
-  const extra =
-    roll ||
-    upcastLine(c, sp, L) +
-      (spMod(c) !== null
-        ? `<div class="t-parts">CD de salvación ${spDC(c)} · ataque de conjuro ${sgn(spAtk(c) + d20Pen(c))}</div>`
-        : '');
+  const extra = (roll || upcastLine(c, sp, L) + spellUse(c, sp)) + spellTip(c, sp);
   let cbtn = '';
   /* Un conjuro propio que se llame como una invocación del catálogo de criaturas se enlaza con su ficha */
   const sumK = SUMMON_REF[r] || (!r && Object.keys(SUMMONS).find(k => norm(SUMMONS[k].n) === norm(sp.name)));

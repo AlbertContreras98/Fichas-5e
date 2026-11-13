@@ -141,10 +141,17 @@ Object.assign(A, {
     } else T.atk = Math.max(0, T.atk - 1);
     if (/ligera/i.test(a.notes || '')) T.light = true;
     T.rl = [...(T.rl || []), +el.dataset.i];
+    const notes = atkNotes(c, a, !!el.dataset.throw);
+    /* Molestar: si impacta, ventaja en el siguiente ataque contra esa criatura hasta el final de tu siguiente turno */
+    const W0 = a.wpn && WEAPONS[a.wpn];
+    if (a.mastery && W0 && W0.ms === 'vex') {
+      endEffects(c, e => e.name === 'Molestar');
+      addEffect(c, 'Molestar', { r: 1 }, false, true);
+    }
     save();
     render();
     toast(
-      `<div class="t-label">Ataque con ${esc(a.name)}</div><div class="t-big">1d20 ${sgn((+a.atk || 0) + d20Pen(c))}</div>${d20Line(c, 'atk', a) ? `<div class="t-parts">${d20Line(c, 'atk', a)}</div>` : ''}<div class="t-parts">Si impactas, daño: ${esc(a.dmg || '—')} ${esc(a.type || '')}${am ? ` · quedan ${am.qty} ${esc(am.name)}` : ''}${T.atk > 0 ? ` · ${T.atk === 1 ? 'te queda 1 ataque' : `te quedan ${T.atk} ataques`}` : ''}</div>${critLine(a.dmg, hitExtras(c, false).length)}${hitExtras(
+      `<div class="t-label">Ataque con ${esc(a.name)}</div><div class="t-big">1d20 ${sgn((+a.atk || 0) + d20Pen(c))}</div>${d20Line(c, 'atk', a) ? `<div class="t-parts">${d20Line(c, 'atk', a)}</div>` : ''}${notes}<div class="t-parts">Si impactas, daño: ${esc(a.dmg || '—')} ${esc(a.type || '')}${am ? ` · quedan ${am.qty} ${esc(am.name)}` : ''}${T.atk > 0 ? ` · ${T.atk === 1 ? 'te queda 1 ataque' : `te quedan ${T.atk} ataques`}` : ''}</div>${critLine(a.dmg, hitExtras(c, false).length)}${hitExtras(
         c,
         false
       )
@@ -470,7 +477,7 @@ Object.assign(A, {
     let more = '',
       keep = false;
     const sk = ids =>
-      `<div class="t-parts">${ids.map(id => `${SK[id][1]} <b>${sgn(skillB(c, SK[id]) + d20Pen(c))}</b>`).join(' · ')}</div>${d20Line(c, 'check') ? `<div class="t-parts">${d20Line(c, 'check')}</div>` : ''}`;
+      `<div class="t-parts">${ids.map(id => `${SK[id][1]} <b>${sgn(skillB(c, SK[id]) + d20Pen(c))}</b>`).join(' · ')}</div>${d20Line(c, 'check', ids.length === 1 ? ids[0] : '') ? `<div class="t-parts">${d20Line(c, 'check', ids.length === 1 ? ids[0] : '')}</div>` : ''}`;
     if (k === 'a_dodge') {
       addEffect(c, 'Esquivando', { r: 1 }, false, true);
       markSt(
@@ -497,7 +504,7 @@ Object.assign(A, {
       more = sk(['persuasion', 'deception', 'intimidation', 'performance', 'animal']);
     else if (k === 'a_hide') {
       keep = true;
-      more = `<div class="t-parts">Tira Sigilo <b>1d20 ${sgn(skillB(c, SK.stealth) + d20Pen(c))}</b> contra CD 15. Necesitas no estar a la vista de los enemigos (detrás de algo que te tape o en oscuridad).</div>${d20Line(c, 'check') ? `<div class="t-parts">${d20Line(c, 'check')}</div>` : ''}<div class="t-actions"><button class="b sm pri" data-act="hide-ok">Lo supero</button><button class="b sm" data-act="close-toast">No</button></div>`;
+      more = `<div class="t-parts">Tira Sigilo <b>1d20 ${sgn(skillB(c, SK.stealth) + d20Pen(c))}</b> contra CD 15. Necesitas no estar a la vista de los enemigos (detrás de algo que te tape o en oscuridad).</div>${d20Line(c, 'check', 'stealth') ? `<div class="t-parts">${d20Line(c, 'check', 'stealth')}</div>` : ''}<div class="t-actions"><button class="b sm pri" data-act="hide-ok">Lo supero</button><button class="b sm" data-act="close-toast">No</button></div>`;
     }
     save();
     render();

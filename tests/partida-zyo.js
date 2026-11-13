@@ -739,7 +739,7 @@ async function escena3(ctx) {
     tiene(t, /2d10/) && tiene(t, /fuego/),
     `no dice el daño (2d10 de fuego): ${t.join(' | ')}`
   );
-  regla('Represión infernal', tiene(t, /CD de salvación 13/), 'no dice la CD 13');
+  regla('Represión infernal', tiene(t, /CD 13/), 'no dice la CD 13');
   if (!tiene(t, /Destreza|DES/))
     pensar('buscar', 'Represión infernal: la sombra hace salvación de DES (el aviso solo dice la CD)');
   if (!tiene(t, /mitad/))

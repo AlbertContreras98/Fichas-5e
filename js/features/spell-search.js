@@ -48,7 +48,7 @@ function bookOf(c) {
 }
 const bookCount = () => {
   const c = C(),
-    n = bookOf(c).length,
+    n = bookOf(c).filter(b => !b.copied).length,
     need = bookNeed(c);
   return `<span class="badge" style="${n < need ? 'color:var(--bad)' : ''}">En tu libro: ${n}</span> <small>a nivel ${c.level} tienes al menos ${need} (6 al empezar y 2 más por nivel), más los que copies</small>`;
 };

@@ -666,7 +666,13 @@ async function escena1(ctx) {
     const det = pg.locator('details.rules', { hasText: 'Rituales de tu libro' });
     await det.locator('summary').click();
     await b.act(pg, 'book-ritual', { id: 'find-familiar' });
-    const t = await leerToasts(pg);
+    /* Sin el incienso, la app pregunta antes (n.º 137) */
+    let mt = '';
+    if (await pg.locator('#modal [data-act="book-ritual"][data-force]').count()) {
+      mt = await texto(pg, '#modal .sheet');
+      await b.act(pg, 'book-ritual', { force: '1' }, '#modal');
+    }
+    const t = [mt, ...(await leerToasts(pg))].filter(Boolean);
     /* Crear el familiar desde el botón del aviso */
     await b.act(pg, 'crea-from-cast', { k: 'familiar' });
     await b.elegir(pg, '#cx-cat', 'owl');

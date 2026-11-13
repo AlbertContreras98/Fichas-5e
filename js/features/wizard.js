@@ -198,6 +198,23 @@ const ORDERS = {
       ],
     ],
   },
+  'Presa del cazador': {
+    n: 'Presa del cazador',
+    opts: [
+      [
+        'colossus',
+        'Asesino de colosos',
+        'Una vez por turno, al impactar a una criatura a la que ya le faltan PG, +1d8 de daño.',
+        {},
+      ],
+      [
+        'horde',
+        'Rompehordas',
+        'Una vez por turno, al atacar con un arma, puedes atacar a otra criatura a 5 pies del objetivo original.',
+        {},
+      ],
+    ],
+  },
   'Orden primigenio': {
     n: 'Orden primigenio',
     opts: [
@@ -1011,7 +1028,12 @@ function applyWizard() {
   toast(
     mode === 'create'
       ? `<div class="t-label">Personaje creado</div><div class="t-big">${esc(name)}</div><div class="t-parts">${C().equipment.length ? 'Tu equipo ya está en la mochila. Puedes añadir más desde la pestaña Partida o con el botón de la mochila.' : 'Añade armas, armaduras y herramientas desde la pestaña Partida, y los demás objetos con el botón de la mochila.'}</div>`
-      : `<div class="t-label">¡Subida de nivel!</div><div class="t-big">${esc(def.n)} ${L}</div><div class="t-parts">Rasgos, recursos y espacios actualizados.</div>`
+      : `<div class="t-label">¡Subida de nivel!</div><div class="t-big">${esc(def.n)} ${L}</div><div class="t-parts">Rasgos, recursos y espacios actualizados.</div>${
+          C().classKey === 'wizard'
+            ? `<div class="t-parts"><b>Libro de conjuros:</b> apunta 2 conjuros de mago nuevos (gratis, de un nivel que puedas lanzar).${C().subclassKey && /savant|evoker|abjurer|diviner|illusionist/.test(C().subclassKey) && (L === 3 || [5, 7, 9].includes(L)) ? ` Por ser ${esc(subOf(C()).n)}, apunta también ${L === 3 ? '2 conjuros' : '1 conjuro'} de tu escuela gratis.` : ''}</div><div class="t-actions"><button class="b sm pri" data-act="book-open">Abrir el libro</button></div>`
+            : ''
+        }`,
+    mode !== 'create' && C().classKey === 'wizard'
   );
   ivFeatAsk();
 }

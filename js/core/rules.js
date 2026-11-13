@@ -102,10 +102,13 @@ function addOriginSpells(c, ids) {
   for (const id of ids) {
     const ex = c.spells.find(s => s.ref === id);
     if (!ex) c.spells.push(originSpellObj(id, c.speciesKey, c.lineageKey));
-    else if (!ex.src) {
+    else {
       const o = originSpellObj(id, c.speciesKey, c.lineageKey);
-      ex.src = o.src;
-      if (o.free) ex.free = o.free;
+      if (!ex.src) {
+        ex.src = o.src;
+        if (o.free) ex.free = o.free;
+      } else if (o.free && ex.free && ex.free !== o.free) ex.free2 = o.free;
+      else if (o.free && !ex.free) ex.free = o.free;
     }
   }
   c.spells.sort((a, b) => a.level - b.level || a.name.localeCompare(b.name, 'es'));
@@ -368,6 +371,11 @@ function cantripRoll(c, sp) {
     hitExtras(c, true).forEach(x =>
       out.push(`Al impactar${r === 'eldritch-blast' && t > 1 ? ' (cada rayo)' : ''}: ${x}.`)
     );
+  /* Truco potente (mago Evocador 3) */
+  if (c.subclassKey === 'evoker' && c.level >= 3)
+    out.push(
+      `<b>Truco potente:</b> si ${how === 'atk' ? 'fallas el ataque' : 'supera la salvación'}, el objetivo recibe igualmente la mitad del daño (sin los efectos extra del truco).`
+    );
   return out.map(x => `<div class="t-parts">${x}</div>`).join('');
 }
 
@@ -428,6 +436,19 @@ function d20Line(c, kind, x) {
   if ((kind === 'atk' || kind === 'save') && fx('bane')) out.push('Resta <b>1d4</b> si te afecta Perdición.');
   if (kind === 'check' && fx('guidance'))
     out.push('Suma <b>1d4</b> si es la habilidad elegida con Orientación.');
+  /* Pruebas de una habilidad concreta (x = clave de la habilidad) */
+  if (kind === 'check' && x === 'stealth' && fx('pass-without-trace'))
+    out.push('Suma <b>+10</b> si estás en el aura de Pasar sin dejar rastro.');
+  if (kind === 'check' && (x === 'perception' || x === 'survival') && fx('hunters-mark'))
+    out.push('Con <b>ventaja</b> si buscas a tu presa de Marca del cazador.');
+  if (
+    kind === 'check' &&
+    x === 'perception' &&
+    c.features.some(f => /visi[oó]n en la oscuridad/i.test(f.name))
+  )
+    out.push(
+      'Con poca luz o a oscuras ves como con luz tenue: <b>desventaja</b> si la prueba depende de la vista.'
+    );
   return out.join(' ');
 }
 
@@ -474,6 +495,40 @@ function initFeats(c) {
     .join('')}`;
 }
 
+/* Ventajas y desventajas que dependen del objetivo o de la distancia: la app no las sabe, así que las recuerda */
+function atkNotes(c, a, thrown) {
+  const out = [],
+    W = a && a.wpn && WEAPONS[a.wpn],
+    on = id => {
+      const d = SPBY[id];
+      return d && c.effects.some(e => [d.n, d.en].some(x => norm(x) === norm(e.name)));
+    };
+  if (c.effects.some(e => e.name === 'Molestar'))
+    out.push('<b>Molestar:</b> si atacas a la criatura que impactaste con Molestar, tienes <b>ventaja</b>.');
+  if (on('faerie-fire'))
+    out.push('Si el objetivo brilla por tu <b>Fuego feérico</b>, tienes <b>ventaja</b>.');
+  if (on('ensnaring-strike'))
+    out.push('Si atacas a la criatura apresada por tu <b>Golpe atrapador</b>, tienes <b>ventaja</b>.');
+  if (W && (W.r || thrown)) {
+    const rg = thrown ? W.th : W.am && W.am[1];
+    if (rg) {
+      const [n, l] = String(rg).split('/');
+      out.push(`A distancia: hasta ${n} pies normal; de ${n} a ${l} pies, con <b>desventaja</b>.`);
+    }
+    out.push('Si tienes un enemigo a 5 pies que te vea, el ataque a distancia va con <b>desventaja</b>.');
+  }
+  /* Presa del cazador */
+  const prey = c.features.find(f => f.name === 'Presa del cazador');
+  if (prey && /Elegido: Asesino de colosos/.test(prey.text))
+    out.push(
+      '<b>Asesino de colosos:</b> una vez por turno, si al objetivo ya le faltan PG, +1d8 al impactar (del mismo tipo que el arma).'
+    );
+  if (prey && /Elegido: Rompehordas/.test(prey.text))
+    out.push(
+      '<b>Rompehordas:</b> una vez por turno, puedes hacer otro ataque con la misma arma contra otra criatura a 5 pies del objetivo.'
+    );
+  return out.map(x => `<div class="t-parts">${x}</div>`).join('');
+}
 /* Daño de un crítico: los dados se tiran dos veces (los números fijos no). '' si no hay dados */
 function critDmg(s) {
   s = String(s || '');

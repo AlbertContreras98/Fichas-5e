@@ -332,7 +332,8 @@ async function subirNivel(page, elige) {
     else if (s === 'style') await b.elegir(page, 'select[data-fs="k"]', elige.style);
     else if (s === 'expert') {
       for (const k of elige.exp || []) await b.act(page, 'wz-exp', { k });
-    } else if (s === 'asi') {
+    } else if (s === 'order') await b.radio(page, 'wz-order', elige.presa || 'colossus');
+    else if (s === 'asi') {
       await b.radio(page, 'wz-asi', elige.asi.mode);
       await b.elegir(page, '#wz-asi-a', elige.asi.a);
       if (elige.asi.b) await b.elegir(page, '#wz-asi-b', elige.asi.b);
@@ -1184,7 +1185,7 @@ async function escena4(ctx) {
     'el uso gratis gasta un espacio o no gasta el uso'
   );
   regla('Fuego feérico', c.concentration === 'Fuego feérico', `concentración «${c.concentration}»`);
-  regla('Fuego feérico', tiene(t, /CD de salvación 12/), `CD (8 + 2 + SAB 2 = 12): ${t[0]}`);
+  regla('Fuego feérico', tiene(t, /CD 12/), `CD (8 + 2 + SAB 2 = 12): ${t[0]}`);
   if (!tiene(t, /Destreza|DES/))
     pensar('buscar', 'Fuego feérico: el aviso dice la CD pero no que es una salvación de Destreza');
   const fallan = [dado(20) + 2 < 12, dado(20) + 2 < 12, dado(20) + 1 < 12];

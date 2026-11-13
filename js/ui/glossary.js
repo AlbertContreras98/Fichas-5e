@@ -18,7 +18,7 @@ function showGloss(el) {
       pv = +c.skills[s[0]] || 0;
     t = s[1];
     d = window.SKILL_DESC[s[0]] + ` Usa ${AB[s[2]][2]}.`;
-    roll = `Tira <b>1d20 ${sgn(skillB(c, s) + d20Pen(c))}</b>${pv === 2 ? ' (con pericia)' : pv ? ' (competente)' : ''}.${d20Line(c, 'check') ? `<br>${d20Line(c, 'check')}` : ''}`;
+    roll = `Tira <b>1d20 ${sgn(skillB(c, s) + d20Pen(c))}</b>${pv === 2 ? ' (con pericia)' : pv ? ' (competente)' : ''}.${d20Line(c, 'check', s[0]) ? `<br>${d20Line(c, 'check', s[0])}` : ''}`;
   } else if (k.startsWith('abil:')) {
     const a = k.slice(5);
     t = AB[a][2];

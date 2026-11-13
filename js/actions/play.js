@@ -301,7 +301,7 @@ Object.assign(A, {
     }
     openModal(`<h2>Lanzar ${esc(sp.name)}</h2><p class="hint">Elige con qué espacio. Con uno de nivel superior algunos conjuros son más potentes.</p>
       ${opts.map(o => `<button class="b opt" data-act="cast-with" data-i="${el.dataset.i}" data-kind="${o.kind}" data-level="${o.level}" ${o.avail > 0 ? '' : 'disabled'}><span>${slotLabel(o)}</span><small>quedan ${o.avail}</small></button>`).join('')}
-      ${fr ? `<button class="b opt" data-act="cast-with" data-i="${el.dataset.i}" data-kind="free"><span>Gratis (${esc(sp.src || 'rasgo')})</span><small>${fr.atwill ? 'sin límite' : `quedan ${fr.uses.max - fr.uses.used}`}</small></button>` : ''}
+      ${fr ? `<button class="b opt" data-act="cast-with" data-i="${el.dataset.i}" data-kind="free"><span>Gratis, con «${esc(fr.name || sp.free || sp.src || 'rasgo')}»</span><small>${fr.atwill ? 'sin límite' : `quedan ${fr.uses.max - fr.uses.used} de ${fr.uses.max}`}</small></button>` : ''}
       ${sp.ritual ? (c.combat ? '<p class="hint">Como ritual tarda 10 minutos más: no da tiempo en combate.</p>' : `<button class="b opt" data-act="cast-with" data-i="${el.dataset.i}" data-kind="ritual"><span>Como ritual</span><small>+10 min, sin espacio</small></button>`) : ''}
       <button class="b" data-act="close-modal">Cancelar</button>`);
   },
@@ -346,7 +346,12 @@ Object.assign(A, {
       const f = freeUse(c, sp);
       if (f && f.uses) f.uses.used = Math.min(f.uses.max, f.uses.used + 1);
       castFree = true;
-      return afterCast(sp, `Uso gratuito de ${sp.src || 'rasgo'}`);
+      return afterCast(
+        sp,
+        f && f.uses
+          ? `Gratis, con «${f.name}» · te ${f.uses.max - f.uses.used === 1 ? 'queda 1 uso' : `quedan ${f.uses.max - f.uses.used} usos`}`
+          : `Gratis (${sp.free || sp.src || 'rasgo'})`
+      );
     }
     lastCastL = +el.dataset.level || +sp.level;
     consume(c, el.dataset.kind, +el.dataset.level);
@@ -366,9 +371,14 @@ Object.assign(A, {
   'conc-keep': el => el.closest('.toast').remove(),
   'conc-lose': el => {
     el.closest('.toast').remove();
+    const was = C().concentration;
     C().concentration = '';
     save();
     render();
+    if (was)
+      toast(
+        `<div class="t-label">Concentración perdida</div><div class="t-parts">${esc(was)} termina (y lo que dependía de él).</div>`
+      );
   },
   insp: () => {
     const c = C();
