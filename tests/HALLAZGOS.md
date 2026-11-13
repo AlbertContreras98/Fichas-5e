@@ -1153,6 +1153,12 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
   - **Fuego feérico:** falta que es una **salvación de Destreza** y que los ataques contra los perfilados tienen **ventaja** (ver n.º 113).
   - **Oscuridad:** falta que la visión en la oscuridad (también la del drow) **no ve a través** de ella.
   Cómo se repite: importar `explorador.json` → Combate → Magia (Acción adicional) → Marca del cazador. Con el guion: `node tests/partida-explorador.js --rastro`.
+- Ampliación (Partida simulada: mago, 2026-11-13): con los conjuros del mago pasa igual. En la partida, el jugador tuvo que ir a la descripción 11 veces por esto:
+  - **Dormir, Risa horrible e Inmovilizar persona:** el aviso dice la CD, pero no que es una **salvación de Sabiduría** ni qué pasa si la fallan (incapacitado y luego inconsciente; derribado e incapacitado riéndose; paralizado). El recordatorio de «Terminar turno» (n.º 50) sí dice bien la característica y la CD.
+  - **Manos ardientes y Bola de fuego:** el daño ya sale bien calculado con el espacio (4d6 con espacio de nivel 2, 8d6), pero falta que es una **salvación de Destreza con la mitad si la superan**, y el área (cono de 15 pies, radio de 20 pies). Dormir tampoco dice su área (esfera de 5 pies de radio) y Paso brumoso no dice la distancia (30 pies).
+  - **Trucos:** Rayo de escarcha no dice que el objetivo pierde **10 pies de velocidad** y Agarre electrizante que **no puede hacer ataques de oportunidad** (igual que Toque gélido, arriba): `cantripRoll()` (`js/core/rules.js:309`) solo da el ataque y el daño.
+  - **La línea «CD de salvación 13 · ataque de conjuro +5»** sale también en Proyectil mágico (que impacta sin tirar), Paso brumoso, Detectar magia, Identificar y Encontrar familiar, donde no sirve.
+  Cómo se repite: importar `mago.json` → Combate → Magia → Dormir. Con el guion: `node tests/partida-mago.js --rastro`.
 
 ### 108. Al caer inconsciente no se marca Derribado (y se queda el arma en la mano)
 - Origen: Partida simulada: Zyo
@@ -1218,6 +1224,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Propuesta: como la app no sabe si el ataque impacta, guardar `T.vex` al atacar con Molestar y recordarlo («si impactaste…») en los avisos de ataque hasta el final de tu turno siguiente; una pequeña lista «efecto activo → línea» para Fuego feérico y Golpe atrapador, como `hitExtras()`; y una línea fija para las armas a distancia con su alcance (`WEAPONS[k].am`).
 - Prioridad: frecuencia 3 + olvido 3 + coste 2 = 8
 - Estado: pendiente
+- Ampliación (Partida simulada: mago, 2026-11-13): **Inmovilizar persona** deja al objetivo Paralizado: los ataques contra él tienen ventaja y los cuerpo a cuerpo a 5 pies o menos son críticos. Ni el aviso del conjuro ni el recordatorio de «Terminar turno» lo dicen, y es justo lo que el mago tiene que decirle al guerrero del grupo (1 vez en la partida).
 
 ### 114. Presa del cazador: no se pregunta la opción y Asesino de colosos no sale en el ataque
 - Origen: Partida simulada: explorador
@@ -1245,6 +1252,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Propuesta: usar el nombre del rasgo de `sp.free` (o un nombre más claro para «Marca del cazador gratis») y añadir los usos que quedan al texto del aviso.
 - Prioridad: frecuencia 3 + olvido 1 + coste 3 = 7
 - Estado: pendiente
+- Ampliación (Partida simulada: mago, 2026-11-13): Paso brumoso del alto elfo (nivel 5) sale como «Uso gratuito de Alto elfo», sin decir que queda 0 hasta el descanso largo.
 
 ### 117. El descanso largo gasta una ración aunque lleves bayas nutritivas
 - Origen: Partida simulada: explorador
@@ -1384,4 +1392,80 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: cada aviso dice lo que toca en ese momento.
 - Propuesta: botón «Usar ahora» en la línea de Metabolismo del aviso de iniciativa (`initFeats()`, `js/core/rules.js:460`); en Paso del viento, «salto doble: de longitud, hasta 24 pies con carrerilla (tu puntuación de FUE × 2, ver «Saltar» en el glosario)»; en el aviso de los ataques con arma de monje, «Puedes dar un golpe desarmado con la acción adicional»; quitar «Tras atacar» de la nota; «Repite la tirada d20 y quédate con el nuevo resultado» al gastar la inspiración; y una línea más en el aviso del escudo para el monje.
 - Prioridad: frecuencia 2 + olvido 1 + coste 3 = 6
+- Estado: pendiente
+
+### 132. Escudo no se recuerda cuando te dan
+- Origen: Partida simulada: mago
+- Tipo: Automatizar
+- Qué pasa: Escudo es la reacción típica del mago: se lanza **cuando el ataque te da y antes de que el máster tire el daño**, y si el ataque no supera tu CA + 5, falla. La app sube bien la CA (+5 hasta el principio de tu turno, n.º 51), pero no lo recuerda en ningún sitio: ni hay un «me atacan» donde preguntarlo, ni sale en «Vida y estado» (allí solo están las reacciones que restan daño, `DMG_REACT`, y Represión infernal, que va después del daño). En la partida, el jugador tuvo que acordarse 2 veces con la semilla de siempre (un orco le da con 16 y el ogro con 15, con CA 15 y 12: con Escudo los dos fallaban), y cuando se acuerda tiene que ir a Combate → Reacción → Escudo antes de apuntar el daño. Un novato apunta el daño primero y entonces ya es tarde.
+- Qué debería pasar: en «Vida y estado», junto al daño, un botón «Me han dado: ¿Escudo?» (o «¿Con cuánto te ha dado?») que diga «Si el ataque sacó menos de N (tu CA + 5), falla: lanza Escudo y no apuntes el daño».
+- Propuesta: en `vidaHTML()` (`js/views/play.js:50`), si tienes Escudo preparado, la reacción libre y un espacio, una línea con la CA + 5 y un botón que haga lo mismo que «Lanzar» desde Combate con `data-eco="R"`. Cómo se repite: importar `mago.json` → Combate → «Iniciar combate» → «Vida y estado»: no sale Escudo. Con el guion: `node tests/partida-mago.js --rastro` (escenas 5 y 6).
+- Prioridad: frecuencia 2 + olvido 3 + coste 2 = 7
+- Estado: pendiente
+
+### 133. El descanso corto no ofrece Recuperación arcana ni Memorizar conjuro
+- Origen: Partida simulada: mago
+- Tipo: Automatizar
+- Qué pasa: la ventana del descanso corto (`shortRestModal()`, `js/features/rest.js:4`) lista lo que se recupera (rasgos de descanso corto, magia de pacto), pero no dice nada de **Recuperación arcana** (que justo se usa al terminar un descanso corto) ni de **Memorizar conjuro** (mago 5: al terminar un descanso corto cambias un preparado por otro del libro). Hay que acordarse de ir a «Rasgos y dotes» y pulsar «Usar» (la ventana de Recuperación arcana sí calcula bien el tope, n.º 55). Al revés, ese «Usar» sale siempre, también en combate o sin haber descansado (lo único que avisa es el texto de su ventana). Memorizar conjuro no tiene botón: hay que usar «Buscar conjuros», que ofrece toda la lista de mago y no solo el libro (ver n.º 134). En la partida salió 4 veces (3 descansos cortos y una vez el botón fuera de tiempo).
+- Qué debería pasar: al terminar el descanso corto, si queda el uso de Recuperación arcana y hay espacios gastados, «Recuperación arcana: ¿recuperar espacios?» con las mismas casillas; y a nivel 5, «Memorizar conjuro: cambiar un preparado».
+- Propuesta: en `short-done` (`js/actions/rest.js`), si el mago tiene el uso y espacios gastados, abrir la ventana de `arcane` en vez de cerrar sin más (o un botón en el aviso «Descanso corto terminado»); y un botón «Cambiar un conjuro (Memorizar conjuro)» que abra `openPrepModal()`. Opcional: esconder el «Usar» de Recuperación arcana en combate. Cómo se repite: `mago.json` → gastar un espacio → Descansar → Descanso corto: no se menciona. Con el guion: `node tests/partida-mago.js` (escenas 3, 4 y 6).
+- Prioridad: frecuencia 2 + olvido 3 + coste 3 = 8
+- Estado: pendiente
+
+### 134. «Cambiar conjuros preparados» solo se abre desde el aviso del descanso largo
+- Origen: Partida simulada: mago
+- Tipo: Mejora
+- Qué pasa: la ventana buena para cambiar los preparados (`openPrepModal()`, `js/features/spell-search.js:178`: cuenta los preparados y, para el mago, solo ofrece los del libro) solo se abre con el botón «Cambiar conjuros» del aviso «Descanso largo terminado» (`prep-open`, `js/actions/rest.js:171`). Si el jugador cierra el aviso, recarga la página o quiere cambiar más tarde (o con Memorizar conjuro, n.º 133), solo queda «Buscar conjuros» (`openSpellModal()`), que ofrece **toda la lista de mago**, no solo el libro, y no cuenta el límite. Pasa igual al clérigo, al druida, al paladín y al explorador. En la partida funcionó bien desde el aviso (ofrece solo el libro, cuenta 4/4 y 7/7), pero el guion tuvo que hacerlo en el mismo paso del descanso: con el aviso cerrado no hay forma.
+- Qué debería pasar: un botón fijo «Cambiar preparados» en la tarjeta Magia, que abra la misma ventana.
+- Propuesta: añadir `<button data-act="prep-open">` en la cabecera de Magia (`js/views/play.js:236`) para las clases de `PREP_RULE`; y en «Buscar conjuros» del mago, filtrar por el libro como en `openPrepModal()` (o avisar «este conjuro no está en tu libro»). Cómo se repite: `mago.json` → descanso largo → cerrar el aviso con la ×: ya no hay «Cambiar conjuros».
+- Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
+- Estado: pendiente
+
+### 135. Al subir de nivel no se apuntan los 2 conjuros nuevos del libro
+- Origen: Partida simulada: mago
+- Tipo: Mejora
+- Qué pasa: en las reglas de 2024, cada nivel de mago añade **2 conjuros gratis al libro** (dato de la app: «añades 2 nuevos por nivel»), y el Evocador (como los demás «Sabio de…») añade 2 de su escuela a nivel 3 y 1 más cada vez que gana un nivel de espacio nuevo. El asistente de subir de nivel solo pide los **preparados** (de toda la lista de mago) y no dice nada del libro. El aviso «A tu libro le faltan N» (`bookNeed()`, `js/features/spell-search.js:38`: 6 + 2 por nivel) cuenta todos los del libro, así que un conjuro **copiado** (que se paga aparte) tapa uno de los gratis: en la partida, tras copiar Risa horrible, a nivel 2 dice «faltan 1» cuando tocan 2, y a nivel 3, con los 2 del Evocador, no avisa de nada. El jugador tuvo que acordarse o calcular 5 veces (niveles 2, 3, 4 y 5, y Sabio de la evocación).
+- Qué debería pasar: el asistente, en el paso de conjuros del mago, dice «Añade 2 conjuros a tu libro (y 2 de evocación por Sabio de la evocación)» y deja elegirlos aparte de los preparados; el contador del libro no cuenta los copiados como gratis.
+- Propuesta: en el paso `spells` del asistente (`js/features/wizard.js:604`), para el mago, una segunda lista «Libro» con su contador (2 por nivel, más los de la escuela de la subclase a nivel 3 y en los niveles 5, 7 y 9 si es Sabio de…) que se guarde en `c.book`; marcar los copiados (`copied: true`) al apuntarlos fuera del asistente para que `bookNeed()` no los cuente. Cómo se repite: `mago.json` → apuntar 2 en el libro → copiar uno más → subir a nivel 2: el asistente no pide el libro y el aviso dice «faltan 1». Con el guion: `node tests/partida-mago.js` (escenas 3, 5 y 6).
+- Prioridad: frecuencia 2 + olvido 3 + coste 2 = 7
+- Estado: pendiente
+
+### 136. Truco potente (Evocador) no sale en el aviso de los trucos
+- Origen: Partida simulada: mago
+- Tipo: Automatizar
+- Qué pasa: el Evocador de nivel 3 tiene Truco potente: si falla el ataque de un truco de daño o el objetivo supera la salvación, recibe **la mitad del daño** (dato de la app: «Tus trucos de daño hacen la mitad de daño aunque el objetivo supere la salvación o falles el ataque»). El aviso de Descarga de fuego, Rayo de escarcha o Agarre electrizante (`cantripRoll()`, `js/core/rules.js:309`) no lo recuerda. En la partida, Descarga de fuego falló contra un orco y contra el ogro y el jugador no hizo nada: es daño que se pierde en cada combate.
+- Qué debería pasar: en el aviso del truco, «Truco potente: si fallas (o supera la salvación), hace la mitad: tira igual y divide entre 2».
+- Propuesta: en `cantripRoll()`, si `c.subclassKey === 'evoker' && c.level >= 3`, una línea más.
+- Prioridad: frecuencia 2 + olvido 3 + coste 3 = 8
+- Estado: pendiente
+
+### 137. Encontrar familiar desde «Rituales de tu libro» no pide el incienso
+- Origen: Partida simulada: mago
+- Tipo: Fallo
+- Qué pasa: Encontrar familiar gasta incienso de 10 po. Si el conjuro está preparado y se lanza con «Lanzar», la app lo busca en el inventario y, si no lo tienes, pregunta (`spConsume()`, n.º 79). Desde «Rituales de tu libro» (`book-ritual`, `js/actions/wizard.js:176`) se salta esa comprobación: Elarion invoca a su búho sin incienso y la app no dice nada. Pasa con cualquier ritual del libro que gaste un componente (Encontrar familiar es el que se usa a nivel 1). El aviso además dice «tarda 10 minutos más» sin decir lo que tarda el conjuro (1 hora; Identificar, 1 minuto) y trae «CD de salvación 13 · ataque de conjuro +5», que no sirven (n.º 107). Cómo se repite: importar `mago.json` → Magia → «Libro» → apuntar Encontrar familiar → «Rituales de tu libro» → «Lanzar como ritual»: no pide el incienso. Con el guion: `node tests/partida-mago.js` (escena 1).
+- Qué debería pasar: lo mismo que con «Lanzar»: «Este conjuro gasta incienso por valor de 10+ PO. No lo encuentro en tu inventario» con «Lanzar igualmente» y «Cancelar»; y si lo tienes, descontarlo.
+- Propuesta: en `book-ritual`, pasar por `spConsume()`/`spPendingUse` como hace `cast`; y en el texto, «Como ritual: tarda 1 hora + 10 minutos» con el tiempo del conjuro (`TIME[d.t]`).
+- Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
+- Estado: pendiente
+
+### 138. Tras el descanso largo, el mago no puede cambiar un truco (por confirmar)
+- Origen: Partida simulada: mago
+- Tipo: Regla
+- Qué pasa: de memoria (por confirmar: los datos de la app no lo dicen), en las reglas de 2024 el mago, el clérigo y el druida pueden cambiar **uno de sus trucos** de clase al terminar un descanso largo. La ventana «Cambiar conjuros preparados» empieza en el nivel 1 (`min: 1`, `js/features/spell-search.js:178`) y no ofrece trucos; el texto del rasgo «Lanzamiento de conjuros» tampoco lo dice. Para cambiar un truco hay que usar «Buscar conjuros» y saber que se puede.
+- Qué debería pasar (si se confirma): en la ventana de después del descanso largo, una sección «Trucos: puedes cambiar uno».
+- Propuesta: confirmarlo con el Manual del Jugador; si es así, en `openPrepModal()` dejar los trucos (sin `min: 1`) con un aviso «solo uno» para esas clases, y añadirlo al texto de Lanzamiento de conjuros en `data/classes.js`.
+- Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
+- Estado: pendiente
+
+### 139. Mejoras menores del mago
+- Origen: Partida simulada: mago
+- Tipo: Mejora
+- Qué pasa (cada una salió 1 vez en la partida):
+  - **Detectar magia con dos usos gratis:** el alto elfo aprende Detectar magia a nivel 3, pero Elarion ya lo tenía por Iniciado en la magia. La app crea bien el contador «Detectar magia (gratis)» del elfo, pero el conjuro sigue enlazado solo con «Conjuro de iniciado (gratis)» (`addOriginSpells()`, `js/core/rules.js:101`, no toca el conjuro si ya tiene origen): al lanzarlo solo se ofrece ese uso, y el del elfo hay que marcarlo a mano en «Rasgos y dotes».
+  - **«La fallo» en la salvación de concentración:** quita la concentración sin ningún aviso (`conc-lose`, `js/actions/play.js:332`). No dice qué termina: con Dormir, los goblins incapacitados se despiertan, y hay que decírselo al máster.
+  - **Escudo:** el aviso dice bien la CA nueva y hasta cuándo, pero no que tampoco recibes daño de Proyectil mágico (sí está en la descripción).
+  - **Copiar un conjuro:** la ventana del libro dice «cuesta 2 horas y 50 po por cada nivel», pero el oro hay que restarlo a mano en «Dinero» (n.º 65 lo dejó así a propósito). Un botón «Pagar 50 po» al apuntarlo ahorraría la cuenta.
+- Qué debería pasar: cada aviso dice lo que toca en ese momento.
+- Propuesta: en `addOriginSpells()`, si el conjuro ya tiene `free` de otro origen, apuntar los dos usos (o elegir en la ventana de lanzar entre «Gratis (Iniciado en la magia)» y «Gratis (Alto elfo)»); en `conc-lose`, un aviso «Dejas de concentrarte en Dormir: su efecto termina»; una frase en el aviso de Escudo; y un botón opcional de pagar al copiar en el libro.
+- Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
 - Estado: pendiente
