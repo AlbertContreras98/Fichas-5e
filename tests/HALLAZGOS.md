@@ -1163,6 +1163,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Prioridad: frecuencia 1 + olvido 3 + coste 3 = 7
 - Estado: pendiente
 - Ampliación (Partida simulada: explorador, 2026-11-13): le pasa igual al explorador (con `node tests/partida-explorador.js --semilla=1` cae a 0 PG ante los lobos): no se marca Derribado y el arco largo sigue en Combate como si lo tuviera en las manos.
+- Ampliación (Partida simulada: monje, 2026-11-13): le pasa igual al monje, que cae a 0 PG ante los bandidos a nivel 1 (`node tests/partida-monje.js`, escena 1): al curarle se levanta solo en la app, aunque sigue en el suelo. Para el monje importa más que para otros, porque estar Derribado le da desventaja en todos sus golpes desarmados y levantarse le cuesta la mitad de su velocidad.
 
 ### 109. A 0 PG la salvación contra muerte se puede apuntar dos veces por turno
 - Origen: Partida simulada: Zyo
@@ -1172,6 +1173,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Propuesta: guardar en el turno que ya se ha apuntado la salvación (`c.turn.ds = true` en `ds-roll`) y no abrir la ventana de `t-end` si está puesta; o que la ventana diga «para tu próximo turno» y la tarjeta se apague hasta entonces.
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
 - Estado: pendiente
+- Ampliación (Partida simulada: monje, 2026-11-13): también le pasa al monje en la escena 1 de `node tests/partida-monje.js`: tras apuntar la salvación en la tarjeta, «Terminar turno» la vuelve a pedir.
 
 ### 110. «Terminar combate» no ofrece quitar Asustado ni los otros estados
 - Origen: Partida simulada: Zyo
@@ -1277,5 +1279,109 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué pasa: con Ataque adicional (nivel 5), tras el primer ataque el aviso dice «te quedan 1 ataques» (`js/actions/combat.js:127`, y lo mismo en Agarrar, Empujar y el golpe desarmado, `:176` y `:191`).
 - Qué debería pasar: «te queda 1 ataque».
 - Propuesta: singular cuando `T.atk === 1`.
+- Prioridad: frecuencia 2 + olvido 1 + coste 3 = 6
+- Estado: pendiente
+
+### 121. La reacción gastada antes de tu primer turno del combate no vuelve hasta la ronda siguiente
+- Origen: Partida simulada: monje
+- Tipo: Fallo
+- Qué pasa: la reacción vuelve «al empezar tu turno» gracias a `turnStart()` (`js/views/turn.js:169`), pero solo si antes se ha pulsado «Terminar turno» (`T.wait`). «Iniciar combate» (`cb-start`, `js/actions/combat.js:55`) deja el turno sin `wait`, así que si el enemigo gana la iniciativa y usas la reacción antes de tu primer turno (Desviar ataques, un ataque de oportunidad, Escudo, Represión infernal…), tu primer turno no la devuelve: sigue gastada durante tu turno y, tras «Terminar turno», sale «Vuelve en tu turno ↺» durante el resto de la ronda. En la partida, el monje desvía una flecha antes de actuar y, cuando el segundo arquero le dispara después de su turno, el botón de Desviar ataques está apagado: hay que saber pulsar el «↺» de «Reacción» en Combate. Es el mismo problema del n.º 31 (arreglado), en el caso que se escapó: la primera ronda. Le pasa a todos, cada vez que un enemigo actúa antes. Cómo se repite: importar `monje.json` → Combate → «Iniciar combate» → Reacción: «Ataque de oportunidad» → «Golpe desarmado» → Otras acciones: «Golpe desarmado» → «Terminar turno» → Reacción: «Vuelve en tu turno ↺» y el ataque de oportunidad, apagado. Con el guion: `node tests/partida-monje.js` (escena 4).
+- Qué debería pasar: la reacción gastada antes de tu primer turno vuelve en cuanto empiezas ese turno, como en las demás rondas.
+- Propuesta: en `cb-start`, crear el turno con `wait: true` (`c.turn = { a: false, aa: false, r: false, atk: 0, wait: true }`), para que la primera acción o acción adicional de tu turno pase por `turnStart()`.
+- Prioridad: frecuencia 2 + olvido 3 + coste 3 = 8
+- Estado: pendiente
+
+### 122. El golpe desarmado de la acción adicional y la Ráfaga de golpes no dicen qué tirar
+- Origen: Partida simulada: monje
+- Tipo: Automatizar
+- Qué pasa: el «Golpe desarmado» de Otras acciones sí dice el ataque y el daño («1d20 +4 · 1d6 + 2 contundente», con el crítico), pero los dos golpes que el monje da con la acción adicional, que son los de cada turno, solo dicen un texto: «Golpe desarmado (Artes marciales): Un golpe desarmado extra.» y «Ráfaga de golpes: Dos golpes desarmados (1 punto).» (`t-der`, `js/actions/combat.js:329`). El jugador tiene que ir a buscar los números al botón de la otra columna, sin pulsarlo (o gastaría un ataque de la acción). En la partida, con la semilla de siempre, 6 de 8 golpes desarmados salieron sin números (todos los de la acción adicional y la Ráfaga); a nivel 5 cambian a 1d20 +6 y 1d8 + 3. Tampoco recuerdan lo que se suma al impactar: Golpe aturdidor (nivel 5) y la Técnica de la mano abierta en la Ráfaga (n.º 124).
+- Qué debería pasar: «Golpe desarmado: 1d20 +4 · si impactas, 1d6 + 2 contundente (crítico: 2d6 + 2)»; en la Ráfaga, lo mismo «dos veces».
+- Propuesta: en `t-der`, para «Golpe desarmado (Artes marciales)» y «Ráfaga de golpes», reutilizar el aviso de `t-unarmed` con `unarmedCalc(c)` (sin gastar ataques de la acción), con «×2» en la Ráfaga, `critLine()`, `hitExtras()` y, si tiene Golpe aturdidor y puntos, la línea «Al impactar puedes usar Golpe aturdidor (CD 14)».
+- Prioridad: frecuencia 3 + olvido 2 + coste 3 = 8
+- Estado: pendiente
+
+### 123. Desviar ataques: devolver el golpe no tiene botón ni números
+- Origen: Partida simulada: monje
+- Tipo: Automatizar
+- Qué pasa: cuando Desviar ataques deja el daño en 0, el aviso dice «Puedes gastar 1 punto de concentración para devolver el golpe a otra criatura» (`dmgReactApply()`, `js/views/play.js:500`), pero no hay botón para gastarlo y no dice ni la CD ni el daño. El jugador tiene que gastar el punto a mano en las casillas de Partida y saber la regla: la criatura (a 5 pies si el ataque era cuerpo a cuerpo, a 60 pies si era a distancia) hace una salvación de DES contra la CD del monje (8 + SAB + competencia = 13) y, si falla, recibe 2 dados de artes marciales + DES (2d6 + 2) del tipo del ataque (de memoria, por confirmar: los datos de la app solo dicen «puedes gastar 1 punto para redirigirlo»). En la partida: 2 veces a pensar fuera de la app (la regla y gastar el punto a mano) en la primera flecha desviada.
+- Qué debería pasar: en el aviso, un botón «Devolver el golpe (1 punto)» que gaste el punto y diga «Elige una criatura a 5 pies (o a 60 pies si era un ataque a distancia): salvación de DES CD 13; si falla, 2d6 + 2 del daño del ataque».
+- Propuesta: en `dmgReactApply()`, si es Desviar ataques, `left === 0` y quedan puntos, añadir ese botón (acción nueva que gaste 1 de «Puntos de concentración» y saque el aviso con `8 + pb(c) + M(c, 'wis')` y el dado de artes marciales).
+- Prioridad: frecuencia 2 + olvido 3 + coste 2 = 7
+- Estado: pendiente
+
+### 124. Técnica de la mano abierta: no se recuerda tras la Ráfaga y su CD no sale en ningún sitio
+- Origen: Partida simulada: monje
+- Tipo: Automatizar
+- Qué pasa: el monje de la Mano Abierta (nivel 3) puede, con cada impacto de la Ráfaga de golpes, derribar o empujar 15 pies al objetivo (salvación) o dejarle sin ataques de oportunidad. La app solo lo tiene como texto en Rasgos, sin la CD: el aviso de la Ráfaga no lo recuerda y la CD de los rasgos del monje (8 + SAB + competencia = 13 a nivel 3; 14 a nivel 5 con SAB 17) no aparece en la ficha, salvo dentro del botón de Golpe aturdidor desde nivel 5. Qué salvación pide cada opción (DES para derribar, FUE para empujar) es de memoria, por confirmar: el texto de la app solo dice «(salvación)». En la partida: 2 veces a pensar (acordarse de la técnica y calcular la CD) en el primer impacto de la Ráfaga.
+- Qué debería pasar: con la subclase Mano Abierta, el aviso de la Ráfaga dice «Con cada impacto, elige: derribar (salvación de DES CD 13), empujar 15 pies (salvación de FUE CD 13) o que no pueda hacer ataques de oportunidad hasta su siguiente turno». Y en «Datos de clase», «CD de tus rasgos de monje: 13».
+- Propuesta: añadir esa línea en el aviso de `t-der` para la Ráfaga cuando `c.subclassKey === 'openhand'` (junto con el n.º 122), y una línea de CD en los datos de clase del monje.
+- Prioridad: frecuencia 2 + olvido 3 + coste 3 = 8
+- Estado: pendiente
+
+### 125. El texto de la Técnica de la mano abierta es el de 2014 (por confirmar)
+- Origen: Partida simulada: monje
+- Tipo: Regla
+- Qué pasa: el rasgo dice «Cada impacto de Ráfaga de golpes puede impedir reacciones, empujar 15 pies o derribar (salvación)» (`data/classes.js:218`). Impedir todas las reacciones era la versión de 2014; en 2024 la opción es que el objetivo no puede hacer **ataques de oportunidad** hasta el principio de su siguiente turno (de memoria, por confirmar: no hay otra fuente en el repositorio).
+- Qué debería pasar: el texto de 2024.
+- Propuesta: cambiar el texto del rasgo (y el del aviso del n.º 124) cuando se confirme.
+- Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
+- Estado: pendiente
+
+### 126. Golpe aturdidor se puede usar dos veces en el mismo turno
+- Origen: Partida simulada: monje
+- Tipo: Regla
+- Qué pasa: el propio texto del rasgo dice «Una vez por turno», pero el botón de Golpe aturdidor (columna «Sin gastar acción», `DERIVED` en `js/views/turn.js:81`) sigue activo después de usarlo, y cada pulsación gasta otro punto. Con Ataque adicional y Ráfaga de golpes, el monje de nivel 5 impacta 3 o 4 veces por turno: un novato puede gastar todos sus puntos en un turno. Cómo se repite: monje de nivel 5 → Combate → «Iniciar combate» → Golpe aturdidor «Usar» → sigue activo, y otra vez gasta otro punto. Con el guion: `node tests/partida-monje.js` (escena 5).
+- Qué debería pasar: tras usarlo, el botón se apaga hasta tu siguiente turno («Ya lo has usado este turno»).
+- Propuesta: en `t-der`, si es Golpe aturdidor, poner `c.turn.stun = true`; en `viewTurn()`, apagar la fila si `T.stun`. «Terminar turno» ya crea un turno nuevo sin la marca.
+- Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
+- Estado: pendiente
+
+### 127. Defensa paciente con 1 punto no pone «Esquivando»
+- Origen: Partida simulada: monje
+- Tipo: Fallo
+- Qué pasa: «Defensa paciente (1 punto)» es Destrabarse y Esquivar con la acción adicional. La acción «Esquivar» de Otras acciones pone el efecto «Esquivando» (hasta el principio de tu siguiente turno: los ataques contra ti tienen desventaja y tienes ventaja en las salvaciones de DES), lo explica y lo quita sola. La Defensa paciente gasta el punto y solo dice «Destrabarse y Esquivar.» (`t-der`, `js/actions/combat.js:329`): no pone el efecto ni dice qué hace. El jugador tiene que acordarse de avisar al máster de la desventaja y de su ventaja en DES. Cómo se repite: monje de nivel 2 → Combate → «Iniciar combate» → «Defensa paciente (1 punto)» → no sale «Esquivando» arriba. Con el guion: `node tests/partida-monje.js` (escena 3).
+- Qué debería pasar: lo mismo que la acción Esquivar: efecto «Esquivando» y su explicación.
+- Propuesta: en `t-der`, para «Defensa paciente (1 punto)», hacer lo mismo que `t-gen` con `a_dodge` (`addEffect(c, 'Esquivando', { r: 1 }, false, true)`, `markSt()` y el mismo texto).
+- Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
+- Estado: pendiente
+
+### 128. Empujar y Agarrar del monje calculan la CD con FUE (por confirmar)
+- Origen: Partida simulada: monje
+- Tipo: Regla
+- Qué pasa: Agarrar y Empujar son opciones del golpe desarmado (lo dice el glosario de la app) y Artes marciales dice «usas DES con golpes desarmados». En 2024 el monje puede usar la DES para la CD de Agarrar y Empujar (de memoria, por confirmar). La app usa siempre FUE (`t-shove`, `js/actions/combat.js:165`): el monje de nivel 5 (FUE 12, DES 16) ve «CD 12» en vez de «CD 14».
+- Qué debería pasar: con Artes marciales y sin armadura ni escudo, la CD usa la mejor entre FUE y DES, como el golpe desarmado.
+- Propuesta: en `t-shove`, usar `Math.max(M(c, 'str'), M(c, 'dex'))` cuando el monje no lleva armadura ni escudo (lo mismo que `unarmedCalc()`), y decir «(con DES por Artes marciales)».
+- Prioridad: frecuencia 1 + olvido 3 + coste 3 = 7
+- Estado: pendiente
+
+### 129. Con escudo o armadura sigue saliendo el golpe desarmado extra de Artes marciales
+- Origen: Partida simulada: monje
+- Tipo: Regla
+- Qué pasa: al ponerse un escudo o una armadura, la app quita bien la Defensa sin armadura, el Movimiento sin armadura y el dado de artes marciales de los ataques. Pero la fila «Golpe desarmado (Artes marciales)» de la acción adicional sigue saliendo (`DERIVED`, `js/views/turn.js:89`, solo mira que tengas el rasgo), aunque Artes marciales pide no llevar armadura ni escudo. Cómo se repite: monje → Partida → «Añadir armadura» → Escudo → Combate: sigue «Golpe desarmado (Artes marciales)». Con el guion: `node tests/partida-monje.js` (escena 6).
+- Qué debería pasar: con armadura o escudo, esa fila no sale (o sale apagada con «Sin armadura ni escudo»).
+- Propuesta: en `DERIVED`, una condición `ok: c => !c.equipment.some(e => e.equipped && e.armor && ARMORS[e.armor])` para esa fila, y comprobarla en `viewTurn()`.
+- Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
+- Estado: pendiente
+
+### 130. Caída lenta no está entre las reacciones de la ventana de daño
+- Origen: Partida simulada: monje
+- Tipo: Automatizar
+- Qué pasa: Caída lenta (monje 4) es una reacción que reduce el daño por caída en 5 × nivel de monje (20 a nivel 4). La ventana de «Vida y estado» ya tiene botones para Desviar ataques, Esquiva asombrosa y Aguante de piedra (n.º 68), pero no para esta: hay que acordarse, multiplicar y restar de cabeza antes de escribir el daño. En la partida, 1 vez (cae 20 pies por una cornisa: 2d6).
+- Qué debería pasar: un botón «Caída lenta» que gaste la reacción y reste 5 × nivel.
+- Propuesta: una entrada más en `DMG_REACT` (`js/views/play.js:489`) con reducción fija (`c => 5 * c.level`, sin dado) y la descripción «el daño de una caída».
+- Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
+- Estado: pendiente
+
+### 131. Mejoras menores del monje
+- Origen: Partida simulada: monje
+- Tipo: Mejora
+- Qué pasa (cada una salió 1 vez en la partida):
+  - **Metabolismo asombroso:** el aviso de «Iniciar combate» lo recuerda con sus usos, pero sin botón: hay que buscarlo en la columna «Sin gastar acción».
+  - **Paso del viento (1 punto):** dice «salto doble», sin decir cuánto puede saltar.
+  - **Artes marciales:** el aviso de un ataque con arma de monje no recuerda que aún puede dar el golpe desarmado con la acción adicional. Y la nota del golpe desarmado dice «Tras atacar puedes dar otro golpe desarmado como acción adicional» (`js/core/rules.js:447`), que es la redacción de 2014: en 2024 no hace falta atacar antes (de memoria, por confirmar; los datos de la app dicen solo «haces un golpe desarmado como acción adicional», y la fila de la acción adicional ya sale sin atacar).
+  - **Inspiración heroica:** al gastarla, el aviso solo dice «Inspiración gastada»; no recuerda que repites el d20 y te quedas con el nuevo.
+  - **Escudo:** el aviso de la CA dice «No eres competente con escudos: llevarlo no te sube la CA» (bien), pero no que además pierdes Defensa sin armadura, Artes marciales y Movimiento sin armadura; solo se ve en los números.
+- Qué debería pasar: cada aviso dice lo que toca en ese momento.
+- Propuesta: botón «Usar ahora» en la línea de Metabolismo del aviso de iniciativa (`initFeats()`, `js/core/rules.js:460`); en Paso del viento, «salto doble: de longitud, hasta 24 pies con carrerilla (tu puntuación de FUE × 2, ver «Saltar» en el glosario)»; en el aviso de los ataques con arma de monje, «Puedes dar un golpe desarmado con la acción adicional»; quitar «Tras atacar» de la nota; «Repite la tirada d20 y quédate con el nuevo resultado» al gastar la inspiración; y una línea más en el aviso del escudo para el monje.
 - Prioridad: frecuencia 2 + olvido 1 + coste 3 = 6
 - Estado: pendiente
