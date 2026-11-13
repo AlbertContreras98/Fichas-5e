@@ -99,6 +99,21 @@ const DERIVED = [
     d: 'Haces aparecer tu arma de pacto en la mano.',
   },
 ];
+/* Ligera: un solo ataque extra por turno, con otra arma ligera distinta de la que ha atacado.
+   Con Mellar va dentro de la acción de Atacar y no necesita la acción adicional. Devuelve por qué no se puede ('' si se puede) */
+function lightBlock(c, T, T0, a, i) {
+  const ls = c.attacks
+    .map((x, j) => [x, j])
+    .filter(([x]) => /ligera/i.test(x.notes || ''))
+    .map(([, j]) => j);
+  const hit = (T0.rl || []).filter(j => ls.includes(j));
+  if (!T0.light || !hit.length) return 'Primero ataca con un arma ligera en tu acción';
+  if (T0.lightDone) return 'Ya has hecho el ataque extra de este turno';
+  if (hit.every(j => j === i)) return 'El ataque extra tiene que ser con la otra arma ligera';
+  const nick = a.mastery && WEAPONS[a.wpn] && WEAPONS[a.wpn].ms === 'nick' && !T0.nick;
+  if (T.aa && !nick) return 'Ya has gastado la acción adicional';
+  return '';
+}
 /* Maleficio y Marca del cazador: si el objetivo cae a 0 PG, pasan a otro con una acción adicional y sin espacio */
 const MARK_MOVE = [
   [
@@ -386,17 +401,18 @@ function viewTurn(c) {
     .map((a, i) => [a, i])
     .filter(([a]) => atkReady(c, a) && /ligera/i.test(a.notes || ''));
   if (lights.length >= 2)
-    lights.forEach(([a, i]) =>
+    lights.forEach(([a, i]) => {
+      const why = lightBlock(c, T, T0, a, i);
       cols.AA.push(
         row(
           `${esc(a.name)} (arma ligera)`,
           featHas(c, 'twf')
             ? 'Ataque extra: Combate con dos armas te deja sumar tu modificador al daño'
             : 'Ataque extra: sin tu modificador al daño',
-          `<button class="b sm" data-act="t-light" data-i="${i}" ${dis(T.aa || !T0.light)} title="${T0.light ? '' : 'Primero ataca con un arma ligera en tu acción'}">Atacar</button>`
+          `<button class="b sm" data-act="t-light" data-i="${i}" ${dis(!!why)} title="${esc(why)}">Atacar</button>`
         )
-      )
-    );
+      );
+    });
   // Consumibles
   c.equipment.forEach((e, i) => {
     const G = e.gear && GEAR[e.gear];

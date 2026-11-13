@@ -1046,7 +1046,9 @@ async function escena3(ctx) {
         );
     }
     if (a.impacta && b1.pg > 0 && !HECHO.has('atrapador')) preso = await golpeAtrapador(ctx, b1);
+    let aaAntes = false;
     if (b1.pg > 0) {
+      aaAntes = !!(await ficha(page)).turn.aa;
       t = await ligero(ctx, 'Cimitarra');
       c = await ficha(page);
       if (!t) {
@@ -1062,7 +1064,7 @@ async function escena3(ctx) {
       hecho('dos-armas');
       regla(
         'Mellar',
-        c.turn.nick && !c.turn.aa === !preso,
+        c.turn.nick && !!c.turn.aa === aaAntes,
         `turno tras el ataque ligero: ${JSON.stringify(c.turn)}`
       );
       regla(

@@ -75,6 +75,7 @@ Object.assign(A, {
     const t = el.closest('.toast');
     if (t) t.remove();
     if ($('#modal') && !$('#modal').hidden && $('#ds-ask')) closeModal();
+    if (c.turn) c.turn.ds = true;
     if (r === '20') return A.nat20();
     if (r === 'ok') c.deathSaves.success = Math.min(3, c.deathSaves.success + 1);
     else c.deathSaves.fail = Math.min(3, c.deathSaves.fail + (r === '1' ? 2 : 1));
@@ -102,7 +103,9 @@ Object.assign(A, {
     f.uses.used++;
     c.hp.current = 1;
     c.deathSaves = { success: 0, fail: 0 };
-    c.conditions = c.conditions.filter(x => x !== 'Inconsciente');
+    /* No llegas a caer: tampoco quedas derribado (si fue por esta caída) */
+    c.conditions = c.conditions.filter(x => x !== 'Inconsciente' && !(x === 'Derribado' && c.koProne));
+    delete c.koProne;
     const t = el.closest('.toast');
     if (t) t.remove();
     save();
@@ -439,6 +442,13 @@ Object.assign(A, {
             ? '<div class="t-parts"><b>Muerte instantánea:</b> el daño sobrante iguala o supera tus PG máximos.</div>'
             : '<div class="t-parts"><b>Caes inconsciente.</b> En tus turnos tira salvaciones contra muerte.</div>';
         if (!c.conditions.includes('Inconsciente')) c.conditions.push('Inconsciente');
+        /* Inconsciente incluye caer derribado, y al despertar sigues en el suelo */
+        if (!c.conditions.includes('Derribado')) {
+          c.conditions.push('Derribado');
+          c.koProne = true;
+        }
+        extra +=
+          '<div class="t-parts">Caes <b>derribado</b> y sueltas lo que llevas en las manos. Al recuperarte sigues en el suelo (levantarte cuesta la mitad de tu movimiento) y tendrás que recoger tu arma (o invocar otra vez tu arma de pacto).</div>';
         /* Aguante incansable (orco): si le queda el uso y no es muerte instantánea, puede quedarse a 1 PG */
         const ri = c.features.find(f => f.name === 'Aguante incansable' && f.uses.max - f.uses.used > 0);
         if (ri && c.deathSaves.fail < 3)

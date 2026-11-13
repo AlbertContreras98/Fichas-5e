@@ -1,6 +1,22 @@
 /* Acciones — Combate: iniciar/terminar, acciones del turno. */
 'use strict';
 
+/* Aviso de un golpe desarmado (o varios) con sus números, el crítico y lo que se suma al impactar */
+function unarmedMsg(c, title, n) {
+  const u = unarmedCalc(c),
+    dl = d20Line(c, 'atk'),
+    gs = c.features.find(f => f.name === 'Golpe aturdidor'),
+    pts = c.features.find(f => f.name === 'Puntos de concentración' && f.uses.max > 0);
+  return `<div class="t-label">${esc(title)}</div>${n > 1 ? `<div class="t-parts"><b>${n} golpes desarmados</b>, cada uno con su tirada:</div>` : ''}<div class="t-big">1d20 ${sgn(u.atk + d20Pen(c))}</div><div class="t-parts">Si impactas, daño: ${esc(u.dmg)} contundente</div>${dl ? `<div class="t-parts">${dl}</div>` : ''}${critLine(u.dmg, hitExtras(c, false).length)}${hitExtras(
+    c,
+    false
+  )
+    .filter(x => !/Favor divino/.test(x))
+    .map(x => `<div class="t-parts">Al impactar: ${esc(x)}</div>`)
+    .join(
+      ''
+    )}${gs && pts && featLeft(pts) > 0 ? `<div class="t-parts">Al impactar puedes usar <b>Golpe aturdidor</b> (1 punto, una vez por turno): salvación de CON CD ${8 + pb(c) + M(c, 'wis')}.</div>` : ''}`;
+}
 Object.assign(A, {
   't-mi': el => {
     const c = C(),
@@ -19,7 +35,8 @@ Object.assign(A, {
   't-end': () => {
     const c = C();
     /* La reacción no vuelve al terminar tu turno, sino al empezar el siguiente (turnStart) */
-    const rSpent = !!c.turn.r;
+    const rSpent = !!c.turn.r,
+      dsDone = !!c.turn.ds;
     c.turn = {
       a: false,
       aa: false,
@@ -45,7 +62,7 @@ Object.assign(A, {
         `<div class="t-label">Efecto terminado</div><div class="t-parts">${gone.map(esc).join(', ')} ${gone.length > 1 ? 'han' : 'ha'} terminado.</div>`
       );
     /* A 0 PG y sin estar estable ni muerto: recordar la salvación contra muerte del turno */
-    if (c.hp.current <= 0 && !isDead(c) && c.deathSaves.success < 3)
+    if (c.hp.current <= 0 && !isDead(c) && c.deathSaves.success < 3 && !dsDone)
       openModal(
         `<h2 id="ds-ask">Salvación contra muerte</h2><p>Estás a 0 PG. Al empezar tu turno tira un d20, sin sumar nada. ¿Qué has sacado?</p>${DS_BTNS}<div class="btns"><button class="b" data-act="close-modal">Ya la había apuntado</button></div>`
       );
@@ -55,7 +72,8 @@ Object.assign(A, {
   'cb-start': () => {
     const c = C();
     c.combat = { round: 1 };
-    c.turn = { a: false, aa: false, r: false, atk: 0 };
+    /* wait: si un enemigo actúa antes y gastas la reacción, vuelve al empezar tu primer turno */
+    c.turn = { a: false, aa: false, r: false, atk: 0, wait: true };
     S.tab = 'combat';
     save();
     render();
@@ -200,9 +218,11 @@ Object.assign(A, {
   't-light': el => {
     const c = C(),
       a = c.attacks[+el.dataset.i];
+    if (lightBlock(c, c.turn, c.turn, a, +el.dataset.i)) return;
     const nick = a.mastery && WEAPONS[a.wpn] && WEAPONS[a.wpn].ms === 'nick' && !c.turn.nick;
     if (nick) c.turn.nick = true;
     else c.turn.aa = true;
+    c.turn.lightDone = true;
     save();
     render();
     toast(
@@ -339,6 +359,9 @@ Object.assign(A, {
     spendEco(c, o.t);
     save();
     render();
+    /* Golpes desarmados con la acción adicional: qué tirar, como el golpe desarmado de Otras acciones */
+    if (o.n === 'Ráfaga de golpes' || o.n === 'Golpe desarmado (Artes marciales)')
+      return toast(unarmedMsg(c, o.n, o.n === 'Ráfaga de golpes' ? 2 : 1));
     toast(
       `<div class="t-label">${esc(o.n)}</div><div class="t-parts">${esc(typeof o.d === 'function' ? o.d(c) : o.d)}</div>`
     );

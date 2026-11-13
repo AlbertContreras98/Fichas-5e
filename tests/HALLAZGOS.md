@@ -1161,7 +1161,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: al caer a 0 PG se ponen Inconsciente y Derribado; al curarte se quita solo Inconsciente. El aviso de caer dice «Sueltas lo que llevas en las manos».
 - Propuesta: en `hp`, añadir también `Derribado` al poner `Inconsciente`, y una línea en el aviso: «Has soltado tu arma: recógela (interactuar con un objeto) o, si es tu arma de pacto, invócala otra vez».
 - Prioridad: frecuencia 1 + olvido 3 + coste 3 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): al caer a 0 PG se ponen Inconsciente y Derribado; al curarte solo se quita Inconsciente. El aviso dice que sueltas lo que llevas y que tendrás que recoger el arma (o invocar otra vez el arma de pacto). Con Aguante incansable no quedas derribado. El arma sigue saliendo en Combate: quitarla queda pendiente.
 - Ampliación (Partida simulada: explorador, 2026-11-13): le pasa igual al explorador (con `node tests/partida-explorador.js --semilla=1` cae a 0 PG ante los lobos): no se marca Derribado y el arco largo sigue en Combate como si lo tuviera en las manos.
 - Ampliación (Partida simulada: monje, 2026-11-13): le pasa igual al monje, que cae a 0 PG ante los bandidos a nivel 1 (`node tests/partida-monje.js`, escena 1): al curarle se levanta solo en la app, aunque sigue en el suelo. Para el monje importa más que para otros, porque estar Derribado le da desventaja en todos sus golpes desarmados y levantarse le cuesta la mitad de su velocidad.
 
@@ -1172,7 +1172,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: una sola forma de apuntar la salvación de cada turno.
 - Propuesta: guardar en el turno que ya se ha apuntado la salvación (`c.turn.ds = true` en `ds-roll`) y no abrir la ventana de `t-end` si está puesta; o que la ventana diga «para tu próximo turno» y la tarjeta se apague hasta entonces.
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): si ya has apuntado la salvación contra muerte en la tarjeta, «Terminar turno» no la vuelve a pedir; en el turno siguiente sí.
 - Ampliación (Partida simulada: monje, 2026-11-13): también le pasa al monje en la escena 1 de `node tests/partida-monje.js`: tras apuntar la salvación en la tarjeta, «Terminar turno» la vuelve a pedir.
 
 ### 110. «Terminar combate» no ofrece quitar Asustado ni los otros estados
@@ -1195,7 +1195,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: el ataque extra se puede hacer una vez por turno, con un arma ligera distinta de la que ha atacado, y con Mellar aunque la acción adicional esté gastada.
 - Propuesta: en `t-atk`, guardar qué armas ligeras han atacado en la acción (`T.lightW = [i…]`); en cada fila, apagar el botón si ya se hizo el ataque extra (`T.lightDone`), si esa arma es la única que ha atacado, o si la acción adicional está gastada y el arma no tiene Mellar sin usar; en `t-light`, poner `T.lightDone = true`.
 - Prioridad: frecuencia 3 + olvido 2 + coste 3 = 8
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): el ataque extra ligero se hace una vez por turno, con una arma ligera distinta de la que ha atacado, y con Mellar aunque la acción adicional esté gastada. El botón apagado dice por qué.
 
 ### 112. Lanzar un conjuro de concentración no avisa antes de que acaba el que ya llevas
 - Origen: Partida simulada: explorador
@@ -1289,7 +1289,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: la reacción gastada antes de tu primer turno vuelve en cuanto empiezas ese turno, como en las demás rondas.
 - Propuesta: en `cb-start`, crear el turno con `wait: true` (`c.turn = { a: false, aa: false, r: false, atk: 0, wait: true }`), para que la primera acción o acción adicional de tu turno pase por `turnStart()`.
 - Prioridad: frecuencia 2 + olvido 3 + coste 3 = 8
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): «Iniciar combate» deja el turno en espera, así que la reacción gastada antes de tu primer turno vuelve al empezarlo.
 
 ### 122. El golpe desarmado de la acción adicional y la Ráfaga de golpes no dicen qué tirar
 - Origen: Partida simulada: monje
@@ -1298,7 +1298,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: «Golpe desarmado: 1d20 +4 · si impactas, 1d6 + 2 contundente (crítico: 2d6 + 2)»; en la Ráfaga, lo mismo «dos veces».
 - Propuesta: en `t-der`, para «Golpe desarmado (Artes marciales)» y «Ráfaga de golpes», reutilizar el aviso de `t-unarmed` con `unarmedCalc(c)` (sin gastar ataques de la acción), con «×2» en la Ráfaga, `critLine()`, `hitExtras()` y, si tiene Golpe aturdidor y puntos, la línea «Al impactar puedes usar Golpe aturdidor (CD 14)».
 - Prioridad: frecuencia 3 + olvido 2 + coste 3 = 8
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): el golpe desarmado de Artes marciales y la Ráfaga de golpes dicen el ataque, el daño y el crítico (la Ráfaga, «2 golpes»), y recuerdan Golpe aturdidor con su CD si tienes puntos.
 
 ### 123. Desviar ataques: devolver el golpe no tiene botón ni números
 - Origen: Partida simulada: monje
