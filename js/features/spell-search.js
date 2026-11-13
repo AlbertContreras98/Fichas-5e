@@ -30,7 +30,7 @@ function spFiltered() {
       (P.lvl === '' || s.l === +P.lvl) &&
       (P.max == null || s.l <= P.max) &&
       (P.min == null || s.l >= P.min) &&
-      (!P.only || P.only.includes(s.id)) &&
+      (!P.only || !s.l || P.only.includes(s.id)) &&
       (!q || norm(s.n).includes(q) || norm(s.en).includes(q))
   );
 }
@@ -188,13 +188,14 @@ function openPrepModal() {
     open: '',
     list: c.spells,
     max: maxSpellLevel(ca.type, c.level),
-    min: 1,
+    /* El mago también puede cambiar un truco tras el descanso largo */
+    min: c.classKey === 'wizard' ? 0 : 1,
     /* El mago solo prepara lo que tiene en su libro */
     only: bookOf(c) && c.book.length ? c.book.map(b => b.ref) : null,
   };
   openModal(
     `<div class="wz-head"><h2>Cambiar conjuros preparados</h2><button class="b sm" data-act="sp-close">Hecho</button></div>
-    <p class="hint">${rule === 'one' ? 'Tras un descanso largo puedes cambiar <b>uno</b> de tus conjuros preparados por otro de tu lista.' : c.classKey === 'wizard' ? 'Tras un descanso largo puedes cambiar los que quieras, eligiendo entre los de tu libro de conjuros.' : 'Tras un descanso largo puedes cambiar los que quieras de tu lista de clase.'} Los marcados como «Siempre preparado» no cuentan en el límite.</p>
+    <p class="hint">${rule === 'one' ? 'Tras un descanso largo puedes cambiar <b>uno</b> de tus conjuros preparados por otro de tu lista.' : c.classKey === 'wizard' ? 'Tras un descanso largo puedes cambiar los que quieras, eligiendo entre los de tu libro de conjuros, y también <b>uno</b> de tus trucos por otro truco de mago.' : 'Tras un descanso largo puedes cambiar los que quieras de tu lista de clase.'} Los marcados como «Siempre preparado» no cuentan en el límite.</p>
     <div id="prep-counts" style="margin:.3rem 0 .6rem">${prepCounts()}</div><div class="wz-body">${spPickerHTML()}</div>`,
     true
   );

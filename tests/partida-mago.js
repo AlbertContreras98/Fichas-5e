@@ -975,8 +975,12 @@ async function escena3(ctx) {
     async pg => {
       await b.act(pg, 'prep-open');
       const txt = await texto(pg, '#modal .sheet');
-      const fuera = await buscar(pg, 'Chromatic Orb');
-      const todos = await buscar(pg, '');
+      /* Los trucos sí salen: el mago puede cambiar uno tras el descanso largo (n.º 138) */
+      const fuera = await pg.evaluate(
+        ids => ids.filter(i => SPBY[i] && SPBY[i].l > 0),
+        await buscar(pg, 'Chromatic Orb')
+      );
+      const todos = await pg.evaluate(ids => ids.filter(i => SPBY[i] && SPBY[i].l > 0), await buscar(pg, ''));
       await marcar(pg, 'sleep');
       await marcar(pg, 'hideous-laughter');
       const cuenta = await texto(pg, '#prep-counts');
@@ -994,8 +998,9 @@ async function escena3(ctx) {
   );
   regla(
     'descanso largo',
-    !efecto(c, 'Armadura de mago'),
-    'Armadura de mago (8 horas) sigue tras el descanso largo'
+    /* Elarion es elfo: con Trance el descanso largo dura 4 horas (n.º 118) */
+    !efecto(c, 'Armadura de mago') || efecto(c, 'Armadura de mago').m <= 240,
+    'Armadura de mago (8 horas) sigue con más de 4 horas tras el descanso largo de 4 horas'
   );
   regla(
     'descanso largo',
@@ -1572,7 +1577,12 @@ async function escena6(ctx) {
   const mem = await paso(ctx, 'Memorizar conjuro: cambiar Contraconjuro por Relámpago', async pg => {
     await irA(pg, 'play');
     const hay = await pg.locator('[data-act="prep-open"]').count();
-    if (!hay) {
+    if (hay) {
+      await b.act(pg, 'prep-open');
+      await marcar(pg, 'counterspell');
+      await marcar(pg, 'lightning-bolt');
+      await b.act(pg, 'sp-close');
+    } else {
       /* No hay botón: lo hace con «Buscar conjuros» (de toda la lista) */
       await b.act(pg, 'sp-open');
       await marcar(pg, 'counterspell');

@@ -857,8 +857,9 @@ async function escena2(ctx) {
   const fxB2 = c.effects.find(e => e.name === 'Bayas nutritivas');
   regla(
     'descanso largo',
-    fxB2 && fxB2.m === 1440 - 480,
-    `bayas tras el descanso: ${JSON.stringify(fxB2)} (24 h − 8 h)`
+    /* Vhaeryn es elfo: con Trance el descanso largo dura 4 horas (n.º 118) */
+    fxB2 && fxB2.m === 1440 - 240,
+    `bayas tras el descanso: ${JSON.stringify(fxB2)} (24 h − 4 h, por Trance)`
   );
 
   /* Nivel 2: Estilo de combate (Tiro con arco), Pericia (Explorador hábil) y Curar heridas */

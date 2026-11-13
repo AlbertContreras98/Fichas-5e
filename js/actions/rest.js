@@ -91,8 +91,18 @@ Object.assign(A, {
     closeModal();
     save();
     render();
+    const ar = c.features.findIndex(f => f.name === 'Recuperación arcana' && f.uses.max - f.uses.used > 0),
+      spent = c.slots.slice(0, 5).some(x => x.used > 0),
+      mem = hasFeat(c, 'Memorizar conjuro');
+    const btns = [
+      ar >= 0 && spent
+        ? `<button class="b sm pri" data-act="arcane" data-i="${ar}">Recuperación arcana</button>`
+        : '',
+      mem ? '<button class="b sm" data-act="prep-open">Cambiar un conjuro (Memorizar conjuro)</button>' : '',
+    ].join('');
     toast(
-      '<div class="t-label">Descanso corto terminado</div><div class="t-parts">Recursos de descanso corto recuperados.</div>'
+      `<div class="t-label">Descanso corto terminado</div><div class="t-parts">Recursos de descanso corto recuperados.</div>${btns ? `<div class="t-parts">Ahora puedes usar:</div><div class="t-actions">${btns}</div>` : ''}`,
+      !!btns
     );
   },
   long: () => {
@@ -101,7 +111,7 @@ Object.assign(A, {
     A.longModal();
   },
   longModal: () =>
-    openModal(`<h2>Descanso largo (8 horas)</h2><ul><li>Recuperas todos los PG y todos los dados de golpe</li><li>Recuperas todos los espacios de conjuro</li><li>Se recuperan los rasgos con usos limitados</li><li>Agotamiento −1 y pierdes los PG temporales</li>${C().companions.length ? '<li>Tus compañeros recuperan todos sus PG</li>' : ''}</ul>${(() => {
+    openModal(`<h2>Descanso largo (${hasFeat(C(), 'Trance') ? '4 horas, en trance' : '8 horas'})</h2>${hasFeat(C(), 'Trance') ? '<p class="hint">Por tu rasgo Trance, tu descanso largo dura 4 horas en meditación en vez de 8.</p>' : ''}<ul><li>Recuperas todos los PG y todos los dados de golpe</li><li>Recuperas todos los espacios de conjuro</li><li>Se recuperan los rasgos con usos limitados</li><li>Agotamiento −1 y pierdes los PG temporales</li>${C().companions.length ? '<li>Tus compañeros recuperan todos sus PG</li>' : ''}</ul>${(() => {
       const c = C(),
         ch = c.equipment.filter(e => e.mi && +e.mi.ch && +e.mi.used && e.mi.rec);
       return ch.length
@@ -109,7 +119,9 @@ Object.assign(A, {
         : '';
     })()}${(() => {
       const c = C(),
-        r = c.equipment.find(e => (e.gear === 'rations' || e.berry) && e.qty > 0);
+        r =
+          c.equipment.find(e => e.berry && e.qty > 0) ||
+          c.equipment.find(e => e.gear === 'rations' && e.qty > 0);
       return `<label class="chk"><input type="checkbox" id="lr-eat" ${r ? 'checked' : ''}> ${r ? `Comer: gastar 1 ${r.berry ? 'baya nutritiva' : 'ración'} (te quedan ${r.qty})` : 'He comido hoy (sin gastar raciones de la mochila)'}</label>${c.noFood ? `<p class="hint warn">Llevas ${c.noFood} día${c.noFood > 1 ? 's' : ''} sin comer.</p>` : ''}`;
     })()}
     ${C().hp.current <= 0 ? '<p class="hint warn"><b>Estás a 0 PG.</b> Para aprovechar un descanso largo tienes que empezarlo con al menos 1 PG: antes te tienen que curar, o estabilizarte y esperar a recuperar 1 PG (1d4 horas). Si el máster lo permite, puedes hacerlo igualmente.</p>' : ''}
@@ -131,7 +143,7 @@ Object.assign(A, {
       const st = creaStats(c, x);
       if (st.track) x.hp.current = st.hpMax;
     });
-    passTime(c, 480);
+    passTime(c, hasFeat(c, 'Trance') ? 240 : 480);
     c.hp.current = c.hp.max;
     c.hp.temp = 0;
     c.hitDice.spent = 0;
@@ -148,7 +160,9 @@ Object.assign(A, {
     if (c.speciesKey === 'human') c.inspiration = true;
     let food = '';
     if (ate) {
-      const r = c.equipment.find(e => (e.gear === 'rations' || e.berry) && e.qty > 0);
+      const r =
+        c.equipment.find(e => e.berry && e.qty > 0) ||
+        c.equipment.find(e => e.gear === 'rations' && e.qty > 0);
       if (r) {
         r.qty--;
         food = ` Gastas 1 ${r.berry ? 'baya nutritiva' : 'ración'} (te quedan ${r.qty}).`;

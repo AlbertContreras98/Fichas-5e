@@ -241,7 +241,7 @@ function viewPlay(c) {
       spMod(c) !== null
         ? `<div class="spellhead"><span>Aptitud: <b>${AB[c.spellcasting.ability][2]}</b></span><span>${term('CD de salvación', 'dc')}: <b>${spDC(c)}</b></span><span>${term('Ataque de conjuro', 'spatk')}: <b>${sgn(spAtk(c))}</b></span></div>`
         : '';
-    mag = `<section class="card"><div class="card-head"><h2>Magia</h2><div class="btns"><button class="b sm" data-act="cs-new">Crear conjuro</button><button class="b sm" data-act="sp-open">Buscar conjuros</button>${book ? `<button class="b sm" data-act="book-open">Libro (${book.length})</button>` : ''}</div></div>${head}
+    mag = `<section class="card"><div class="card-head"><h2>Magia</h2><div class="btns"><button class="b sm" data-act="cs-new">Crear conjuro</button><button class="b sm" data-act="sp-open">Buscar conjuros</button>${PREP_RULE[c.classKey] ? '<button class="b sm" data-act="prep-open">Preparar</button>' : ''}${book ? `<button class="b sm" data-act="book-open">Libro (${book.length})</button>` : ''}</div></div>${head}
       ${book && book.filter(b => !b.copied).length < bookNeed(c) ? `<p class="hint warn">A tu libro de conjuros le faltan ${bookNeed(c) - book.filter(b => !b.copied).length}: a nivel ${c.level} tienes al menos ${bookNeed(c)} sin contar los que copies. Apúntalos en «Libro».</p>` : ''}
       ${
         bookRit.length
@@ -309,7 +309,7 @@ function viewPlay(c) {
       ? `<div class="list">${c.features
           .map(
             (f, i) => `<div class="it"><div class="it-head"><span class="it-name">${esc(f.name)}</span></div>
-      ${f.uses.max > 0 ? `<div class="usesrow">${usesCtl(f, i)}<small>${esc(REC[f.uses.recover] || 'sin recuperación automática')}</small>${f.name === 'Astucia mágica' && f.uses.used < f.uses.max ? `<button class="b sm" data-act="cunning" data-i="${i}">Usar</button>` : ''}${['Recuperación arcana', 'Restauración hechicera'].includes(f.name) && f.uses.used < f.uses.max ? `<button class="b sm" data-act="${f.name === 'Recuperación arcana' ? 'arcane' : 'sorc-rest'}" data-i="${i}">Usar</button>` : ''}</div>` : ''}
+      ${f.uses.max > 0 ? `<div class="usesrow">${usesCtl(f, i)}<small>${esc(REC[f.uses.recover] || 'sin recuperación automática')}</small>${f.name === 'Astucia mágica' && f.uses.used < f.uses.max ? `<button class="b sm" data-act="cunning" data-i="${i}">Usar</button>` : ''}${['Recuperación arcana', 'Restauración hechicera'].includes(f.name) && f.uses.used < f.uses.max && !(f.name === 'Recuperación arcana' && c.combat) ? `<button class="b sm" data-act="${f.name === 'Recuperación arcana' ? 'arcane' : 'sorc-rest'}" data-i="${i}">Usar</button>` : ''}</div>` : ''}
       ${f.source ? `<div class="meta">${esc(f.source)}</div>` : ''}
       ${f.text ? `<details><summary>Detalles</summary><p>${esc(f.text)}</p></details>` : ''}</div>`
           )
