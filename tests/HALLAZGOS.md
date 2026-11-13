@@ -1469,3 +1469,152 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Propuesta: en `addOriginSpells()`, si el conjuro ya tiene `free` de otro origen, apuntar los dos usos (o elegir en la ventana de lanzar entre «Gratis (Iniciado en la magia)» y «Gratis (Alto elfo)»); en `conc-lose`, un aviso «Dejas de concentrarte en Dormir: su efecto termina»; una frase en el aviso de Escudo; y un botón opcional de pagar al copiar en el libro.
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
 - Estado: arreglado (2026-11-13): Detectar magia con dos usos gratis (especie y dote) deja usar los dos; «La fallo» avisa de qué conjuro termina; el aviso de Escudo dice que anula Proyectil mágico; al copiar un conjuro en el libro se puede pagar el oro con un botón.
+
+### 140. Quitar a quien tiene el turno no sube la ronda y puede dar el turno a un NPC caído
+- Origen: Partida simulada: máster
+- Tipo: Fallo
+- Qué pasa: cuando el máster quita con la «×» (o con «Quitar jugador», n.º 93) a quien tiene el turno, el turno pasa al **siguiente de la lista sin más**: si ese siguiente es un NPC muerto o incapacitado, el turno se queda en él (con el ▶ en un goblin muerto), y si el que se va era el último de la ronda, el turno vuelve al primero **sin subir la ronda**. «Siguiente turno» sí hace las dos cosas bien. En la partida pasó 2 veces: el jefe goblin huye en su turno y le toca al goblin 1, que estaba muerto (hay que pulsar «Siguiente turno» otra vez); y el último sectario de la ronda huye y la lista vuelve a Vhaeryn en la ronda 1 en vez de la 2 (la ronda ya no se puede corregir: el máster tiene que llevar la cuenta de cabeza, y con ella los conjuros de 1 minuto). Con «Quitar jugador» pasa lo mismo (comprobado aparte: quitar de la mesa al último de la ronda en su turno deja el turno en un goblin muerto y la ronda igual). El n.º 93 está bien (el turno ya no se pierde); esto es lo que le faltaba. Cómo se repite: modo máster → Combate → un NPC muerto justo después de otro NPC en la lista → cuando le toque a ese otro, pulsar su «×»: el ▶ pasa al muerto. O: «Siguiente turno» hasta el último de la lista → su «×»: le toca al primero y la ronda no sube. Con el guion: `node tests/partida-master.js` (escenas 1 y 2).
+- Qué debería pasar: lo mismo que si hubiera pulsado «Siguiente turno»: el siguiente que siga en pie y, si da la vuelta, ronda + 1.
+- Propuesta: sacar de `m-next` una función común «pasar el turno desde X» (saltar a los caídos y subir la ronda al dar la vuelta) y usarla en `m-rm` y `m-del-ok` (`js/actions/master.js`).
+- Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
+- Estado: pendiente
+
+### 141. Los refuerzos del mismo tipo repiten nombre («Sectario 1» dos veces)
+- Origen: Partida simulada: máster
+- Tipo: Fallo
+- Qué pasa: al añadir varios NPC iguales, la app los numera desde 1 (`m-foe-add`, `js/actions/master.js`) aunque ya haya otros con ese nombre en la lista. En la partida, a mitad de combate bajan 2 sectarios más y se llaman «Sectario 1» y «Sectario 2», igual que dos de los 4 que ya había (uno muerto y otro vivo). El máster ya no sabe a cuál le está quitando los PG ni de quién es el turno, y la lista de combate no deja cambiar el nombre. Cómo se repite: Combate → Añadir NPC → Sectario, 4 → Añadir NPC → Sectario, 2: hay dos «Sectario 1» y dos «Sectario 2». Con el guion: `node tests/partida-master.js` (escena 2).
+- Qué debería pasar: los nuevos siguen la numeración (Sectario 5 y Sectario 6).
+- Propuesta: en `m-foe-add`, empezar a numerar por el mayor número que ya tenga ese nombre en la lista (y numerar también al que estaba solo, si se añade otro igual: «Ogro» → «Ogro 1», «Ogro 2»).
+- Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
+- Estado: pendiente
+
+### 142. Un NPC a 0 PG con Regeneración pierde su turno (el trol)
+- Origen: Partida simulada: máster
+- Tipo: Regla
+- Qué pasa: «Siguiente turno» se salta siempre a los NPC a 0 PG. Para casi todos está bien, pero el trol (y otros con Regeneración) **solo muere si empieza su turno a 0 PG y no se regenera** (dato de la app: «Recupera 15 PG al inicio de cada turno suyo. Si recibe daño de ácido o fuego, no se regenera en su siguiente turno. Solo muere si empieza su turno con 0 PG y no se regenera»). En la partida, Vhaeryn deja al trol a 0 PG con una flecha (sin fuego): el máster elige «Incapacitado», pero al pulsar «Siguiente turno» tras Zyo la lista pasa a Elarion y el trol no tiene turno. El máster tiene que acordarse solo, escribirle 15 PG y ya no puede devolverle el turno. Cómo se repite: Combate → Añadir NPC → Trol → «Empezar combate» → poner sus PG a 0 → «Siguiente turno» hasta el que va antes que él: se lo salta. Con el guion: `node tests/partida-master.js` (escena 3).
+- Qué debería pasar: el trol (si no está marcado como muerto) tiene su turno, y al empezar la app recuerda «Regeneración: +15 PG si no ha recibido fuego ni ácido desde su último turno».
+- Propuesta: en `fDown()` no contar como caídos a los NPC del bestiario con un rasgo «Regeneración» salvo que estén marcados «Muerto»; y en la ventana de «ha caído», si el monstruo tiene Regeneración, explicarlo («solo muere si empieza su turno a 0 PG sin regenerarse»). Con el n.º 143 se podría apuntar «recibió fuego» y recordarlo en su turno.
+- Prioridad: frecuencia 1 + olvido 3 + coste 3 = 7
+- Estado: pendiente
+
+### 143. La lista de combate no tiene sitio para los estados de los NPC ni para lo que pasa en su turno
+- Origen: Partida simulada: máster
+- Tipo: Automatizar
+- Qué pasa: cada fila de NPC solo tiene iniciativa, CA y PG. Todo lo demás lo lleva el máster de cabeza, y es lo que más se olvida: en la partida salió **12 veces** (10 cosas distintas):
+  - Estados: el goblin dormido por Dormir (Incapacitado y luego Inconsciente), el jugador paralizado por el fanático.
+  - Salvaciones que se repiten al final del turno del NPC (Dormir, y Inmovilizar persona si se lo hacen a un NPC).
+  - Concentración de un NPC (el fanático con Inmovilizar persona): que la tiene, que al recibir daño tira CON con CD 10 o la mitad del daño, y decir al jugador cuándo se libra; que Arma espiritual también es de concentración en 2024 y no puede llevar las dos.
+  - El trol: «ha recibido fuego, no se regenera en su siguiente turno» (2 veces) y sumar los 15 PG al empezar su turno.
+  - Ventaja y crítico al atacar a un Inconsciente o un Paralizado a 5 pies (está en el glosario de estados, pero el máster no lo ve en la lista).
+- Qué debería pasar: cada fila tiene un botón de estados (los mismos 15 del glosario, más «Concentrado en…» y una nota libre), los estados salen como etiquetas en la fila y, al darle el turno, la app recuerda lo que toque: «Repite la salvación de SAB CD 13 al terminar su turno (Dormir)», «Se concentra en Inmovilizar persona: si recibe daño, CON CD 10 o la mitad». Al escribir PG más bajos de un NPC concentrado, avisar de la salvación de concentración con su CD calculada.
+- Propuesta: en cada fila de `masterFight()` (`js/features/master.js`) un botón «Estados» que abra una ventana con casillas (`f.cs = [...]`), una línea de concentración (`f.conc`) y una nota (`f.note`), con la explicación de cada estado de `GLOSS`; en `m-next`, un aviso con las notas y estados del que empieza su turno (y del que lo termina, para las salvaciones repetidas); y en el manejador de `data-mf` (`js/events.js`), si `f.conc` y bajan los PG, el aviso de concentración. Para los monstruos con Regeneración, una casilla «Recibió fuego o ácido».
+- Prioridad: frecuencia 3 + olvido 3 + coste 2 = 8
+- Estado: pendiente
+
+### 144. Para apuntar daño hay que restar de cabeza
+- Origen: Partida simulada: máster
+- Tipo: Automatizar
+- Qué pasa: en la lista solo se pueden escribir los PG que le quedan al NPC; no hay un «−daño» como en la ficha del jugador. En la partida el máster restó de cabeza **33 veces** (casi una por turno), con números grandes en el ogro (68), el trol (94, más la regeneración que no puede pasar de su máximo) y el dragón (256). Una resta mal hecha no se nota hasta que el monstruo cae antes o después de tiempo.
+- Qué debería pasar: al tocar los PG de un NPC, poder escribir el daño (o la curación) y que la app haga la cuenta, sin pasar de 0 ni del máximo.
+- Propuesta: en cada fila, junto a los PG, un botón «−/+» que abra una ventana pequeña con el número y «Daño» / «Curar» (como `vida` del jugador), o aceptar en el campo de PG «−8» y «+15» como daño y curación. Tope en `hpMax` al curar.
+- Prioridad: frecuencia 3 + olvido 2 + coste 3 = 8
+- Estado: pendiente
+
+### 145. Daño en área a varios NPC: salvación y mitad, uno a uno
+- Origen: Partida simulada: máster
+- Tipo: Automatizar
+- Qué pasa: con Bola de fuego (o Dormir, el aliento de un dragón contra NPC aliados, etc.), el máster tiene que, para cada NPC: abrir «Ver ficha», sacar el modificador de DES, tirar la salvación, compararla con la CD del jugador, decidir todo o la mitad (redondeando hacia abajo) y restarlo (n.º 144). En la partida, 2 Bolas de fuego sobre 3 y 2 NPC (y Dormir sobre 2 goblins); el guion lo apunta 3 veces, una por NPC de la primera Bola de fuego. La ficha del bestiario no dice el bonificador de salvación (ver n.º 146).
+- Qué debería pasar: marcar varios NPC, escribir el daño y la CD, y que la app diga a cada uno «tira 1d20 +1 (DES)» y aplique entero o la mitad según si supera.
+- Propuesta: botón «Daño a varios» en la tarjeta de Combate: casillas con los NPC en pie, campo de daño, característica y CD; por cada NPC, su bonificador y botones «Supera» / «Falla»; al aceptar, resta entero o `Math.floor(d / 2)`.
+- Prioridad: frecuencia 2 + olvido 2 + coste 2 = 6
+- Estado: pendiente
+
+### 146. La ficha del bestiario no da las salvaciones de los monstruos (por confirmar)
+- Origen: Partida simulada: máster
+- Tipo: Automatizar
+- Qué pasa: la ficha del bestiario (`bestCard()`, `js/features/bestiary.js`) enseña las 6 características y su modificador, pero no las salvaciones. Para los monstruos pequeños el bonificador de salvación es el modificador (y el máster tiene que saberlo), pero en las fichas de 2024 muchos monstruos grandes tienen competencia en algunas salvaciones: de memoria, por confirmar, el Dragón rojo adulto tiene DES +6 y SAB +7, y la app solo dice DES +0 y SAB +1. `tools/bestiario/gen.py` no guarda las competencias del JSON del SRD. En la partida se buscó fuera 2 veces (SAB de los goblins para Dormir y las salvaciones del dragón). Es el mismo hueco de datos que el n.º 99 (iniciativa de 2024).
+- Qué debería pasar: la ficha enseña «Salv.» de cada característica, con la competencia si la tiene.
+- Propuesta: confirmar si el JSON de 5e-database trae `proficiencies` con las salvaciones; si es así, que `gen.py` las guarde (`sv: [..6]`) y que `bestCard()` las enseñe (y si no, al menos «Salv.» = modificador con una nota). Usarlas en la ventana del n.º 145.
+- Prioridad: frecuencia 2 + olvido 2 + coste 2 = 6
+- Estado: pendiente
+
+### 147. Monstruos legendarios y con recarga: nada lleva la cuenta
+- Origen: Partida simulada: máster
+- Tipo: Automatizar
+- Qué pasa: con el Dragón rojo adulto, la ficha explica bien las acciones legendarias («Normalmente tiene 3 usos… los recupera todos al empezar su turno»), la Resistencia legendaria (3/día) y el Aliento de fuego (recarga 5-6), pero la lista no cuenta nada: en dos rondas el máster tuvo que acordarse 6 veces (cuántas acciones legendarias le quedan tras cada turno, que las recupera al empezar el suyo, cuántas resistencias le quedan hoy, tirar 1d6 para la recarga al empezar su turno). Además, la inmunidad al fuego solo está en «Ver ficha»: la Bola de fuego de Brasa no le hace nada y la lista no lo dice al apuntar el daño.
+- Qué debería pasar: en la fila de un legendario, un contador de acciones legendarias que vuelve a 3 al darle el turno, otro de resistencias (3/día) y, si tiene algo con recarga, un aviso al empezar su turno («Aliento de fuego: tira 1d6, se recarga con 5-6»); y en la fila, las inmunidades y resistencias en pequeño.
+- Propuesta: al añadir del bestiario, si `b.lg` tiene algo, guardar `f.lg = 3`; si un rasgo empieza por «Resistencia legendaria (N/día…)», `f.lr = N`; si una acción dice «(recarga X-6)», `f.rc`. Pintarlos como contadores en la fila, y en `m-next` reponer `f.lg` y avisar de la recarga. Enseñar `b.res` en la fila.
+- Prioridad: frecuencia 1 + olvido 3 + coste 2 = 6
+- Estado: pendiente
+
+### 148. Puntos de experiencia al terminar el combate
+- Origen: Partida simulada: máster
+- Tipo: Automatizar
+- Qué pasa: la ficha de cada monstruo dice sus PX (bien: 50 el goblin guerrero, 1800 el trol, 18.000 el dragón), pero al terminar el combate el máster tiene que abrir la ficha de cada uno, sumar los de los derrotados y repartirlos entre los jugadores. Salió en los 3 combates (y con dudas: ¿cuentan los que huyen o se rinden?). «Terminar combate» vacía la lista y con ella esos datos.
+- Qué debería pasar: la ventana de «Terminar combate» dice «Derrotados: 3 goblins guerreros (150 PX) · 37 PX para cada uno de los 4 jugadores», con casillas para incluir a los que huyeron o se rindieron.
+- Propuesta: en `m-end` (`js/actions/master.js`), sumar `BEST_XP[bestGet(f.mon).cr]` de los NPC con `st` (o a 0 PG), con casillas para los demás NPC del bestiario, y dividir entre los jugadores de la lista.
+- Prioridad: frecuencia 3 + olvido 2 + coste 3 = 8
+- Estado: pendiente
+
+### 149. Las criaturas de los jugadores no entran en el combate del máster
+- Origen: Partida simulada: máster
+- Tipo: Automatizar
+- Qué pasa: Elarion pasa su búho por `#cr` y el máster lo ve en su pestaña, pero «Añadir jugadores» no lo añade al combate (y según Encontrar familiar de 2024 «tira su propia iniciativa y actúa en su propio turno», dato de la app). El máster tiene que añadirlo a mano desde el bestiario, buscar sus PG (el código `#cr` no los trae: la tarjeta solo tiene características, CA y Percepción pasiva) y queda en la lista como «NPC», igual que los goblins, sin decir que es de Elarion. Cuando el goblin lo mata, la ventana pregunta «Muerto: fuera del combate para siempre», que no es lo que pasa con un familiar. En la partida, 4 veces.
+- Qué debería pasar: «Añadir jugadores» ofrece también sus criaturas (con su CA y sus PG), y en la lista salen como «Criatura de Elarion».
+- Propuesta: que `creaSheetOf()` mande también los PG máximos (`hp`) y el id del bestiario; en `m-pjs`, añadir las `crs` de cada jugador como `kind: 'cr'` con su dueño, que se salte como un NPC caído pero sin preguntar muerto o incapacitado (o con «Desaparece»).
+- Prioridad: frecuencia 2 + olvido 2 + coste 2 = 6
+- Estado: pendiente
+
+### 150. Iniciativa: sorpresa, empates, refuerzos y quien vuelve a la mesa
+- Origen: Partida simulada: máster
+- Tipo: Mejora
+- Qué pasa (cada una salió 1 vez en la partida):
+  - **Sorpresa:** «Empezar combate» no pregunta si alguien está sorprendido (en 2024, tira la iniciativa con desventaja; está en el glosario y en el aviso del jugador, pero el máster no lo ve).
+  - **Empates:** Vhaeryn y los goblins sacan 14; las reglas dejan que lo decida el máster (por confirmar en 2024), pero la lista los ordena por nombre y no se pueden mover. Escribir 14.5 funciona (el guion lo ha probado), pero no lo dice nada.
+  - **Refuerzos sin iniciativa:** a mitad de combate, añadir NPC sin iniciativa los pone al final sin avisar (antes de empezar sí avisa «Falta la iniciativa de…»).
+  - **Quien vuelve a la mesa:** si un jugador se va y vuelve (Vhaeryn), «Añadir jugadores» lo mete sin la iniciativa que tenía; hay que recordarla.
+  - **Grupos iguales:** la ventana de añadir NPC pone la misma iniciativa a todos los del grupo (bien, por confirmar que en 2024 sigue siendo una tirada por grupo), pero no lo explica.
+- Qué debería pasar: cada caso, con su aviso o su botón.
+- Propuesta: en «Empezar combate», una línea «¿Alguien sorprendido? Tira la iniciativa con desventaja (2d20, el más bajo)»; flechas ▲▼ en las filas empatadas (o la nota «para deshacer un empate, escribe 14.5»); en `m-foe-add`, si el combate ya ha empezado y no hay iniciativa, abrir el campo de iniciativa de los nuevos con un aviso; en `m-del-ok`, guardar la iniciativa del jugador en la mesa y reponerla en `m-pjs` si vuelve en el mismo combate; y «Misma tirada para todo el grupo» junto al campo de iniciativa.
+- Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
+- Estado: pendiente
+
+### 151. En el móvil, «Siguiente turno» se queda fuera de la pantalla
+- Origen: Partida simulada: máster
+- Tipo: Mejora
+- Qué pasa: a 390 px cada fila de la lista ocupa unos 125 px. Con 9 en el combate (la emboscada goblin) o 12 (comprobado aparte), la lista mide casi 2000 px y el botón «Siguiente turno» solo está arriba: cuando le toca a alguien de abajo, el máster baja para apuntar sus PG y tiene que volver a subir para pasar el turno. Al pulsar «Siguiente turno», la página no se mueve hasta la fila del que le toca.
+- Qué debería pasar: el botón siempre a mano, y la fila del turno a la vista.
+- Propuesta: hacer fija la cabecera de la tarjeta de Combate (con la ronda y el botón) al hacer scroll (`position: sticky`), o repetir el botón al final de la lista; y tras `m-next`, `scrollIntoView({block: 'nearest'})` de la fila `.mrow.cur`. Filas más bajas en el móvil (las tres cajas en una línea).
+- Prioridad: frecuencia 3 + olvido 1 + coste 3 = 7
+- Estado: pendiente
+
+### 152. Ensangrentado y PJ a 0 PG no se ven en la lista
+- Origen: Partida simulada: máster
+- Tipo: Automatizar
+- Qué pasa: en 2024, **Ensangrentado** (la mitad de los PG o menos) activa rasgos de algunos monstruos (en la partida, Miembros repugnantes del trol) y es lo que suelen preguntar los jugadores («¿está tocado?»). La lista tiene los PG y los máximos, pero no lo marca: el máster lo tuvo que calcular con el trol. Y los PJ no llevan PG en la lista: cuando Bruno cae a 0 PG, nada lo dice (y atacarle a 5 pies es crítico, que son 2 fallos de salvación contra la muerte).
+- Qué debería pasar: una etiqueta «Ensangrentado» en los NPC con PG ≤ la mitad del máximo, y una casilla «A 0 PG» en los PJ (o los PG, si el jugador los comparte).
+- Propuesta: en `masterFight()`, `f.hp <= f.hpMax / 2` → etiqueta junto al nombre; y para los PJ, un botón «Caído» que el máster marca cuando el jugador lo dice (con la nota «atacarle a 5 pies es crítico; cada daño es un fallo, dos si es crítico»).
+- Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
+- Estado: pendiente
+
+### 153. El modo máster no tiene «Deshacer» y la «×» quita sin preguntar
+- Origen: Partida simulada: máster
+- Tipo: Mejora
+- Qué pasa: «Deshacer» solo guarda los cambios de las fichas del jugador (`UNDO`), no los del modo máster. En la partida, el máster toca sin querer la «×» del ogro (que está justo al lado de sus PG): desaparece sin preguntar y hay que volver a añadirlo y escribir de memoria su iniciativa (10) y sus PG (62). Lo mismo con un PG mal escrito. Además, «Terminar combate» vacía la lista y con ella al goblin capturado: hay que apuntarlo aparte.
+- Qué debería pasar: «Deshacer» también en el modo máster (al menos para la lista de combate), o que la «×» pregunte cuando el NPC tiene PG gastados o el combate ha empezado.
+- Propuesta: guardar en `UNDO` una copia de `MST.fight` en las acciones `m-*` (o una pila propia `MUNDO` con un botón en la cabecera del modo máster); y en `m-rm`, si el combate ha empezado, «¿Quitar a Ogro (62/68 PG)?». En «Terminar combate», una casilla «Mantener a los incapacitados (prisioneros)».
+- Prioridad: frecuencia 1 + olvido 2 + coste 2 = 5
+- Estado: pendiente
+
+### 154. Mejoras menores del combate del máster
+- Origen: Partida simulada: máster
+- Tipo: Mejora
+- Qué pasa (cada una salió 1 vez en la partida):
+  - **Todos los enemigos caídos:** la lista sigue pasando turnos entre los jugadores sin decir nada; podría avisar «No queda ningún NPC en pie: ¿terminar el combate?».
+  - **Ataques del NPC:** para ver con qué ataca el jefe goblin hay que abrir «Ver ficha» en cada turno; la fila del que tiene el turno podría enseñar sus ataques (+4, 1d6 + 2) sin abrir nada.
+  - **PX:** la ficha escribe «1800 PX» y «18.000 PX» (el formato de números español no pone punto en las de 4 cifras); da igual, pero queda raro al lado.
+  - **Familiar muerto:** la ventana de «ha caído» dice «Muerto: fuera del combate para siempre»; para un familiar (o una invocación) sería «Desaparece: su dueño puede volver a invocarlo» (ver n.º 149).
+- Qué debería pasar: cada cosa en su sitio, sin buscar.
+- Propuesta: en `m-next`, si no queda ningún NPC en pie, el aviso con «Terminar combate»; en la fila `cur`, una línea con `b.at` del monstruo; `toLocaleString('es-ES', { useGrouping: 'always' })` o sin puntos en ninguna; y el texto de la ventana según el tipo de fila.
+- Prioridad: frecuencia 1 + olvido 1 + coste 3 = 5
+- Estado: pendiente
