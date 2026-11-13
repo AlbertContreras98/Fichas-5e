@@ -291,9 +291,21 @@ function syncEffects(c) {
   c.companions = c.companions.filter(x => !x.conc || x.spell === c.concentration);
 }
 function save() {
+  capNums(C());
   pruneEmpty(C());
   syncEffects(C());
   saveOk();
+}
+/* Topes que no dependen de otro dato: ningún campo guarda números enormes (n.º 89) */
+function capNums(c) {
+  if (!c) return;
+  const cap = (v, hi) => (typeof v === 'number' && v > hi ? hi : v);
+  for (const k in c.abilities) c.abilities[k] = cap(c.abilities[k], 30);
+  c.hp.max = cap(c.hp.max, 9999);
+  c.hp.temp = cap(c.hp.temp, 9999);
+  for (const k in c.coins) c.coins[k] = cap(c.coins[k], 9999999);
+  c.equipment.forEach(e => (e.qty = cap(e.qty, 99999)));
+  c.features.forEach(f => f.uses && (f.uses.max = cap(f.uses.max, 999)));
 }
 /* Guarda y dice si ha cabido (false si el almacenamiento del dispositivo está lleno) */
 function saveOk() {

@@ -368,7 +368,8 @@ function featRemove(c, k, rec) {
     c.features = c.features.filter(x => !gone.includes(x.name));
   }
   /* El segundo uso gratis que daba esta dote en un conjuro que ya tenías */
-  const resN = (f.res || []).map(r => r.n);
+  /* Solo los usos que desaparecen de verdad (otra dote puede dar uno con el mismo nombre) */
+  const resN = (f.res || []).map(r => r.n).filter(n => !c.features.some(x => x.name === n));
   c.spells.forEach(s => {
     if (s.free2 && resN.includes(s.free2)) delete s.free2;
     if (s.free && resN.includes(s.free) && s.free2) {
