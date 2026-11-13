@@ -99,7 +99,17 @@ function sheetParse(txt) {
   if (!code) return null;
   try {
     const x = JSON.parse(unb64u(code));
-    if (!x || !x.id || !Array.isArray(x.a) || x.a.length !== 6 || !Array.isArray(x.s)) return null;
+    /* Las criaturas, tiendas y recibos llevan «t»; una ficha no. Y siempre 6 características y 6 salvaciones */
+    if (
+      !x ||
+      x.t ||
+      !x.id ||
+      !Array.isArray(x.a) ||
+      x.a.length !== 6 ||
+      !Array.isArray(x.s) ||
+      x.s.length !== 6
+    )
+      return null;
     return {
       id: String(x.id).slice(0, 40),
       n: String(x.n || 'Sin nombre').slice(0, 60),
@@ -426,7 +436,7 @@ function openAddFoe() {
     <label class="f"><span>Iniciativa</span><input id="mf-init" type="number" inputmode="numeric" placeholder="Opcional" value="${esc(x.init)}"></label>
     <label class="f"><span>CA</span><input id="mf-ac" type="number" inputmode="numeric" value="${esc(x.ac)}"></label>
     <label class="f"><span>PG</span><input id="mf-hp" type="number" inputmode="numeric" value="${esc(x.hp)}"></label></div>
-    <p class="hint">${b ? `Iniciativa: tira 1d20 ${sgn(bestIni(b))}. ` : ''}Si pones varios, se numeran solos (Goblin 1, Goblin 2…) y cada uno lleva sus PG.</p>
+    <p class="hint">${b ? `Iniciativa: tira 1d20 ${sgn(bestIni(b))} (su Destreza; algunos monstruos, sobre todo los grandes, tienen más en el manual de 2024: si es así, apunta su resultado a mano). ` : ''}Si pones varios, se numeran solos (Goblin 1, Goblin 2…) y cada uno lleva sus PG.</p>
     <div class="btns"><button class="b pri" data-act="m-foe-add">Añadir</button><button class="b" data-act="close-modal">Cancelar</button></div>`);
 }
 /* Elige (o quita) una criatura del bestiario */
@@ -657,7 +667,7 @@ function masterHash() {
   history.replaceState(null, '', location.pathname + location.search);
   if (m[1] !== 'pj' || MST.on) return qrRun({ k: m[1], code: m[2] });
   const x = sheetParse(m[2]);
-  if (!x) return;
+  if (!x) return qrRun(null);
   MHASH = x;
   openModal(`<h2>Ha llegado una ficha</h2><p>Son las características de <b>${esc(x.n)}</b>${x.c ? ` (${esc(x.c)})` : ''}, compartidas para el máster.</p>
     <p class="hint">Si eres el máster, se añade a tu mesa y la app pasa al modo máster (puedes volver al modo jugador desde ⚙ Ajustes).</p>

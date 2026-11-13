@@ -27,7 +27,11 @@ const readCp = (amtId, coinId) => {
 /* ── Objetos de la tienda: código del catálogo o inventado (x) ── */
 const SH_STACK = ['g', 'p', 's', 'm', 'x'];
 function shInfo(it) {
-  const [k, key] = it.c.split(':');
+  return shInfoRaw(it) || { n: it.n || 'Objeto', cat: it.cat || 'otro', m: it.d || '' };
+}
+/* Datos del catálogo de un objeto de la tienda, o null si esta versión de la app no lo conoce */
+function shInfoRaw(it) {
+  const [k, key] = String(it.c || '').split(':');
   const d =
     k === 'w'
       ? WEAPONS[key] && { n: WEAPONS[key].n, cat: 'arma', m: `${WEAPONS[key].d} ${WEAPONS[key].t}` }
@@ -54,7 +58,7 @@ function shInfo(it) {
                   : k === 'mi'
                     ? MAGIC[key] && { n: MAGIC[key].n, cat: 'otro', m: MAGIC[key].d || '' }
                     : null;
-  return d || { n: it.n || 'Objeto', cat: it.cat || 'otro', m: it.d || '' };
+  return d || null;
 }
 const shName = it => (it.c === 'x' ? it.n : shInfo(it).n);
 const shStack = it => SH_STACK.includes(it.c.split(':')[0]);
@@ -153,12 +157,14 @@ function shTake(c, e, q) {
     e.qty = +e.qty - q;
     return { id: e.id, q, whole: false };
   }
+  /* Ataques que usaban este objeto como munición, para devolvérsela si se anula la venta */
+  const ammoOf = c.attacks.filter(a => a.ammo === e.id).map(a => a.id || a.name);
   c.equipment = c.equipment.filter(x => x.id !== e.id);
   c.attacks = c.attacks.filter(a => a.item !== e.id);
   c.attacks.forEach(a => {
     if (a.ammo === e.id) a.ammo = '';
   });
-  return { id: e.id, q, whole: true, copy, atks };
+  return { id: e.id, q, whole: true, copy, atks, ammoOf };
 }
 
 /* ── Enlaces y QR ── */
@@ -194,16 +200,28 @@ function shopParse(code) {
       v: +x.v || 1,
       n: String(x.n || 'Tienda').slice(0, 60),
       g: Math.max(0, Math.round(+x.g || 0)),
-      items: x.i.slice(0, 200).map(r => ({
-        id: String(r[0]).slice(0, 20),
-        c: String(r[1]).slice(0, 40),
-        p: Math.max(0, Math.round(+r[2] || 0)),
-        q: +r[3] < 0 ? -1 : Math.max(0, Math.round(+r[3] || 0)),
-        u: Math.max(1, Math.round(+r[4] || 1)),
-        n: r[5] ? String(r[5]).slice(0, 80) : '',
-        cat: r[6] && CATN[r[6]] ? r[6] : 'otro',
-        d: r[7] ? String(r[7]).slice(0, 300) : '',
-      })),
+      items: x.i
+        .slice(0, 200)
+        .map(r => ({
+          id: String(r[0]).slice(0, 20),
+          c: String(r[1]).slice(0, 40),
+          p: Math.max(0, Math.round(+r[2] || 0)),
+          q: +r[3] < 0 ? -1 : Math.max(0, Math.round(+r[3] || 0)),
+          u: Math.max(1, Math.round(+r[4] || 1)),
+          n: r[5] ? String(r[5]).slice(0, 80) : '',
+          cat: r[6] && CATN[r[6]] ? r[6] : 'otro',
+          d: r[7] ? String(r[7]).slice(0, 300) : '',
+        }))
+        /* Un objeto que esta versión de la app no conoce se vende como objeto inventado (n.º 97) */
+        .map(it =>
+          it.c === 'x' || shInfoRaw(it)
+            ? it
+            : Object.assign(it, {
+                c: 'x',
+                n: it.n || 'Objeto desconocido',
+                d: 'Esta versión de la app no conoce este objeto: actualízala para ver sus datos.',
+              })
+        ),
     };
   } catch (e) {
     return null;
@@ -213,6 +231,7 @@ function rcptParse(code) {
   try {
     const x = JSON.parse(unb64u(code));
     if (!x || x.t !== 'r' || !x.id || !x.sh || !Array.isArray(x.l)) return null;
+    x.l = x.l.filter(Array.isArray);
     return x;
   } catch (e) {
     return null;

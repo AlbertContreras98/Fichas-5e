@@ -97,7 +97,7 @@ function bestCard(b) {
     line = x => `<b>${esc(x[0])}.</b> ${esc(x[1])}`;
   const xp = BEST_XP[b.cr];
   return `<div class="bcard"><p class="hint">${esc(b.t)} ${esc(b.sz.toLowerCase())} · VD ${esc(b.crs)}${xp ? ` (${xp.toLocaleString('es-ES')} PX)` : ''}</p>
-    <div class="bstats"><span><small>CA</small><b>${b.ac}</b></span><span><small>PG</small><b>${b.hp}</b><small>${esc(b.hd)}</small></span><span><small>Iniciativa</small><b>${sgn(bestIni(b))}</b></span></div>
+    <div class="bstats"><span><small>CA</small><b>${b.ac}</b></span><span><small>PG</small><b>${b.hp}</b><small>${esc(b.hd)}</small></span><span><small>Iniciativa</small><b>${sgn(bestIni(b))}</b><small>por su DES</small></span></div><p class="hint">La iniciativa sale de la Destreza. En el manual de 2024 algunos monstruos (sobre todo los grandes y legendarios) tienen una más alta: si la sabes, usa esa.</p>
     <p class="bline"><b>Velocidad:</b> ${esc(b.sp)}</p>
     <div class="babil">${b.ab.map((v, i) => `<span><small>${AB6[i]}</small><b>${v}</b><small>${sgn(Math.floor((v - 10) / 2))}</small></span>`).join('')}</div>
     ${b.res ? `<p class="bline">${esc(b.res)}</p>` : ''}

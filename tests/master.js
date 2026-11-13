@@ -1000,17 +1000,23 @@ async function tiendas(m, j, c1, c2) {
     `el código no es un enlace #recibo= (${rc1.slice(0, 40)})`
   );
   /* Primero el máster lo pega donde los jugadores (+ Jugador): ¿qué dice? */
+  let tJ = '';
   {
-    const t = await pegarJugador(m, rc1);
+    const t = (tJ = await pegarJugador(m, rc1));
     const S0 = await shopM(page, S1.id);
     if (S0.ver === S1.ver)
       nota(
         `Si el máster pega un recibo en «+ Jugador → O pega su código», la app dice «${t}»: no le dice que los recibos van en Tiendas → «Escanear o importar recibo».`
       );
   }
+  /* Desde el n.º 98, pegarlo en «+ Jugador» ya lo aplica: el escáner dirá que ya estaba */
   let t = await pegarEscaner(m, rc1);
   let S2 = await shopM(page, S1.id);
-  regla('máster · aplicar recibo', /Recibo de Zyo/.test(t), `aviso: «${t}»`);
+  regla(
+    'máster · aplicar recibo',
+    /Recibo de Zyo/.test(tJ) || /Recibo de Zyo/.test(t),
+    `aviso: «${tJ}» / «${t}»`
+  );
   regla(
     'máster · aplicar recibo',
     S2.g === gJug,

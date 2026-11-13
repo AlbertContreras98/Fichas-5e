@@ -107,6 +107,10 @@ Object.assign(A, {
       if (l.take.whole) {
         c.equipment.push(l.take.copy);
         c.attacks.push(...l.take.atks);
+        (l.take.ammoOf || []).forEach(k => {
+          const a = c.attacks.find(x => (x.id || x.name) === k);
+          if (a && !a.ammo) a.ammo = l.take.id;
+        });
       } else {
         const e = c.equipment.find(x => x.id === l.take.id);
         if (e) e.qty = (+e.qty || 0) + l.q;

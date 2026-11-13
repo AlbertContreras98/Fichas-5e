@@ -91,7 +91,7 @@ Object.assign(A, {
   'm-paste': () => {
     const x = sheetParse($('#m-code').value);
     const h = !x && qrKind($('#m-code').value);
-    if (h && h.k === 'cr') {
+    if (h) {
       closeModal();
       qrRun(h);
       return;

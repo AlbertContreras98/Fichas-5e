@@ -391,6 +391,11 @@ document.addEventListener('change', e => {
       const v = el.value.trim(),
         was = fDown(f);
       f[el.dataset.mf] = v === '' ? '' : +v;
+      /* Los PG de un NPC no bajan de 0 */
+      if (el.dataset.mf === 'hp' && v !== '' && +v < 0) {
+        f.hp = 0;
+        el.value = '0';
+      }
       /* Si un NPC cae a 0 PG, se pregunta si está muerto o incapacitado; si se levanta, deja de estarlo */
       const now = fDown(f);
       if (!now) delete f.st;
