@@ -242,6 +242,7 @@ function inyectado(semilla) {
     pre() {
       AZ.b = JSON.stringify(S.chars);
       AZ.act = S.active;
+      AZ.cut = undoCuts;
     },
     post() {
       const a = JSON.stringify(S.chars);
@@ -255,7 +256,8 @@ function inyectado(semilla) {
         otra: S.active !== AZ.act,
         acts: Object.keys(A),
         nodos: document.getElementsByTagName('*').length,
-        arriba: !!UNDO.length && UNDO[UNDO.length - 1].chars === AZ.b,
+        /* Importar, crear o cambiar de ficha no se deshacen a propósito (n.º 90 y 94) */
+        arriba: (!!UNDO.length && UNDO[UNDO.length - 1].chars === AZ.b) || undoCuts !== AZ.cut,
         nUndo: UNDO.length,
         modal: !document.getElementById('modal').hidden,
         tab: S.tab,
@@ -872,10 +874,14 @@ async function aparteEditar(ctx, run, json) {
       `Editar ficha: conjuro del catálogo «${sp.name}»: nivel 7, alcance vacío, material «Prueba», cambiar concentración y ritual; recargar`
     );
     await abrirEditar(page);
-    await campo(page, `spells.${iRef}.level`, 7);
-    await campo(page, `spells.${iRef}.range`, '');
-    await campo(page, `spells.${iRef}.material`, 'Prueba');
-    for (const k of ['conc', 'ritual']) await page.locator(`[data-path="spells.${iRef}.${k}"]`).click();
+    /* Desde el n.º 91 esos datos son fijos: los campos ya no están */
+    const hay = await page.locator(`[data-path="spells.${iRef}.level"]`).count();
+    if (hay) {
+      await campo(page, `spells.${iRef}.level`, 7);
+      await campo(page, `spells.${iRef}.range`, '');
+      await campo(page, `spells.${iRef}.material`, 'Prueba');
+      for (const k of ['conc', 'ritual']) await page.locator(`[data-path="spells.${iRef}.${k}"]`).click();
+    }
     const cambios = await b.recargar(page);
     if (cambios.length)
       nota(

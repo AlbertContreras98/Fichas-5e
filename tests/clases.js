@@ -262,7 +262,10 @@ async function conjuros(page) {
   const d = await page.evaluate(() => {
     const l = wizSpellLimits(),
       have = new Set(W.spells.map(s => s.ref)),
-      cand = SP.filter(s => s.c.includes(l.ca.list) && !have.has(s.id));
+      /* Los que dará gratis la especie, la clase o la subclase no salen en la lista (n.º 85) */
+      cand = SP.filter(
+        s => s.c.includes(l.ca.list) && !have.has(s.id) && !(P && P.skip && P.skip.includes(s.id))
+      );
     return {
       nc: l.can - l.cur.c,
       np: l.prep - l.cur.p,

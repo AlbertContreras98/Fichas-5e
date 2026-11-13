@@ -367,6 +367,15 @@ function featRemove(c, k, rec) {
     const gone = (f.res || []).map(r => r.n).filter(n => !still.includes(n));
     c.features = c.features.filter(x => !gone.includes(x.name));
   }
+  /* El segundo uso gratis que daba esta dote en un conjuro que ya tenías */
+  const resN = (f.res || []).map(r => r.n);
+  c.spells.forEach(s => {
+    if (s.free2 && resN.includes(s.free2)) delete s.free2;
+    if (s.free && resN.includes(s.free) && s.free2) {
+      s.free = s.free2;
+      delete s.free2;
+    }
+  });
   /* Si la dote puso la aptitud mágica y ya no queda nada que la use, se quita */
   if (rec && rec.cast && !casterOf(defOf(c), subOf(c)) && !c.spells.length) c.spellcasting.ability = '';
   syncWeapons(c);

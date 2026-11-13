@@ -175,6 +175,18 @@ document.addEventListener('input', e => {
   t[ks[ks.length - 1]] = v;
   if (el.dataset.path === 'level') c.level = clamp(+v || 1, 1, 20);
   if (/^(slots|pact|hitDice|spells\.\d+\.level)/.test(el.dataset.path)) sane(c);
+  /* Topes que no dependen de otro campo: se aplican ya mientras se escribe (n.º 89) */
+  const CAP = [
+    [/^abilities\./, 30],
+    [/^hp\.(max|temp)$/, 9999],
+    [/^equipment\.\d+\.qty$/, 99999],
+    [/^coins\./, 9999999],
+    [/^features\.\d+\.uses\.max$/, 999],
+  ].find(([re]) => re.test(el.dataset.path));
+  if (CAP && typeof t[ks[ks.length - 1]] === 'number' && t[ks[ks.length - 1]] > CAP[1]) {
+    t[ks[ks.length - 1]] = CAP[1];
+    el.value = CAP[1];
+  }
   /* Un objeto que pasa a ser arma no queda equipado solo al recargar (n.º 91) */
   if (/^equipment\.\d+\.cat$/.test(el.dataset.path) && t.equipped === undefined) t.equipped = false;
   if (el.dataset.path === 'classKey') {
