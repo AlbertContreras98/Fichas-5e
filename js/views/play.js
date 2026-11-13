@@ -341,12 +341,15 @@ const canCast = (c, sp) => {
 const slotLabel = o =>
   o.kind === 'pact' ? `Espacio de pacto (nivel ${o.level})` : `Espacio de nivel ${o.level}`;
 function consume(c, kind, level) {
-  if (c.combat && c.turn) {
-    if (c.turn.slot)
+  const T = c.combat && c.turn;
+  /* Una reacción en el turno de otro (tras «Terminar turno») no cuenta para el espacio de tu turno */
+  if (T && !(T.wait && pendingEco === 'R')) {
+    if (T.wait) T.slot = false; // es lo primero que gastas en tu turno nuevo
+    if (T.slot)
       toast(
         '<div class="t-label">Ojo</div><div class="t-parts">Solo puedes gastar un espacio de conjuro por turno. Si es una reacción fuera de tu turno, no pasa nada.</div>'
       );
-    c.turn.slot = true;
+    T.slot = true;
   }
   if (kind === 'pact') c.pact.used = Math.min(c.pact.total, c.pact.used + 1);
   else {
@@ -497,7 +500,7 @@ const DMG_REACT = [
 function dmgReactApply(c, R, dmg, red) {
   const f = c.features.find(x => x.name === R[1]);
   if (f && f.uses && +f.uses.max) f.uses.used = Math.min(f.uses.max, f.uses.used + 1);
-  if (c.turn) c.turn.r = true;
+  if (c.combat && c.turn) c.turn.r = true;
   const left = Math.max(0, dmg - red);
   toast(
     `<div class="t-label">${esc(R[1])}</div><div class="t-parts">Reduces ${Math.min(dmg, red)} del daño: de ${dmg} a <b>${left}</b>.${R[0] === 'deflect' && !left ? ' Puedes gastar 1 punto de concentración para devolver el golpe a otra criatura.' : ''}</div>`
@@ -515,11 +518,12 @@ function dmgReactions(c) {
   const has = n => c.features.find(f => f.name === n);
   const l = DMG_REACT.filter(([, n]) => has(n));
   if (!l.length) return '';
-  return `<div class="hpctl2"><small>Con tu reacción${c.turn && c.turn.r ? ' (ya gastada)' : ''}</small>${l
+  const rOff = c.combat && c.turn && c.turn.r;
+  return `<div class="hpctl2"><small>Con tu reacción${rOff ? ' (ya gastada)' : ''}</small>${l
     .map(([k, n]) => {
       const f = has(n),
         left = f.uses && +f.uses.max ? f.uses.max - f.uses.used : 1;
-      return `<button class="b sm" data-act="hp-red" data-k="${k}" ${left > 0 && !(c.turn && c.turn.r) ? '' : 'disabled'}>${esc(n)}</button>`;
+      return `<button class="b sm" data-act="hp-red" data-k="${k}" ${left > 0 && !rOff ? '' : 'disabled'}>${esc(n)}</button>`;
     })
     .join('')}</div>`;
 }

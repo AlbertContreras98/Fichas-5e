@@ -311,6 +311,21 @@ Object.assign(A, {
     save();
     render();
   },
+  't-mark': el => {
+    const c = C(),
+      m = MARK_MOVE.find(x => x[0] === el.dataset.id);
+    if (!m || c.turn.aa) return;
+    spendEco(c, 'AA');
+    save();
+    render();
+    toast(
+      `<div class="t-label">${esc(m[1])}: nuevo objetivo</div><div class="t-parts">${
+        m[0] === 'hex'
+          ? 'Elige otra criatura que veas a 90 pies (la anterior tiene que haber caído a 0 PG). Vuelve a elegir una característica: tendrá desventaja en sus pruebas de esa característica. Sigues haciéndole 1d6 necrótico extra al impactar.'
+          : 'Elige otra criatura que veas a 90 pies (la anterior tiene que haber caído a 0 PG). Sigues haciéndole 1d6 de fuerza extra al impactar.'
+      } No gastas espacio y la duración sigue igual.</div>`
+    );
+  },
   't-der': el => {
     const c = C(),
       o = DERIVED[+el.dataset.j];

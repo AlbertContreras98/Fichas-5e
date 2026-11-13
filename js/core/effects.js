@@ -34,6 +34,8 @@ function spellDur(sp, L) {
 }
 /* Pasa el tiempo (descansos): quita los efectos que se acaban y descuenta el resto */
 function passTime(c, min) {
+  /* Fuera de combate, pasar el tiempo (o descansar) deja libres la acción, la adicional y la reacción */
+  if (!c.combat) c.turn = { a: false, aa: false, r: false, atk: 0 };
   const gone = endEffects(c, e => e.r != null || (e.m != null && e.m <= min));
   c.effects.forEach(e => {
     if (e.m != null) e.m -= min;

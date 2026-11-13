@@ -141,7 +141,7 @@ Object.assign(A, {
       const f = wsFeat(c);
       if (!f || featLeft(f) <= 0) return;
       f.uses.used++;
-      spendEco(c, 'AA');
+      if (c.combat) spendEco(c, 'AA');
     }
     const msg = transformInto(c, x);
     save();
@@ -153,7 +153,7 @@ Object.assign(A, {
   'crea-revert': () => {
     const c = C(),
       x = formOf(c);
-    if (x && x.via === 'wild') spendEco(c, 'AA');
+    if (x && x.via === 'wild' && c.combat) spendEco(c, 'AA');
     endEffects(c, e => e.form);
     c.form = null;
     save();
@@ -169,7 +169,7 @@ Object.assign(A, {
       const f = wsFeat(c);
       if (!f || featLeft(f) <= 0) return;
       f.uses.used++;
-      spendEco(c, pe || 'AA');
+      if (c.combat) spendEco(c, pe || 'AA');
       if (!el.dataset.id) {
         const ws = wsInfo(c);
         if (ws) c.hp.temp = Math.max(c.hp.temp, ws.temp);

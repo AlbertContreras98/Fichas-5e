@@ -99,6 +99,23 @@ const DERIVED = [
     d: 'Haces aparecer tu arma de pacto en la mano.',
   },
 ];
+/* Maleficio y Marca del cazador: si el objetivo cae a 0 PG, pasan a otro con una acción adicional y sin espacio */
+const MARK_MOVE = [
+  [
+    'hex',
+    'Maleficio',
+    'Si su objetivo ha caído a 0 PG: maldices a otra criatura que veas a 90 pies, sin gastar espacio.',
+  ],
+  [
+    'hunters-mark',
+    'Marca del cazador',
+    'Si tu presa ha caído a 0 PG: marcas a otra criatura que veas a 90 pies, sin gastar espacio.',
+  ],
+];
+function markOn(c, id) {
+  const d = SPBY[id];
+  return !!d && c.effects.some(e => [d.n, d.en].some(x => norm(x) === norm(e.name)));
+}
 /* Pacto del Filo: elegir el arma de pacto (una de las tuyas o una invocada) y el tipo de daño */
 function pactOpen(eco) {
   const c = C(),
@@ -154,6 +171,7 @@ function turnStart(c) {
   if (!T || !T.wait || !(T.a || T.aa)) return false;
   T.wait = false;
   T.r = false;
+  T.slot = false;
   T.ready = '';
   /* Lo que dura «hasta el principio de tu siguiente turno» (Esquivar, Escudo) */
   const gone = endEffects(c, e => e.st && (e.stw || (+e.stk || 0) < (+T.k || 0)));
@@ -349,6 +367,17 @@ function viewTurn(c) {
         esc(o.n),
         esc(typeof o.d === 'function' ? o.d(c) : o.d) + (src ? ` · quedan ${featLeft(src)}` : ''),
         `<button class="b sm" data-act="t-der" data-j="${j}" ${dis(busy || (src && featLeft(src) <= 0))}>Usar</button>`
+      )
+    );
+  });
+  // Maleficio y Marca del cazador: pasarlos a otro objetivo sin gastar espacio
+  MARK_MOVE.forEach(([id, n, d]) => {
+    if (!markOn(c, id)) return;
+    cols.AA.push(
+      row(
+        `Pasar ${n} a otro objetivo`,
+        d,
+        `<button class="b sm" data-act="t-mark" data-id="${id}" ${dis(T.aa)}>Usar</button>`
       )
     );
   });

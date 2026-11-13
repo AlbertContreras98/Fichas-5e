@@ -1086,7 +1086,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: fuera de combate no hay turnos, así que la reacción (y la acción adicional) no deberían quedarse gastadas; como mínimo, los descansos deberían dejar el turno limpio.
 - Propuesta: en `dmgReactApply()` y en `spendEco()`, no marcar nada si no hay `c.combat`; y en los descansos corto y largo, poner `c.turn = { a: false, aa: false, r: false, atk: 0 }`, como ya hace «Terminar combate».
 - Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): fuera de combate, las reacciones de «Vida y estado» y la Forma salvaje desde Criaturas ya no gastan la reacción ni la acción adicional; además, los descansos y «Pasa el tiempo» dejan libres la acción, la adicional y la reacción.
 - Ampliación (Partida simulada: Zyo, 2026-11-12): pasa también con un **conjuro de reacción** lanzado desde Combate sin haber iniciado el combate (la pestaña Combate enseña «Tu turno» aunque no haya combate). Zyo, en una pelea de taberna, recibe 2 de daño y lanza Represión infernal desde la columna Reacción: la reacción queda «Gastada ↺» y sigue así tras un descanso largo, hasta el siguiente «Iniciar combate» o el ↺. Cómo se repite: importar `zyo.json` → «Vida y estado» → daño 2 → Combate → Magia (Reacción) → Represión infernal → Descansar → Descanso largo → Combate: «Reacción: Gastada ↺». Con el guion: `node tests/partida-zyo.js` (escena 6). La propuesta de no marcar nada sin `c.combat` (en `spendEco()`) lo arregla también.
 
 ### 102. Elegir «Otra» en la especie, el trasfondo o la clase de «Editar ficha» no se conserva
@@ -1105,7 +1105,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: el aviso solo sale si gastas dos espacios en el mismo turno (por ejemplo, Maleficio y Represión infernal en tu propio turno).
 - Propuesta: en `turnStart()`, poner `T.slot = false`; o no marcar `slot` en `consume()` mientras `c.turn.wait` esté puesto (el conjuro se lanza fuera de tu turno).
 - Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): una reacción con espacio lanzada en el turno de otro (tras «Terminar turno») no cuenta para el espacio de tu turno; el aviso solo sale con dos espacios en el mismo turno.
 
 ### 104. Maleficio y Marca del cazador no se pueden pasar a otro objetivo
 - Origen: Partida simulada: Zyo
@@ -1114,7 +1114,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: mientras Maleficio o Marca del cazador estén activos, en la columna de acción adicional sale «Pasar Maleficio a otro objetivo» (gasta la acción adicional, no el espacio; Maleficio pregunta otra vez la característica).
 - Propuesta: una fila derivada en `viewTurn()` (como «Invocar arma de pacto») que salga si hay un efecto activo de `hex` o `hunters-mark`, gaste `AA` y dé un aviso corto.
 - Prioridad: frecuencia 3 + olvido 3 + coste 3 = 9
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): con Maleficio o Marca del cazador activos, en Acción adicional sale «Pasar … a otro objetivo»: gasta la acción adicional, no el espacio, y el aviso explica qué hacer (con Maleficio, volver a elegir la característica).
 
 ### 105. Al recibir daño no se ofrece Represión infernal
 - Origen: Partida simulada: Zyo
@@ -1123,7 +1123,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: tras apuntar el daño, si tienes Represión infernal preparada, la reacción libre y algún espacio, el aviso de daño trae el botón «Responder con Represión infernal».
 - Propuesta: en el aviso de daño (`hp`, `js/actions/play.js`), un botón que haga lo mismo que «Lanzar» desde Combate con `data-eco="R"`. Se puede generalizar a los conjuros de reacción «al recibir daño» (Represión infernal; Escudo se usa antes del daño).
 - Prioridad: frecuencia 2 + olvido 3 + coste 3 = 8
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): si tienes Represión infernal, la reacción libre y espacio, el aviso de daño trae «Responder con Represión infernal».
 
 ### 106. Bendición del oscuro (Patrón Infernal) no da los PG temporales
 - Origen: Partida simulada: Zyo

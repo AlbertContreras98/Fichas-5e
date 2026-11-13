@@ -462,9 +462,15 @@ Object.assign(A, {
         const dc = Math.min(30, Math.max(10, Math.floor(n / 2)));
         acts = `<div class="t-parts">Concentración en ${esc(c.concentration)}: tira salvación de CON, CD <b>${dc}</b> (tu bonificador ${sgn(saveB(c, 'con') + d20Pen(c))}${+c.exhaustion ? ', con el agotamiento' : ''}).${concAdv(c) ? ` Con <b>ventaja</b> (${concAdv(c)}): tira 2d20 y quédate el más alto.` : ''}</div><div class="t-actions"><button class="b sm" data-act="conc-keep">La supero</button><button class="b sm bad" data-act="conc-lose">La fallo</button></div>`;
       } else if (c.concentration && c.hp.current === 0) c.concentration = '';
+      /* Represión infernal: reacción «cuando te daña una criatura que ves» */
+      const hr = c.spells.findIndex(s => s.ref === 'hellish-rebuke');
+      const rb =
+        hr >= 0 && n > 0 && c.hp.current > 0 && !(c.combat && c.turn && c.turn.r) && canCast(c, c.spells[hr])
+          ? `<div class="t-actions"><button class="b sm" data-act="t-cast" data-i="${hr}" data-eco="R">Responder con Represión infernal</button></div>`
+          : '';
       toast(
-        `<div class="t-label">Daño recibido</div><div class="t-big bad">−${n}</div>${why}<div class="t-parts">${fromTemp ? `${fromTemp} absorbidos por PG temporales · ` : ''}PG: ${c.hp.current} / ${c.hp.max}</div>${extra}${acts}`,
-        !!acts || /data-act="(crit-fail|relentless)"/.test(extra)
+        `<div class="t-label">Daño recibido</div><div class="t-big bad">−${n}</div>${why}<div class="t-parts">${fromTemp ? `${fromTemp} absorbidos por PG temporales · ` : ''}PG: ${c.hp.current} / ${c.hp.max}</div>${extra}${acts}${rb}`,
+        !!acts || !!rb || /data-act="(crit-fail|relentless)"/.test(extra)
       );
     }
     $('#hpAmt').value = '';
