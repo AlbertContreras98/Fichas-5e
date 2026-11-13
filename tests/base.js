@@ -368,7 +368,7 @@ async function paso(ctx, donde, fn, { deshacer = true, recarga = true } = {}) {
   const { page } = ctx;
   await cerrarModal(page);
   await cerrarToasts(page);
-  const antes = await page.evaluate(() => ({ chars: JSON.stringify(S.chars), n: UNDO.length }));
+  const antes = await page.evaluate(() => ({ chars: JSON.stringify(S.chars), n: UNDO.length, cut: undoCuts }));
   try {
     await fn(page);
   } catch (e) {
@@ -376,9 +376,10 @@ async function paso(ctx, donde, fn, { deshacer = true, recarga = true } = {}) {
     return false;
   }
   if (deshacer) {
-    const desp = await page.evaluate(() => ({ chars: JSON.stringify(S.chars), n: UNDO.length }));
+    const desp = await page.evaluate(() => ({ chars: JSON.stringify(S.chars), n: UNDO.length, cut: undoCuts }));
     const n = desp.n - antes.n;
-    if (desp.chars !== antes.chars) {
+    /* Importar, crear o cambiar de ficha, o generar un recibo, no se deshacen a propósito (n.º 90 y 94) */
+    if (desp.chars !== antes.chars && desp.cut === antes.cut) {
       if (n <= 0) fallo(donde, 'el paso cambia la ficha pero «Deshacer» no tiene nada que deshacer');
       else {
         await cerrarToasts(page);

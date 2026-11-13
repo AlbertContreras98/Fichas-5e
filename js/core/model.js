@@ -175,9 +175,11 @@ function normalize(src) {
     return f;
   });
   c.level = clamp(+c.level || 1, 1, 20);
-  if (!c.classKey) c.classKey = classKeyFrom(c.class);
-  if (!c.speciesKey) c.speciesKey = keyFrom(SPEC, c.species);
-  if (!c.backgroundKey) c.backgroundKey = keyFrom(BG, c.background);
+  /* Solo se deduce del texto si la ficha no trae el campo (fichas antiguas o de fuera); vacío a propósito = «Otra» */
+  const raw = src || {};
+  if (!c.classKey && !('classKey' in raw)) c.classKey = classKeyFrom(c.class);
+  if (!c.speciesKey && !('speciesKey' in raw)) c.speciesKey = keyFrom(SPEC, c.species);
+  if (!c.backgroundKey && !('backgroundKey' in raw)) c.backgroundKey = keyFrom(BG, c.background);
   if (!Array.isArray(c.featKeys)) c.featKeys = [];
   if (!Array.isArray(c.featData)) c.featData = [];
   if (c.speciesKey && !SPEC[c.speciesKey]) c.speciesKey = '';
@@ -203,6 +205,21 @@ function sane(c) {
   c.hitDice.total = int(c.hitDice.total, 0, 20);
   c.hitDice.spent = int(c.hitDice.spent, 0, c.hitDice.total);
   c.spells.forEach(s => (s.level = int(s.level, 0, 9)));
+  /* Números imposibles de «Editar ficha» o de una ficha importada (n.º 89) */
+  for (const k in c.abilities) c.abilities[k] = int(c.abilities[k] || 10, 1, 30);
+  c.level = int(c.level, 1, 20);
+  c.hp.max = int(c.hp.max, 1, 9999);
+  c.hp.current = int(c.hp.current, 0, c.hp.max);
+  c.hp.temp = int(c.hp.temp, 0, 9999);
+  c.features.forEach(f => {
+    if (!f.uses) return;
+    f.uses.max = int(f.uses.max, 0, 999);
+    f.uses.used = int(f.uses.used, 0, f.uses.max);
+  });
+  c.equipment.forEach(e => {
+    if (e.qty !== undefined && e.qty !== '') e.qty = int(e.qty, 0, 99999);
+  });
+  for (const k in c.coins) c.coins[k] = int(c.coins[k], 0, 9999999);
   return c;
 }
 

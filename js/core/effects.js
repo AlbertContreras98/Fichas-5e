@@ -94,4 +94,5 @@ function effectsBar(c, inModal) {
 }
 const UNDO = [];
 /* Una acción lo pone a true para que no se pueda deshacer ni ella ni lo anterior (p. ej. generar un recibo) */
-let undoCut = false;
+let undoCut = false,
+  undoCuts = 0;

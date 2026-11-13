@@ -56,6 +56,12 @@ function ivCantrips(spells, need) {
 /* Por qué no se puede tener una invocación ('' si se puede). idx: posición si ya está elegida */
 function ivWhyNot(st, d, idx) {
   if (!d.rep && st.list.some((e, i) => e.id === d.id && i !== idx)) return 'Ya la tienes.';
+  /* Repetible ligada a un truco: una por truco; si ya la tienen todos los que sirven, no hay más */
+  if (d.rep && d.need) {
+    const n = st.list.filter((e, i) => e.id === d.id && i !== idx).length,
+      ok = ivCantrips(st.spells, d.need).length;
+    if (ok && n >= ok) return 'Ya la tienes en todos tus trucos que sirven.';
+  }
   const why = [];
   if (st.L < d.lv) why.push(`brujo de nivel ${d.lv}`);
   if (d.req && !st.list.some(e => e.id === d.req)) why.push(IVBY[d.req].n);

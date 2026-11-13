@@ -31,6 +31,7 @@ function spFiltered() {
       (P.max == null || s.l <= P.max) &&
       (P.min == null || s.l >= P.min) &&
       (!P.only || !s.l || P.only.includes(s.id)) &&
+      (!P.skip || !P.skip.includes(s.id)) &&
       (!q || norm(s.n).includes(q) || norm(s.en).includes(q))
   );
 }

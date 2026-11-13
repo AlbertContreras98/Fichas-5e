@@ -63,6 +63,8 @@ Object.assign(A, {
   },
   use: el => {
     closeModal();
+    /* Cambiar de ficha vacía «Deshacer»: si no, desharía cambios de la otra ficha */
+    if (S.active !== el.dataset.id) undoCut = true;
     S.active = el.dataset.id;
     if (S.tab === 'edit' || S.tab === 'data') S.tab = 'pj';
     save();
@@ -82,7 +84,7 @@ Object.assign(A, {
   delchar: el => {
     const o = S.chars.find(x => x.id === el.dataset.id);
     openModal(
-      `<h2>¿Borrar a ${esc(o.name)}?</h2><p>No se puede deshacer. Si quieres conservarla, copia antes su JSON.</p><div class="btns"><button class="b" data-act="chars">Cancelar</button><button class="b bad" data-act="delchar-ok" data-id="${o.id}">Borrar</button></div>`
+      `<h2>¿Borrar a ${esc(o.name)}?</h2><p>Si te equivocas, puedes recuperarla con «Deshacer» mientras no cierres la app. Si quieres conservar una copia, exporta antes su JSON.</p><div class="btns"><button class="b" data-act="chars">Cancelar</button><button class="b bad" data-act="delchar-ok" data-id="${o.id}">Borrar</button></div>`
     );
   },
   'delchar-ok': el => {
@@ -101,6 +103,7 @@ Object.assign(A, {
   },
   newchar: () => {
     closeModal();
+    undoCut = true;
     const n = normalize(blank());
     S.chars.push(n);
     S.active = n.id;
@@ -145,6 +148,8 @@ Object.assign(A, {
     }
     S.active = last.id;
     S.tab = 'play';
+    /* Una ficha recién importada no se quita con «Deshacer» */
+    undoCut = true;
     save();
     render();
     toast(

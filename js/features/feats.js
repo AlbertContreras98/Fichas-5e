@@ -319,8 +319,10 @@ function featApply(c, fs, src) {
   (f.sp || []).forEach(x => addSp(x.id, x.free));
   (f.spPick || []).forEach((g, gi) => (fs.sp[gi] || []).filter(Boolean).forEach(id => addSp(id, g.free)));
   c.spells.sort((a, b) => a.level - b.level || a.name.localeCompare(b.name, 'es'));
-  if (!c.spellcasting.ability && (f.sp || f.spPick) && fs.ab && ['int', 'wis', 'cha'].includes(fs.ab))
+  if (!c.spellcasting.ability && (f.sp || f.spPick) && fs.ab && ['int', 'wis', 'cha'].includes(fs.ab)) {
     c.spellcasting.ability = fs.ab;
+    rec.cast = true;
+  }
   (c.featData = c.featData || []).push(rec);
   syncWeapons(c);
 }
@@ -365,6 +367,8 @@ function featRemove(c, k, rec) {
     const gone = (f.res || []).map(r => r.n).filter(n => !still.includes(n));
     c.features = c.features.filter(x => !gone.includes(x.name));
   }
+  /* Si la dote puso la aptitud mágica y ya no queda nada que la use, se quita */
+  if (rec && rec.cast && !casterOf(defOf(c), subOf(c)) && !c.spells.length) c.spellcasting.ability = '';
   syncWeapons(c);
 }
 /* Dotes del catálogo que tiene la ficha: con registro (añadidas aquí) y sin él (trasfondo, humano…) */

@@ -69,8 +69,14 @@ function viewEdit(c) {
     ${c.slots.map((s, i) => inp(`Espacios nivel ${i + 1}`, `slots.${i}.total`, s.total, { num: 1 })).join('')}
   </div>
   <h3>Conjuros</h3><p class="hint">Los conjuros añadidos desde el buscador traen sus datos. También puedes crear uno a mano.</p><div class="stack">${c.spells
-    .map(
-      (sp, i) => `<div class="row-ed">
+    .map((sp, i) =>
+      sp.ref && SPBY[sp.ref]
+        ? /* Del catálogo: sus datos son fijos (la app los vuelve a poner al cargar), solo se cambian el nombre y las notas */
+          `<div class="row-ed">
+    ${inp('Nombre', `spells.${i}.name`, sp.name)}
+    <p class="hint">Del catálogo: ${sp.level ? `nivel ${sp.level}` : 'truco'} · ${esc(TIME[sp.time] || sp.time || '')} · ${esc(sp.range || '')} · ${esc(sp.dur || '')}${sp.conc ? ' · concentración' : ''}${sp.ritual ? ' · ritual' : ''}${sp.material ? ` · material: ${esc(sp.material)}` : ''}. Estos datos no se cambian aquí: si quieres una versión distinta, crea un conjuro propio.</p>
+    ${ta('Notas propias (si lo dejas vacío se muestra la descripción del conjuro)', `spells.${i}.desc`, sp.desc)}${del('spells', i)}</div>`
+        : `<div class="row-ed">
     ${inp('Nivel (0 = truco)', `spells.${i}.level`, sp.level, { num: 1 })}${inp('Nombre', `spells.${i}.name`, sp.name)}
     ${sel('Tiempo', `spells.${i}.time`, sp.time, [
       ['A', 'Acción'],

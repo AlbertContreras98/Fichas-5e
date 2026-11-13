@@ -40,6 +40,7 @@ document.addEventListener('click', e => {
   }
   if (undoCut) {
     undoCut = false;
+    undoCuts++;
     UNDO.length = 0;
   } else if (JSON.stringify(S.chars) !== before) {
     UNDO.push({ chars: before, active: act });
@@ -174,6 +175,8 @@ document.addEventListener('input', e => {
   t[ks[ks.length - 1]] = v;
   if (el.dataset.path === 'level') c.level = clamp(+v || 1, 1, 20);
   if (/^(slots|pact|hitDice|spells\.\d+\.level)/.test(el.dataset.path)) sane(c);
+  /* Un objeto que pasa a ser arma no queda equipado solo al recargar (n.º 91) */
+  if (/^equipment\.\d+\.cat$/.test(el.dataset.path) && t.equipped === undefined) t.equipped = false;
   if (el.dataset.path === 'classKey') {
     c.class = v ? CL[v].n : c.class;
     c.subclassKey = '';
@@ -204,6 +207,19 @@ document.addEventListener('input', e => {
 });
 document.addEventListener('change', e => {
   const el = e.target;
+  /* Al salir de un campo numérico de «Editar ficha», se corrige si es imposible (n.º 89) */
+  if (el.dataset && el.dataset.path && el.dataset.num && C()) {
+    const c = C(),
+      before = el.value;
+    sane(c);
+    let v = c;
+    for (const k of el.dataset.path.split('.')) v = v == null ? v : v[k];
+    if (typeof v === 'number' && String(v) !== before) {
+      el.value = v;
+      save();
+      renderTop();
+    }
+  }
   if (el.dataset && el.dataset.path === 'abilities.con' && conEdit) {
     const c = C(),
       d = c && c.id === conEdit.id ? mod(c.abilities.con) - conEdit.from : 0;

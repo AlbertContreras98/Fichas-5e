@@ -626,11 +626,19 @@ function wizBody(step) {
         P.list = W.spells;
         P.max = l.max;
       }
+      /* Los que te van a dar gratis (especie, linaje, clase, subclase) no se ofrecen: no gastarías una elección */
+      const sk = W.mode === 'create' ? W.speciesKey : C().speciesKey,
+        lk = W.mode === 'create' ? W.lineageKey : C().lineageKey || W.lineageKey;
+      P.skip = [
+        ...originSpellIds(sk, lk, 1, L),
+        ...alwaysIds(W.classKey, '', 1, L),
+        ...(W.subKey ? alwaysIds('', W.subKey, 1, L) : []),
+      ];
       const mine = W.spells.length
         ? `<div class="mine">${W.spells.map((s, i) => `<span class="chip">${esc(s.name)} <small>${+s.level ? 'N' + s.level : 'truco'}</small> <button class="b sm" style="padding:0 .3rem;border:0;background:none" data-act="wz-sp-del" data-i="${i}" aria-label="Quitar ${esc(s.name)}">×</button></span>`).join('')}</div>`
         : '<p class="empty">Ningún conjuro todavía.</p>';
       return `<p id="wz-counts">${countsHTML(l)}</p>
-      <p class="hint">${l.ca.type === 'pact' ? 'Los brujos pueden cambiar un conjuro preparado al subir de nivel.' : 'Puedes cambiar conjuros preparados según las reglas de tu clase.'} Los conjuros que siempre tienes preparados (de clase, subclase o especie) se añaden solos al confirmar y no cuentan en el límite.</p>
+      <p class="hint">${l.ca.type === 'pact' ? 'Los brujos pueden cambiar un conjuro preparado al subir de nivel.' : 'Puedes cambiar conjuros preparados según las reglas de tu clase.'} Los conjuros que siempre tienes preparados (de clase, subclase o especie) se añaden solos al confirmar, no cuentan en el límite y no salen en la lista.</p>
       <h3>Tus conjuros</h3><div id="wz-mine">${mine}</div><h3>Añadir</h3>${spPickerHTML()}`;
     }
     case 'invoc':
@@ -878,6 +886,8 @@ function applyWizard() {
     if (W.speciesKey === 'human') c.inspiration = true;
     S.chars.push(c);
     S.active = c.id;
+    /* Un personaje recién creado no se quita con «Deshacer» */
+    undoCut = true;
   } else {
     c = C();
     const g = hpGain();
