@@ -728,6 +728,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Propuesta: un paso nuevo en el asistente y al subir de nivel.
 - Prioridad: frecuencia 1 + olvido 3 + coste 2 = 6
 - Estado: arreglado (2026-11-11): pasos nuevos en el asistente (al crear y al subir de nivel): «Pericia» (pícaro, bardo, Explorador hábil, Erudito del mago con su lista) y «Orden divino»/«Orden primigenio», que apuntan las competencias, el truco extra y el bonificador de SAB a las habilidades (`skillPlus`). Los idiomas de Explorador hábil siguen a mano.
+- Ampliación (Partida simulada: explorador, 2026-11-13): la Pericia de nivel 2 funciona (Sigilo pasa de +5 a +7 y a nivel 5 a +10, «con pericia» en la tirada). Los dos idiomas de Explorador hábil siguen sin preguntarse: los idiomas de la ficha no cambian al subir a nivel 2.
 
 ### 63. Faltan contadores de subclase y algunos lanzamientos gratis sin enlazar
 - Origen: 1c. Priorizar (candidata de 1a: clases)
@@ -1146,6 +1147,12 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Propuesta: en `upcastLine()`/`afterCast()`, leer de la descripción «salvación de (Fuerza|Destreza|…)» y «la mitad» y enseñar solo esa línea; si no hay salvación ni «ataque de conjuro» en el texto, no enseñar la línea de CD y ataque. Para Maleficio, un desplegable o una línea «Elige la característica (desventaja en sus pruebas)».
 - Prioridad: frecuencia 3 + olvido 2 + coste 2 = 7
 - Estado: pendiente
+- Ampliación (Partida simulada: explorador, 2026-11-13): pasa igual con los conjuros del explorador. En la partida, el jugador tuvo que ir a la descripción o pensar fuera de la app 7 veces por esto:
+  - **Marca del cazador, Bayas nutritivas, Luces danzantes y Oscuridad:** el aviso trae «CD de salvación 12 · ataque de conjuro +4», que no sirven para ninguno. El de Marca del cazador no dice qué hace (+1d6 de fuerza en cada impacto a la presa, ventaja en Percepción y Supervivencia para encontrarla); sí sale después en cada ataque. El de Luces danzantes no dice que se mueven con la acción adicional.
+  - **Golpe atrapador:** dice «Daño: 1d6 de daño perforante» y la CD, pero no que es una **salvación de Fuerza** (con ventaja si el objetivo es Grande o mayor), que si la falla queda **Apresado** y que el 1d6 se lo hace al **principio de cada uno de sus turnos**. El recordatorio de «Terminar turno» dice bien cómo se suelta (prueba de Fuerza (Atletismo) contra tu CD), pero tampoco recuerda el 1d6.
+  - **Fuego feérico:** falta que es una **salvación de Destreza** y que los ataques contra los perfilados tienen **ventaja** (ver n.º 113).
+  - **Oscuridad:** falta que la visión en la oscuridad (también la del drow) **no ve a través** de ella.
+  Cómo se repite: importar `explorador.json` → Combate → Magia (Acción adicional) → Marca del cazador. Con el guion: `node tests/partida-explorador.js --rastro`.
 
 ### 108. Al caer inconsciente no se marca Derribado (y se queda el arma en la mano)
 - Origen: Partida simulada: Zyo
@@ -1155,6 +1162,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Propuesta: en `hp`, añadir también `Derribado` al poner `Inconsciente`, y una línea en el aviso: «Has soltado tu arma: recógela (interactuar con un objeto) o, si es tu arma de pacto, invócala otra vez».
 - Prioridad: frecuencia 1 + olvido 3 + coste 3 = 7
 - Estado: pendiente
+- Ampliación (Partida simulada: explorador, 2026-11-13): le pasa igual al explorador (con `node tests/partida-explorador.js --semilla=1` cae a 0 PG ante los lobos): no se marca Derribado y el arco largo sigue en Combate como si lo tuviera en las manos.
 
 ### 109. A 0 PG la salvación contra muerte se puede apuntar dos veces por turno
 - Origen: Partida simulada: Zyo
@@ -1172,4 +1180,102 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: la ventana enseña todos los estados activos, con los de combate marcados para quitar y los demás sin marcar.
 - Propuesta: en `cb-end`, listar `c.conditions` (salvo Inconsciente) con la casilla marcada solo para los tres de ahora.
 - Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
+- Estado: pendiente
+
+### 111. El ataque extra con arma ligera no sigue las reglas de Ligera y Mellar
+- Origen: Partida simulada: explorador
+- Tipo: Regla
+- Qué pasa (filas «… (arma ligera)» de la columna Acción adicional, `js/views/turn.js:384`, y `t-light`, `js/actions/combat.js:200`). Tres fallos, los tres en el turno típico del explorador con dos armas:
+  - **Con Mellar, el botón sale apagado si ya has gastado la acción adicional.** El botón se apaga con `T.aa`, aunque con Mellar el ataque extra va dentro de la acción de Atacar y no gasta la acción adicional (lo dice la propia app en el aviso). Le pasa al explorador cada vez que usa la acción adicional en otra cosa en el mismo turno: lanzar o pasar Marca del cazador, Golpe atrapador, comer una baya… En la partida, 2 veces (pasar la marca a otro lobo; Golpe atrapador al capitán bandido): hay que hacer el ataque de memoria.
+  - **Deja atacar con la misma arma.** Tras atacar con la Espada corta, la fila «Espada corta (arma ligera)» sale activa. El ataque extra tiene que ser con **otra** arma ligera (lo dice el glosario de la app, «Ataque con arma ligera»).
+  - **Deja hacer dos ataques extra.** Tras el ataque extra con Mellar (Cimitarra), la acción adicional sigue libre y la fila «Espada corta (arma ligera)» sale activa: a nivel 5 el explorador haría 4 ataques en vez de 3 (a nivel 1, 3 en vez de 2). Ligera da un solo ataque extra por turno; Mellar solo cambia que no gaste la acción adicional.
+  Cómo se repite: importar `explorador.json` → Combate → «Iniciar combate» → Magia (Acción adicional) → Marca del cazador (gratis) → «Atacar» con la Espada corta → «Cimitarra (arma ligera)» está apagado y «Espada corta (arma ligera)» no. Sin lanzar la Marca: Espada corta → Cimitarra (arma ligera) → «Espada corta (arma ligera)» sigue activa. Con el guion: `node tests/partida-explorador.js` (escenas 1, 3 y 5).
+- Qué debería pasar: el ataque extra se puede hacer una vez por turno, con un arma ligera distinta de la que ha atacado, y con Mellar aunque la acción adicional esté gastada.
+- Propuesta: en `t-atk`, guardar qué armas ligeras han atacado en la acción (`T.lightW = [i…]`); en cada fila, apagar el botón si ya se hizo el ataque extra (`T.lightDone`), si esa arma es la única que ha atacado, o si la acción adicional está gastada y el arma no tiene Mellar sin usar; en `t-light`, poner `T.lightDone = true`.
+- Prioridad: frecuencia 3 + olvido 2 + coste 3 = 8
+- Estado: pendiente
+
+### 112. Lanzar un conjuro de concentración no avisa antes de que acaba el que ya llevas
+- Origen: Partida simulada: explorador
+- Tipo: Mejora
+- Qué pasa: casi todos los conjuros del explorador son de concentración (Marca del cazador, Golpe atrapador, Nube de niebla, Pasar sin dejar rastro, y los del drow: Luces danzantes, Fuego feérico, Oscuridad). Si ya te concentras en uno y lanzas otro, la app gasta el espacio (o el uso gratis) y **después** dice «Dejas de concentrarte en …». Un novato no lo ve venir: en la partida le pasó 2 veces con la semilla de siempre (Marca del cazador apaga las Luces danzantes con las que alumbraba la cueva a sus amigos; Oscuridad acaba con la Marca) y, con otras semillas, también Golpe atrapador acaba con la Marca y la Marca con el Fuego feérico. Con «Deshacer» se arregla, pero hay que darse cuenta. A Zyo le pasará igual con Maleficio.
+- Qué debería pasar: antes de gastar nada, una pregunta: «Ya te concentras en Marca del cazador. Si lanzas Golpe atrapador, la Marca termina. ¿Lanzarlo igualmente?».
+- Propuesta: en `cast` (`js/actions/play.js:213`), si `sp.conc && c.concentration && c.concentration !== sp.name`, abrir esa ventana (con «Lanzar» que siga como ahora y «Cancelar»), igual que la de Armadura de mago.
+- Prioridad: frecuencia 3 + olvido 3 + coste 3 = 9
+- Estado: pendiente
+
+### 113. Las ventajas y desventajas que dependen del objetivo o de la distancia no se recuerdan al atacar
+- Origen: Partida simulada: explorador
+- Tipo: Automatizar
+- Qué pasa: el aviso del ataque ya dice la ventaja o desventaja por tus estados (n.º 37), pero no las que vienen de tus conjuros, de tu maestría o de dónde está el objetivo. En la partida, el jugador tuvo que acordarse 2 veces con la semilla de siempre (Molestar y el alcance del arco) y, con otras semillas, también del Fuego feérico, del objetivo apresado y de disparar con un lobo al lado:
+  - **Molestar** (Espada corta): si impactas, ventaja en tu siguiente ataque contra esa criatura antes del final de tu siguiente turno. Lo dice al atacar, pero el siguiente aviso de ataque no lo recuerda.
+  - **Fuego feérico** activo: los ataques contra los perfilados tienen ventaja.
+  - **Golpe atrapador** activo: el objetivo está Apresado, así que tus ataques contra él tienen ventaja.
+  - **Arco largo:** alcance 150/600; más allá de 150 pies, desventaja; y con un enemigo a 5 pies que te ve, desventaja al disparar (lo dice el glosario de la app, pero no el aviso del ataque).
+- Qué debería pasar: el aviso del ataque lo recuerda, con la condición («Ventaja si atacas a la criatura que impactaste con Molestar», «Ventaja si el objetivo está perfilado (Fuego feérico)», «A distancia: más allá de 150 pies o con un enemigo a 5 pies, desventaja»).
+- Propuesta: como la app no sabe si el ataque impacta, guardar `T.vex` al atacar con Molestar y recordarlo («si impactaste…») en los avisos de ataque hasta el final de tu turno siguiente; una pequeña lista «efecto activo → línea» para Fuego feérico y Golpe atrapador, como `hitExtras()`; y una línea fija para las armas a distancia con su alcance (`WEAPONS[k].am`).
+- Prioridad: frecuencia 3 + olvido 3 + coste 2 = 8
+- Estado: pendiente
+
+### 114. Presa del cazador: no se pregunta la opción y Asesino de colosos no sale en el ataque
+- Origen: Partida simulada: explorador
+- Tipo: Automatizar
+- Qué pasa: al elegir la subclase Cazador a nivel 3, el asistente añade «Presa del cazador» como texto, pero no pregunta si eliges **Asesino de colosos** (+1d8 a una criatura que ya está herida) o **Rompehordas** (un ataque más contra otra criatura cercana), y ninguna de las dos sale en el aviso del ataque. En la partida, el jugador tuvo que pensar fuera de la app 5 veces por esto: apuntar la opción, sumar el 1d8, acordarse de Saber del cazador y llevar la cuenta de que es una vez por turno (con Ataque adicional y dos armas, en qué golpe lo ha sumado). Lo de «una vez por turno» es de memoria (por confirmar: los datos de la app solo dicen «+1d8 a criaturas heridas»). Tampoco se recuerda **Saber del cazador** (al marcar con Marca del cazador, el máster te dice las inmunidades, resistencias y vulnerabilidades de la presa). Lo mismo pasará a nivel 7 con Tácticas defensivas.
+- Qué debería pasar: el asistente pregunta la opción (como «Orden divino») y la apunta; con Asesino de colosos, el aviso del ataque dice «+1d8 si el objetivo ya estaba herido (Asesino de colosos, una vez por turno)»; con Rompehordas, «Puedes atacar a otra criatura a 5 pies de esta con la misma arma (una vez por turno)». Al lanzar Marca del cazador siendo Cazador: «Pregunta al máster sus inmunidades, resistencias y vulnerabilidades».
+- Propuesta: un paso nuevo en `wizSteps()` con las dos opciones (como `ORDERS`), guardar la elección en la ficha y añadir la línea en `hitExtras()`; la de Saber del cazador, en `afterCast()`.
+- Prioridad: frecuencia 2 + olvido 3 + coste 2 = 7
+- Estado: pendiente
+
+### 115. Las tiradas de habilidad no recuerdan Pasar sin dejar rastro, Marca del cazador ni la luz tenue
+- Origen: Partida simulada: explorador
+- Tipo: Automatizar
+- Qué pasa: al tocar una habilidad, la app dice qué tirar («Tira 1d20 +10 (con pericia)») y la ventaja o desventaja por estados (`d20Line(c, 'check')`), pero no mira qué habilidad es ni los conjuros activos. En la partida, 3 veces: con **Pasar sin dejar rastro** activo, el Sigilo sigue saliendo +10 (debería recordar +10 más: 1d20 +20); con **Marca del cazador**, Supervivencia y Percepción para encontrar a la presa van con ventaja; y de noche, la **visión en la oscuridad** del drow ve como en luz tenue, con desventaja en Percepción con la vista (lo dice el glosario de la app, «Luz tenue»).
+- Qué debería pasar: «Tira 1d20 +10 (con pericia). Con Pasar sin dejar rastro: +10 (1d20 +20) si estás en el aura»; «Con ventaja si buscas a tu presa (Marca del cazador)»; en Percepción, «De noche o en penumbra, con desventaja si dependes de la vista».
+- Propuesta: pasar la habilidad a `d20Line(c, 'check', sk)` y añadir las líneas de esos conjuros (como ya hace con Orientación); la de la luz tenue, solo en Percepción y para quien tenga visión en la oscuridad.
+- Prioridad: frecuencia 2 + olvido 3 + coste 3 = 8
+- Estado: pendiente
+
+### 116. El uso gratis de un conjuro se llama como su origen («Siempre preparado», «Drow»)
+- Origen: Partida simulada: explorador
+- Tipo: Mejora
+- Qué pasa: al lanzar Marca del cazador, la ventana ofrece «Gratis (Siempre preparado) · quedan 2» y el aviso dice «Uso gratuito de Siempre preparado». Con Fuego feérico y Oscuridad del drow, «Uso gratuito de Drow». No se nombra el rasgo que da el uso (Enemigo predilecto, Magia drow) y el aviso no dice cuántos usos gratis quedan, que es lo que el jugador quiere saber para la siguiente vez (`js/actions/play.js:272` y `:311`, que usan `sp.src`).
+- Qué debería pasar: «Gratis (Enemigo predilecto) · quedan 2» y «Uso gratis de Enemigo predilecto · te quedan 1».
+- Propuesta: usar el nombre del rasgo de `sp.free` (o un nombre más claro para «Marca del cazador gratis») y añadir los usos que quedan al texto del aviso.
+- Prioridad: frecuencia 3 + olvido 1 + coste 3 = 7
+- Estado: pendiente
+
+### 117. El descanso largo gasta una ración aunque lleves bayas nutritivas
+- Origen: Partida simulada: explorador
+- Tipo: Mejora
+- Qué pasa: el explorador lanza Bayas nutritivas antes de dormir justo para no gastar raciones (las bayas desaparecen a las 24 horas). Pero la casilla «Comer» del descanso largo coge lo primero que encuentra en el equipo (`js/actions/rest.js:112` y `:151`), y las raciones van antes: «Comer: gastar 1 ración (te quedan 10)». Para comerse una baya hay que desmarcar la casilla y restar la baya a mano.
+- Qué debería pasar: si hay bayas nutritivas, se come primero una baya (caducan); o la ventana deja elegir «baya» o «ración».
+- Propuesta: en los dos `find()`, buscar primero `e.berry` y después las raciones.
+- Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
+- Estado: pendiente
+
+### 118. El descanso largo de un elfo dura 4 horas (Trance)
+- Origen: Partida simulada: explorador
+- Tipo: Mejora
+- Qué pasa: el rasgo Trance del elfo dice «un descanso largo te lleva 4 horas de trance», pero la ventana dice «Descanso largo (8 horas)» y descuenta 8 horas a los efectos (`passTime(c, 480)`). En la partida, las Bayas nutritivas pierden 8 horas en vez de 4; con una Marca del cazador de 8 horas (espacio de nivel 3), se acabaría en el descanso.
+- Qué debería pasar: para los elfos, «Descanso largo (4 horas en trance)» y 4 horas menos a los efectos (o una casilla para elegir 4 u 8).
+- Propuesta: en `longModal` y `long-done`, si tiene el rasgo «Trance», usar 240 minutos y decirlo en el título.
+- Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
+- Estado: pendiente
+
+### 119. Usar un rasgo con usos desde Combate no da ningún aviso
+- Origen: Partida simulada: explorador
+- Tipo: Mejora
+- Qué pasa: al pulsar «Usar» en un rasgo con usos de Combate (en la partida, «Puntos de suerte» de Afortunado), la app resta el uso y no dice nada (`t-feat`, `js/actions/combat.js:221`, salvo para unos pocos rasgos con su propio aviso). El jugador tiene que ir a Rasgos para saber qué hace (Afortunado: ventaja en esa tirada d20, o desventaja al ataque de un enemigo contra ti) y no sabe cuántos le quedan sin mirar la fila.
+- Qué debería pasar: un aviso corto con el texto del rasgo y los usos que quedan: «Puntos de suerte: te quedan 1. Tienes ventaja en esa tirada d20 (o el enemigo, desventaja en su ataque contra ti)».
+- Propuesta: en `t-feat`, si el rasgo no tiene aviso propio, `toast()` con el nombre, los usos que quedan y las primeras líneas de `f.text` (o del rasgo de origen, para los recursos como «Puntos de suerte» que no tienen texto).
+- Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
+- Estado: pendiente
+
+### 120. «Te quedan 1 ataques»
+- Origen: Partida simulada: explorador
+- Tipo: Mejora
+- Qué pasa: con Ataque adicional (nivel 5), tras el primer ataque el aviso dice «te quedan 1 ataques» (`js/actions/combat.js:127`, y lo mismo en Agarrar, Empujar y el golpe desarmado, `:176` y `:191`).
+- Qué debería pasar: «te queda 1 ataque».
+- Propuesta: singular cuando `T.atk === 1`.
+- Prioridad: frecuencia 2 + olvido 1 + coste 3 = 6
 - Estado: pendiente
