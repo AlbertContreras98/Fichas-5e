@@ -75,7 +75,7 @@ const DERIVED = [
     n: 'Paso del viento (1 punto)',
     t: 'AA',
     cost: 'Puntos de concentración',
-    d: 'Destrabarse y Correr, salto doble.',
+    d: 'Destrabarse y Correr; este turno saltas el doble de lejos.',
   },
   {
     need: 'Golpe aturdidor',
@@ -89,9 +89,17 @@ const DERIVED = [
     need: 'Artes marciales',
     n: 'Golpe desarmado (Artes marciales)',
     t: 'AA',
+    ok: c => !wearsArmor(c),
     d: 'Un golpe desarmado extra.',
   },
   { need: 'Acción astuta', n: 'Correr, Destrabarse o Esconderse', t: 'AA', d: 'Acción astuta del pícaro.' },
+  {
+    need: 'Bendición del oscuro',
+    n: 'Bendición del oscuro',
+    t: 'free',
+    d: c =>
+      `Cuando dejas a un enemigo a 0 PG (o lo hace otro a 10 pies de ti): ganas ${Math.max(1, M(c, 'cha') + c.level)} PG temporales (CAR + nivel de brujo).`,
+  },
   {
     need: ['Pacto del Filo', 'Pacto de la Espada'],
     n: 'Invocar arma de pacto',
@@ -374,9 +382,12 @@ function viewTurn(c) {
   // Derivadas
   DERIVED.forEach((o, j) => {
     if (![].concat(o.need).some(n => c.features.some(f => norm(f.name).includes(norm(n))))) return;
+    if (o.ok && !o.ok(c)) return;
     const src = o.cost && c.features.find(f => f.name === o.cost && f.uses.max > 0);
     if (o.cost && !src) return;
-    const busy = o.t === 'A' ? !aFree : o.t === 'AA' ? T.aa : o.t === 'R' ? T.r : false;
+    const busy =
+      (o.n === 'Golpe aturdidor' && T.stun) ||
+      (o.t === 'A' ? !aFree : o.t === 'AA' ? T.aa : o.t === 'R' ? T.r : false);
     cols[o.t].push(
       row(
         esc(o.n),

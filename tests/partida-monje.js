@@ -133,6 +133,7 @@ async function derivada(page, nombre) {
   if (!(await btn.count())) throw new Error(`«${nombre}» no sale en Combate`);
   if (await btn.isDisabled()) throw new Error(`«${nombre}» está apagado en Combate`);
   await btn.click();
+  await b.actSi(page, 'cast-conc-ok', {}, '#modal'); // aviso de concentración (n.º 112)
   const t = await leerToasts(page);
   if (RASTRO) console.log(`    aviso: ${t.join(' | ')}`);
   return t;
@@ -757,8 +758,8 @@ async function escena3(ctx) {
   if (esq)
     regla(
       'Esquivando',
-      !c.effects.find(e => /Esquiv/.test(e.name)),
-      'Esquivando debería terminar al empezar su turno'
+      !!c.effects.find(e => /Esquiv/.test(e.name)),
+      'Esquivando debería seguir durante los turnos de los enemigos (acaba al empezar su turno)'
     );
 
   /* Ronda 3: Defensa paciente gratis (Destrabarse) y Paso del viento gratis (Correr) en otra ronda */

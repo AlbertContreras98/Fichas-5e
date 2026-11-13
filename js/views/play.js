@@ -495,6 +495,7 @@ const DMG_REACT = [
     'el daño de un ataque (contundente, cortante o perforante, salvo con Desviar energía)',
   ],
   ['uncanny', 'Esquiva asombrosa', '', null, 'la mitad del daño de un ataque que veas'],
+  ['fall', 'Caída lenta', '', c => 5 * c.level, 'el daño de una caída'],
   ['stone', 'Aguante de piedra', '1d12', c => M(c, 'con'), 'el daño que recibes'],
 ];
 function dmgReactApply(c, R, dmg, red) {
@@ -502,8 +503,11 @@ function dmgReactApply(c, R, dmg, red) {
   if (f && f.uses && +f.uses.max) f.uses.used = Math.min(f.uses.max, f.uses.used + 1);
   if (c.combat && c.turn) c.turn.r = true;
   const left = Math.max(0, dmg - red);
+  const pts = c.features.find(x => x.name === 'Puntos de concentración' && x.uses.max - x.uses.used > 0);
+  const back = R[0] === 'deflect' && !left && pts;
   toast(
-    `<div class="t-label">${esc(R[1])}</div><div class="t-parts">Reduces ${Math.min(dmg, red)} del daño: de ${dmg} a <b>${left}</b>.${R[0] === 'deflect' && !left ? ' Puedes gastar 1 punto de concentración para devolver el golpe a otra criatura.' : ''}</div>`
+    `<div class="t-label">${esc(R[1])}</div><div class="t-parts">Reduces ${Math.min(dmg, red)} del daño: de ${dmg} a <b>${left}</b>.</div>${back ? '<div class="t-parts">Como lo has dejado en 0, puedes gastar 1 punto de concentración para devolver el golpe.</div><div class="t-actions"><button class="b sm pri" data-act="deflect-back">Devolver el golpe (1 punto)</button></div>' : ''}`,
+    !!back
   );
   openVida();
   if (left) {

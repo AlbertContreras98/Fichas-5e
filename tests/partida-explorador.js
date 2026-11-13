@@ -118,6 +118,7 @@ async function lanzar(page, nombre, como) {
   }
   if (await btn.isDisabled()) throw new Error(`«${nombre}» está apagado en Combate`);
   await btn.click();
+  await b.actSi(page, 'cast-conc-ok', {}, '#modal'); // aviso de concentración (n.º 112)
   await elegirEspacio(page, como);
   const t = await leerToasts(page);
   if (RASTRO) console.log(`    aviso: ${t.join(' | ')}`);
@@ -1369,7 +1370,7 @@ async function escena5(ctx) {
   CUENTA.flechas++;
   regla(
     'Ataque adicional',
-    c.turn.atk === 1 && tiene(t, /te quedan 1 ataques/),
+    c.turn.atk === 1 && tiene(t, /te queda 1 ataque\b/),
     `turno ${JSON.stringify(c.turn)}`
   );
   if (tiene(t, /te quedan 1 ataques/)) narra('El aviso dice «te quedan 1 ataques» (debería ser «1 ataque»).');

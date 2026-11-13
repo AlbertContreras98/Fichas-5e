@@ -52,12 +52,28 @@ Object.assign(A, {
       toast('<div class="t-parts">Escribe primero el daño que te hacen y luego pulsa la reacción.</div>');
       return;
     }
-    if (!R[2]) return dmgReactApply(c, R, dmg, Math.ceil(dmg / 2));
+    if (!R[2]) return dmgReactApply(c, R, dmg, R[3] ? R[3](c) : Math.ceil(dmg / 2));
     const x = R[3](c);
     openModal(`<h2>${esc(R[1])}</h2><p>Usas tu reacción para reducir ${R[4]}. Tira <b>${R[2]}</b> y escribe el resultado: la app suma ${sgn(x)}.</p>
       <div class="hpctl"><input id="red-r" type="number" inputmode="numeric" min="1" max="${R[2].slice(2)}" aria-label="Resultado del dado"><button class="b pri" data-act="hp-red-ok" data-k="${R[0]}" data-dmg="${dmg}">Reducir</button></div>
       <div class="btns"><button class="b" data-act="vida">Volver</button></div>`);
     setTimeout(() => $('#red-r') && $('#red-r').focus(), 0);
+  },
+  /* Desviar ataques: si dejas el daño en 0, gastas 1 punto y lo devuelves */
+  'deflect-back': el => {
+    const c = C(),
+      pts = c.features.find(x => x.name === 'Puntos de concentración' && x.uses.max - x.uses.used > 0);
+    if (!pts) return;
+    pts.uses.used++;
+    const t = el.closest('.toast');
+    if (t) t.remove();
+    const maD = infoFor(defOf(c), subOf(c), c.level)['Dado de artes marciales'] || 'd6';
+    save();
+    render();
+    toast(
+      `<div class="t-label">Devuelves el golpe</div><div class="t-parts">Elige una criatura a 5 pies (si el ataque era cuerpo a cuerpo) o que veas a 60 pies (si era a distancia). Hace una salvación de DES <b>CD ${8 + pb(c) + M(c, 'wis')}</b>: si falla, recibe <b>2${maD} ${sgn(M(c, 'dex'))}</b> del mismo tipo de daño que el ataque.</div><div class="t-parts">Te ${pts.uses.max - pts.uses.used === 1 ? 'queda 1 punto' : `quedan ${pts.uses.max - pts.uses.used} puntos`}.</div>`,
+      true
+    );
   },
   'hp-red-ok': el => {
     const c = C(),
@@ -218,6 +234,19 @@ Object.assign(A, {
       sp = c.spells[+el.dataset.i],
       L = +sp.level || 0;
     castFree = false;
+    /* Concentración: avisar antes de que el conjuro nuevo acabe con el que llevas */
+    if (
+      !el.dataset.conc &&
+      !el.dataset.who &&
+      !el.dataset.force &&
+      sp.conc &&
+      c.concentration &&
+      c.concentration !== sp.name
+    ) {
+      openModal(`<h2>${esc(sp.name)}</h2><p>Es de concentración y ya te estás concentrando en <b>${esc(c.concentration)}</b>. Si lo lanzas, <b>${esc(c.concentration)}</b> termina.</p>
+        <div class="btns"><button class="b pri" data-act="cast-conc-ok" data-i="${el.dataset.i}">Lanzarlo igualmente</button><button class="b" data-act="close-modal">Cancelar</button></div>`);
+      return;
+    }
     if (!el.dataset.who && !el.dataset.force && armorAuto(c) && acCalc(c).noProf)
       toast(
         '<div class="t-label">Ojo</div><div class="t-parts">Llevas una armadura con la que no eres competente: con ella puesta no puedes lanzar conjuros. Quítatela desde el inventario.</div>',
@@ -275,6 +304,12 @@ Object.assign(A, {
       ${fr ? `<button class="b opt" data-act="cast-with" data-i="${el.dataset.i}" data-kind="free"><span>Gratis (${esc(sp.src || 'rasgo')})</span><small>${fr.atwill ? 'sin límite' : `quedan ${fr.uses.max - fr.uses.used}`}</small></button>` : ''}
       ${sp.ritual ? (c.combat ? '<p class="hint">Como ritual tarda 10 minutos más: no da tiempo en combate.</p>' : `<button class="b opt" data-act="cast-with" data-i="${el.dataset.i}" data-kind="ritual"><span>Como ritual</span><small>+10 min, sin espacio</small></button>`) : ''}
       <button class="b" data-act="close-modal">Cancelar</button>`);
+  },
+  'cast-conc-ok': el => {
+    const pe = pendingEco;
+    closeModal();
+    pendingEco = pe;
+    A.cast({ dataset: { i: el.dataset.i, conc: '1' } });
   },
   'cast-armor-ok': el => {
     const pe = pendingEco;
@@ -343,7 +378,7 @@ Object.assign(A, {
     toast(
       c.inspiration
         ? '<div class="t-label">Inspiración heroica</div><div class="t-parts">La tienes. Gástala para repetir una tirada d20 que no te guste (te quedas con el nuevo resultado).</div>'
-        : '<div class="t-label">Inspiración gastada</div>'
+        : '<div class="t-label">Inspiración gastada</div><div class="t-parts">Repite la tirada d20 y quédate con el nuevo resultado.</div>'
     );
   },
   cond: el => {

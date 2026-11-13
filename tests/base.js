@@ -76,6 +76,9 @@ async function act(page, nombre, datos = {}, dentro = '') {
   const loc = page.locator(s).filter({ visible: true }).first();
   await loc.waitFor({ state: 'visible', timeout: 4000 });
   await loc.click();
+  /* Desde el n.º 112, un conjuro de concentración avisa antes si ya te concentras en otro: se acepta */
+  if (['cast', 't-cast', 'cast-armor-ok', 'book-ritual'].includes(nombre))
+    await actSi(page, 'cast-conc-ok', {}, '#modal');
 }
 /* Igual, pero dice si existía en vez de fallar */
 async function actSi(page, nombre, datos = {}, dentro = '') {

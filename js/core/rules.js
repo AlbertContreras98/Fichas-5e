@@ -444,7 +444,7 @@ function unarmedCalc(c) {
   let dmg, note;
   if (monk && /^d\d+$/.test(maD)) {
     dmg = `1${maD}${sm(mod)}`;
-    note = `Artes marciales: usas ${dex > str ? 'DES' : 'FUE'} y tu dado (${maD}). Tras atacar puedes dar otro golpe desarmado como acción adicional.`;
+    note = `Artes marciales: usas ${dex > str ? 'DES' : 'FUE'} y tu dado (${maD}). Puedes dar un golpe desarmado con la acción adicional.`;
   } else if (style) {
     dmg = `1d6${sm(mod)}`;
     note =
@@ -464,7 +464,12 @@ function initFeats(c) {
   return `<div class="t-parts"><b>Al tirar iniciativa, recuerda:</b></div>${list
     .map(f => {
       const u = f.uses && +f.uses.max ? ` (quedan ${f.uses.max - (+f.uses.used || 0)}/${f.uses.max})` : '';
-      return `<div class="t-parts">· <b>${esc(f.name)}</b>${u}: ${esc(f.text.length > 220 ? f.text.slice(0, 217) + '…' : f.text)}</div>`;
+      const i = c.features.indexOf(f),
+        now =
+          f.name === 'Metabolismo asombroso' && f.uses && f.uses.max - (+f.uses.used || 0) > 0
+            ? ` <button class="b sm" data-act="t-feat" data-i="${i}">Usar ahora</button>`
+            : '';
+      return `<div class="t-parts">· <b>${esc(f.name)}</b>${u}: ${esc(f.text.length > 220 ? f.text.slice(0, 217) + '…' : f.text)}${now}</div>`;
     })
     .join('')}`;
 }

@@ -156,6 +156,7 @@ async function lanzar(page, nombre, como) {
   }
   if (await btn.isDisabled()) throw new Error(`«${nombre}» está apagado en Combate`);
   await btn.click();
+  await b.actSi(page, 'cast-conc-ok', {}, '#modal'); // aviso de concentración (n.º 112)
   await elegirEspacio(page, como);
   const t = await leerToasts(page);
   if (RASTRO) console.log(`    aviso: ${todo(t)}`);

@@ -86,13 +86,15 @@ Object.assign(A, {
     const c = C();
     if (!c.combat) return;
     const re = c.effects.filter(e => e.r != null),
-      cs = ['Derribado', 'Agarrado', 'Apresado'].filter(n => c.conditions.includes(n)),
+      /* Todos los estados menos los que no acaban con el combate; los de combate, ya marcados */
+      cs = c.conditions.filter(n => !['Inconsciente', 'Agotamiento'].includes(n)),
+      csOn = ['Derribado', 'Agarrado', 'Apresado', 'Asustado'],
       n = c.combat.round;
     const box = (k, v, lbl, on, note) =>
       `<label class="chk"><input type="checkbox" data-cb="${k}" value="${esc(v)}" ${on ? 'checked' : ''}><span>${lbl}${note ? `<br><small class="muted">${note}</small>` : ''}</span></label>`;
     openModal(`<h2>Terminar combate</h2><p>Habéis llegado a la ronda ${n}. Se quita el contador y tu turno vuelve a empezar limpio.</p>
       ${re.length ? `<h3>Efectos que duran rondas</h3><p class="hint">Marca los que se acaban. Si el combate ha sido corto, alguno puede seguir activo.</p>${re.map(e => box('eff', e.id, `<b>${esc(e.name)}</b> · ${fmtEff(e)}`, !e.conc, e.conc ? 'Concentración: si lo quitas, dejas de concentrarte.' : '')).join('')}` : ''}
-      ${cs.length ? `<h3>Estados de combate</h3><p class="hint">Marca los que ya no tienes.</p>${cs.map(x => box('cond', x, `<b>${x}</b>`, true)).join('')}` : ''}
+      ${cs.length ? `<h3>Estados</h3><p class="hint">Marca los que ya no tienes.</p>${cs.map(x => box('cond', x, `<b>${esc(x)}</b>`, csOn.includes(x))).join('')}` : ''}
       <p class="hint">Las invocaciones, la concentración y las transformaciones no se tocan: terminan por sus propias reglas.</p>
       <div class="btns"><button class="b pri" data-act="cb-end-ok">Terminar combate</button><button class="b" data-act="close-modal">Cancelar</button></div>`);
   },
@@ -142,7 +144,7 @@ Object.assign(A, {
     save();
     render();
     toast(
-      `<div class="t-label">Ataque con ${esc(a.name)}</div><div class="t-big">1d20 ${sgn((+a.atk || 0) + d20Pen(c))}</div>${d20Line(c, 'atk', a) ? `<div class="t-parts">${d20Line(c, 'atk', a)}</div>` : ''}<div class="t-parts">Si impactas, daño: ${esc(a.dmg || '—')} ${esc(a.type || '')}${am ? ` · quedan ${am.qty} ${esc(am.name)}` : ''}${T.atk > 0 ? ` · te quedan ${T.atk} ataques` : ''}</div>${critLine(a.dmg, hitExtras(c, false).length)}${hitExtras(
+      `<div class="t-label">Ataque con ${esc(a.name)}</div><div class="t-big">1d20 ${sgn((+a.atk || 0) + d20Pen(c))}</div>${d20Line(c, 'atk', a) ? `<div class="t-parts">${d20Line(c, 'atk', a)}</div>` : ''}<div class="t-parts">Si impactas, daño: ${esc(a.dmg || '—')} ${esc(a.type || '')}${am ? ` · quedan ${am.qty} ${esc(am.name)}` : ''}${T.atk > 0 ? ` · ${T.atk === 1 ? 'te queda 1 ataque' : `te quedan ${T.atk} ataques`}` : ''}</div>${critLine(a.dmg, hitExtras(c, false).length)}${hitExtras(
         c,
         false
       )
@@ -183,7 +185,9 @@ Object.assign(A, {
   't-shove': el => {
     const c = C(),
       T = c.turn,
-      grab = el.dataset.k === 'grapple';
+      grab = el.dataset.k === 'grapple',
+      monkDex = c.classKey === 'monk' && !wearsArmor(c) && M(c, 'dex') > M(c, 'str'),
+      ab = monkDex ? M(c, 'dex') : M(c, 'str');
     if (!T.a) {
       T.a = true;
       T.atk = attacksPerAction(c) - 1;
@@ -191,7 +195,7 @@ Object.assign(A, {
     save();
     render();
     toast(
-      `<div class="t-label">${grab ? 'Agarrar' : 'Empujar'}</div><div class="t-big">CD ${8 + M(c, 'str') + pb(c)}</div><div class="t-parts">Elige a una criatura a 5 pies que no sea más de un tamaño mayor que tú${grab ? ' (necesitas una mano libre)' : ''}. Hace una salvación de FUE o DES (elige ella). ${grab ? 'Si falla, queda agarrada: su velocidad es 0 y tiene desventaja al atacar a cualquiera que no seas tú. Para soltarse usa su acción en una prueba de FUE (Atletismo) o DES (Acrobacias) contra la misma CD.' : 'Si falla, la empujas 5 pies o la derribas (eliges tú).'}${T.atk > 0 ? ` · te quedan ${T.atk} ataques` : ''}</div>`
+      `<div class="t-label">${grab ? 'Agarrar' : 'Empujar'}</div><div class="t-big">CD ${8 + ab + pb(c)}</div>${monkDex ? '<div class="t-parts">Con DES, por Artes marciales.</div>' : ''}<div class="t-parts">Elige a una criatura a 5 pies que no sea más de un tamaño mayor que tú${grab ? ' (necesitas una mano libre)' : ''}. Hace una salvación de FUE o DES (elige ella). ${grab ? 'Si falla, queda agarrada: su velocidad es 0 y tiene desventaja al atacar a cualquiera que no seas tú. Para soltarse usa su acción en una prueba de FUE (Atletismo) o DES (Acrobacias) contra la misma CD.' : 'Si falla, la empujas 5 pies o la derribas (eliges tú).'}${T.atk > 0 ? ` · ${T.atk === 1 ? 'te queda 1 ataque' : `te quedan ${T.atk} ataques`}` : ''}</div>`
     );
   },
   't-unarmed': () => {
@@ -206,7 +210,7 @@ Object.assign(A, {
     save();
     render();
     toast(
-      `<div class="t-label">Golpe desarmado</div><div class="t-big">1d20 ${sgn(u.atk + d20Pen(c))}</div><div class="t-parts">Si impactas, daño: ${esc(u.dmg)} contundente${T.atk > 0 ? ` · te quedan ${T.atk} ataques` : ''}</div>${dl ? `<div class="t-parts">${dl}</div>` : ''}${u.note ? `<div class="t-parts">${esc(u.note)}</div>` : ''}${critLine(u.dmg, hitExtras(c, false).length)}${hitExtras(
+      `<div class="t-label">Golpe desarmado</div><div class="t-big">1d20 ${sgn(u.atk + d20Pen(c))}</div><div class="t-parts">Si impactas, daño: ${esc(u.dmg)} contundente${T.atk > 0 ? ` · ${T.atk === 1 ? 'te queda 1 ataque' : `te quedan ${T.atk} ataques`}` : ''}</div>${dl ? `<div class="t-parts">${dl}</div>` : ''}${u.note ? `<div class="t-parts">${esc(u.note)}</div>` : ''}${critLine(u.dmg, hitExtras(c, false).length)}${hitExtras(
         c,
         false
       )
@@ -286,6 +290,15 @@ Object.assign(A, {
         true
       );
     }
+    if (!['Arma de aliento', 'Furia'].includes(f.name)) {
+      const src =
+        f.text ||
+        (c.features.find(x => x !== f && x.text && String(f.source || '').includes(x.name)) || {}).text ||
+        '';
+      toast(
+        `<div class="t-label">${esc(f.name)}</div><div class="t-parts">Te ${featLeft(f) === 1 ? 'queda 1 uso' : `quedan ${featLeft(f)} usos`} de ${f.uses.max}.</div>${src ? `<div class="t-parts">${esc(src.length > 260 ? src.slice(0, 257) + '…' : src)}</div>` : ''}`
+      );
+    }
     if (f.name === 'Furia') {
       const was = c.concentration;
       if (was) endEffects(c, e => e.conc);
@@ -356,14 +369,30 @@ Object.assign(A, {
       f.uses.used++;
     }
     if (/^Paso del viento/.test(o.n)) c.turn.dash = (+c.turn.dash || 0) + 1;
+    if (o.n === 'Golpe aturdidor') c.turn.stun = true;
+    let more = '';
+    if (o.n === 'Defensa paciente (1 punto)') {
+      addEffect(c, 'Esquivando', { r: 1 }, false, true);
+      markSt(
+        c,
+        c.effects.find(e => e.name === 'Esquivando')
+      );
+      more =
+        '<div class="t-parts">Hasta el principio de tu siguiente turno: los ataques contra ti tienen desventaja (si ves a quien ataca) y tienes ventaja en las salvaciones de DES. La app lo quita sola al empezar tu turno.</div>';
+    }
     spendEco(c, o.t);
     save();
     render();
     /* Golpes desarmados con la acción adicional: qué tirar, como el golpe desarmado de Otras acciones */
     if (o.n === 'Ráfaga de golpes' || o.n === 'Golpe desarmado (Artes marciales)')
-      return toast(unarmedMsg(c, o.n, o.n === 'Ráfaga de golpes' ? 2 : 1));
+      return toast(
+        unarmedMsg(c, o.n, o.n === 'Ráfaga de golpes' ? 2 : 1) +
+          (o.n === 'Ráfaga de golpes' && c.subclassKey === 'openhand'
+            ? `<div class="t-parts"><b>Técnica de la mano abierta</b>, en cada golpe que impacte puedes elegir una: <b>Desequilibrar</b> (no puede hacer ataques de oportunidad hasta el principio de su siguiente turno), <b>Empujar</b> (salvación de FUE CD ${8 + pb(c) + M(c, 'wis')} o lo alejas hasta 15 pies) o <b>Derribar</b> (salvación de DES CD ${8 + pb(c) + M(c, 'wis')} o queda derribado).</div>`
+            : '')
+      );
     toast(
-      `<div class="t-label">${esc(o.n)}</div><div class="t-parts">${esc(typeof o.d === 'function' ? o.d(c) : o.d)}</div>`
+      `<div class="t-label">${esc(o.n)}</div><div class="t-parts">${esc(typeof o.d === 'function' ? o.d(c) : o.d)}</div>${more}`
     );
   },
   'pact-ok': el => {

@@ -461,6 +461,10 @@ function acCalc(c) {
   if (shield && c.attacks.some(a => a.wpn && WEAPONS[a.wpn] && twoH(WEAPONS[a.wpn]) && atkReady(c, a)))
     warn.push('Llevas escudo y un arma a dos manos equipada: no puedes usar las dos cosas a la vez.');
   if (shield && !shieldOk) warn.push('No eres competente con escudos: llevarlo no te sube la CA.');
+  if (c.classKey === 'monk' && (shield || body))
+    warn.push(
+      'Con armadura o escudo pierdes Defensa sin armadura, Artes marciales y Movimiento sin armadura.'
+    );
   return {
     ac,
     src,
