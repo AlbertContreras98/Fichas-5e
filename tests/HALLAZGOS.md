@@ -930,7 +930,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: si no queda ningún truco libre para esa invocación, el botón sale apagado con el motivo («Ya la tienes en todos tus trucos»).
 - Propuesta: en `ivWhyNot()`, para las invocaciones repetibles con `need`, mirar si queda algún truco sin usar por otra copia.
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): una invocación repetible ligada a un truco ya no se puede elegir si todos los trucos que sirven la tienen («Ya la tienes en todos tus trucos que sirven»).
 
 ### 85. El asistente deja elegir conjuros que ya te da la especie, la subclase o una dote
 - Origen: Prueba 2a
@@ -939,7 +939,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: que el buscador del asistente no ofrezca (o marque como «ya lo tienes gratis») los conjuros de la especie, del linaje y de la subclase; y si un conjuro elegido pasa a ser gratis, avisar al confirmar de que queda un hueco para preparar otro.
 - Propuesta: en el paso «Conjuros», apagar en la lista los de `originSpellIds()` y `alwaysIds()` hasta ese nivel; al confirmar, un aviso «Te queda 1 conjuro por elegir» con el botón de preparar.
 - Prioridad: frecuencia 1 + olvido 2 + coste 2 = 5
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): en el paso «Conjuros» del asistente ya no salen los que te dan gratis la especie, el linaje, la clase o la subclase.
 
 ### 86. Añadir un «Paquete de equipo» da error y no se puede deshacer
 - Origen: Prueba 2b
@@ -975,7 +975,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: cada campo se queda dentro de lo que tiene sentido: características 1–30, nivel entero 1–20, PG actuales entre 0 y el máximo, PG máximos de 1 o más, cantidades y usos de 0 o más, todo sin decimales.
 - Propuesta: una tabla de límites por `data-path` en el manejador de `input` de `events.js` (redondear y recortar al salir del campo, no mientras se escribe), con `min`, `max` y `step` en los `<input>`; y los mismos límites en `normalize()` para lo importado.
 - Prioridad: frecuencia 1 + olvido 2 + coste 2 = 5
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): al salir de un campo numérico de «Editar ficha» y al cargar la ficha, los números se redondean y se recortan: características 1–30, nivel 1–20 sin decimales, PG máximos ≥ 1, PG actuales entre 0 y el máximo, temporales ≥ 0, usos, cantidades y monedas ≥ 0.
 
 ### 90. «Deshacer» puede quitar la ficha recién importada o creada
 - Origen: Prueba 2b
@@ -984,7 +984,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: «Deshacer» sirve para los cambios dentro de una ficha; importar y crear una ficha no deberían poder perderse con un toque. El texto de borrar debería decir lo que pasa de verdad.
 - Propuesta: vaciar la pila `UNDO` al importar, al crear y al cambiar de ficha (como ya se hace al escribir en «Editar ficha»). Para borrar, o se vacía también (y el texto es cierto), o se cambia el texto por «Puedes recuperarla con Deshacer hasta que cierres la app».
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): importar, crear (asistente o ficha vacía) y cambiar de ficha vacían «Deshacer». Borrar un personaje sí se puede deshacer mientras no cierres la app, y la ventana ya lo dice.
 
 ### 91. En «Editar ficha», los cambios en un conjuro del catálogo no se conservan
 - Origen: Prueba 2b
@@ -993,7 +993,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: o los campos que manda el catálogo no se pueden tocar (solo las «Notas propias»), o lo que el jugador cambie se respeta.
 - Propuesta: en `viewEdit()`, para los conjuros con `ref`, enseñar esos datos como texto fijo y dejar editables solo el nombre y las notas, con una pista: «Para cambiar sus datos, crea un conjuro propio».
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): en «Editar ficha», los conjuros del catálogo enseñan sus datos como texto fijo (solo se cambian el nombre y las notas) con la pista de crear un conjuro propio. Un objeto que pasa a ser arma ya no queda equipado solo al recargar.
 
 ### 92. Quitar una dote con conjuros no quita la aptitud mágica que puso
 - Origen: Prueba 2b
@@ -1002,7 +1002,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: al quitar la dote, la aptitud mágica vuelve a «Ninguna» si la puso esa dote.
 - Propuesta: apuntar en el registro de la dote (`rec`) que fijó la aptitud (`rec.cast = true`) y, en `featRemove()`, vaciarla si no quedan conjuros ni otra dote que la necesite.
 - Prioridad: frecuencia 1 + olvido 1 + coste 3 = 5
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): si la dote puso la aptitud mágica y al quitarla no queda clase lanzadora ni conjuros, la aptitud se quita.
 
 ### 93. Quitar de la mesa al jugador al que le toca para el combate del máster
 - Origen: Prueba 2c
@@ -1029,7 +1029,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: anular la venta deja todo como estaba, también el enlace del arco con sus flechas.
 - Propuesta: en `shTake()`, guardar los ids de los ataques cuya munición era ese objeto y, en `sh-undo`, volver a ponérsela.
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): al anular la venta de toda la munición, el arma vuelve a tenerla enlazada.
 
 ### 96. Un código de criatura sin el «#cr=» entra como un jugador nuevo
 - Origen: Prueba 2c
@@ -1038,7 +1038,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: el código se reconoce como criatura y va a su jugador.
 - Propuesta: que `sheetParse()` rechace los códigos con `t` (las criaturas llevan `t: 'c'`, las tiendas `'s'` y los recibos `'r'`), o que `qrKind()` mire `t` antes.
 - Prioridad: frecuencia 1 + olvido 1 + coste 3 = 5
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): un código de ficha que lleve tipo (criatura, tienda o recibo) ya no se acepta como jugador; el código de criatura se reconoce como criatura.
 
 ### 97. Comprar un objeto que la app del jugador no conoce cobra y no da el objeto
 - Origen: Prueba 2c
@@ -1047,7 +1047,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: el objeto se compra como uno inventado (con su nombre) o no deja comprarlo; nunca cobrar sin dar el objeto.
 - Propuesta: que `shopPayload()` mande también el nombre y el tipo de los objetos del catálogo, y que `shopParse()` convierta en `x` (inventado) los códigos que no existan; en `shBuy()`, cobrar después de `shGive()`.
 - Prioridad: frecuencia 1 + olvido 1 + coste 3 = 5
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): un objeto de la tienda que la app del jugador no conoce se trata como objeto inventado («Objeto desconocido», con aviso de actualizar la app): se cobra y se da.
 
 ### 98. Pegar un recibo en «+ Jugador» dice que el código no es válido
 - Origen: Prueba 2c
@@ -1056,7 +1056,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: cualquier código de Fichas 5e pegado en cualquiera de los dos sitios hace lo que toca (como ya hace el escáner).
 - Propuesta: en `m-paste`, si `qrKind()` reconoce el código, llamar a `qrRun()` sea del tipo que sea; y que el aviso del recibo diga «lo pega en Tiendas → Escanear o importar recibo».
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): pegar en «+ Jugador» un código de otro tipo (recibo, tienda, criatura) hace lo que toca con él.
 
 ### 99. La iniciativa de los monstruos del bestiario es solo la Destreza (por confirmar)
 - Origen: Prueba 2c
@@ -1065,7 +1065,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: la iniciativa de cada criatura la de su ficha de 2024.
 - Propuesta: que `tools/bestiario/gen.py` guarde la iniciativa del SRD en cada criatura (`ini`) y que `bestIni()` la use si existe (y la DES si no).
 - Prioridad: frecuencia 1 + olvido 3 + coste 2 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): en parte: los datos del SRD que usa la app no traen la iniciativa de 2024, así que la app sigue usando la DES, pero el bestiario y la ventana de añadir NPC avisan de que algunos monstruos tienen más y de que se puede apuntar a mano.
 
 ### 100. Fallos menores del modo máster y de los códigos
 - Origen: Prueba 2c
@@ -1078,7 +1078,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: los códigos raros se rechazan con un aviso; los PG se quedan en 0.
 - Propuesta: en `rcptParse()`, quedarse solo con las líneas que sean listas; en `sheetParse()`, exigir 6 salvaciones; en `masterHash()`, si el `#pj` no es válido, llamar a `qrRun(null)`; en el manejador de `data-mf`, no dejar PG por debajo de 0.
 - Prioridad: frecuencia 1 + olvido 1 + coste 3 = 5
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): los recibos ignoran las líneas que no son listas; una ficha con menos de 6 salvaciones se rechaza; un enlace #pj roto avisa; los PG de un NPC no bajan de 0.
 
 ### 101. Fuera de combate, la reacción gastada no vuelve nunca
 - Origen: Prueba 2d
@@ -1097,7 +1097,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: si el jugador elige «Otra», se respeta; si la app la va a volver a enlazar, que no ofrezca la opción con ese texto o que avise.
 - Propuesta: solo deducir `speciesKey`, `backgroundKey` y `classKey` del texto cuando la ficha no tiene ese campo (fichas antiguas o importadas de fuera), no cuando está vacío a propósito; por ejemplo, comprobando `c.speciesKey === undefined` en vez de `!c.speciesKey`.
 - Prioridad: frecuencia 1 + olvido 1 + coste 3 = 5
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): la especie, el trasfondo y la clase solo se deducen del texto si la ficha no trae el campo; «Otra» se conserva al recargar y al exportar e importar.
 
 ### 103. Aviso falso de «un solo espacio por turno» después de una reacción en el turno del enemigo
 - Origen: Partida simulada: Zyo
@@ -1133,7 +1133,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: un botón «Ha caído un enemigo» en Combate (sin gastar acción) que dé los PG temporales con la regla de siempre (no se suman: te quedas con el mayor).
 - Propuesta: fila en la columna «Sin gastar acción» si tiene el rasgo `Bendición del oscuro`, que llame a `giveTemp(c, max(1, CAR + nivel), 'Bendición del oscuro')`.
 - Prioridad: frecuencia 2 + olvido 3 + coste 3 = 8
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): en Combate, columna «Sin gastar acción», sale «Bendición del oscuro» con los PG temporales ya calculados (CAR + nivel de brujo).
 
 ### 107. El aviso al lanzar Maleficio, Represión infernal y Toque gélido dice cosas que no tocan y le faltan las que sí
 - Origen: Partida simulada: Zyo
@@ -1146,7 +1146,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: el aviso enseña solo lo que se usa: la CD **con la característica de la salvación** y lo que pasa si la supera, o el ataque de conjuro, según el conjuro; y las elecciones del conjuro («Elige una característica: FUE, DES…»).
 - Propuesta: en `upcastLine()`/`afterCast()`, leer de la descripción «salvación de (Fuerza|Destreza|…)» y «la mitad» y enseñar solo esa línea; si no hay salvación ni «ataque de conjuro» en el texto, no enseñar la línea de CD y ataque. Para Maleficio, un desplegable o una línea «Elige la característica (desventaja en sus pruebas)».
 - Prioridad: frecuencia 3 + olvido 2 + coste 2 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): al lanzar, el aviso dice el ataque de conjuro si lo hay y la salvación (característica, CD y si con éxito recibe la mitad), sin la línea de CD/ataque cuando no sirve. Recordatorios propios para Maleficio, Marca del cazador, Toque gélido, Fuego feérico, Golpe atrapador, Oscuridad, Dormir y Escudo.
 - Ampliación (Partida simulada: explorador, 2026-11-13): pasa igual con los conjuros del explorador. En la partida, el jugador tuvo que ir a la descripción o pensar fuera de la app 7 veces por esto:
   - **Marca del cazador, Bayas nutritivas, Luces danzantes y Oscuridad:** el aviso trae «CD de salvación 12 · ataque de conjuro +4», que no sirven para ninguno. El de Marca del cazador no dice qué hace (+1d6 de fuerza en cada impacto a la presa, ventaja en Percepción y Supervivencia para encontrarla); sí sale después en cada ataque. El de Luces danzantes no dice que se mueven con la acción adicional.
   - **Golpe atrapador:** dice «Daño: 1d6 de daño perforante» y la CD, pero no que es una **salvación de Fuerza** (con ventaja si el objetivo es Grande o mayor), que si la falla queda **Apresado** y que el 1d6 se lo hace al **principio de cada uno de sus turnos**. El recordatorio de «Terminar turno» dice bien cómo se suelta (prueba de Fuerza (Atletismo) contra tu CD), pero tampoco recuerda el 1d6.
@@ -1188,7 +1188,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: la ventana enseña todos los estados activos, con los de combate marcados para quitar y los demás sin marcar.
 - Propuesta: en `cb-end`, listar `c.conditions` (salvo Inconsciente) con la casilla marcada solo para los tres de ahora.
 - Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): «Terminar combate» lista todos los estados (salvo Inconsciente); Derribado, Agarrado, Apresado y Asustado salen marcados.
 
 ### 111. El ataque extra con arma ligera no sigue las reglas de Ligera y Mellar
 - Origen: Partida simulada: explorador
@@ -1210,7 +1210,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: antes de gastar nada, una pregunta: «Ya te concentras en Marca del cazador. Si lanzas Golpe atrapador, la Marca termina. ¿Lanzarlo igualmente?».
 - Propuesta: en `cast` (`js/actions/play.js:213`), si `sp.conc && c.concentration && c.concentration !== sp.name`, abrir esa ventana (con «Lanzar» que siga como ahora y «Cancelar»), igual que la de Armadura de mago.
 - Prioridad: frecuencia 3 + olvido 3 + coste 3 = 9
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): lanzar un conjuro de concentración mientras te concentras en otro abre antes una ventana: «Lanzarlo igualmente» o «Cancelar».
 
 ### 113. Las ventajas y desventajas que dependen del objetivo o de la distancia no se recuerdan al atacar
 - Origen: Partida simulada: explorador
@@ -1223,7 +1223,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: el aviso del ataque lo recuerda, con la condición («Ventaja si atacas a la criatura que impactaste con Molestar», «Ventaja si el objetivo está perfilado (Fuego feérico)», «A distancia: más allá de 150 pies o con un enemigo a 5 pies, desventaja»).
 - Propuesta: como la app no sabe si el ataque impacta, guardar `T.vex` al atacar con Molestar y recordarlo («si impactaste…») en los avisos de ataque hasta el final de tu turno siguiente; una pequeña lista «efecto activo → línea» para Fuego feérico y Golpe atrapador, como `hitExtras()`; y una línea fija para las armas a distancia con su alcance (`WEAPONS[k].am`).
 - Prioridad: frecuencia 3 + olvido 3 + coste 2 = 8
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): el aviso de ataque recuerda la ventaja de Molestar (tras atacar con esa maestría), de Fuego feérico y de Golpe atrapador, y en las armas a distancia el alcance largo y el enemigo a 5 pies.
 - Ampliación (Partida simulada: mago, 2026-11-13): **Inmovilizar persona** deja al objetivo Paralizado: los ataques contra él tienen ventaja y los cuerpo a cuerpo a 5 pies o menos son críticos. Ni el aviso del conjuro ni el recordatorio de «Terminar turno» lo dicen, y es justo lo que el mago tiene que decirle al guerrero del grupo (1 vez en la partida).
 
 ### 114. Presa del cazador: no se pregunta la opción y Asesino de colosos no sale en el ataque
@@ -1233,7 +1233,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: el asistente pregunta la opción (como «Orden divino») y la apunta; con Asesino de colosos, el aviso del ataque dice «+1d8 si el objetivo ya estaba herido (Asesino de colosos, una vez por turno)»; con Rompehordas, «Puedes atacar a otra criatura a 5 pies de esta con la misma arma (una vez por turno)». Al lanzar Marca del cazador siendo Cazador: «Pregunta al máster sus inmunidades, resistencias y vulnerabilidades».
 - Propuesta: un paso nuevo en `wizSteps()` con las dos opciones (como `ORDERS`), guardar la elección en la ficha y añadir la línea en `hitExtras()`; la de Saber del cazador, en `afterCast()`.
 - Prioridad: frecuencia 2 + olvido 3 + coste 2 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): el asistente pregunta la Presa del cazador a nivel 3; Asesino de colosos o Rompehordas salen en el aviso del ataque, y Saber del cazador al lanzar Marca del cazador.
 
 ### 115. Las tiradas de habilidad no recuerdan Pasar sin dejar rastro, Marca del cazador ni la luz tenue
 - Origen: Partida simulada: explorador
@@ -1242,7 +1242,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: «Tira 1d20 +10 (con pericia). Con Pasar sin dejar rastro: +10 (1d20 +20) si estás en el aura»; «Con ventaja si buscas a tu presa (Marca del cazador)»; en Percepción, «De noche o en penumbra, con desventaja si dependes de la vista».
 - Propuesta: pasar la habilidad a `d20Line(c, 'check', sk)` y añadir las líneas de esos conjuros (como ya hace con Orientación); la de la luz tenue, solo en Percepción y para quien tenga visión en la oscuridad.
 - Prioridad: frecuencia 2 + olvido 3 + coste 3 = 8
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): las pruebas de habilidad recuerdan el +10 de Pasar sin dejar rastro (Sigilo), la ventaja de Marca del cazador (Percepción y Supervivencia) y, con visión en la oscuridad, la desventaja en Percepción con poca luz.
 
 ### 116. El uso gratis de un conjuro se llama como su origen («Siempre preparado», «Drow»)
 - Origen: Partida simulada: explorador
@@ -1251,7 +1251,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: «Gratis (Enemigo predilecto) · quedan 2» y «Uso gratis de Enemigo predilecto · te quedan 1».
 - Propuesta: usar el nombre del rasgo de `sp.free` (o un nombre más claro para «Marca del cazador gratis») y añadir los usos que quedan al texto del aviso.
 - Prioridad: frecuencia 3 + olvido 1 + coste 3 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): el uso gratis dice el nombre del rasgo y cuántos usos quedan («Gratis, con «Fuego feérico (gratis)» · te queda 1 uso»).
 - Ampliación (Partida simulada: mago, 2026-11-13): Paso brumoso del alto elfo (nivel 5) sale como «Uso gratuito de Alto elfo», sin decir que queda 0 hasta el descanso largo.
 
 ### 117. El descanso largo gasta una ración aunque lleves bayas nutritivas
@@ -1261,7 +1261,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: si hay bayas nutritivas, se come primero una baya (caducan); o la ventana deja elegir «baya» o «ración».
 - Propuesta: en los dos `find()`, buscar primero `e.berry` y después las raciones.
 - Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): el descanso largo gasta primero una baya nutritiva y después las raciones.
 
 ### 118. El descanso largo de un elfo dura 4 horas (Trance)
 - Origen: Partida simulada: explorador
@@ -1270,7 +1270,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: para los elfos, «Descanso largo (4 horas en trance)» y 4 horas menos a los efectos (o una casilla para elegir 4 u 8).
 - Propuesta: en `longModal` y `long-done`, si tiene el rasgo «Trance», usar 240 minutos y decirlo en el título.
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): con el rasgo Trance, el descanso largo dura 4 horas (lo dice la ventana y descuenta 4 horas a los efectos).
 
 ### 119. Usar un rasgo con usos desde Combate no da ningún aviso
 - Origen: Partida simulada: explorador
@@ -1279,7 +1279,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: un aviso corto con el texto del rasgo y los usos que quedan: «Puntos de suerte: te quedan 1. Tienes ventaja en esa tirada d20 (o el enemigo, desventaja en su ataque contra ti)».
 - Propuesta: en `t-feat`, si el rasgo no tiene aviso propio, `toast()` con el nombre, los usos que quedan y las primeras líneas de `f.text` (o del rasgo de origen, para los recursos como «Puntos de suerte» que no tienen texto).
 - Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): «Usar» en un rasgo con usos saca un aviso con los usos que quedan y qué hace.
 
 ### 120. «Te quedan 1 ataques»
 - Origen: Partida simulada: explorador
@@ -1288,7 +1288,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: «te queda 1 ataque».
 - Propuesta: singular cuando `T.atk === 1`.
 - Prioridad: frecuencia 2 + olvido 1 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): «te queda 1 ataque» en singular.
 
 ### 121. La reacción gastada antes de tu primer turno del combate no vuelve hasta la ronda siguiente
 - Origen: Partida simulada: monje
@@ -1315,7 +1315,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: en el aviso, un botón «Devolver el golpe (1 punto)» que gaste el punto y diga «Elige una criatura a 5 pies (o a 60 pies si era un ataque a distancia): salvación de DES CD 13; si falla, 2d6 + 2 del daño del ataque».
 - Propuesta: en `dmgReactApply()`, si es Desviar ataques, `left === 0` y quedan puntos, añadir ese botón (acción nueva que gaste 1 de «Puntos de concentración» y saque el aviso con `8 + pb(c) + M(c, 'wis')` y el dado de artes marciales).
 - Prioridad: frecuencia 2 + olvido 3 + coste 2 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): si Desviar ataques deja el daño en 0 y quedan puntos, el aviso trae «Devolver el golpe (1 punto)», con la CD y el daño.
 
 ### 124. Técnica de la mano abierta: no se recuerda tras la Ráfaga y su CD no sale en ningún sitio
 - Origen: Partida simulada: monje
@@ -1324,7 +1324,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: con la subclase Mano Abierta, el aviso de la Ráfaga dice «Con cada impacto, elige: derribar (salvación de DES CD 13), empujar 15 pies (salvación de FUE CD 13) o que no pueda hacer ataques de oportunidad hasta su siguiente turno». Y en «Datos de clase», «CD de tus rasgos de monje: 13».
 - Propuesta: añadir esa línea en el aviso de `t-der` para la Ráfaga cuando `c.subclassKey === 'openhand'` (junto con el n.º 122), y una línea de CD en los datos de clase del monje.
 - Prioridad: frecuencia 2 + olvido 3 + coste 3 = 8
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): tras la Ráfaga de golpes, el monje de la Mano Abierta ve las tres opciones de la técnica con sus CD.
 
 ### 125. El texto de la Técnica de la mano abierta es el de 2014 (por confirmar)
 - Origen: Partida simulada: monje
@@ -1333,7 +1333,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: el texto de 2024.
 - Propuesta: cambiar el texto del rasgo (y el del aviso del n.º 124) cuando se confirme.
 - Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): texto de 2024: Desequilibrar (sin ataques de oportunidad), Empujar (FUE, 15 pies) o Derribar (DES).
 
 ### 126. Golpe aturdidor se puede usar dos veces en el mismo turno
 - Origen: Partida simulada: monje
@@ -1342,7 +1342,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: tras usarlo, el botón se apaga hasta tu siguiente turno («Ya lo has usado este turno»).
 - Propuesta: en `t-der`, si es Golpe aturdidor, poner `c.turn.stun = true`; en `viewTurn()`, apagar la fila si `T.stun`. «Terminar turno» ya crea un turno nuevo sin la marca.
 - Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): Golpe aturdidor se apaga tras usarlo en el turno.
 
 ### 127. Defensa paciente con 1 punto no pone «Esquivando»
 - Origen: Partida simulada: monje
@@ -1351,7 +1351,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: lo mismo que la acción Esquivar: efecto «Esquivando» y su explicación.
 - Propuesta: en `t-der`, para «Defensa paciente (1 punto)», hacer lo mismo que `t-gen` con `a_dodge` (`addEffect(c, 'Esquivando', { r: 1 }, false, true)`, `markSt()` y el mismo texto).
 - Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): Defensa paciente con 1 punto pone «Esquivando» hasta el principio de tu siguiente turno.
 
 ### 128. Empujar y Agarrar del monje calculan la CD con FUE (por confirmar)
 - Origen: Partida simulada: monje
@@ -1360,7 +1360,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: con Artes marciales y sin armadura ni escudo, la CD usa la mejor entre FUE y DES, como el golpe desarmado.
 - Propuesta: en `t-shove`, usar `Math.max(M(c, 'str'), M(c, 'dex'))` cuando el monje no lleva armadura ni escudo (lo mismo que `unarmedCalc()`), y decir «(con DES por Artes marciales)».
 - Prioridad: frecuencia 1 + olvido 3 + coste 3 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): el monje sin armadura ni escudo usa DES para la CD de Empujar y Agarrar si es mayor.
 
 ### 129. Con escudo o armadura sigue saliendo el golpe desarmado extra de Artes marciales
 - Origen: Partida simulada: monje
@@ -1369,7 +1369,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: con armadura o escudo, esa fila no sale (o sale apagada con «Sin armadura ni escudo»).
 - Propuesta: en `DERIVED`, una condición `ok: c => !c.equipment.some(e => e.equipped && e.armor && ARMORS[e.armor])` para esa fila, y comprobarla en `viewTurn()`.
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): con armadura o escudo, el golpe desarmado extra de Artes marciales no sale; el aviso de la armadura dice qué pierde el monje.
 
 ### 130. Caída lenta no está entre las reacciones de la ventana de daño
 - Origen: Partida simulada: monje
@@ -1378,7 +1378,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: un botón «Caída lenta» que gaste la reacción y reste 5 × nivel.
 - Propuesta: una entrada más en `DMG_REACT` (`js/views/play.js:489`) con reducción fija (`c => 5 * c.level`, sin dado) y la descripción «el daño de una caída».
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): Caída lenta sale en la ventana de daño y resta 5 × nivel de monje.
 
 ### 131. Mejoras menores del monje
 - Origen: Partida simulada: monje
@@ -1392,7 +1392,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: cada aviso dice lo que toca en ese momento.
 - Propuesta: botón «Usar ahora» en la línea de Metabolismo del aviso de iniciativa (`initFeats()`, `js/core/rules.js:460`); en Paso del viento, «salto doble: de longitud, hasta 24 pies con carrerilla (tu puntuación de FUE × 2, ver «Saltar» en el glosario)»; en el aviso de los ataques con arma de monje, «Puedes dar un golpe desarmado con la acción adicional»; quitar «Tras atacar» de la nota; «Repite la tirada d20 y quédate con el nuevo resultado» al gastar la inspiración; y una línea más en el aviso del escudo para el monje.
 - Prioridad: frecuencia 2 + olvido 1 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): el aviso de iniciativa trae «Usar ahora» en Metabolismo asombroso; Paso del viento dice que saltas el doble; la nota del golpe desarmado ya no dice «Tras atacar»; gastar la inspiración explica qué hacer; el aviso de armadura del monje dice qué pierde.
 
 ### 132. Escudo no se recuerda cuando te dan
 - Origen: Partida simulada: mago
@@ -1401,7 +1401,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: en «Vida y estado», junto al daño, un botón «Me han dado: ¿Escudo?» (o «¿Con cuánto te ha dado?») que diga «Si el ataque sacó menos de N (tu CA + 5), falla: lanza Escudo y no apuntes el daño».
 - Propuesta: en `vidaHTML()` (`js/views/play.js:50`), si tienes Escudo preparado, la reacción libre y un espacio, una línea con la CA + 5 y un botón que haga lo mismo que «Lanzar» desde Combate con `data-eco="R"`. Cómo se repite: importar `mago.json` → Combate → «Iniciar combate» → «Vida y estado»: no sale Escudo. Con el guion: `node tests/partida-mago.js --rastro` (escenas 5 y 6).
 - Prioridad: frecuencia 2 + olvido 3 + coste 2 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): en «Vida y estado», en combate y con la reacción libre, sale «¿Te impacta un ataque?» con la CA con Escudo y el botón «Lanzar Escudo».
 
 ### 133. El descanso corto no ofrece Recuperación arcana ni Memorizar conjuro
 - Origen: Partida simulada: mago
@@ -1410,7 +1410,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: al terminar el descanso corto, si queda el uso de Recuperación arcana y hay espacios gastados, «Recuperación arcana: ¿recuperar espacios?» con las mismas casillas; y a nivel 5, «Memorizar conjuro: cambiar un preparado».
 - Propuesta: en `short-done` (`js/actions/rest.js`), si el mago tiene el uso y espacios gastados, abrir la ventana de `arcane` en vez de cerrar sin más (o un botón en el aviso «Descanso corto terminado»); y un botón «Cambiar un conjuro (Memorizar conjuro)» que abra `openPrepModal()`. Opcional: esconder el «Usar» de Recuperación arcana en combate. Cómo se repite: `mago.json` → gastar un espacio → Descansar → Descanso corto: no se menciona. Con el guion: `node tests/partida-mago.js` (escenas 3, 4 y 6).
 - Prioridad: frecuencia 2 + olvido 3 + coste 3 = 8
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): al terminar el descanso corto, el aviso ofrece Recuperación arcana (si hay espacios gastados) y Memorizar conjuro; el «Usar» de Recuperación arcana no sale en combate.
 
 ### 134. «Cambiar conjuros preparados» solo se abre desde el aviso del descanso largo
 - Origen: Partida simulada: mago
@@ -1419,7 +1419,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: un botón fijo «Cambiar preparados» en la tarjeta Magia, que abra la misma ventana.
 - Propuesta: añadir `<button data-act="prep-open">` en la cabecera de Magia (`js/views/play.js:236`) para las clases de `PREP_RULE`; y en «Buscar conjuros» del mago, filtrar por el libro como en `openPrepModal()` (o avisar «este conjuro no está en tu libro»). Cómo se repite: `mago.json` → descanso largo → cerrar el aviso con la ×: ya no hay «Cambiar conjuros».
 - Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): botón «Preparar» en la cabecera de Magia para las clases que preparan conjuros.
 
 ### 135. Al subir de nivel no se apuntan los 2 conjuros nuevos del libro
 - Origen: Partida simulada: mago
@@ -1428,7 +1428,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: el asistente, en el paso de conjuros del mago, dice «Añade 2 conjuros a tu libro (y 2 de evocación por Sabio de la evocación)» y deja elegirlos aparte de los preparados; el contador del libro no cuenta los copiados como gratis.
 - Propuesta: en el paso `spells` del asistente (`js/features/wizard.js:604`), para el mago, una segunda lista «Libro» con su contador (2 por nivel, más los de la escuela de la subclase a nivel 3 y en los niveles 5, 7 y 9 si es Sabio de…) que se guarde en `c.book`; marcar los copiados (`copied: true`) al apuntarlos fuera del asistente para que `bookNeed()` no los cuente. Cómo se repite: `mago.json` → apuntar 2 en el libro → copiar uno más → subir a nivel 2: el asistente no pide el libro y el aviso dice «faltan 1». Con el guion: `node tests/partida-mago.js` (escenas 3, 5 y 6).
 - Prioridad: frecuencia 2 + olvido 3 + coste 2 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): al subir de nivel, el mago ve «apunta 2 conjuros nuevos» con el botón «Abrir el libro» (y los de su escuela a nivel 3, 5, 7 y 9). Al apuntar uno en el libro se puede marcar como copiado pagando el oro; los copiados no cuentan para el mínimo.
 
 ### 136. Truco potente (Evocador) no sale en el aviso de los trucos
 - Origen: Partida simulada: mago
@@ -1437,7 +1437,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: en el aviso del truco, «Truco potente: si fallas (o supera la salvación), hace la mitad: tira igual y divide entre 2».
 - Propuesta: en `cantripRoll()`, si `c.subclassKey === 'evoker' && c.level >= 3`, una línea más.
 - Prioridad: frecuencia 2 + olvido 3 + coste 3 = 8
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): los trucos del Evocador de nivel 3 recuerdan Truco potente.
 
 ### 137. Encontrar familiar desde «Rituales de tu libro» no pide el incienso
 - Origen: Partida simulada: mago
@@ -1446,7 +1446,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: lo mismo que con «Lanzar»: «Este conjuro gasta incienso por valor de 10+ PO. No lo encuentro en tu inventario» con «Lanzar igualmente» y «Cancelar»; y si lo tienes, descontarlo.
 - Propuesta: en `book-ritual`, pasar por `spConsume()`/`spPendingUse` como hace `cast`; y en el texto, «Como ritual: tarda 1 hora + 10 minutos» con el tiempo del conjuro (`TIME[d.t]`).
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): los rituales del libro piden el material como «Lanzar» y dicen el tiempo del conjuro + 10 minutos.
 
 ### 138. Tras el descanso largo, el mago no puede cambiar un truco (por confirmar)
 - Origen: Partida simulada: mago
@@ -1455,7 +1455,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar (si se confirma): en la ventana de después del descanso largo, una sección «Trucos: puedes cambiar uno».
 - Propuesta: confirmarlo con el Manual del Jugador; si es así, en `openPrepModal()` dejar los trucos (sin `min: 1`) con un aviso «solo uno» para esas clases, y añadirlo al texto de Lanzamiento de conjuros en `data/classes.js`.
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): tras el descanso largo el mago puede cambiar también un truco (la ventana de preparar los incluye y lo explica).
 
 ### 139. Mejoras menores del mago
 - Origen: Partida simulada: mago
@@ -1468,4 +1468,4 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: cada aviso dice lo que toca en ese momento.
 - Propuesta: en `addOriginSpells()`, si el conjuro ya tiene `free` de otro origen, apuntar los dos usos (o elegir en la ventana de lanzar entre «Gratis (Iniciado en la magia)» y «Gratis (Alto elfo)»); en `conc-lose`, un aviso «Dejas de concentrarte en Dormir: su efecto termina»; una frase en el aviso de Escudo; y un botón opcional de pagar al copiar en el libro.
 - Prioridad: frecuencia 1 + olvido 2 + coste 3 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-13): Detectar magia con dos usos gratis (especie y dote) deja usar los dos; «La fallo» avisa de qué conjuro termina; el aviso de Escudo dice que anula Proyectil mágico; al copiar un conjuro en el libro se puede pagar el oro con un botón.
