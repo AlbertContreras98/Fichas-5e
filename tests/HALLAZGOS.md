@@ -1477,7 +1477,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: lo mismo que si hubiera pulsado «Siguiente turno»: el siguiente que siga en pie y, si da la vuelta, ronda + 1.
 - Propuesta: sacar de `m-next` una función común «pasar el turno desde X» (saltar a los caídos y subir la ronda al dar la vuelta) y usarla en `m-rm` y `m-del-ok` (`js/actions/master.js`).
 - Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-14): quitar con la «×» o con «Quitar jugador» a quien tiene el turno pasa el turno como «Siguiente turno»: se salta a los caídos y sube la ronda si da la vuelta.
 
 ### 141. Los refuerzos del mismo tipo repiten nombre («Sectario 1» dos veces)
 - Origen: Partida simulada: máster
@@ -1486,7 +1486,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: los nuevos siguen la numeración (Sectario 5 y Sectario 6).
 - Propuesta: en `m-foe-add`, empezar a numerar por el mayor número que ya tenga ese nombre en la lista (y numerar también al que estaba solo, si se añade otro igual: «Ogro» → «Ogro 1», «Ogro 2»).
 - Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-14): los NPC nuevos siguen la numeración de los que ya hay con ese nombre, y si había uno solo sin número, pasa a ser el 1.
 
 ### 142. Un NPC a 0 PG con Regeneración pierde su turno (el trol)
 - Origen: Partida simulada: máster
@@ -1495,7 +1495,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: el trol (si no está marcado como muerto) tiene su turno, y al empezar la app recuerda «Regeneración: +15 PG si no ha recibido fuego ni ácido desde su último turno».
 - Propuesta: en `fDown()` no contar como caídos a los NPC del bestiario con un rasgo «Regeneración» salvo que estén marcados «Muerto»; y en la ventana de «ha caído», si el monstruo tiene Regeneración, explicarlo («solo muere si empieza su turno a 0 PG sin regenerarse»). Con el n.º 143 se podría apuntar «recibió fuego» y recordarlo en su turno.
 - Prioridad: frecuencia 1 + olvido 3 + coste 3 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-14): un monstruo con la Regeneración del trol no se salta a 0 PG salvo que esté marcado Muerto. Al empezar su turno la app lo regenera sola (o lo marca muerto si recibió fuego o ácido), y la ventana de «ha caído» explica la regla.
 
 ### 143. La lista de combate no tiene sitio para los estados de los NPC ni para lo que pasa en su turno
 - Origen: Partida simulada: máster
@@ -1509,7 +1509,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: cada fila tiene un botón de estados (los mismos 15 del glosario, más «Concentrado en…» y una nota libre), los estados salen como etiquetas en la fila y, al darle el turno, la app recuerda lo que toque: «Repite la salvación de SAB CD 13 al terminar su turno (Dormir)», «Se concentra en Inmovilizar persona: si recibe daño, CON CD 10 o la mitad». Al escribir PG más bajos de un NPC concentrado, avisar de la salvación de concentración con su CD calculada.
 - Propuesta: en cada fila de `masterFight()` (`js/features/master.js`) un botón «Estados» que abra una ventana con casillas (`f.cs = [...]`), una línea de concentración (`f.conc`) y una nota (`f.note`), con la explicación de cada estado de `GLOSS`; en `m-next`, un aviso con las notas y estados del que empieza su turno (y del que lo termina, para las salvaciones repetidas); y en el manejador de `data-mf` (`js/events.js`), si `f.conc` y bajan los PG, el aviso de concentración. Para los monstruos con Regeneración, una casilla «Recibió fuego o ácido».
 - Prioridad: frecuencia 3 + olvido 3 + coste 2 = 8
-- Estado: pendiente
+- Estado: arreglado (2026-11-14): cada fila tiene «Estados y notas»: estados con su explicación, concentración y una nota. Salen como etiquetas en la fila; al empezar su turno la app recuerda estados, concentración y nota, y al acabarlo, las salvaciones repetidas. Al recibir daño concentrado avisa de la salvación de CON con su CD.
 
 ### 144. Para apuntar daño hay que restar de cabeza
 - Origen: Partida simulada: máster
@@ -1518,7 +1518,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: al tocar los PG de un NPC, poder escribir el daño (o la curación) y que la app haga la cuenta, sin pasar de 0 ni del máximo.
 - Propuesta: en cada fila, junto a los PG, un botón «−/+» que abra una ventana pequeña con el número y «Daño» / «Curar» (como `vida` del jugador), o aceptar en el campo de PG «−8» y «+15» como daño y curación. Tope en `hpMax` al curar.
 - Prioridad: frecuencia 3 + olvido 2 + coste 3 = 8
-- Estado: pendiente
+- Estado: arreglado (2026-11-14): botón «−/+» junto a los PG: escribes el daño o la curación y la app hace la cuenta (la curación no pasa del máximo).
 
 ### 145. Daño en área a varios NPC: salvación y mitad, uno a uno
 - Origen: Partida simulada: máster
@@ -1527,7 +1527,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: marcar varios NPC, escribir el daño y la CD, y que la app diga a cada uno «tira 1d20 +1 (DES)» y aplique entero o la mitad según si supera.
 - Propuesta: botón «Daño a varios» en la tarjeta de Combate: casillas con los NPC en pie, campo de daño, característica y CD; por cada NPC, su bonificador y botones «Supera» / «Falla»; al aceptar, resta entero o `Math.floor(d / 2)`.
 - Prioridad: frecuencia 2 + olvido 2 + coste 2 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-14): botón «Daño a varios»: marcas a quién afecta, el daño, la característica y la CD; cada NPC enseña su bonificador de salvación y marcas quién la supera (mitad o nada).
 
 ### 146. La ficha del bestiario no da las salvaciones de los monstruos (por confirmar)
 - Origen: Partida simulada: máster
@@ -1536,7 +1536,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: la ficha enseña «Salv.» de cada característica, con la competencia si la tiene.
 - Propuesta: confirmar si el JSON de 5e-database trae `proficiencies` con las salvaciones; si es así, que `gen.py` las guarde (`sv: [..6]`) y que `bestCard()` las enseñe (y si no, al menos «Salv.» = modificador con una nota). Usarlas en la ventana del n.º 145.
 - Prioridad: frecuencia 2 + olvido 2 + coste 2 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-14): gen.py guarda las salvaciones con competencia del SRD 5.2 (106 monstruos las tienen) y la ficha del bestiario enseña la salvación de cada característica. «Daño a varios» las usa.
 
 ### 147. Monstruos legendarios y con recarga: nada lleva la cuenta
 - Origen: Partida simulada: máster
@@ -1545,7 +1545,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: en la fila de un legendario, un contador de acciones legendarias que vuelve a 3 al darle el turno, otro de resistencias (3/día) y, si tiene algo con recarga, un aviso al empezar su turno («Aliento de fuego: tira 1d6, se recarga con 5-6»); y en la fila, las inmunidades y resistencias en pequeño.
 - Propuesta: al añadir del bestiario, si `b.lg` tiene algo, guardar `f.lg = 3`; si un rasgo empieza por «Resistencia legendaria (N/día…)», `f.lr = N`; si una acción dice «(recarga X-6)», `f.rc`. Pintarlos como contadores en la fila, y en `m-next` reponer `f.lg` y avisar de la recarga. Enseñar `b.res` en la fila.
 - Prioridad: frecuencia 1 + olvido 3 + coste 2 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-14): los legendarios llevan contadores de acciones legendarias (vuelven al empezar su turno) y de resistencias legendarias; los que tienen recarga lo recuerdan al empezar su turno; las inmunidades y resistencias salen en la fila.
 
 ### 148. Puntos de experiencia al terminar el combate
 - Origen: Partida simulada: máster
@@ -1554,7 +1554,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: la ventana de «Terminar combate» dice «Derrotados: 3 goblins guerreros (150 PX) · 37 PX para cada uno de los 4 jugadores», con casillas para incluir a los que huyeron o se rindieron.
 - Propuesta: en `m-end` (`js/actions/master.js`), sumar `BEST_XP[bestGet(f.mon).cr]` de los NPC con `st` (o a 0 PG), con casillas para los demás NPC del bestiario, y dividir entre los jugadores de la lista.
 - Prioridad: frecuencia 3 + olvido 2 + coste 3 = 8
-- Estado: pendiente
+- Estado: arreglado (2026-11-14): «Terminar combate» suma los PX de los derrotados (con casillas para contar a los que huyen o se rinden) y dice cuánto le toca a cada jugador.
 
 ### 149. Las criaturas de los jugadores no entran en el combate del máster
 - Origen: Partida simulada: máster
@@ -1563,7 +1563,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: «Añadir jugadores» ofrece también sus criaturas (con su CA y sus PG), y en la lista salen como «Criatura de Elarion».
 - Propuesta: que `creaSheetOf()` mande también los PG máximos (`hp`) y el id del bestiario; en `m-pjs`, añadir las `crs` de cada jugador como `kind: 'cr'` con su dueño, que se salte como un NPC caído pero sin preguntar muerto o incapacitado (o con «Desaparece»).
 - Prioridad: frecuencia 2 + olvido 2 + coste 2 = 6
-- Estado: pendiente
+- Estado: arreglado (2026-11-14): el código de la criatura trae sus PG y su ficha del bestiario; «Añadir jugadores» añade también las criaturas de los jugadores, como «Criatura de …»; si caen, la ventana ofrece quitarla o dejarla caída.
 
 ### 150. Iniciativa: sorpresa, empates, refuerzos y quien vuelve a la mesa
 - Origen: Partida simulada: máster
@@ -1577,7 +1577,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: cada caso, con su aviso o su botón.
 - Propuesta: en «Empezar combate», una línea «¿Alguien sorprendido? Tira la iniciativa con desventaja (2d20, el más bajo)»; flechas ▲▼ en las filas empatadas (o la nota «para deshacer un empate, escribe 14.5»); en `m-foe-add`, si el combate ya ha empezado y no hay iniciativa, abrir el campo de iniciativa de los nuevos con un aviso; en `m-del-ok`, guardar la iniciativa del jugador en la mesa y reponerla en `m-pjs` si vuelve en el mismo combate; y «Misma tirada para todo el grupo» junto al campo de iniciativa.
 - Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-14): antes de empezar, la ayuda explica la sorpresa (iniciativa con desventaja) y cómo deshacer un empate (decimales); los refuerzos sin iniciativa a mitad de combate avisan; quien sale de la mesa y vuelve en el mismo combate conserva su iniciativa.
 
 ### 151. En el móvil, «Siguiente turno» se queda fuera de la pantalla
 - Origen: Partida simulada: máster
@@ -1586,7 +1586,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: el botón siempre a mano, y la fila del turno a la vista.
 - Propuesta: hacer fija la cabecera de la tarjeta de Combate (con la ronda y el botón) al hacer scroll (`position: sticky`), o repetir el botón al final de la lista; y tras `m-next`, `scrollIntoView({block: 'nearest'})` de la fila `.mrow.cur`. Filas más bajas en el móvil (las tres cajas en una línea).
 - Prioridad: frecuencia 3 + olvido 1 + coste 3 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-14): la cabecera del combate (ronda, «Deshacer» y «Siguiente turno») se queda fija arriba al bajar, el botón se repite al final de una lista larga y la página baja hasta quien tiene el turno.
 
 ### 152. Ensangrentado y PJ a 0 PG no se ven en la lista
 - Origen: Partida simulada: máster
@@ -1595,7 +1595,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: una etiqueta «Ensangrentado» en los NPC con PG ≤ la mitad del máximo, y una casilla «A 0 PG» en los PJ (o los PG, si el jugador los comparte).
 - Propuesta: en `masterFight()`, `f.hp <= f.hpMax / 2` → etiqueta junto al nombre; y para los PJ, un botón «Caído» que el máster marca cuando el jugador lo dice (con la nota «atacarle a 5 pies es crítico; cada daño es un fallo, dos si es crítico»).
 - Prioridad: frecuencia 2 + olvido 2 + coste 3 = 7
-- Estado: pendiente
+- Estado: arreglado (2026-11-14): etiqueta «Ensangrentado» en los NPC con la mitad de PG o menos (y aviso al llegar); en los jugadores, «Estado» deja marcar «A 0 PG» con la explicación.
 
 ### 153. El modo máster no tiene «Deshacer» y la «×» quita sin preguntar
 - Origen: Partida simulada: máster
@@ -1604,7 +1604,7 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: «Deshacer» también en el modo máster (al menos para la lista de combate), o que la «×» pregunte cuando el NPC tiene PG gastados o el combate ha empezado.
 - Propuesta: guardar en `UNDO` una copia de `MST.fight` en las acciones `m-*` (o una pila propia `MUNDO` con un botón en la cabecera del modo máster); y en `m-rm`, si el combate ha empezado, «¿Quitar a Ogro (62/68 PG)?». En «Terminar combate», una casilla «Mantener a los incapacitados (prisioneros)».
 - Prioridad: frecuencia 1 + olvido 2 + coste 2 = 5
-- Estado: pendiente
+- Estado: arreglado (2026-11-14): botón «Deshacer» en la cabecera del combate del máster (cambios de la lista y PG escritos); la «×» pregunta en pleno combate; al terminar, opción de mantener a los incapacitados como prisioneros.
 
 ### 154. Mejoras menores del combate del máster
 - Origen: Partida simulada: máster
@@ -1617,4 +1617,4 @@ Las de los informes de detalle (`inventario-*.md`): Golpe arcano y Bebedor de vi
 - Qué debería pasar: cada cosa en su sitio, sin buscar.
 - Propuesta: en `m-next`, si no queda ningún NPC en pie, el aviso con «Terminar combate»; en la fila `cur`, una línea con `b.at` del monstruo; `toLocaleString('es-ES', { useGrouping: 'always' })` o sin puntos en ninguna; y el texto de la ventana según el tipo de fila.
 - Prioridad: frecuencia 1 + olvido 1 + coste 3 = 5
-- Estado: pendiente
+- Estado: arreglado (2026-11-14): aviso con «Terminar combate» cuando no queda ningún enemigo en pie; los ataques del que tiene el turno salen en su fila; los PX siempre con punto de miles; la ventana de una criatura caída tiene su propio texto.

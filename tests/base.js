@@ -368,7 +368,11 @@ async function paso(ctx, donde, fn, { deshacer = true, recarga = true } = {}) {
   const { page } = ctx;
   await cerrarModal(page);
   await cerrarToasts(page);
-  const antes = await page.evaluate(() => ({ chars: JSON.stringify(S.chars), n: UNDO.length, cut: undoCuts }));
+  const antes = await page.evaluate(() => ({
+    chars: JSON.stringify(S.chars),
+    n: UNDO.length,
+    cut: undoCuts,
+  }));
   try {
     await fn(page);
   } catch (e) {
@@ -376,7 +380,11 @@ async function paso(ctx, donde, fn, { deshacer = true, recarga = true } = {}) {
     return false;
   }
   if (deshacer) {
-    const desp = await page.evaluate(() => ({ chars: JSON.stringify(S.chars), n: UNDO.length, cut: undoCuts }));
+    const desp = await page.evaluate(() => ({
+      chars: JSON.stringify(S.chars),
+      n: UNDO.length,
+      cut: undoCuts,
+    }));
     const n = desp.n - antes.n;
     /* Importar, crear o cambiar de ficha, o generar un recibo, no se deshacen a propósito (n.º 90 y 94) */
     if (desp.chars !== antes.chars && desp.cut === antes.cut) {

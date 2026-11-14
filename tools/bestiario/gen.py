@@ -157,6 +157,13 @@ for m in d:
     e={'id':m['index'],'n':t['n'],'en':m['name'],'t':TYPE[m['type']],'sz':SIZE[m['size']],'cr':m['challenge_rating'],'crs':crs(m['challenge_rating']),
        'ac':m['armor_class'][0]['value'],'hp':m['hit_points'],'hd':m['hit_points_roll'],'sp':speed(m['speed']),'fly':'fly' in m['speed'],'ab':ab,
        'sen':senses(m['senses']),'res':res(m),'lang':lang(m['languages']),'tr':t['tr'],'at':t['at'],'ex':t['ex']}
+    # Salvaciones con competencia (las demás son el modificador): lista de 6, null si no tiene
+    SVK=['str','dex','con','int','wis','cha']
+    sv=[None]*6
+    for pf in m.get('proficiencies') or []:
+        ix=pf['proficiency']['index']
+        if ix.startswith('saving-throw-'): sv[SVK.index(ix[13:])]=pf['value']
+    if any(x is not None for x in sv): e['sv']=sv
     for k in ['bo','re','lg']:
         if t[k]: e[k]=t[k]
     out.append(e)

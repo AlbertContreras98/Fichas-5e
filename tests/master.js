@@ -564,6 +564,15 @@ async function combate(m, j) {
   await b.escribir(page, '#mf-hp', '11');
   await b.act(page, 'm-foe-add');
   F = await page.evaluate(() => MST.fight);
+  /* Las criaturas de los jugadores entran con «Añadir jugadores» (n.º 149): se comprueban y se quitan para seguir */
+  const crsEn = F.list.filter(f => f.kind === 'cr');
+  regla('combate · criaturas de los jugadores', crsEn.length > 0, 'no entran con «Añadir jugadores»');
+  await page.evaluate(() => {
+    MST.fight.list = MST.fight.list.filter(f => f.kind !== 'cr');
+    masterSave();
+    render();
+  });
+  F.list = F.list.filter(f => f.kind !== 'cr');
   regla('combate · NPC', F.list.length === 8, `${F.list.length} en la lista (deberían ser 8)`);
   const wolf = F.list.find(f => f.mon === 'wolf');
   regla('combate · iniciativa escrita al añadir', wolf && wolf.init === 12, `lobo ${JSON.stringify(wolf)}`);
@@ -584,7 +593,8 @@ async function combate(m, j) {
   const orden = await page.evaluate(() => fightSorted().map(f => f.id));
   regla('combate · empezar', F.cur === orden[0] && F.round === 1, `le toca a ${F.cur}, ronda ${F.round}`);
   const btn = await page.locator('[data-act="m-next"]').count();
-  regla('combate · empezar', btn === 1, 'no sale «Siguiente turno»');
+  /* Arriba y, con la lista larga, también al final (n.º 151) */
+  regla('combate · empezar', btn >= 1, 'no sale «Siguiente turno»');
   const nom = id => F.list.find(f => f.id === id).name;
   /* La lista en pantalla sigue el orden de iniciativa */
   const pant = await page.$$eval('.mlist .mname b', bs => bs.map(x => x.textContent.replace('▶ ', '')));
@@ -669,6 +679,7 @@ async function combate(m, j) {
   F = await page.evaluate(() => MST.fight);
   const cur = F.cur;
   await b.act(page, 'm-rm', { id: cur });
+  await b.actSi(page, 'm-rm-ok', {}, '#modal'); // en pleno combate pregunta antes (n.º 153)
   F = await page.evaluate(() => MST.fight);
   regla(
     'combate · quitar al del turno',
@@ -771,6 +782,11 @@ async function combate(m, j) {
   /* Terminar */
   await b.act(page, 'm-tab', { t: 'combat' });
   await b.act(page, 'm-end');
+  /* Los prisioneros se pueden quedar en la lista (n.º 153): aquí no */
+  await page.evaluate(() => {
+    const k = document.querySelector('#m-keep');
+    if (k) k.checked = false;
+  });
   await b.act(page, 'm-end-ok');
   F = await page.evaluate(() => MST.fight);
   regla('combate · terminar', !F.list.length && F.cur === '' && F.round === 1, JSON.stringify(F));

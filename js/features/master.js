@@ -187,6 +187,8 @@ function creaSheetOf(c, x) {
     s,
     ac: x.kind === 'form' ? formAC(c, x) : +st.ac || 0,
     pp,
+    hp: +st.hpMax || null,
+    mon: b ? b.id : '',
   };
 }
 const crCode = (c, x) => b64u(JSON.stringify(creaSheetOf(c, x)));
@@ -206,6 +208,8 @@ function crParse(code) {
       s: ok ? x.s.map(v => clamp(parseInt(v) || 0, -10, 30)) : null,
       ac: clamp(parseInt(x.ac) || 0, 0, 40),
       pp: x.pp === null || x.pp === undefined || x.pp === '' ? null : clamp(parseInt(x.pp) || 10, 0, 40),
+      hp: parseInt(x.hp) > 0 ? clamp(parseInt(x.hp), 1, 9999) : null,
+      mon: x.mon ? String(x.mon).slice(0, 60) : '',
     };
   } catch (e) {
     return null;
@@ -338,8 +342,23 @@ const fightSorted = () =>
     (a, b) =>
       (b.init === '' ? -99 : +b.init) - (a.init === '' ? -99 : +a.init) || a.name.localeCompare(b.name, 'es')
   );
-/* NPC a 0 PG o menos */
-const fDown = f => f.kind !== 'pj' && f.hp !== '' && +f.hp <= 0;
+/* Regeneración que le deja levantarse a 0 PG (el trol): {n: PG por turno, revive: true} o null */
+function fRegen(f) {
+  const b = f.mon && bestGet(f.mon),
+    t = b && (b.tr || []).find(x => /^Regeneraci/.test(x[0]));
+  if (!t) return null;
+  const m = /Recupera (\d+) PG/.exec(t[1]);
+  return { n: m ? +m[1] : 0, revive: /solo muere si empieza su turno/i.test(t[1]) };
+}
+/* NPC (o criatura de un jugador) a 0 PG o menos. Con Regeneración del trol no cuenta hasta que se marca Muerto */
+const fDown = f =>
+  f.kind !== 'pj' && f.hp !== '' && +f.hp <= 0 && !(f.st !== 'dead' && fRegen(f) && fRegen(f).revive);
+/* Salvación de un monstruo del bestiario (con competencia si la tiene) */
+const bestSave = (b, i) => (b.sv && b.sv[i] != null ? b.sv[i] : Math.floor((b.ab[i] - 10) / 2));
+/* Números con punto de miles siempre (1.800 y 18.000) */
+const fmtNum = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+/* Ensangrentado: con la mitad de los PG o menos (algunos monstruos tienen rasgos que dependen de ello) */
+const fBloodied = f => f.kind !== 'pj' && +f.hpMax > 0 && f.hp !== '' && +f.hp > 0 && +f.hp <= +f.hpMax / 2;
 /* Cómo ha quedado un NPC caído */
 const F_ST = { dead: 'Muerto', ko: 'Incapacitado' };
 const fStLabel = f => F_ST[f.st] || 'Derrotado';
@@ -360,35 +379,160 @@ function masterFight() {
         ? 'Jugador'
         : down
           ? `<button class="mst ${f.st || ''}" data-act="m-st-ask" data-id="${f.id}" aria-label="Cambiar cómo ha quedado ${esc(f.name)}">${f.st === 'dead' ? '☠ ' : ''}${fStLabel(f)}</button>`
-          : 'NPC';
+          : f.kind === 'cr'
+            ? `Criatura de ${esc(f.owner || 'un jugador')}`
+            : 'NPC';
+    const b = f.mon && bestGet(f.mon);
+    /* Etiquetas: ensangrentado, PJ a 0 PG, estados, concentración, nota, inmunidades y contadores de legendario */
+    const tags = [
+      fBloodied(f) ? '<span class="tag warn">Ensangrentado</span>' : '',
+      f.kind === 'pj' && f.ko ? '<span class="tag bad">A 0 PG</span>' : '',
+      ...(f.cs || []).map(x => `<span class="tag">${esc(x)}</span>`),
+      f.conc ? `<span class="tag">Concentrado: ${esc(f.conc)}</span>` : '',
+      f.noRegen ? '<span class="tag warn">Sin regenerar</span>' : '',
+      f.note ? `<span class="tag">📝 ${esc(f.note)}</span>` : '',
+    ].join('');
+    const ctr = (k, max, lbl) =>
+      max
+        ? `<span class="mctr">${lbl} <b>${max - (+f[k] || 0)}/${max}</b> <button class="b sm" data-act="m-ctr" data-id="${f.id}" data-k="${k}" ${(+f[k] || 0) >= max ? 'disabled' : ''} aria-label="Gastar una (${lbl})">−1</button></span>`
+        : '';
+    const extra =
+      f.kind === 'pj'
+        ? ''
+        : `${ctr('lgU', f.lg, 'Acc. legendarias')}${ctr('lrU', f.lr, 'Resist. legendarias')}${b && b.res ? `<span class="mres">${esc(b.res)}</span>` : ''}`;
+    const atks =
+      F.cur === f.id && b && (b.at || []).length
+        ? `<div class="mat">${b.at.map(a => `<span><b>${esc(a[0])}</b> ${esc(a[1])} · ${esc(a[2])}</span>`).join('')}</div>`
+        : '';
     return `<div class="mrow ${F.cur === f.id ? 'cur' : ''} ${down ? 'down' : ''} ${down && f.st ? 'st-' + f.st : ''}">
-      <div class="mname"><b>${F.cur === f.id ? '▶ ' : ''}${esc(f.name)}</b><small>${who}${ib !== null && ib !== undefined && ib !== '' ? ` · inic. ${sgn(ib)}` : ''}${f.mon && bestGet(f.mon) ? ` · <button class="lnk" data-act="m-mon" data-id="${esc(f.mon)}">Ver ficha</button>` : ''}</small></div>
+      <div class="mname"><b>${F.cur === f.id ? '▶ ' : ''}${esc(f.name)}</b><small>${who}${ib !== null && ib !== undefined && ib !== '' ? ` · inic. ${sgn(ib)}` : ''}${b ? ` · <button class="lnk" data-act="m-mon" data-id="${esc(f.mon)}">Ver ficha</button>` : ''} · <button class="lnk" data-act="m-cond" data-id="${f.id}">${f.kind === 'pj' ? 'Estado' : 'Estados y notas'}</button></small>${tags ? `<div class="mtags">${tags}</div>` : ''}${extra ? `<div class="mtags">${extra}</div>` : ''}${atks}</div>
       <label class="mf"><span>Inic.</span>${num(f, 'init')}</label>
       <label class="mf"><span>CA</span>${f.kind === 'pj' ? `<b>${esc(f.ac)}</b>` : num(f, 'ac')}</label>
-      ${f.kind === 'pj' ? '<span class="mf"></span>' : `<label class="mf"><span>PG</span><span class="mhp">${num(f, 'hp')}<small>/ ${esc(f.hpMax || '—')}</small></span></label>`}
+      ${f.kind === 'pj' ? '<span class="mf"></span>' : `<label class="mf"><span>PG</span><span class="mhp">${num(f, 'hp')}<small>/ ${esc(f.hpMax || '—')}</small></span><button class="b sm mhpb" data-act="m-hp" data-id="${f.id}" aria-label="Daño o curación a ${esc(f.name)}">−/+</button></label>`}
       <button class="b sm" data-act="m-rm" data-id="${f.id}" aria-label="Quitar a ${esc(f.name)} del combate">×</button></div>`;
   }).join('');
-  const missing = MST.players.filter(p => !F.list.some(f => f.pid === p.id)).length;
+  const missing =
+    MST.players.filter(p => !F.list.some(f => f.pid === p.id)).length +
+    MST.players.reduce((t, p) => t + (p.crs || []).filter(x => !F.list.some(f => f.crid === x.id)).length, 0);
   const btn = !F.list.length
     ? ''
     : on
       ? '<button class="b pri" data-act="m-next">Siguiente turno</button>'
       : '<button class="b pri" data-act="m-start">Empezar combate</button>';
-  return `<section class="card mfight"><div class="card-head"><h2>Combate${on ? ` <span class="round">Ronda ${F.round}</span>` : ''}</h2><div class="btns">${btn}</div></div>
+  const undo = MUNDO.length ? '<button class="b sm" data-act="m-undo">Deshacer</button>' : '';
+  const area = F.list.some(f => f.kind !== 'pj' && !fDown(f))
+    ? '<button class="b" data-act="m-area">Daño a varios</button>'
+    : '';
+  return `<section class="card mfight"><div class="card-head mhead"><h2>Combate${on ? ` <span class="round">Ronda ${F.round}</span>` : ''}</h2><div class="btns">${undo}${btn}</div></div>
     <p class="hint">${
       on
-        ? '«Siguiente turno» marca a quién le toca y al dar la vuelta pasa de ronda. Los NPC caídos se saltan.'
-        : 'Añade a todos y apunta la iniciativa que saque cada uno: la lista se ordena sola. Cuando estéis listos, pulsa «Empezar combate».'
+        ? '«Siguiente turno» marca a quién le toca y al dar la vuelta pasa de ronda. Los NPC caídos se saltan. Con «−/+» restas daño o sumas curación sin hacer cuentas.'
+        : 'Añade a todos y apunta la iniciativa que saque cada uno: la lista se ordena sola. Si hay un empate, decide el orden escribiendo decimales (14.5 va antes que 14). Quien esté sorprendido tira su iniciativa con desventaja (2d20, el más bajo). Cuando estéis listos, pulsa «Empezar combate».'
     }</p>
     ${rows ? `<div class="mlist">${rows}</div>` : '<p class="empty">Nadie en el combate todavía.</p>'}
-    <div class="btns" style="margin-top:.8rem"><button class="b" data-act="m-pjs" ${missing ? '' : 'disabled'}>Añadir jugadores${missing ? ` (${missing})` : ''}</button><button class="b" data-act="m-foe">Añadir NPC</button>${F.list.length ? '<button class="b bad" data-act="m-end">Terminar combate</button>' : ''}</div>
+    ${on && L.length > 5 ? `<div class="btns" style="margin-top:.6rem">${btn}</div>` : ''}
+    <div class="btns" style="margin-top:.8rem"><button class="b" data-act="m-pjs" ${missing ? '' : 'disabled'}>Añadir jugadores${missing ? ` (${missing})` : ''}</button><button class="b" data-act="m-foe">Añadir NPC</button>${area}${F.list.length ? '<button class="b bad" data-act="m-end">Terminar combate</button>' : ''}</div>
     ${MST.players.length ? '' : '<p class="hint">Para añadir jugadores, pulsa «+ Jugador» y escanea su QR (en su app: ⚙ Ajustes → Compartir con el máster).</p>'}</section>`;
+}
+/* Suma o resta PG a una fila (d < 0 = daño). Avisa de la concentración y de si cae */
+function fightHp(f, d, fire, quiet) {
+  if (f.hp === '' && d < 0 && !f.hpMax) return;
+  const was = fDown(f),
+    before = f.hp === '' ? +f.hpMax || 0 : +f.hp;
+  let now = before + d;
+  if (d > 0 && +f.hpMax) now = Math.min(+f.hpMax, now);
+  f.hp = Math.max(0, now);
+  if (fire) f.noRegen = true;
+  if (+f.hp > 0) delete f.st;
+  if (quiet) return;
+  masterSave();
+  render();
+  const msgs = [];
+  if (d < 0 && f.conc && f.hp > 0)
+    msgs.push(
+      `<b>Concentración:</b> ${esc(f.name)} tira salvación de CON CD ${Math.min(30, Math.max(10, Math.floor(-d / 2)))} para no perder ${esc(f.conc)}.`
+    );
+  if (fBloodied(f) && !(before > 0 && before <= +f.hpMax / 2))
+    msgs.push(`${esc(f.name)} está <b>ensangrentado</b>.`);
+  if (msgs.length) toast(msgs.map(x => `<div class="t-parts">${x}</div>`).join(''), true);
+  if ((fDown(f) && !was) || (f.kind !== 'pj' && +f.hp <= 0 && before > 0)) openFoeDown(f);
+}
+/* Ventana de estados y notas de una fila de combate */
+function openFightCond(id) {
+  const f = MST.fight.list.find(x => x.id === id);
+  if (!f) return;
+  if (f.kind === 'pj') {
+    openModal(`<h2>${esc(f.name)}</h2>
+      <label class="chk"><input type="checkbox" id="mc-ko" ${f.ko ? 'checked' : ''}> Está a 0 PG (inconsciente)</label>
+      <p class="hint">Sus PG los lleva el jugador en su app: marca esto cuando te lo diga. Atacarle a 5 pies es crítico, y cada golpe que recibe a 0 PG es un fallo de salvación contra la muerte (dos si es crítico).</p>
+      <div class="btns"><button class="b pri" data-act="m-cond-ok" data-id="${f.id}">Guardar</button><button class="b" data-act="close-modal">Cancelar</button></div>`);
+    return;
+  }
+  const rg = fRegen(f);
+  openModal(`<div class="wz-head"><h2>${esc(f.name)}</h2><button class="b sm pri" data-act="m-cond-ok" data-id="${f.id}">Guardar</button></div>
+    <h3>Estados</h3><div class="mconds">${CONDS.map(([n, d]) => `<label class="chk"><input type="checkbox" data-mc value="${esc(n)}" ${(f.cs || []).includes(n) ? 'checked' : ''}><span><b>${esc(n)}</b><br><small class="muted">${esc(d)}</small></span></label>`).join('')}</div>
+    <label class="f"><span>Se concentra en (si lanza un conjuro de concentración)</span><input id="mc-conc" value="${esc(f.conc || '')}" placeholder="Por ejemplo: Inmovilizar persona"></label>
+    <label class="f"><span>Nota (salvaciones que repite al final de su turno, lo que hizo…)</span><input id="mc-note" value="${esc(f.note || '')}" placeholder="Por ejemplo: repite SAB CD 13 (Dormir)"></label>
+    ${rg ? `<label class="chk"><input type="checkbox" id="mc-fire" ${f.noRegen ? 'checked' : ''}> Ha recibido daño de fuego o ácido (no se regenera en su siguiente turno)</label>` : ''}
+    <p class="hint">Al empezar su turno, la app te recuerda sus estados, su concentración y la nota.</p>`);
+}
+/* PX del combate */
+let MXP = new Set();
+function openEndFight() {
+  const F = MST.fight,
+    npcs = F.list.filter(f => f.kind === 'npc' && f.mon && bestGet(f.mon)),
+    pjs = F.list.filter(f => f.kind === 'pj').length,
+    xpOf = f => BEST_XP[bestGet(f.mon).cr] || 0,
+    tot = npcs.filter(f => MXP.has(f.id)).reduce((t, f) => t + xpOf(f), 0),
+    ko = F.list.some(f => f.kind === 'npc' && f.st === 'ko');
+  openModal(`<h2>Terminar el combate</h2>
+    ${
+      npcs.length
+        ? `<h3>Puntos de experiencia</h3><p class="hint">Marcados, los derrotados. Marca también los que hayan huido o se hayan rendido si el máster quiere contarlos.</p>
+      <div class="mconds">${npcs.map(f => `<label class="chk"><input type="checkbox" data-act="m-xp-tog" data-id="${f.id}" ${MXP.has(f.id) ? 'checked' : ''}><span>${esc(f.name)} · ${fmtNum(xpOf(f))} PX</span></label>`).join('')}</div>
+      <p><b>Total: ${fmtNum(tot)} PX</b>${pjs ? ` · <b>${fmtNum(Math.floor(tot / pjs))} PX</b> para cada uno de los ${pjs} jugadores` : ''}.</p>`
+        : ''
+    }
+    ${ko ? '<label class="chk"><input type="checkbox" id="m-keep" checked> Mantener en la lista a los incapacitados (prisioneros)</label>' : ''}
+    <p class="hint">Se vacía la lista de combate (los jugadores siguen en tu mesa).</p>
+    <div class="btns"><button class="b bad" data-act="m-end-ok">Terminar</button><button class="b" data-act="close-modal">Cancelar</button></div>`);
+}
+/* Daño en área */
+let MAREA = null;
+function mareaCollect() {
+  if (!MAREA) return;
+  if ($('#ma-dmg')) MAREA.dmg = $('#ma-dmg').value;
+  if ($('#ma-dc')) MAREA.dc = $('#ma-dc').value;
+  if ($('#ma-ab')) MAREA.ab = +$('#ma-ab').value;
+  if ($('#ma-half')) MAREA.half = $('#ma-half').checked;
+}
+function openFightArea() {
+  const M2 = MAREA,
+    L = fightSorted().filter(f => f.kind !== 'pj' && !fDown(f)),
+    AB6 = ['FUE', 'DES', 'CON', 'INT', 'SAB', 'CAR'];
+  openModal(`<div class="wz-head"><h2>Daño a varios</h2><button class="b sm pri" data-act="m-area-ok">Aplicar</button></div>
+    <p class="hint">Para Bola de fuego, un aliento o cualquier área: marca a quién le afecta, escribe el daño que ha tirado el jugador y su CD. Cada uno tira su salvación: marca quién la supera.</p>
+    <div class="grid"><label class="f"><span>Daño</span><input id="ma-dmg" type="number" inputmode="numeric" min="0" value="${esc(M2.dmg)}"></label>
+    <label class="f"><span>Salvación de</span><select id="ma-ab">${AB6.map((a, i) => `<option value="${i}" ${M2.ab === i ? 'selected' : ''}>${a}</option>`).join('')}</select></label>
+    <label class="f"><span>CD</span><input id="ma-dc" type="number" inputmode="numeric" value="${esc(M2.dc)}"></label></div>
+    <label class="chk"><input type="checkbox" id="ma-half" ${M2.half ? 'checked' : ''}> Si la supera, recibe la mitad (si no, nada)</label>
+    <div class="mconds">${L.map(f => {
+      const b = f.mon && bestGet(f.mon),
+        sv = b ? sgn(bestSave(b, M2.ab)) : '';
+      return `<div class="marea"><label class="chk"><input type="checkbox" data-act="m-area-tog" data-k="ids" data-id="${f.id}" ${M2.ids.has(f.id) ? 'checked' : ''}><span><b>${esc(f.name)}</b>${sv ? ` · tira 1d20 ${sv}` : ''}</span></label>${M2.ids.has(f.id) ? `<label class="chk"><input type="checkbox" data-act="m-area-tog" data-k="ok" data-id="${f.id}" ${M2.ok.has(f.id) ? 'checked' : ''}><span>La supera</span></label>` : ''}</div>`;
+    }).join('')}</div>`);
 }
 /* Pregunta cómo queda un NPC que ha caído a 0 PG */
 function openFoeDown(f) {
-  openModal(`<h2>${esc(f.name)} ha caído</h2>
+  if (f.kind === 'cr') {
+    openModal(`<h2>${esc(f.name)} ha caído</h2><p class="hint">Es una criatura de ${esc(f.owner || 'un jugador')}. Las invocaciones y los familiares desaparecen al llegar a 0 PG (un familiar se puede volver a invocar más adelante).</p>
+      <div class="btns"><button class="b bad" data-act="m-rm-ok" data-id="${f.id}">Quitarla del combate</button><button class="b" data-act="m-st" data-id="${f.id}" data-st="dead">Dejarla en la lista, caída</button></div>`);
+    return;
+  }
+  const rg = fRegen(f);
+  openModal(`<h2>${esc(f.name)} ha caído</h2>${rg && rg.revive ? `<p class="hint warn"><b>Regeneración:</b> solo muere si empieza su turno a 0 PG sin regenerarse (si recibió daño de fuego o ácido). Si no, en su turno recupera ${rg.n} PG y se levanta. Márcalo como muerto solo si es así; la app lo hace sola en su turno.</p>` : ''}
     <p class="hint">Ha llegado a 0 PG. ¿Cómo queda?</p>
-    <button class="b opt ${f.st === 'dead' ? 'on' : ''}" data-act="m-st" data-id="${f.id}" data-st="dead"><span><b>☠ Muerto</b><br><small>Fuera del combate para siempre.</small></span><span aria-hidden="true">›</span></button>
+    <button class="b opt ${f.st === 'dead' ? 'on' : ''}" data-act="m-st" data-id="${f.id}" data-st="dead"><span><b>☠ Muerto</b><br><small>Ya no actúa.</small></span><span aria-hidden="true">›</span></button>
     <button class="b opt ${f.st === 'ko' ? 'on' : ''}" data-act="m-st" data-id="${f.id}" data-st="ko"><span><b>Incapacitado</b><br><small>Inconsciente pero vivo: luego se le puede interrogar o estabilizar.</small></span><span aria-hidden="true">›</span></button>
     <p class="hint">Regla: normalmente un monstruo a 0 PG muere. Pero si el golpe final es un ataque cuerpo a cuerpo, quien ataca puede decidir dejarlo inconsciente en vez de matarlo.</p>
     <div class="btns"><button class="b" data-act="close-modal">Decidirlo luego</button></div>`);
@@ -403,6 +547,51 @@ function openAddPlayer() {
 }
 /* NPC que se está añadiendo (la ventana se repinta al buscar o elegir del bestiario) */
 let MFOE = null;
+/* «Deshacer» del combate del máster: copias de MST.fight (las guarda el manejador de clics) */
+const MUNDO = [];
+/* Pasa el turno desde la fila «from» (que puede haberse ido ya): salta a los caídos y sube la ronda al dar la vuelta.
+   gone = ids que ya no cuentan. Devuelve el id del nuevo turno o '' */
+function fightPass(from, gone = []) {
+  const F = MST.fight,
+    L = fightSorted(),
+    all = [...L],
+    me = all.find(f => f.id === from);
+  if (!me) return '';
+  /* El orden incluye al que se va para saber dónde estaba */
+  let j = all.indexOf(me),
+    wrap = false;
+  for (let k = 0; k < all.length; k++) {
+    j++;
+    if (j >= all.length) {
+      j = 0;
+      wrap = true;
+    }
+    const f = all[j];
+    if (!gone.includes(f.id) && f.id !== from && !fDown(f)) {
+      if (wrap) F.round++;
+      return f.id;
+    }
+  }
+  return '';
+}
+/* Lo que el máster tiene que recordar cuando a alguien le empieza o le acaba el turno */
+function fightTurnNotes(f, ending) {
+  if (!f) return '';
+  const out = [];
+  if (ending) {
+    if ((f.cs || []).length || f.note)
+      out.push(
+        `<b>Acaba el turno de ${esc(f.name)}:</b> mira si tiene que repetir alguna salvación${f.note ? ` (${esc(f.note)})` : ''}.`
+      );
+    return out.join('');
+  }
+  if ((f.cs || []).length) out.push(`Estados: ${f.cs.map(esc).join(', ')}.`);
+  if (f.conc) out.push(`Se está concentrando en ${esc(f.conc)}.`);
+  if (f.note) out.push(`Nota: ${esc(f.note)}.`);
+  if (f.lg) out.push(`Recupera sus ${f.lg} acciones legendarias.`);
+  if (f.rc) out.push(`Recarga de ${esc(f.rc)}: si está gastada, tira 1d6 (se recarga con 5 o 6).`);
+  return out.length ? `<div class="t-parts"><b>Turno de ${esc(f.name)}.</b> ${out.join(' ')}</div>` : '';
+}
 const mfoeNew = () => ({ q: '', id: '', name: '', n: 1, init: '', ac: '', hp: '' });
 /* Guarda en MFOE lo escrito en la ventana */
 function mfoeCollect() {

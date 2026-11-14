@@ -3138,6 +3138,62 @@ button.eff.cond-pill {
   align-items: center;
   gap: 0.2rem;
 }
+/* Combate del máster: etiquetas, contadores y ataques del que tiene el turno */
+.mtags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+}
+.mtags .tag.warn {
+  color: var(--warn, #b26b00);
+}
+.mtags .tag.bad {
+  color: var(--bad);
+}
+.mctr {
+  font-size: 0.8rem;
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.mres {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.mat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin-top: 0.3rem;
+  font-size: 0.82rem;
+}
+.mhpb {
+  margin-top: 0.2rem;
+  padding: 0.1rem 0.4rem;
+}
+.mconds {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin: 0.4rem 0 0.8rem;
+}
+.marea {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 1rem;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid var(--line);
+}
+/* La cabecera del combate (ronda y «Siguiente turno») se queda a la vista al bajar por la lista */
+.mfight .mhead {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  background: var(--surface);
+  padding-block: 0.4rem;
+}
 .mrow.st-dead .mname b {
   text-decoration: line-through;
 }

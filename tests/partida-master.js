@@ -317,7 +317,7 @@ async function ponerIni(m, id, v) {
 async function ponerPG(m, id, v) {
   await aCombate(m.page);
   await poner(m.page, `input[data-mf="hp"][data-id="${id}"]`, v);
-  return (await m.page.locator('#modal [data-act="m-st"]').count()) === 2;
+  return (await m.page.locator('#modal [data-act="m-st"]').count()) >= 1;
 }
 /* El máster resta el daño de cabeza y escribe el resultado */
 async function dañar(m, id, dmg, por, { st: estado = 'dead', crudo = false } = {}) {
@@ -402,6 +402,7 @@ async function quitarX(m, id, donde) {
     esp = L[i];
   }
   await b.act(page, 'm-rm', { id });
+  await b.actSi(page, 'm-rm-ok', {}, '#modal'); // en pleno combate pregunta antes (n.º 153)
   const d = await FST(page);
   regla(donde, !d.F.list.some(f => f.id === id), 'sigue en la lista');
   const ok = regla(
@@ -516,12 +517,10 @@ async function escena1(m, j) {
   );
   narra('Los tres goblins guerreros tiran una sola vez (grupo de criaturas iguales): 12 + 2 = 14.');
   const jefe = (await añadirNPC(m, { q: 'jefe goblin', id: 'goblin-boss', init: 16 })).nuevos[0];
-  pensar(
-    'acordarse',
-    'El familiar no entra con «Añadir jugadores»: hay que añadirlo a mano como NPC (desde el bestiario) aunque es un aliado'
-  );
-  const plumas = (await añadirNPC(m, { q: 'búho', id: 'owl', init: 9, nombre: 'Plumas' })).nuevos[0];
-  regla('familiar en la lista', plumas.name === 'Plumas', `nombre ${plumas.name}`);
+  /* Desde el n.º 149, el familiar entra con «Añadir jugadores», como criatura de Elarion */
+  const plumas = await page.evaluate(() => MST.fight.list.find(f => f.kind === 'cr'));
+  regla('familiar en la lista', plumas && plumas.name === 'Plumas', `familiar ${JSON.stringify(plumas)}`);
+  await ponerIni(m, plumas.id, 9);
   const fam = await texto(page, `.mrow:has([data-id="${plumas.id}"]) .mname`);
   if (/NPC/.test(fam) && !/Elarion|aliad/i.test(fam))
     pensar('acordarse', 'El familiar sale como «NPC», igual que los enemigos: no dice que es de Elarion');
@@ -731,6 +730,11 @@ async function escena1(m, j) {
   );
   narra(`PX: 3 goblins guerreros × 50 = 150 (el jefe huyó): ${150 / 4} para cada uno.`);
   await b.act(page, 'm-end');
+  /* Los prisioneros se pueden quedar en la lista (n.º 153): aquí no */
+  await page.evaluate(() => {
+    const k = document.querySelector('#m-keep');
+    if (k) k.checked = false;
+  });
   await b.act(page, 'm-end-ok');
   s = await FST(page);
   regla('terminar combate', !s.F.list.length && s.F.round === 1 && s.F.cur === '', JSON.stringify(s.F));
@@ -771,6 +775,12 @@ async function escena2(m, j) {
 
   await aCombate(page);
   await b.act(page, 'm-pjs');
+  /* El búho murió en la emboscada: sus criaturas, fuera de estos combates */
+  await page.evaluate(() => {
+    MST.fight.list = MST.fight.list.filter(f => f.kind !== 'cr');
+    masterSave();
+    render();
+  });
   const fan = (await añadirNPC(m, { q: 'sectario fanatico', id: 'cultist-fanatic', init: 17 })).nuevos[0];
   const sec = (await añadirNPC(m, { q: 'sectario', id: 'cultist', n: 4, init: 8 })).nuevos;
   let s = await FST(page);
@@ -915,12 +925,15 @@ async function escena2(m, j) {
   regla('Vhaeryn vuelve', /Jugador añadido/.test(rv.t), `aviso «${rv.t}»`);
   await aCombate(page);
   await b.act(page, 'm-pjs');
+  /* El búho murió en la emboscada: sus criaturas, fuera de estos combates */
+  await page.evaluate(() => {
+    MST.fight.list = MST.fight.list.filter(f => f.kind !== 'cr');
+    masterSave();
+    render();
+  });
   const vh2 = await porNombre(m, 'Vhaeryn');
-  regla('Vhaeryn vuelve al combate', vh2 && vh2.init === '', `iniciativa ${vh2 && vh2.init}`);
-  pensar(
-    'acordarse',
-    'Quien vuelve a la mesa pierde su iniciativa: el máster tiene que recordar que sacó 20'
-  );
+  /* Desde el n.º 150, quien vuelve en el mismo combate conserva su iniciativa */
+  regla('Vhaeryn vuelve al combate', vh2 && +vh2.init === 20, `iniciativa ${vh2 && vh2.init}`);
   await ponerIni(m, vh2.id, 20);
   s = await FST(page);
   regla('Vhaeryn vuelve', nombreDe(s, s.F.cur) === 'Sectario fanático', 'cambia el turno');
@@ -939,6 +952,11 @@ async function escena2(m, j) {
     'Puntos de experiencia: 2 sectarios × 25 + fanático 450 (y ¿cuentan los que se rinden?)'
   );
   await b.act(page, 'm-end');
+  /* Los prisioneros se pueden quedar en la lista (n.º 153): aquí no */
+  await page.evaluate(() => {
+    const k = document.querySelector('#m-keep');
+    if (k) k.checked = false;
+  });
   await b.act(page, 'm-end-ok');
   await compMaster(m, 'combate terminado', { recarga: true });
 }
@@ -952,6 +970,12 @@ async function escena3(m, j) {
   const page = m.page;
   await aCombate(page);
   await b.act(page, 'm-pjs');
+  /* El búho murió en la emboscada: sus criaturas, fuera de estos combates */
+  await page.evaluate(() => {
+    MST.fight.list = MST.fight.list.filter(f => f.kind !== 'cr');
+    masterSave();
+    render();
+  });
   const gob = (await añadirNPC(m, { q: 'goblin guerrero', id: 'goblin-warrior', n: 2, init: 18 })).nuevos;
   const trol = (await añadirNPC(m, { q: 'trol', id: 'troll', init: 12 })).nuevos[0];
   let ogro = (await añadirNPC(m, { q: 'ogro', id: 'ogre', init: 10 })).nuevos[0];
@@ -984,6 +1008,12 @@ async function escena3(m, j) {
   await aCombate(page);
   const antes = await FST(page);
   await b.act(page, 'm-pjs');
+  /* El búho murió en la emboscada: sus criaturas, fuera de estos combates */
+  await page.evaluate(() => {
+    MST.fight.list = MST.fight.list.filter(f => f.kind !== 'cr');
+    masterSave();
+    render();
+  });
   const br = await porNombre(m, 'Brasa');
   await ponerIni(m, br.id, 15);
   s = await FST(page);
@@ -1148,7 +1178,13 @@ async function escena3(m, j) {
     toca === 'Trol',
     `tras Zyo le toca a ${toca}: la lista se salta al trol porque está a 0 PG, pero su Regeneración le hace empezar el turno (recupera 15 PG si no recibió fuego ni ácido)`
   );
-  if (toca !== 'Trol') {
+  if (toca === 'Trol') {
+    /* La app lo regenera sola al empezar su turno (n.º 142) */
+    const tr5 = await porNombre(m, 'Trol');
+    regla('el trol se levanta', +tr5.hp === 15 && !tr5.st, `trol ${JSON.stringify(tr5)}`);
+    await b.cerrarToasts(page);
+    await siguiente(m);
+  } else {
     pensar(
       'acordarse',
       'El trol a 0 PG no tiene turno en la lista: el máster tiene que acordarse de que se regenera y no puede devolverle el turno'
@@ -1167,6 +1203,11 @@ async function escena3(m, j) {
   regla('PX del trol', /1\.?800 PX/.test(card), 'la ficha del trol no dice 1800 PX');
   pensar('calcular', 'PX: ogro 450 + trol 1.800 + goblin 50 = 2.300, entre 5 jugadores = 460');
   await b.act(page, 'm-end');
+  /* Los prisioneros se pueden quedar en la lista (n.º 153): aquí no */
+  await page.evaluate(() => {
+    const k = document.querySelector('#m-keep');
+    if (k) k.checked = false;
+  });
   await b.act(page, 'm-end-ok');
   await compMaster(m, 'combate terminado', { recarga: true });
 }
@@ -1181,6 +1222,12 @@ async function escena4(m) {
   narra('El máster prepara el jefe final y prueba dos rondas con un dragón legendario.');
   await aCombate(page);
   await b.act(page, 'm-pjs');
+  /* El búho murió en la emboscada: sus criaturas, fuera de estos combates */
+  await page.evaluate(() => {
+    MST.fight.list = MST.fight.list.filter(f => f.kind !== 'cr');
+    masterSave();
+    render();
+  });
   const g = await añadirNPC(m, { q: 'dragon rojo adulto', id: 'adult-red-dragon' });
   const dr = g.nuevos[0];
   regla('dragón', dr.hp === 256 && dr.ac === 19, `PG ${dr.hp}, CA ${dr.ac}`);
@@ -1271,6 +1318,11 @@ async function escena4(m) {
   }
   narra('El grupo huye: el máster termina el combate.');
   await b.act(page, 'm-end');
+  /* Los prisioneros se pueden quedar en la lista (n.º 153): aquí no */
+  await page.evaluate(() => {
+    const k = document.querySelector('#m-keep');
+    if (k) k.checked = false;
+  });
   await b.act(page, 'm-end-ok');
   await compMaster(m, 'combate terminado', { recarga: true });
 }

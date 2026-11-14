@@ -32,8 +32,15 @@ document.addEventListener('click', e => {
     return;
   }
   const before = JSON.stringify(S.chars),
-    act = S.active;
+    act = S.active,
+    /* Combate del máster: copia para su «Deshacer» */
+    mBefore = MST.on && el.dataset.act !== 'm-undo' ? JSON.stringify(MST.fight) : null;
   f(el);
+  if (mBefore !== null && JSON.stringify(MST.fight) !== mBefore) {
+    MUNDO.push(mBefore);
+    if (MUNDO.length > 40) MUNDO.shift();
+    if (MST.tab === 'combat') render();
+  }
   if (C() && turnStart(C())) {
     save();
     render();
@@ -50,6 +57,8 @@ document.addEventListener('click', e => {
 });
 /* Modificador de CON antes de editarla en «Editar ficha», para ofrecer el ajuste de PG */
 let conEdit = null;
+/* Último campo del combate del máster que se ha escrito (para no guardar una copia de «Deshacer» por tecla) */
+let mfLast = { k: '', t: 0 };
 document.addEventListener('input', e => {
   const el = e.target;
   if (el.id === 'she-f' && SHE) {
@@ -219,6 +228,11 @@ document.addEventListener('input', e => {
 });
 document.addEventListener('change', e => {
   const el = e.target;
+  if (el.id === 'ma-ab' && MAREA) {
+    mareaCollect();
+    openFightArea();
+    return;
+  }
   /* Al salir de un campo numérico de «Editar ficha», se corrige si es imposible (n.º 89) */
   if (el.dataset && el.dataset.path && el.dataset.num && C()) {
     const c = C(),
@@ -400,8 +414,16 @@ document.addEventListener('change', e => {
   if (el.dataset && el.dataset.mf && MST.on) {
     const f = MST.fight.list.find(x => x.id === el.dataset.id);
     if (f) {
+      /* Una copia para «Deshacer» por campo y por rato (no una por tecla) */
+      const key = el.dataset.id + el.dataset.mf;
+      if (mfLast.k !== key || Date.now() - mfLast.t > 4000) {
+        MUNDO.push(JSON.stringify(MST.fight));
+        if (MUNDO.length > 40) MUNDO.shift();
+      }
+      mfLast = { k: key, t: Date.now() };
       const v = el.value.trim(),
-        was = fDown(f);
+        was = fDown(f),
+        wasHp = f.hp;
       f[el.dataset.mf] = v === '' ? '' : +v;
       /* Los PG de un NPC no bajan de 0 */
       if (el.dataset.mf === 'hp' && v !== '' && +v < 0) {
@@ -410,10 +432,11 @@ document.addEventListener('change', e => {
       }
       /* Si un NPC cae a 0 PG, se pregunta si está muerto o incapacitado; si se levanta, deja de estarlo */
       const now = fDown(f);
-      if (!now) delete f.st;
+      if (f.hp === '' || +f.hp > 0) delete f.st;
       masterSave();
       render();
-      if (now && !was) openFoeDown(f);
+      if ((now && !was) || (f.kind !== 'pj' && f.hp !== '' && +f.hp <= 0 && wasHp !== '' && +wasHp > 0))
+        openFoeDown(f);
     }
     return;
   }
